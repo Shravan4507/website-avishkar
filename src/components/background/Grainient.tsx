@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { Renderer, Program, Mesh, Triangle } from 'ogl';
-import './grainient.css';
+import './Grainient.css';
 
 interface GrainientProps {
   timeSpeed?: number;
