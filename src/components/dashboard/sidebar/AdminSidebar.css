@@ -1,0 +1,51 @@
+/* Admin sidebar — premium dark glassmorphism theme */
+.admin-sidebar {
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-right: 3px solid rgba(255, 255, 255, 0.2);
+  border-top-right-radius: 2rem;
+  border-bottom-right-radius: 2rem;
+  box-shadow: 10px 0 30px rgba(0, 0, 0, 0.3);
+}
+
+.admin-sidebar .sidebar-logo {
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.admin-sidebar .sidebar-btn {
+  color: rgba(255, 255, 255, 0.5);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  border-radius: 12px;
+  margin-bottom: 0.5rem;
+}
+
+.admin-sidebar .sidebar-btn:hover {
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(255, 255, 255, 0.85);
+  transform: translateX(4px);
+}
+
+.admin-sidebar .sidebar-btn.active {
+  background: rgba(167, 139, 250, 0.1);
+  border: 1px solid rgba(167, 139, 250, 0.2);
+  color: #a78bfa;
+  box-shadow: 0 4px 15px rgba(167, 139, 250, 0.1);
+}
+
+.admin-sidebar .sidebar-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.admin-sidebar .logout-btn {
+  color: rgba(255, 68, 68, 0.8);
+  transition: all 0.3s ease;
+  border-radius: 12px;
+}
+
+.admin-sidebar .logout-btn:hover {
+  background: rgba(255, 68, 68, 0.1);
+  color: #ff4444;
+}

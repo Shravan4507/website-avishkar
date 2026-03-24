@@ -1,0 +1,436 @@
+/* Avishkar '26 Premium User Dashboard Styles */
+/* Mimicking and enhancing the reference design with better glassmorphism */
+
+.user-dashboard-page {
+    padding: 100px 2rem 4rem; /* Top padding for Navbar */
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    position: relative;
+    z-index: 10;
+}
+
+.user-dashboard-container {
+    width: 100%;
+    max-width: 1300px;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    animation: dashFadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes dashFadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- Header Section --- */
+.user-dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(10, 10, 15, 0.4);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    padding: 2.5rem;
+    border-bottom: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 3rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.user-dashboard-profile {
+    display: flex;
+    align-items: center;
+    gap: 2.5rem;
+}
+
+.user-dashboard-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.05);
+    flex-shrink: 0;
+}
+
+.user-dashboard-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.user-dashboard-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-width: 0;
+}
+
+.user-dashboard-name {
+    font-size: 3rem;
+    font-family: 'VFC Fantomen', sans-serif;
+    color: #fff;
+    margin: 0;
+    line-height: 1.1;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, #fff 0%, #a78bfa 100%);
+    -webkit-background-clip: text;
+    -moz-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.user-dashboard-badges {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.user-dashboard-id {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.8);
+    background: rgba(0, 0, 0, 0);
+    padding: 0.4rem 1rem;
+    border-radius: 100px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    font-weight: 600;
+}
+
+.user-dashboard-id span {
+    color: #ffffff;
+    margin-left: 0.5rem;
+}
+
+.user-stats-pill {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 0.4rem 1rem;
+    border-radius: 100px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #fff;
+}
+
+.user-stats-pill--referrals {
+    border-color: rgba(94, 255, 91, 0.2);
+    color: rgb(94, 255, 91);
+}
+
+.user-dashboard-header-actions {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+}
+
+.user-edit-profile-btn {
+    background: rgba(0, 0, 0, 0.05);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 0.75rem 2rem;
+    border-radius: 100px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.user-edit-profile-btn:active {
+    transform: scale(0.98);
+}
+
+.user-logout-btn {
+    background: transparent;
+    color: #ff4444;
+    border: 1px solid rgba(255, 68, 68, 0.2);
+    padding: 0.75rem 2rem;
+    border-radius: 100px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.user-logout-btn:active {
+    transform: scale(0.98);
+}
+
+/* --- Dashboard Content Grid --- */
+.user-dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 2rem;
+}
+
+.user-dashboard-section {
+    background: rgba(10, 10, 15, 0.4);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    padding: 2.5rem;
+    border-radius: 32px;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.08);
+}
+
+.user-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.user-section-header h2 {
+    font-size: 1.8rem;
+    font-family: 'VFC Fantomen', sans-serif;
+    color: #fff;
+    margin: 0;
+}
+
+/* --- Quick Actions --- */
+.user-action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.user-action-btn {
+    padding: 1.25rem;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.03);
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    text-align: left;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.user-action-btn:active {
+    transform: scale(0.98);
+}
+
+/* --- Social Follow Us --- */
+.social-icon-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.social-icon-btn:active {
+    transform: scale(0.98);
+}
+
+/* --- Registrations Grid --- */
+.registrations-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.registration-card {
+    display: flex;
+    align-items: center;
+    padding: 1.25rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    transition: all 0.3s ease;
+    gap: 1.25rem;
+}
+
+.registration-card:active {
+    transform: scale(0.98);
+}
+
+.reg-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    background: rgba(167, 139, 250, 0.15);
+    color: #a78bfa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.reg-details {
+    flex: 1;
+}
+
+.reg-details h3 {
+    font-size: 1.1rem;
+    color: #fff;
+    margin: 0 0 0.25rem 0;
+}
+
+.reg-details p {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.5);
+    margin: 0;
+}
+
+.reg-status {
+    background: rgba(94, 255, 91, 0.1);
+    color: rgb(94, 255, 91);
+    padding: 0.4rem 0.8rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.empty-state-card {
+    padding: 3rem;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 24px;
+    border: 1px dashed rgba(255, 255, 255, 0.15);
+    width: 100%;
+    grid-column: 1 / -1;
+}
+
+.empty-state-card p {
+    color: rgba(255, 255, 255, 0.5);
+    margin: 0 0 1.5rem 0;
+}
+
+/* --- Downloads Grid --- */
+.downloads-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+}
+
+.download-card {
+    display: flex;
+    align-items: flex-start;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    gap: 1.25rem;
+    cursor: pointer;
+    text-align: left;
+    width: 100%;
+}
+
+.download-card:not(.disabled-card):active {
+    transform: scale(0.98);
+}
+
+.download-card.disabled-card {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background: rgba(0, 0, 0, 0.2);
+    border-style: dashed;
+}
+
+.dl-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+
+
+.dl-info {
+    flex: 1;
+}
+
+.dl-info h3 {
+    font-size: 1.1rem;
+    color: #fff;
+    margin: 0 0 0.4rem 0;
+    font-weight: 600;
+}
+
+.dl-info p {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.5);
+    margin: 0;
+    line-height: 1.4;
+}
+
+/* --- Responsive Layout --- */
+@media (max-width: 1024px) {
+    .user-dashboard-grid { grid-template-columns: 1fr; }
+    .user-dashboard-header { flex-direction: column; text-align: center; gap: 2rem; }
+    .user-dashboard-profile { flex-direction: column; gap: 1.5rem; }
+}
+
+@media (max-width: 640px) {
+    .user-dashboard-name { font-size: 2.2rem; }
+    .downloads-grid { grid-template-columns: 1fr; }
+}
+
+/* Modals */
+.user-modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(12px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    animation: fadeIn 0.3s ease forwards;
+}
+
+.user-modal-card {
+    background: rgba(15, 15, 20, 0.95);
+    width: 100%;
+    max-width: 600px;
+    border-radius: 32px;
+    padding: 2.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.8);
+    position: relative;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.user-modal-card--large { max-width: 1000px; }
+
+.user-modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+.user-modal-header h2 { font-size: 2rem; font-family: 'VFC Fantomen', sans-serif; color: #fff; margin: 0; }
+.user-close-btn { background: none; border: none; color: #fff; font-size: 2.5rem; cursor: pointer; line-height: 1; }
+
+.user-form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
+.user-form-group { display: flex; flex-direction: column; gap: 0.5rem; }
+.user-form-group label { font-size: 0.75rem; color: #a78bfa; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+.user-form-group input { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); padding: 1rem; border-radius: 12px; color: #fff; font-size: 1.1rem; }
+.readonly-input { background: rgba(0, 0, 0, 0.2) !important; color: rgba(255, 255, 255, 0.4) !important; cursor: not-allowed; }
+
+.user-modal-footer { margin-top: 3rem; display: flex; justify-content: flex-end; gap: 1rem; }
+.user-save-btn { background: #5227ff; color: #fff; border: none; padding: 1rem 2.5rem; border-radius: 100px; font-weight: 700; cursor: pointer; transition: 0.3s; }
+.user-save-btn:hover { background: #6d4aff; transform: translateY(-2px); }

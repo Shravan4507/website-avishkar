@@ -1,0 +1,159 @@
+import React, { Suspense, lazy } from 'react';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { HelmetProvider } from 'react-helmet-async';
+import { AnimatePresence } from 'framer-motion';
+
+import Grainient from './components/background/Grainient';
+import PageTransition from './components/PageTransition';
+import Navbar from './components/Navbar/Navbar';
+import Footer from './components/Footer/Footer';
+import ErrorBoundary from './components/ErrorBoundary';
+import { ToastProvider } from './components/toast/Toast';
+import Loader from './components/loader/Loader';
+
+// Lazy Loaded Public Pages
+const Home = lazy(() => import('./pages/home/Home'));
+const Workshops = lazy(() => import('./pages/workshops/Workshops'));
+const Competitions = lazy(() => import('./pages/competitions/Competitions'));
+const Schedule = lazy(() => import('./pages/schedule/Schedule'));
+const Team = lazy(() => import('./pages/team/Team'));
+const Contact = lazy(() => import('./pages/contact/Contact'));
+const Sponsors = lazy(() => import('./pages/sponsors/Sponsors'));
+const ComingSoon = lazy(() => import('./pages/ComingSoon/ComingSoon'));
+const Registration = lazy(() => import('./pages/competitions/Registration'));
+
+import { PageSettingsProvider, usePageSettings } from './context/PageSettingsContext';
+
+// Lazy Loaded Auth Pages
+const Login = lazy(() => import('./components/Login/Login'));
+const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'));
+
+// Lazy Loaded Student-only Pages
+const Signup = lazy(() => import('./pages/signup/Signup'));
+const UserDashboard = lazy(() => import('./pages/user/user-dashboard'));
+const VolunteerScanner = lazy(() => import('./pages/user/VolunteerScanner'));
+
+// Lazy Loaded Admin-only Pages
+const AdminSetup = lazy(() => import('./pages/admin/AdminSetup'));
+const AdminDashboard = lazy(() => import('./pages/admin/admindashboard'));
+const NotFound = lazy(() => import('./pages/NotFound'));
+
+// Route Guards
+import UserProtectedRoutes from './routes/UserProtectedRoutes';
+import AdminProtectedRoutes from './routes/AdminProtectedRoutes';
+import PublicRoutes from './routes/PublicRoutes';
+
+// Wrap element with PageTransition for every route
+const T = ({ el }: { el: React.ReactNode }) => (
+  <PageTransition>{el}</PageTransition>
+);
+
+// --- Layout wrapper that renders Navbar/Footer on ALL pages ---
+const LayoutManager = () => {
+  const location = useLocation();
+  const { settings } = usePageSettings();
+
+  // We still need to know if we are on a dashboard for the layout class,
+  // but we no longer hide the chrome.
+  const isDashboard = location.pathname.includes('dashboard') ||
+                      location.pathname.includes('signup') ||
+                      location.pathname.includes('setup') ||
+                      location.pathname.includes('login');
+
+  return (
+    <div className="app-container">
+      <Navbar />
+
+      <div className="background-fixed">
+        <Grainient
+          color1="#201d20"
+          color2="#5227ff"
+          color3="#000000"
+          timeSpeed={0.25}
+          colorBalance={0}
+          warpStrength={1}
+          warpFrequency={5}
+          warpSpeed={2}
+          warpAmplitude={50}
+          blendAngle={0}
+          blendSoftness={0.05}
+          rotationAmount={500}
+          noiseScale={2}
+          grainAmount={0.1}
+          grainScale={2}
+          grainAnimated={false}
+          contrast={1.5}
+          gamma={1}
+          saturation={1}
+          centerX={0}
+          centerY={0}
+          zoom={0.9}
+        />
+      </div>
+
+      <main className={isDashboard ? "dashboard-layout" : "content"}>
+        <ErrorBoundary>
+          <AnimatePresence mode="wait" initial={true}>
+            <Suspense fallback={<Loader fullscreen label="Loading..." />}>
+              <Routes location={location} key={location.pathname}>
+                {/* ── Public Site Pages ── */}
+                <Route path="/"            element={<T el={settings.home ? <Home /> : <ComingSoon pageName="Home" />} />} />
+                <Route path="/workshops"   element={<T el={settings.workshops ? <Workshops /> : <ComingSoon pageName="Workshops" />} />} />
+                <Route path="/competitions"element={<T el={settings.competitions ? <Competitions /> : <ComingSoon pageName="Competitions" />} />} />
+                <Route path="/schedule"    element={<T el={settings.schedule ? <Schedule /> : <ComingSoon pageName="Schedule" />} />} />
+                <Route path="/team"        element={<T el={settings.team ? <Team /> : <ComingSoon pageName="Team" />} />} />
+                <Route path="/sponsors"    element={<T el={settings.sponsors ? <Sponsors /> : <ComingSoon pageName="Sponsors" />} />} />
+                <Route path="/contact"     element={<T el={settings.contact ? <Contact /> : <ComingSoon pageName="Contact" />} />} />
+
+                {/* ── Student Auth ── */}
+                <Route element={<PublicRoutes />}>
+                  <Route path="/login" element={<T el={<Login />} />} />
+                </Route>
+
+                {/* ── Admin Auth ── */}
+                <Route path="/admin-login" element={<T el={<AdminLogin />} />} />
+
+                {/* ── Student Protected ── */}
+                <Route element={<UserProtectedRoutes />}>
+                  <Route path="/signup"         element={<T el={<Signup />} />} />
+                  <Route path="/user/dashboard" element={<T el={<UserDashboard />} />} />
+                  <Route path="/user/scanner"   element={<T el={<VolunteerScanner />} />} />
+                  <Route path="/register/:slug" element={<T el={<Registration />} />} />
+                </Route>
+
+                {/* ── Admin Protected ── */}
+                <Route element={<AdminProtectedRoutes />}>
+                  <Route path="/admin/setup"     element={<T el={<AdminSetup />} />} />
+                  <Route path="/admin/dashboard" element={<T el={<AdminDashboard />} />} />
+                </Route>
+
+                {/* ── 404 ── */}
+                <Route path="*" element={<T el={<NotFound />} />} />
+              </Routes>
+            </Suspense>
+          </AnimatePresence>
+        </ErrorBoundary>
+      </main>
+
+      <Footer />
+    </div>
+  );
+};
+
+function App() {
+  return (
+    <HelmetProvider>
+      <ErrorBoundary>
+        <ToastProvider>
+          <PageSettingsProvider>
+            <Router>
+              <LayoutManager />
+            </Router>
+          </PageSettingsProvider>
+        </ToastProvider>
+      </ErrorBoundary>
+    </HelmetProvider>
+  );
+}
+
+export default App;

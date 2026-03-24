@@ -1,0 +1,134 @@
+.admin-login-container {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+}
+
+.admin-login-card {
+  width: 100%;
+  max-width: 420px;
+  background: rgba(5, 5, 10, 0.9);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 200, 0, 0.2);
+  padding: 44px 40px;
+  border-radius: 10px;
+  box-shadow: 0 0 60px rgba(255, 200, 0, 0.08), 0 0 0 1px rgba(255,255,255,0.04);
+  text-align: center;
+}
+
+.admin-badge {
+  display: inline-block;
+  background: rgba(255, 200, 0, 0.1);
+  border: 1px solid rgba(255, 200, 0, 0.4);
+  color: #ffc800;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+  padding: 5px 14px;
+  border-radius: 20px;
+  margin-bottom: 20px;
+}
+
+.admin-login-title {
+  font-size: 2rem;
+  color: #fff;
+  margin-bottom: 6px;
+}
+
+.admin-login-subtitle {
+  color: #666;
+  margin-bottom: 32px;
+  font-size: 0.9rem;
+}
+
+.admin-login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  text-align: left;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group label {
+  font-size: 0.8rem;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.form-group input {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 13px 16px;
+  color: #fff;
+  border-radius: 6px;
+  outline: none;
+  font-size: 0.95rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-group input:focus {
+  border-color: #ffc800;
+  box-shadow: 0 0 12px rgba(255, 200, 0, 0.15);
+}
+
+.form-group input::placeholder {
+  color: #444;
+}
+
+.error-msg {
+  color: #ff5757;
+  font-size: 0.85rem;
+  background: rgba(255, 87, 87, 0.08);
+  border: 1px solid rgba(255, 87, 87, 0.2);
+  padding: 10px 14px;
+  border-radius: 6px;
+  text-align: center;
+}
+
+.admin-login-btn {
+  margin-top: 6px;
+  padding: 14px;
+  background: #ffc800;
+  border: none;
+  border-radius: 6px;
+  color: #000;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: opacity 0.2s;
+}
+
+.admin-login-btn:hover {
+  opacity: 0.9;
+}
+
+.admin-login-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.student-login-hint {
+  margin-top: 24px;
+  color: #555;
+  font-size: 0.85rem;
+}
+
+.student-login-hint a {
+  color: #ffc800;
+  text-decoration: none;
+}
+
+.student-login-hint a:hover {
+  text-decoration: underline;
+}

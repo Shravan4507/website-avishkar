@@ -1,0 +1,435 @@
+/* Shared styles for all public pages: Competitions, Workshops, Schedule, Team, Contact */
+.public-page {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ── Page Hero ── */
+.public-hero {
+  width: 100%;
+  max-width: 900px;
+  padding: 160px 40px 80px;
+  text-align: center;
+}
+
+.public-eyebrow {
+  font-family: 'Ubuntu', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+  margin-bottom: 14px;
+}
+
+.public-page-title {
+  font-family: 'VFC Fantomen', 'Ubuntu', sans-serif;
+  font-size: clamp(3.5rem, 9vw, 7rem);
+  font-weight: normal;
+  color: #fff;
+  line-height: 1;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+}
+
+.public-page-subtitle {
+  font-family: 'Ubuntu', sans-serif;
+  font-size: 1.05rem;
+  color: rgba(255,255,255,0.45);
+  line-height: 1.7;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* ── Content Container ── */
+.public-content {
+  width: 100%;
+  max-width: 1200px;
+  padding: 40px 40px 120px;
+}
+
+/* ── Competition Cards ── */
+.competition-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+.competition-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: all 0.3s ease;
+}
+
+.competition-card:hover {
+  border-color: rgba(82,39,255,0.3);
+  background: rgba(82,39,255,0.06);
+  transform: translateY(-3px);
+}
+
+.comp-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.comp-icon { font-size: 2rem; }
+
+.comp-category {
+  font-family: 'Ubuntu', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #5227ff;
+  background: rgba(82,39,255,0.1);
+  border: 1px solid rgba(82,39,255,0.2);
+  padding: 4px 12px;
+  border-radius: 100px;
+}
+
+.comp-title {
+  font-family: 'VFC Fantomen', 'Ubuntu', sans-serif;
+  font-size: 1.4rem;
+  color: #fff;
+}
+
+.comp-desc {
+  font-family: 'Ubuntu', sans-serif;
+  font-size: 0.88rem;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.7;
+  flex: 1;
+}
+
+.comp-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+.comp-prize {
+  font-family: 'Ubuntu', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #ffc800;
+}
+
+.comp-register-btn {
+  display: inline-block;
+  padding: 9px 22px;
+  background: rgba(82,39,255,0.15);
+  border: 1px solid rgba(82,39,255,0.3);
+  color: #a78bfa;
+  text-decoration: none;
+  border-radius: 100px;
+  font-family: 'Ubuntu', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  transition: all 0.25s ease;
+}
+
+.comp-register-btn:hover {
+  background: #5227ff;
+  color: #fff;
+  border-color: #5227ff;
+}
+
+/* ── Schedule Timeline ── */
+.schedule-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  position: relative;
+}
+
+.schedule-item {
+  display: grid;
+  grid-template-columns: 100px 24px 1fr;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 20px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+.schedule-time {
+  font-family: 'Ubuntu', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.35);
+  padding-top: 4px;
+  text-align: right;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.schedule-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-top: 6px;
+  flex-shrink: 0;
+}
+
+.schedule-event {
+  font-family: 'Ubuntu', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 4px;
+}
+
+.schedule-location {
+  font-family: 'Ubuntu', sans-serif;
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.4);
+}
+
+/* ── Workshop Cards ── */
+.workshop-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+.workshop-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: all 0.3s ease;
+}
+
+.workshop-card:hover {
+  border-color: rgba(0,180,216,0.3);
+  background: rgba(0,180,216,0.04);
+}
+
+.workshop-icon { font-size: 2.2rem; }
+
+.workshop-title {
+  font-family: 'VFC Fantomen', 'Ubuntu', sans-serif;
+  font-size: 1.3rem;
+  color: #fff;
+}
+
+.workshop-desc {
+  font-family: 'Ubuntu', sans-serif;
+  font-size: 0.88rem;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.7;
+  flex: 1;
+}
+
+.workshop-meta {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-family: 'Ubuntu', sans-serif;
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.4);
+}
+
+/* ── Team Grid ── */
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 24px;
+}
+
+.team-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px;
+  padding: 36px 28px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.team-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255,255,255,0.15);
+}
+
+.team-avatar {
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, #5227ff, #a78bfa);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'VFC Fantomen', sans-serif;
+  font-size: 1.2rem;
+  color: #fff;
+  margin: 0 auto 16px;
+}
+
+.team-name {
+  font-family: 'Ubuntu', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 6px;
+}
+
+.team-role {
+  font-family: 'Ubuntu', sans-serif;
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 12px;
+}
+
+.team-dept {
+  font-family: 'Ubuntu', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #a78bfa;
+  background: rgba(167,139,250,0.1);
+  border: 1px solid rgba(167,139,250,0.2);
+  padding: 3px 10px;
+  border-radius: 100px;
+}
+
+/* ── Contact ── */
+.contact-layout {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 48px;
+  align-items: flex-start;
+}
+
+.contact-info {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.contact-info-item {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.contact-info-icon { font-size: 1.4rem; }
+
+.contact-info-item strong {
+  display: block;
+  font-family: 'Ubuntu', sans-serif;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: 6px;
+}
+
+.contact-info-item p {
+  font-family: 'Ubuntu', sans-serif;
+  font-size: 0.95rem;
+  color: rgba(255,255,255,0.7);
+  line-height: 1.6;
+}
+
+.contact-form-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px;
+  padding: 40px;
+}
+
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.contact-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.contact-form label {
+  font-family: 'Ubuntu', sans-serif;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: rgba(255,255,255,0.4);
+}
+
+.contact-form input,
+.contact-form textarea {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  padding: 13px 16px;
+  color: #fff;
+  font-family: 'Ubuntu', sans-serif;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s;
+  resize: vertical;
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus {
+  border-color: #5227ff;
+}
+
+.contact-submit-btn {
+  padding: 14px;
+  background: #5227ff;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-family: 'Ubuntu', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  text-align: center;
+}
+
+.contact-submit-btn:hover {
+  background: #6b3fff;
+  box-shadow: 0 12px 30px rgba(82,39,255,0.3);
+}
+
+.contact-success {
+  text-align: center;
+  padding: 40px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  font-family: 'Ubuntu', sans-serif;
+  color: rgba(255,255,255,0.7);
+}
+
+.contact-success h3 {
+  font-size: 1.4rem;
+  color: #fff;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .public-hero { padding: 140px 24px 60px; }
+  .public-content { padding: 20px 24px 80px; }
+  .contact-layout { grid-template-columns: 1fr; }
+  .competition-grid, .workshop-grid, .team-grid { grid-template-columns: 1fr; }
+  .schedule-item { grid-template-columns: 80px 16px 1fr; gap: 12px; }
+}

@@ -1,0 +1,94 @@
+.error-boundary {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+.eb-content {
+  max-width: 520px;
+  text-align: center;
+}
+
+.eb-icon {
+  font-size: 3.5rem;
+  margin-bottom: 20px;
+  display: block;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.08); }
+}
+
+.eb-title {
+  font-family: 'VFC Fantomen', 'Ubuntu', sans-serif;
+  font-size: 2.2rem;
+  color: #fff;
+  margin-bottom: 12px;
+}
+
+.eb-subtitle {
+  font-family: 'Ubuntu', sans-serif;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.7;
+  margin-bottom: 24px;
+}
+
+.eb-details {
+  font-family: monospace;
+  font-size: 0.78rem;
+  background: rgba(239,68,68,0.08);
+  border: 1px solid rgba(239,68,68,0.2);
+  color: #f87171;
+  padding: 14px 18px;
+  border-radius: 8px;
+  text-align: left;
+  margin-bottom: 32px;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.eb-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.eb-btn {
+  padding: 12px 32px;
+  border-radius: 100px;
+  font-family: 'Ubuntu', sans-serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  border: 1px solid transparent;
+}
+
+.eb-btn--primary {
+  background: #5227ff;
+  color: #fff;
+  border-color: #5227ff;
+}
+
+.eb-btn--primary:hover {
+  background: #6b3fff;
+  box-shadow: 0 8px 24px rgba(82,39,255,0.35);
+}
+
+.eb-btn--ghost {
+  background: transparent;
+  color: rgba(255,255,255,0.6);
+  border-color: rgba(255,255,255,0.15);
+}
+
+.eb-btn--ghost:hover {
+  background: rgba(255,255,255,0.05);
+  color: #fff;
+}

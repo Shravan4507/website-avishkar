@@ -1,0 +1,155 @@
+.signup-container {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 120px 40px;
+}
+
+.signup-card {
+  width: 100%;
+  max-width: 800px;
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 40px;
+  padding: 60px;
+  text-align: center;
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5);
+}
+
+.signup-title {
+  font-family: 'VFC Fantomen', sans-serif;
+  font-size: 3.5rem;
+  letter-spacing: 2px;
+  margin-bottom: 12px;
+  color: #fff;
+  line-height: 1;
+}
+
+.signup-subtitle {
+  font-family: 'Ubuntu', sans-serif;
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 40px;
+}
+
+.signup-form {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  text-align: left;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.form-group label {
+  font-family: 'Ubuntu', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.4);
+  letter-spacing: 1px;
+}
+
+.form-group input,
+.form-group select {
+  height: 52px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 0 20px;
+  color: #fff;
+  font-family: 'Ubuntu', sans-serif;
+  font-size: 0.95rem;
+  outline: none;
+}
+
+.readonly-input {
+  background: rgba(255, 255, 255, 0.02) !important;
+  color: rgba(255, 255, 255, 0.3) !important;
+  border: 1px dashed rgba(255, 255, 255, 0.1) !important;
+  cursor: not-allowed;
+}
+
+.phone-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.prefix {
+  font-family: 'Ubuntu', sans-serif;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.phone-input-wrapper input {
+  flex: 1;
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.checkbox-group input {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+.checkbox-group label {
+  font-family: 'Ubuntu', sans-serif;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.form-rows {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.mt-10 {
+  margin-top: 10px;
+}
+
+.signup-btn {
+  margin-top: 20px;
+  height: 60px;
+  background: #ffffff;
+  border: none;
+  border-radius: 12px;
+  font-family: 'Ubuntu', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #000;
+  cursor: pointer;
+}
+
+.animate-in {
+  animation: slideDownFade 0.4s ease-out forwards;
+}
+
+@keyframes slideDownFade {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+  .signup-card {
+    padding: 40px 20px;
+  }
+  .form-rows {
+    grid-template-columns: 1fr;
+  }
+}

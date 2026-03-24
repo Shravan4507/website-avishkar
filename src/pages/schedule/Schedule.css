@@ -1,0 +1,224 @@
+.schedule-page {
+    min-height: 100vh;
+    padding: 120px 20px 60px;
+    color: #fff;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.schedule-hero {
+    text-align: center;
+    margin-bottom: 3rem;
+    position: relative;
+}
+
+.schedule-glow {
+    position: absolute;
+    top: -50%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(82, 39, 255, 0.3) 0%, transparent 70%);
+    filter: blur(40px);
+    z-index: -1;
+}
+
+.schedule-hero h1 {
+    font-size: clamp(2.5rem, 8vw, 4rem);
+    font-weight: 800;
+    margin-bottom: 1rem;
+    background: linear-gradient(to bottom, #fff, rgba(255,255,255,0.7));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.schedule-hero p {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 1.2rem;
+}
+
+.schedule-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 4rem;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 0.5rem;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+}
+
+.schedule-tab {
+    flex: 1;
+    max-width: 200px;
+    background: transparent;
+    border: none;
+    padding: 1rem;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.schedule-tab.active {
+    background: rgba(255, 255, 255, 0.07);
+    color: #fff;
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tab-day {
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.tab-date {
+    font-size: 0.85rem;
+    opacity: 0.7;
+}
+
+.day-info {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.day-info h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #2eff27; /* Neon green accent */
+    text-shadow: 0 0 20px rgba(46, 255, 39, 0.2);
+}
+
+.timeline {
+    position: relative;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.timeline-item {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 2rem;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.5s forwards;
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.timeline-time {
+    flex: 0 0 100px;
+    text-align: right;
+    padding-top: 5px;
+}
+
+.timeline-time span {
+    font-family: 'Space Mono', monospace;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.9rem;
+}
+
+.timeline-dot-wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.timeline-dot {
+    width: 12px;
+    height: 12px;
+    background: #2eff27;
+    border-radius: 50%;
+    z-index: 2;
+    box-shadow: 0 0 15px rgba(46, 255, 39, 0.5);
+}
+
+.timeline-line {
+    position: absolute;
+    top: 12px;
+    bottom: -32px;
+    width: 2px;
+    background: linear-gradient(to bottom, #2eff27, transparent);
+    opacity: 0.3;
+}
+
+.timeline-item:last-child .timeline-line {
+    display: none;
+}
+
+.timeline-card {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 1.5rem;
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+    transition: transform 0.3s ease, background 0.3s ease;
+}
+
+.timeline-card:hover {
+    transform: translateX(10px);
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.event-type {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    background: rgba(82, 39, 255, 0.1);
+    color: #5227FF;
+    border-radius: 99px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+    letter-spacing: 0.05em;
+}
+
+.timeline-card h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.event-location {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.9rem;
+}
+
+@media (max-width: 600px) {
+    .schedule-tabs {
+        overflow-x: auto;
+        justify-content: flex-start;
+        padding: 0.5rem;
+    }
+    
+    .schedule-tab {
+        min-width: 120px;
+    }
+
+    .timeline-time {
+        display: none;
+    }
+
+    .timeline-item {
+        gap: 1.5rem;
+    }
+}

@@ -1,0 +1,269 @@
+.admin-dashboard {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+  padding-top: 100px; /* Space for fixed Navbar */
+  background: transparent;
+}
+
+.dashboard-main-content {
+  flex: 1;
+  padding: 40px 60px 100px 60px; /* Increased bottom padding to prevent footer collision */
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* ── Premium Glassmorphic Stats Grid ── */
+.admin-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 28px;
+  margin-bottom: 48px;
+}
+
+.stat-card {
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 24px 32px;
+  border-radius: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-bottom: 2px solid rgba(82, 39, 255, 0.3);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 40px rgba(82, 39, 255, 0.15);
+}
+
+.stat-card--accent {
+  border-bottom: 2px solid rgba(167, 139, 250, 0.5);
+}
+
+.stat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.stat-title {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.stat-icon {
+  color: #a78bfa;
+}
+
+.stat-value {
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1;
+  font-family: 'VFC Fantomen', sans-serif;
+}
+
+.stat-footer {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.4);
+  margin: 0;
+}
+
+/* ── Content Layout ── */
+.tab-header-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 40px;
+}
+
+/* ── Premium Admin Actions ── */
+.admin-actions {
+  display: flex;
+  gap: 16px;
+  padding: 24px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 24px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.admin-action-btn {
+  padding: 14px 28px;
+  background: rgba(82, 39, 255, 0.1);
+  border: 1px solid rgba(82, 39, 255, 0.2);
+  border-radius: 100px;
+  color: #fff;
+  font-family: 'Ubuntu', sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-action-btn:hover {
+  background: rgba(82, 39, 255, 0.3);
+  border-color: #5227ff;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(82, 39, 255, 0.3);
+}
+
+/* ── Tables ── */
+.table-container-outer {
+  background: rgba(15, 15, 15, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  overflow: hidden;
+  backdrop-filter: blur(20px);
+}
+
+.admin-data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'Ubuntu', sans-serif;
+}
+
+.admin-data-table th {
+  text-align: left;
+  padding: 18px 24px;
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.admin-data-table td {
+  padding: 18px 24px;
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.8);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.admin-data-table tr:hover {
+  background: rgba(255, 255, 255, 0.01);
+}
+
+.avr-id-cell {
+  font-family: monospace;
+  color: #5227ff !important;
+  font-weight: 700;
+}
+
+.event-name-cell {
+  font-weight: 700;
+  color: #fff !important;
+}
+
+.category-pill {
+  padding: 4px 12px;
+  background: rgba(82, 39, 255, 0.1);
+  border: 1px solid rgba(82, 39, 255, 0.2);
+  border-radius: 100px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.tab-title {
+  font-family: 'VFC Fantomen', sans-serif;
+  font-size: 2.8rem;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.6) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.tab-subtitle {
+  font-family: 'Ubuntu', sans-serif;
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.4);
+  margin-bottom: 40px;
+}
+
+.super-badge {
+  font-size: 0.8rem;
+  background: linear-gradient(135deg, #ffd700, #ff8c00);
+  color: #000;
+  padding: 4px 12px;
+  border-radius: 100px;
+  margin-left: 20px;
+  vertical-align: middle;
+  font-family: 'Ubuntu', sans-serif;
+  font-weight: 800;
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+}
+
+.rank-indicator {
+  color: rgba(255, 255, 255, 0.4);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 0.9rem;
+}
+
+.admin-email {
+  color: #fff;
+  font-weight: 700;
+}
+
+/* ── Whitelist Form ── */
+.admin-form-card {
+  padding: 32px;
+  border-radius: 20px;
+  margin-bottom: 40px;
+}
+
+.whitelist-form .form-group label {
+  display: block;
+  margin-bottom: 12px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.input-with-btn {
+  display: flex;
+  gap: 12px;
+}
+
+/* ── Tables Continued ── */
+.table-container-outer {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 32px;
+  overflow: hidden;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  padding: 16px;
+}
+
+/* ── Mobile ── */
+@media (max-width: 900px) {
+  .admin-dashboard { padding-top: 80px; }
+  .dashboard-main-content { padding: 30px 24px; }
+  .tab-title { font-size: 2.2rem; }
+  .admin-actions { flex-direction: column; }
+  .table-container-outer { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+}
+
+@media (max-width: 480px) {
+  .dashboard-main-content { padding: 20px 12px; }
+  .admin-stats-grid { grid-template-columns: 1fr; }
+  .stat-card { padding: 20px; }
+  .table-header, .table-row { font-size: 0.85rem; }
+  .btn-export { width: 100%; justify-content: center; }
+}
