@@ -233,16 +233,82 @@
     }
 }
 
-@media (max-width: 768px) {
+/* --- Mobile Mobile Premium Refinement --- */
+@media (max-width: 900px) {
     .sponsors-page {
         padding-top: 100px;
     }
 
-    .sponsors-cta {
-        padding: 40px 20px;
+    .sponsors-header {
+        padding: 4rem 1.5rem 2rem;
+    }
+
+    .sponsors-header h1 {
+        font-size: 3rem;
+        letter-spacing: -1px;
+    }
+
+    .sponsors-header p {
+        font-size: 1.1rem;
+        line-height: 1.5;
+    }
+
+    .tier-title h2 {
+        font-size: 1.25rem;
+        letter-spacing: 2px;
+    }
+
+    .grid-title, .grid-platinum, .grid-gold, .grid-silver {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 15px;
     }
 
     .sponsor-card {
-        padding: 30px;
+        padding: 20px;
+        border-radius: 1.5rem;
+    }
+
+    .sponsor-category {
+        font-size: 0.8rem;
+        letter-spacing: 1px;
+    }
+}
+
+@media (max-width: 600px) {
+    .grid-title, .grid-platinum, .grid-gold, .grid-silver {
+        grid-template-columns: 1fr !important;
+        gap: 20px;
+        max-width: 350px;
+        margin: 0 auto;
+    }
+
+    .sponsor-card {
+        aspect-ratio: 16/10;
+    }
+
+    .sponsors-cta {
+        padding: 3rem 1.5rem;
+        border-radius: 2rem;
+    }
+
+    .cta-content h2 {
+        font-size: 1.6rem;
+    }
+
+    .cta-content p {
+        font-size: 0.95rem;
+    }
+
+    .become-sponsor-btn {
+        width: 100%;
+        text-align: center;
+        font-size: 1.1rem;
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .sponsors-header h1 {
+        font-size: 2.2rem;
     }
 }

@@ -27,6 +27,7 @@ interface UserProfile {
   points?: number;
   referrals?: number;
   role?: string;
+  designation?: string;
 }
 
 const UserDashboard: React.FC = () => {
@@ -49,25 +50,42 @@ const UserDashboard: React.FC = () => {
 
     try {
       const html2canvas = (await import('html2canvas')).default;
-      // Wait for static pass to be in DOM
-      await new Promise(r => setTimeout(r, 500));
+      // Wait for static pass and textures to be ready
+      await new Promise(r => setTimeout(r, 1000));
+      
       const element = document.getElementById('virtual-pass-static-capture');
       if (!element) throw new Error("Capture element not found");
 
       const canvas = await html2canvas(element, {
         useCORS: true,
+        allowTaint: false,
         scale: 3,
         backgroundColor: null,
+        logging: false,
+        onclone: (doc) => {
+          const el = doc.getElementById('virtual-pass-static-capture');
+          if (el) {
+            el.style.position = 'fixed';
+            el.style.top = '0';
+            el.style.left = '0';
+            el.style.zIndex = '9999';
+            el.style.opacity = '1';
+            el.style.pointerEvents = 'auto';
+          }
+        }
       });
 
       const link = document.createElement('a');
       link.download = `Avishkar26_Pass_${userData.firstName}.png`;
-      link.href = canvas.toDataURL('image/png');
+      link.href = canvas.toDataURL('image/png', 1.0);
+      document.body.appendChild(link);
       link.click();
+      document.body.removeChild(link);
       toast.success("Pass downloaded!");
     } catch (e) {
-      console.error(e);
+      console.error("Pass download error:", e);
       toast.error("Failed to generate pass.");
+    } finally {
       setIsDownloading(false);
     }
   };
@@ -169,7 +187,13 @@ const UserDashboard: React.FC = () => {
         <header className="user-dashboard-header">
           <div className="user-dashboard-profile">
             <div className="user-dashboard-avatar">
-              <img src={userData.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${userData.firstName}`} alt="Avatar" />
+              {userData.photoURL && userData.photoURL.trim() !== '' ? (
+                <img src={userData.photoURL} alt="Avatar" crossOrigin="anonymous" />
+              ) : (
+                <div className="user-dashboard-initials">
+                  {(userData.firstName || 'U').charAt(0)}
+                </div>
+              )}
             </div>
             <div className="user-dashboard-info">
               <h1 className="user-dashboard-name">Welcome, {userData.firstName}</h1>
@@ -219,12 +243,12 @@ const UserDashboard: React.FC = () => {
 
             {/* Follow Us Panel */}
             <aside className="user-dashboard-section" style={{ textAlign: 'center' }}>
-              <h3 style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1.2rem', marginBottom: '1rem', fontFamily: "'VFC Fantomen', sans-serif", letterSpacing: '1px' }}>Follow Us</h3>
+              <h3 style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1.2rem', marginBottom: '1rem', fontFamily: "'Iceland', sans-serif", letterSpacing: '1.5px' }}>Follow Us</h3>
               <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem' }}>
-                <a href="#" target="_blank" rel="noreferrer" className="social-icon-btn">
+                <a href="https://www.instagram.com/zeal_avishkar/" target="_blank" rel="noreferrer" className="social-icon-btn">
                   <Instagram size={24} />
                 </a>
-                <a href="#" target="_blank" rel="noreferrer" className="social-icon-btn">
+                <a href="https://www.youtube.com/@zealavishkar" target="_blank" rel="noreferrer" className="social-icon-btn">
                   <Youtube size={24} />
                 </a>
               </div>
@@ -273,13 +297,13 @@ const UserDashboard: React.FC = () => {
                     <p>{isDownloading ? 'Generating...' : 'Download as PNG'}</p>
                   </div>
                 </button>
-                <a href="#" target="_blank" rel="noreferrer" className="download-card" style={{ textDecoration: 'none' }}>
+                <button className="download-card disabled-card" onClick={() => toast.info("The official rule book is being finalized and will be available soon.")}>
                   <div className="dl-icon"><BookOpen size={24} /></div>
                   <div className="dl-info">
                     <h3>Rule Book</h3>
-                    <p>Official event guidelines</p>
+                    <p>Coming soon</p>
                   </div>
-                </a>
+                </button>
                 <button className="download-card disabled-card" onClick={() => toast.info("Certificates will be available after the event.")}>
                   <div className="dl-icon"><FileText size={24} /></div>
                   <div className="dl-info">
@@ -366,7 +390,8 @@ const UserDashboard: React.FC = () => {
           college: userData.college,
           email: userData.email,
           photoURL: userData.photoURL,
-          avrId: userData.avrId
+          avrId: userData.avrId,
+          hasRegistrations: myRegistrations.length > 0
         }} 
       />
 
@@ -381,7 +406,8 @@ const UserDashboard: React.FC = () => {
           college: userData.college,
           email: userData.email,
           photoURL: userData.photoURL,
-          avrId: userData.avrId
+          avrId: userData.avrId,
+          hasRegistrations: myRegistrations.length > 0
         }} 
       />
     </div>

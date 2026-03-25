@@ -208,19 +208,6 @@
     border-color: white;
 }
 
-/* Responsive */
-@media (max-width: 900px) {
-    .workshops__grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (max-width: 600px) {
-    .workshops__grid {
-        grid-template-columns: 1fr;
-    }
-}
-
 /* Modal Styling */
 .workshop-modal-overlay {
     position: fixed;
@@ -537,26 +524,169 @@
     }
 }
 
-@media (max-width: 850px) {
+/* Responsive */
+/* --- Mobile Mobile Premium Refinement --- */
+@media (max-width: 900px) {
+    .workshops-page {
+        padding-top: 80px;
+    }
+
+    .workshops-header {
+        padding: 4rem 1.5rem 3rem;
+    }
+
+    .workshops-header h1 {
+        font-size: 3.5rem;
+        letter-spacing: -1px;
+    }
+
+    .workshops-header p {
+        font-size: 1.1rem;
+        line-height: 1.5;
+    }
+
+    .workshops {
+        padding: 2rem 1rem;
+    }
+
+    .workshops__grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    .workshop-card {
+        min-height: auto;
+        padding-bottom: 1rem;
+        border-radius: 20px;
+    }
+
+    .workshop-card__image-container {
+        height: 180px;
+    }
+
+    .workshop-card__title {
+        font-size: 1.4rem;
+        letter-spacing: 2px;
+        margin-bottom: 1rem;
+    }
+
+    .workshop-card__subtitle {
+        font-size: 0.75rem !important;
+        margin-bottom: 0.75rem !important;
+    }
+
+    .workshop-card__features {
+        padding: 0 1rem;
+        gap: 0.4rem;
+    }
+
+    .workshop-card__features li {
+        font-size: 0.9rem;
+    }
+
+    .workshop-card__price {
+        font-size: 1.2rem;
+        padding: 0 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .workshop-card__actions {
+        padding: 0 1rem;
+        gap: 0.5rem;
+    }
+
+    .workshop-card__btn {
+        font-size: 0.9rem;
+        padding: 0.6rem 0;
+    }
+}
+
+@media (max-width: 600px) {
+    .workshops__grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        max-width: 400px;
+        margin: 0 auto;
+    }
+
+    .workshop-card__image-container {
+        height: 220px;
+    }
+
+    .workshop-card__title {
+        font-size: 1.8rem;
+    }
+
+    .workshop-card__features li {
+        font-size: 1.1rem;
+    }
+
+    .workshop-card__price {
+        font-size: 1.4rem;
+    }
+
+    .workshop-card__btn {
+        font-size: 1.1rem;
+        padding: 0.75rem 0;
+    }
+
     .checkout-box {
-        flex-direction: column;
-        padding: 3rem 2rem;
-        text-align: center;
+        padding: 2.5rem 1.5rem;
+        border-radius: 2rem;
         gap: 2rem;
     }
 
-    .checkout-info {
-        text-align: center;
+    .checkout-total {
+        font-size: 2.2rem;
     }
 
-    .checkout-total {
-        font-size: 2.8rem;
+    .checkout-count {
+        font-size: 1rem;
     }
 
     .checkout-btn {
+        font-size: 1.25rem;
         width: 100%;
-        justify-content: center;
-        font-size: 1.2rem;
-        padding: 1.2rem;
+        padding: 1.1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .workshops-header h1 {
+        font-size: 3rem;
+    }
+
+    .workshop-modal-content {
+        max-height: 90vh;
+        border-radius: 2rem;
+    }
+
+    .modal-details {
+        padding: 2rem 1.5rem;
+    }
+
+    .modal-details h2 {
+        font-size: 1.75rem;
+    }
+
+    .modal-desc {
+        font-size: 0.95rem;
+    }
+
+    .modal-highlights li {
+        font-size: 0.95rem;
+    }
+
+    .select-pass-btn {
+        font-size: 1.25rem;
+        padding: 1rem;
+    }
+
+    .close-btn {
+        top: 15px;
+        right: 15px;
+        width: 35px;
+        height: 35px;
+        font-size: 22px;
     }
 }

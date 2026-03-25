@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { Renderer, Program, Mesh, Triangle } from 'ogl';
+import { getOptimalDPR } from '../../utils/performance';
 import './Grainient.css';
 
 interface GrainientProps {
@@ -159,7 +160,7 @@ const Grainient: React.FC<GrainientProps> = ({
       webgl: 2,
       alpha: true,
       antialias: false,
-      dpr: Math.min(window.devicePixelRatio || 1, 2)
+      dpr: getOptimalDPR()
     });
 
     const gl = renderer.gl;

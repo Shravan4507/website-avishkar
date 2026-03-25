@@ -257,7 +257,15 @@ export const ChromaGrid: React.FC<ChromaGridProps> = ({
                                 </p>
                                 <div className="modal-actions">
                                     {showRegister && (
-                                        <Link to={`/register/${selectedMember.slug || encodeURIComponent(selectedMember.title)}`} className="register-btn">
+                                        <Link 
+                                            to={
+                                                selectedMember.slug === 'codex-26' ? '/hackathon-register' : 
+                                                selectedMember.slug === 'robotron-26' ? '/robotron-register' :
+                                                selectedMember.slug === 'battle-grid-26' ? '/esports-register' :
+                                                `/register/${selectedMember.slug || encodeURIComponent(selectedMember.title)}`
+                                            } 
+                                            className="register-btn"
+                                        >
                                             Register Now
                                         </Link>
                                     )}

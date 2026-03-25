@@ -92,6 +92,30 @@ html::-webkit-scrollbar, body::-webkit-scrollbar {
   pointer-events: none;
 }
 
+/* Performance & Device Optimization */
+@media screen and (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Optimize rendering for low-spec devices */
+@media screen and (max-width: 768px), (prefers-reduced-motion: reduce) {
+  .glass-card, .admin-header-card, .admin-tab-section, .grainient-container {
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+  }
+}
+
+/* Hardware Acceleration for smooth animations */
+.app-container, .background-fixed, .content, .dashboard-layout {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
 /* Standard public page layout */
 .content {
   position: relative;
@@ -103,7 +127,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar {
   z-index: 10;
 }
 
-/* Specific dashboard layout (sidebar on left) */
+/* Specific dashboard layout */
 .dashboard-layout {
   position: relative;
   width: 100%;
@@ -111,7 +135,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar {
   z-index: 10;
 }
 
-/* Prevent text selection on interactive UI elements only */
+/* Prevent text selection on interactive UI elements */
 button, nav, aside, .sidebar-btn, .nav-link {
   user-select: none;
 }

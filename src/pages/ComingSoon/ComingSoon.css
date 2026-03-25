@@ -70,7 +70,7 @@
 
 .cs-title {
     font-size: 2.5rem;
-    font-family: 'VFC Fantomen', sans-serif;
+    font-family: 'Iceland', sans-serif;
     color: #fff;
     margin: 0 0 1rem 0;
     line-height: 1.1;
@@ -119,15 +119,41 @@
     100% { left: 100%; background-position: -100% 0; }
 }
 
+/* --- Mobile Mobile Premium Refinement --- */
 @media (max-width: 768px) {
-    .coming-soon-card {
-        padding: 3rem 2rem;
+    .coming-soon-wrapper {
+        padding: 1rem;
     }
+
+    .coming-soon-card {
+        padding: 3rem 1.75rem;
+        border-radius: 2.5rem;
+    }
+
+    .cs-icon-wrapper {
+        width: 80px;
+        height: 80px;
+        margin-bottom: 1.5rem;
+    }
+
     .cs-title {
         font-size: 2rem;
+        letter-spacing: 1px;
     }
+
     .cs-subtitle {
         font-size: 1rem;
         max-width: 100%;
+        margin-bottom: 2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .cs-title {
+        font-size: 1.75rem;
+    }
+
+    .coming-soon-card {
+        padding: 2.5rem 1.25rem;
     }
 }

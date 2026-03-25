@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef } from 'react'
 import SEO from '../../components/seo/SEO'
 import StarBorder from '../../components/star-border/StarBorder'
+import { Award, Cpu, Globe } from 'lucide-react'
 const zcoerLogo = `${import.meta.env.BASE_URL}assets/logos/ZCOER-Logo-White.png`
 const avishkarTitle = `${import.meta.env.BASE_URL}assets/logos/avishkar-white.png`
+const avishkarHeader = `${import.meta.env.BASE_URL}assets/logos/Avishkar '26 White.png`
 import './Home.css'
 
 const CountUp = ({ end, duration = 2000, suffix = "" }: { end: number, duration?: number, suffix?: string }) => {
@@ -82,26 +84,21 @@ function Home() {
 
     return () => clearInterval(timer)
   }, [])
+
   return (
     <>
       <SEO 
         title="Avishkar '26 | The Premier Technology Festival by ZCOER" 
         description="Avishkar '26 is the premier technology festival organized by Zeal College of Engineering and Research, Pune. Explore 50+ workshops, coding hackathons, and a ₹5 Lakh+ prize pool." 
       />
+      
+      {/* --- HERO SECTION --- */}
       <section className="hero" id="home">
         <div className="hero__content">
           <button className="hero__logo-btn" onClick={() => window.open('https://zcoer.in/', '_blank')}>
-            <img
-              src={zcoerLogo}
-              alt="ZCOER"
-              className="hero__zcoer-logo"
-            />
+            <img src={zcoerLogo} alt="ZCOER" className="hero__zcoer-logo" />
           </button>
-          <img
-            src={avishkarTitle}
-            alt="AVISHKAR '26"
-            className="hero__title"
-          />
+          <img src={avishkarTitle} alt="AVISHKAR '26" className="hero__title" />
           
           <div className="hero__countdown">
             <div className="countdown-item">
@@ -124,16 +121,13 @@ function Home() {
               <span className="countdown-label">Secs</span>
             </div>
           </div>
+          
           <div className="hero__cta-group">
             <div className="hero__cta">
-              <a href="/login" className="hero__cta-link">
-                Get Started
-              </a>
+              <a href="/login" className="hero__cta-link">Get Started</a>
             </div>
             <div className="hero__explore">
-              <a href="#about" className="hero__explore-link">
-                Explore
-              </a>
+              <a href="#about" className="hero__explore-link">Explore</a>
             </div>
           </div>
         </div>
@@ -148,7 +142,6 @@ function Home() {
             <span className="ticker-dot">•</span>
             <span>TOTAL PRIZES WORTH ₹5 LAKHS+</span>
             <span className="ticker-dot">•</span>
-            {/* Repeat for seamless loop */}
             <span>ROBO-SUMO REGISTRATIONS OPEN!</span>
             <span className="ticker-dot">•</span>
             <span>50+ COLLEGES PARTICIPATING</span>
@@ -161,69 +154,109 @@ function Home() {
         </div>
       </section>
 
+      {/* --- ABOUT SECTION --- */}
       <section className="about" id="about">
         <div className="about__content">
           <h2 className="about__title">
             <span className="about__title-text">What is</span>
-            <img
-              src={avishkarTitle}
-              alt="AVISHKAR '26"
-              className="about__title-logo"
-            />
+            <img src={avishkarHeader} alt="AVISHKAR '26" className="about__title-logo" />
           </h2>
           <p className="about__description">
-            AVISHKAR '26 is the annual technical festival of Zeal College of Engineering and Research, Pune.
-            It brings together brilliant minds from across the nation to compete, innovate, and celebrate
-            the spirit of technology and creativity. From intense coding battles to innovative robotics
-            challenges, AVISHKAR offers a platform for students to showcase their talents and push the
-            boundaries of what's possible.
+            AVISHKAR ’26 is not just a technical festival—it is an ecosystem built to cultivate innovation, collaboration, and engineering excellence. 
+            Designed for the future-ready generation, it brings together minds across disciplines to explore, experiment, and execute ideas that matter. 
+            At ZCOER, Pune, we are building a legacy-driven platform where technology meets purpose. AVISHKAR empowers participants to move beyond learning and step into creation.
           </p>
         </div>
         <div className="about__image-wrapper">
-          <StarBorder
-            as="div"
-            color="magenta"
-            speed="6s"
-            thickness={2}
-            borderRadius={32}
-            className="about__star-border"
-          >
-            <img
-              src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=80"
-              alt="Technical fest workshop"
-              className="about__image"
-            />
+          <StarBorder as="div" color="magenta" speed="6s" thickness={2} borderRadius={32} className="about__star-border">
+            <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=80" alt="Technical fest workshop" className="about__image" />
           </StarBorder>
         </div>
       </section>
 
+      {/* --- CORE PILLARS SECTION --- */}
+      <section className="pillars">
+        <div className="pillars__header">
+          <h2 className="section-title">Core Pillars</h2>
+          <p className="section-subtitle">Why participate in AVISHKAR '26?</p>
+        </div>
+        <div className="pillars__grid">
+          <div className="pillar-card">
+            <div className="pillar-icon"><Award size={32} /></div>
+            <h3>Elite Competition</h3>
+            <p>Compete at the highest level across multi-disciplinary challenges designed to test real-world problem-solving and innovation.</p>
+          </div>
+          <div className="pillar-card">
+            <div className="pillar-icon"><Cpu size={32} /></div>
+            <h3>Hands-on Mastery</h3>
+            <p>Engage in immersive workshops and live builds that transform theoretical knowledge into practical expertise.</p>
+          </div>
+          <div className="pillar-card">
+            <div className="pillar-icon"><Globe size={32} /></div>
+            <h3>Future-Ready Network</h3>
+            <p>Connect with innovators, industry experts, and like-minded creators shaping the next wave of technology.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* --- MAJOR HIGHLIGHTS SECTION --- */}
+      <section className="highlights">
+        <div className="highlights__header">
+          <h2 className="section-title">Major Highlights</h2>
+          <p className="section-subtitle">Experience our flagship events</p>
+        </div>
+        <div className="highlights__grid">
+          <div className="highlight-card">
+            <div className="highlight-tag">Flagship</div>
+            <h3>Code Sprint</h3>
+            <p>The ultimate hackathon experience—build, break, and innovate under pressure to create solutions that matter.</p>
+          </div>
+          <div className="highlight-card">
+            <div className="highlight-tag">Arena</div>
+            <h3>Robo-Sumo</h3>
+            <p>Where machines collide and engineering meets strategy in a battle of strength, precision, and control.</p>
+          </div>
+          <div className="highlight-card">
+            <div className="highlight-tag">Learning</div>
+            <h3>Technical Workshops</h3>
+            <p>Curated sessions designed to upskill, inspire, and prepare you for the demands of tomorrow’s tech landscape.</p>
+          </div>
+          <div className="highlight-card">
+            <div className="highlight-tag">Rewards</div>
+            <h3>The Prize Pool</h3>
+            <p>Compete for recognition, rewards, and the chance to prove your engineering excellence on a bigger stage.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* --- STATS SECTION --- */}
       <section className="stats">
         <div className="stats__container">
           <div className="stats__item">
-            <h3 className="stats__number">
-              <CountUp end={50} suffix="+" />
-            </h3>
+            <h3 className="stats__number"><CountUp end={50} suffix="+" /></h3>
             <p className="stats__label">Workshops</p>
           </div>
           <div className="stats__item">
-            <h3 className="stats__number">
-              <CountUp end={10000} suffix="+" />
-            </h3>
+            <h3 className="stats__number"><CountUp end={10000} suffix="+" /></h3>
             <p className="stats__label">Expected Footfall</p>
           </div>
           <div className="stats__item">
-            <h3 className="stats__number">
-              <span className="stats__currency">₹</span>
-              <CountUp end={5} suffix="L+" />
-            </h3>
+            <h3 className="stats__number"><span className="stats__currency">₹</span><CountUp end={5} suffix="L+" /></h3>
             <p className="stats__label">Prize Pool</p>
           </div>
           <div className="stats__item">
-            <h3 className="stats__number">
-              <CountUp end={200} suffix="+" />
-            </h3>
-            <p className="stats__label">Student Organizers</p>
+            <h3 className="stats__number"><CountUp end={200} suffix="+" /></h3>
+            <p className="stats__label">Organizers</p>
           </div>
+        </div>
+      </section>
+
+      {/* --- FINAL CTA --- */}
+      <section className="final-cta">
+        <div className="final-cta__glass">
+          <h2>Step into the future.</h2>
+          <p>Build your legacy at AVISHKAR ’26.</p>
+          <a href="/login" className="final-cta-btn">Join the Ecosystem</a>
         </div>
       </section>
     </>

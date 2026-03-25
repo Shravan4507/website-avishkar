@@ -103,21 +103,62 @@
     min-height: auto;
 }
 
-@media (max-width: 768px) {
+/* --- Mobile Mobile Premium Refinement --- */
+@media (max-width: 900px) {
+    .competitions-page {
+        padding-top: 80px;
+    }
+
     .competitions-header {
-        padding: 2rem 1rem;
+        padding: 4rem 1.5rem 2rem;
     }
 
     .competitions-header h1 {
+        font-size: 3rem;
         letter-spacing: -1px;
     }
 
-    .category-filter {
-        gap: 10px;
+    .section-header {
+        margin: 0 auto 30px; /* Remove negative margin on mobile */
+        padding: 0 1.5rem;
+        align-items: center;
+        text-align: center;
     }
 
-    .filter-btn {
-        padding: 10px 20px;
+    .section-header h2 {
+        font-size: 2.2rem;
+    }
+
+    .section-label {
+        font-size: 0.8rem;
+        letter-spacing: 3px;
+    }
+
+    .section-line {
+        margin: 15px auto 0;
+    }
+
+    .competition-section {
+        margin-bottom: 2rem;
+        padding: 1rem 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .competitions-header h1 {
+        font-size: 2.4rem;
+    }
+
+    .competitions-header p {
+        font-size: 1rem;
+        margin-bottom: 30px;
+    }
+
+    .section-header h2 {
+        font-size: 1.8rem;
+    }
+
+    .section-desc {
         font-size: 0.9rem;
     }
 }

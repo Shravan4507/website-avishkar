@@ -84,7 +84,7 @@ function Schedule() {
                                 <div className="timeline-dot"></div>
                                 <div className="timeline-line"></div>
                             </div>
-                            <div className="timeline-card">
+                            <div className="timeline-card" data-time={event.time}>
                                 <div className="event-type">{event.type}</div>
                                 <h3>{event.title}</h3>
                                 <div className="event-location">

@@ -15,6 +15,7 @@ interface VirtualPassProps {
     email: string;
     photoURL?: string;
     avrId: string;
+    hasRegistrations?: boolean;
   };
 }
 
@@ -35,52 +36,51 @@ const VirtualPass: React.FC<VirtualPassProps> = ({ isOpen, isStatic, onClose, us
 
   const content = (
     <div className={`virtual-pass-card ${isStatic ? 'virtual-pass-static' : ''}`} id={isStatic ? 'virtual-pass-static-capture' : undefined}>
-      {/* Top gradient header */}
-      <div className="pass-header">
-        <div className="pass-logo-area">
-          <span className="pass-logo-text">A</span>
-        </div>
-        <div className="pass-event-name">
-          <span className="pass-event-title">AVISHKAR '26</span>
-          <span className="pass-event-sub">National Level Technical Fest</span>
-        </div>
-      </div>
-
-      {/* User Info */}
-      <div className="pass-body">
-        <div className="pass-user-info">
-          <h2 className="pass-name">{user.firstName} {user.lastName}</h2>
-          <p className="pass-college">{user.college}</p>
-        </div>
-
-        <div className="pass-divider"></div>
-
-        {/* QR contains signed encrypted payload */}
-        <div className="pass-qr-section">
-          <div className="qr-wrapper">
-            <QRCodeComponent 
-              value={signedPayload} 
-              size={140} 
-              bgColor="#ffffff" 
-              fgColor="#0f0f23" 
-              level="H" 
-              style={{ width: '100%', height: '100%' }}
-            />
+      {/* Profile Photo */}
+      <div className="pass-photo-container">
+        {user.photoURL && user.photoURL.trim() !== '' ? (
+          <img 
+            src={user.photoURL} 
+            alt="User" 
+            className="pass-user-photo" 
+            crossOrigin="anonymous"
+          />
+        ) : (
+          <div className="pass-user-initials">
+            {(user.firstName || 'U').charAt(0)}
           </div>
-          <div className="pass-avr-id-box">
-            <span className="pass-avr-label">AVR-ID</span>
-            <span className="pass-avr-val">{user.avrId}</span>
-          </div>
-          <p className="pass-scan-hint">HMAC-SHA256 Signed • Scan to verify</p>
+        )}
+      </div>
+
+      {/* Vertical Role Strip (Right) */}
+      <div className="pass-vertical-strip" style={{ background: 'transparent' }}>
+        <span className="pass-vertical-role-text" style={{ color: '#000' }}>
+          {user.hasRegistrations ? 'PARTICIPANT' : 'VISITOR'}
+        </span>
+      </div>
+
+      {/* Main Info (Overlay on Blue) */}
+      <div className="pass-info-overlay">
+        <h2 className="pass-name-main">{user.firstName + ' ' + user.lastName}</h2>
+        <div className="pass-validity">
+          ID VALID UPTO: 3/11
         </div>
       </div>
 
-      {/* Footer strip */}
-      <div className="pass-footer-strip">
-        <span>VIRTUAL PASS</span>
-        <span>•</span>
-        <span>AVISHKAR '26</span>
+      {/* QR Code Section (Inside Black Bar) */}
+      <div className="pass-footer-qr" style={{ filter: 'invert(1)', background: 'transparent' }}>
+        <QRCodeComponent 
+          value={signedPayload} 
+          size={140} 
+          bgColor="#000000" 
+          fgColor="#ffffff" 
+          level="H" 
+          style={{ width: '100%', height: '100%' }}
+        />
       </div>
+
+      {/* ID Number (Bottom Right) */}
+      <div className="pass-id-number">{user.avrId}</div>
     </div>
   );
 

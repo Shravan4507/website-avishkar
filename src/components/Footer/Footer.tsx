@@ -42,6 +42,7 @@ function Footer() {
                             <nav className="footer__nav">
                                 <Link to="/join" className="footer__link">Join Us</Link>
                                 <Link to="/team" className="footer__link">Our Team</Link>
+                                <Link to="/book-a-stall" className="footer__link">Book a Stall</Link>
                                 <Link to="/contact" className="footer__link">Help Center</Link>
                                 <Link to="/login" className="footer__link">Accounts</Link>
                             </nav>

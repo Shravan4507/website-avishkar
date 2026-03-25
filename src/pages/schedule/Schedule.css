@@ -203,22 +203,117 @@
     font-size: 0.9rem;
 }
 
+/* --- Mobile Mobile Premium Refinement --- */
+@media (max-width: 900px) {
+    .schedule-page {
+        padding-top: 100px;
+    }
+
+    .schedule-hero h1 {
+        font-size: 3rem;
+    }
+
+    .schedule-hero p {
+        font-size: 1.1rem;
+        padding: 0 1rem;
+    }
+
+    .schedule-tabs {
+        margin-bottom: 3rem;
+        gap: 0.5rem;
+    }
+
+    .day-info h2 {
+        font-size: 1.75rem;
+    }
+}
+
 @media (max-width: 600px) {
+    .schedule-page {
+        padding: 80px 15px 40px;
+    }
+
     .schedule-tabs {
         overflow-x: auto;
         justify-content: flex-start;
-        padding: 0.5rem;
+        padding: 0.75rem;
+        border-radius: 1.25rem;
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none;  /* IE/Edge */
+    }
+
+    .schedule-tabs::-webkit-scrollbar {
+        display: none; /* Chrome/Safari */
     }
     
     .schedule-tab {
-        min-width: 120px;
+        flex: 0 0 auto;
+        min-width: 100px;
+        padding: 0.75rem;
+    }
+
+    .tab-day {
+        font-size: 0.95rem;
+    }
+
+    .tab-date {
+        font-size: 0.75rem;
+    }
+
+    .timeline {
+        padding-left: 10px;
     }
 
     .timeline-time {
-        display: none;
+        display: none; /* Hide original time column */
     }
 
     .timeline-item {
-        gap: 1.5rem;
+        gap: 1.25rem;
+        margin-bottom: 2.5rem;
+    }
+
+    .timeline-card {
+        padding: 1.25rem;
+    }
+
+    /* Inject time into card for mobile */
+    .timeline-card::before {
+        content: attr(data-time);
+        display: block;
+        font-family: 'Space Mono', monospace;
+        font-weight: 700;
+        color: #2eff27;
+        font-size: 0.8rem;
+        margin-bottom: 0.5rem;
+        letter-spacing: 1px;
+    }
+
+    .timeline-card h3 {
+        font-size: 1.1rem;
+        line-height: 1.4;
+    }
+
+    .timeline-line {
+        bottom: -40px;
+    }
+}
+
+@media (max-width: 480px) {
+    .schedule-hero h1 {
+        font-size: 2.2rem;
+    }
+
+    .day-info h2 {
+        font-size: 1.4rem;
+    }
+
+    .timeline-card {
+        padding: 1rem;
+    }
+
+    .event-type {
+        font-size: 0.65rem;
+        padding: 0.2rem 0.6rem;
     }
 }

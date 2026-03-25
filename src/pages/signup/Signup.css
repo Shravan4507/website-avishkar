@@ -21,7 +21,7 @@
 }
 
 .signup-title {
-  font-family: 'VFC Fantomen', sans-serif;
+  font-family: 'Iceland', sans-serif;
   font-size: 3.5rem;
   letter-spacing: 2px;
   margin-bottom: 12px;
@@ -145,11 +145,49 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-@media (max-width: 768px) {
-  .signup-card {
-    padding: 40px 20px;
+@media (max-width: 900px) {
+  .signup-container {
+    padding-top: 100px;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
   }
-  .form-rows {
-    grid-template-columns: 1fr;
+
+  .signup-title {
+    font-size: 2.8rem;
+    letter-spacing: 1px;
+    margin-bottom: 0.5rem;
+  }
+
+  .signup-subtitle {
+     font-size: 0.9rem;
+     margin-bottom: 2rem;
+  }
+
+  .signup-card {
+     padding: 3rem 1.5rem;
+     border-radius: 2.5rem;
+  }
+
+  .signup-form {
+    gap: 1.5rem;
+  }
+
+  .form-group input, .form-group select {
+    height: 48px;
+    font-size: 0.9rem;
+    padding: 0 15px;
+    border-radius: 10px;
+  }
+
+  .signup-btn {
+    height: 52px;
+    font-size: 1rem;
+    border-radius: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .signup-title {
+    font-size: 2.2rem;
   }
 }

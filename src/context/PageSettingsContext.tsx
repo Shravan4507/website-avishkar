@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { doc, onSnapshot } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase/firebase';
 
 interface PageSettings {
@@ -39,22 +39,20 @@ export const PageSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsub = onSnapshot(
-      doc(db, 'settings', 'pages'),
-      (docSnap) => {
+    const fetchSettings = async () => {
+      try {
+        const docSnap = await getDoc(doc(db, 'settings', 'pages'));
         if (docSnap.exists()) {
-          // Merge fetched data with defaults (in case a key is missing)
           setSettings({ ...defaultSettings, ...(docSnap.data() as Partial<PageSettings>) });
         }
-        setLoading(false);
-      },
-      (error) => {
-        console.error("Error fetching page settings:", error);
+      } catch (error) {
+        console.warn("Could not fetch page settings, using defaults:", error);
+      } finally {
         setLoading(false);
       }
-    );
+    };
 
-    return () => unsub();
+    fetchSettings();
   }, []);
 
   return (

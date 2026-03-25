@@ -10,6 +10,7 @@ import Footer from './components/Footer/Footer';
 import ErrorBoundary from './components/ErrorBoundary';
 import { ToastProvider } from './components/toast/Toast';
 import Loader from './components/loader/Loader';
+import PWAReloadPrompt from './components/pwa/PWAReloadPrompt';
 
 // Lazy Loaded Public Pages
 const Home = lazy(() => import('./pages/home/Home'));
@@ -21,6 +22,11 @@ const Contact = lazy(() => import('./pages/contact/Contact'));
 const Sponsors = lazy(() => import('./pages/sponsors/Sponsors'));
 const ComingSoon = lazy(() => import('./pages/ComingSoon/ComingSoon'));
 const Registration = lazy(() => import('./pages/competitions/Registration'));
+const HackathonRegistration = lazy(() => import('./pages/competitions/HackathonRegistration'));
+const RobotronRegistration = lazy(() => import('./pages/competitions/RobotronRegistration'));
+const EsportsRegistration = lazy(() => import('./pages/competitions/EsportsRegistration'));
+const BookStall = lazy(() => import('./pages/stalls/BookStall'));
+const ParamX = lazy(() => import('./pages/competitions/ParamX'));
 
 import { PageSettingsProvider, usePageSettings } from './context/PageSettingsContext';
 
@@ -104,6 +110,8 @@ const LayoutManager = () => {
                 <Route path="/team"        element={<T el={settings.team ? <Team /> : <ComingSoon pageName="Team" />} />} />
                 <Route path="/sponsors"    element={<T el={settings.sponsors ? <Sponsors /> : <ComingSoon pageName="Sponsors" />} />} />
                 <Route path="/contact"     element={<T el={settings.contact ? <Contact /> : <ComingSoon pageName="Contact" />} />} />
+                <Route path="/book-a-stall" element={<T el={<BookStall />} />} />
+                <Route path="/paramx" element={<T el={<ParamX />} />} />
 
                 {/* ── Student Auth ── */}
                 <Route element={<PublicRoutes />}>
@@ -119,6 +127,9 @@ const LayoutManager = () => {
                   <Route path="/user/dashboard" element={<T el={<UserDashboard />} />} />
                   <Route path="/user/scanner"   element={<T el={<VolunteerScanner />} />} />
                   <Route path="/register/:slug" element={<T el={<Registration />} />} />
+                  <Route path="/hackathon-register" element={<T el={<HackathonRegistration />} />} />
+                  <Route path="/robotron-register" element={<T el={<RobotronRegistration />} />} />
+                  <Route path="/esports-register" element={<T el={<EsportsRegistration />} />} />
                 </Route>
 
                 {/* ── Admin Protected ── */}
@@ -148,6 +159,7 @@ function App() {
           <PageSettingsProvider>
             <Router>
               <LayoutManager />
+              <PWAReloadPrompt />
             </Router>
           </PageSettingsProvider>
         </ToastProvider>

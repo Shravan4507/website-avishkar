@@ -107,11 +107,18 @@ function Navbar() {
           ))}
           {currentUser ? (
             <Link to={userRole === 'admin' ? '/admin/dashboard' : '/user/dashboard'} className="navbar__avatar-link" aria-label="Dashboard">
-              <img 
-                src={userAvatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${currentUser.displayName}`} 
-                alt="Profile" 
-                className="navbar__avatar-img" 
-              />
+              {userAvatar && userAvatar.trim() !== '' ? (
+                <img 
+                  src={userAvatar} 
+                  alt="Profile" 
+                  className="navbar__avatar-img" 
+                  crossOrigin="anonymous"
+                />
+              ) : (
+                <div className="navbar__avatar-initials">
+                  {(currentUser.displayName || currentUser.email || 'U').charAt(0).toUpperCase()}
+                </div>
+              )}
             </Link>
           ) : (
             <Link 

@@ -21,7 +21,7 @@
 }
 
 .login-title {
-  font-family: 'VFC Fantomen', sans-serif;
+  font-family: 'Iceland', sans-serif;
   font-size: 2.5rem;
   letter-spacing: 2px;
   margin-bottom: 12px;
@@ -96,4 +96,32 @@
 
 .admin-login-hint a:hover {
   color: #ffc800;
+}
+@media (max-width: 480px) {
+  .login-container {
+    padding-top: 60px;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .login-card {
+    padding: 2.5rem 1.5rem;
+    border-radius: 2rem;
+  }
+
+  .login-title {
+    font-size: 2rem;
+    letter-spacing: 1px;
+  }
+
+  .login-subtitle {
+    font-size: 0.85rem;
+    margin-bottom: 2rem;
+  }
+
+  .auth-btn {
+    height: 50px;
+    font-size: 0.95rem;
+    border-radius: 1rem;
+  }
 }

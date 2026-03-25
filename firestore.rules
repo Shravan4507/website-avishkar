@@ -1,10 +1,48 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // TEST MODE: Allow all reads and writes for development
-    // TODO: Replace with production rules before going live
-    match /{document=**} {
-      allow read, write: if true;
+    
+    // Helper: Check if user is an admin and get their profile
+    function getAdminData() {
+      return get(/databases/$(database)/documents/admins/$(request.auth.uid)).data;
+    }
+
+    // Helper: Check for Superadmin or Core Registration Team
+    function isCoreAdmin() {
+      let admin = getAdminData();
+      return admin.roleLevel == 'superadmin' || admin.assignment == 'Registration Team';
+    }
+
+    // --- USER PROFILES ---
+    match /user/{userId} {
+      allow read, write: if request.auth != null && (request.auth.uid == userId || isCoreAdmin());
+    }
+
+    // --- ADMIN PROFILES ---
+    match /admins/{adminId} {
+      allow read: if request.auth != null && (request.auth.uid == adminId || isCoreAdmin());
+      allow write: if false; // Admins are managed via AdminSetup or Superadmin
+    }
+
+    // --- REGISTRATIONS ---
+    match /registrations/{regId} {
+      allow create: if request.auth != null;
+      allow read: if request.auth != null && (
+        resource.data.userId == request.auth.uid || 
+        isCoreAdmin() || 
+        (getAdminData().roleLevel == 'department_admin' && getAdminData().assignment == resource.data.department) ||
+        (getAdminData().roleLevel == 'competition_admin' && getAdminData().assignment == resource.data.eventName)
+      );
+      allow update: if request.auth != null && (
+        isCoreAdmin() || 
+        (getAdminData().roleLevel == 'competition_admin' && getAdminData().assignment == resource.data.eventName)
+      );
+    }
+
+    // --- COMPETITIONS ---
+    match /competitions/{compId} {
+      allow read: if true;
+      allow write: if request.auth != null && isCoreAdmin();
     }
   }
 }

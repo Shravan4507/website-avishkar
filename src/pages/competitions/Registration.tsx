@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuthState } from 'react-firebase-hooks/auth';
-import { doc, getDoc, collection, query, where, getDocs, addDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '../../firebase/firebase';
 import { useToast } from '../../components/toast/Toast';
 import { COMPETITIONS_DATA } from '../../data/competitions';
@@ -63,21 +63,23 @@ const Registration: React.FC = () => {
         if (!foundComp) {
           const compSnap = await getDoc(doc(db, 'competitions', slug));
           if (compSnap.exists()) {
-            foundComp = compSnap.data() as Competition;
+            const data = compSnap.data() as any;
+            foundComp = {
+              ...data,
+              id: data.id || compSnap.id, // Fallback to doc ID if field is missing
+              slug: data.slug || slug,
+              department: data.department || 'General' // Fallback for department
+            } as Competition;
           }
         }
 
         if (foundComp) {
           setCompetition(foundComp);
           
-          // 3. Check if already registered
-          const q = query(
-            collection(db, 'registrations'),
-            where('userAVR', '==', uData.avrId),
-            where('eventName', '==', foundComp.title)
-          );
-          const regSnap = await getDocs(q);
-          if (!regSnap.empty) {
+          // 3. Check if already registered using deterministic doc ID
+          const regId = `${foundComp.id}_${uData.avrId}`;
+          const regSnap = await getDoc(doc(db, 'registrations', regId));
+          if (regSnap.exists()) {
             setAlreadyRegistered(true);
           }
         }
@@ -92,6 +94,18 @@ const Registration: React.FC = () => {
     initRegistration();
   }, [user, authLoading, slug, navigate]);
 
+  const calculateAge = (dob: string) => {
+    if (!dob) return 0;
+    const birthDate = new Date(dob);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age;
+  };
+
   const handleRegister = async () => {
     if (!competition || !userData || alreadyRegistered || isSubmittingRef.current) return;
     
@@ -100,25 +114,40 @@ const Registration: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      // Double check registry just before write to be absolutely certain
-      const duplicateCheck = query(
-        collection(db, 'registrations'),
-        where('userAVR', '==', userData.avrId),
-        where('eventName', '==', competition.title)
-      );
-      const snap = await getDocs(duplicateCheck);
-      if (!snap.empty) {
+      // Deterministic document ID: competitionId_avrId
+      const regId = `${competition.id}_${userData.avrId}`;
+      const regRef = doc(db, 'registrations', regId);
+
+      // Double check using deterministic ID (faster than query)
+      const existingSnap = await getDoc(regRef);
+      if (existingSnap.exists()) {
         setAlreadyRegistered(true);
         setIsSuccess(true);
         return;
       }
 
-      await addDoc(collection(db, 'registrations'), {
-        eventName: competition.title,
-        userEmail: userData.email,
+      // Calculate age from DOB
+      const userAge = calculateAge(userData.dob);
+
+      // Store comprehensive registration data
+      await setDoc(regRef, {
+        // User Info
+        userId: user!.uid,
         userName: `${userData.firstName} ${userData.lastName}`,
+        userEmail: userData.email || user!.email,
         userAVR: userData.avrId,
+        userPhone: userData.phone || '',
+        userCollege: userData.college || '',
+        userMajor: userData.major || '',
+        userAge: userAge,
+        userSex: userData.sex || '',
+        // Competition Info
+        competitionId: competition.id,
+        eventName: competition.title,
         category: competition.subtitle || 'General Event',
+        department: competition.department,
+        isFlagship: competition.isFlagship || false,
+        // Metadata
         registeredAt: serverTimestamp(),
         isAttended: false
       });

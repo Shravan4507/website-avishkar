@@ -6,6 +6,7 @@ import { compressImageToWebP } from '../../utils/imageCompressor';
 import { useToast } from '../toast/Toast';
 import { Plus, Image as ImageIcon, UploadCloud } from 'lucide-react';
 import type { AdminProfile } from '../../pages/admin/admindashboard';
+import { generateCompetitionId } from '../../data/competitions';
 import GlassSelect from '../dropdown/GlassSelect';
 
 interface CompetitionFormProps {
@@ -80,7 +81,12 @@ const CompetitionForm: React.FC<CompetitionFormProps> = ({ adminProfile }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!adminProfile || (adminProfile.roleLevel !== 'department_admin' && adminProfile.roleLevel !== 'superadmin')) {
+    if (!adminProfile || (
+      !adminProfile.roleLevel.startsWith('department_admin') && 
+      !adminProfile.roleLevel.startsWith('competition_admin') && 
+      !adminProfile.roleLevel.startsWith('core_team') && 
+      adminProfile.roleLevel !== 'superadmin'
+    )) {
       error('You do not have permission to post competitions.');
       return;
     }
@@ -128,20 +134,30 @@ const CompetitionForm: React.FC<CompetitionFormProps> = ({ adminProfile }) => {
         },
         async () => {
           const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+          // Extract department from roleLevel: "department_admin-computer engineering" → "Computer Engineering"
+          const adminDept = adminProfile.roleLevel.startsWith('department_admin-') 
+            ? adminProfile.roleLevel.replace('department_admin-', '')
+            : adminProfile.assignment || 'Unknown';
+
+          // Generate deterministic competition ID
+          const competitionId = generateCompetitionId(adminDept, formData.title);
           const selectedTheme = THEME_PRESETS[themeIndex];
 
           const competitionDoc = {
+            id: competitionId,
             ...formData,
             borderColor: selectedTheme.border,
             gradient: selectedTheme.gradient,
             image: downloadURL,
-            department: adminProfile.assignment,
+            department: adminDept,
             isFlagship: false,
+            slug: customSlug,
             createdAt: serverTimestamp(),
             createdBy: adminProfile.id
           };
 
-          await setDoc(doc(db, 'competitions', customSlug), competitionDoc);
+          // Store using the competition ID as the Firestore doc ID
+          await setDoc(doc(db, 'competitions', competitionId), competitionDoc);
           
           success('Competition successfully posted!');
           

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../../firebase/firebase';
 import ChromaGrid from '../../components/chroma-grid/ChromaGrid';
@@ -8,12 +9,14 @@ import type { Competition } from '../../data/competitions';
 import './Competitions.css';
 
 function Competitions() {
+    const navigate = useNavigate();
     const flagshipCompetitions = COMPETITIONS_DATA.filter((item: any) => item.isFlagship);
     const exhibitionItems = COMPETITIONS_DATA.filter((item: any) => item.isExhibition);
     
     const [regularCompetitions, setRegularCompetitions] = useState<Competition[]>(
         COMPETITIONS_DATA.filter((item: any) => !item.isFlagship && !item.isExhibition)
     );
+    const [selectedSlug, setSelectedSlug] = useState<string | undefined>();
 
     useEffect(() => {
         const fetchCompetitions = async () => {
@@ -23,17 +26,9 @@ function Competitions() {
                 querySnapshot.forEach((doc) => {
                     const data = doc.data();
                     fetched.push({
-                        image: data.image || '',
-                        title: data.title || 'Untitled',
-                        subtitle: data.subtitle || '',
-                        location: data.location || '',
-                        handle: data.handle || '',
-                        description: data.description || '',
-                        borderColor: data.borderColor || '#5227FF',
-                        gradient: data.gradient || 'linear-gradient(145deg, #5227FF, #000)',
-                        url: data.url || '#',
-                        prizePool: data.prizePool || '',
-                        slug: doc.id,
+                        ...data,
+                        id: data.id || doc.id,
+                        slug: data.slug || doc.id,
                     } as Competition);
                 });
                 
@@ -75,6 +70,15 @@ function Competitions() {
                         damping={0.5}
                         fadeOut={0.8}
                         columns={3}
+                        selectedItemSlug={selectedSlug}
+                        onItemClick={(item) => {
+                            if (item.slug === 'codex-26') {
+                                navigate('/paramx');
+                            } else {
+                                setSelectedSlug(item.slug);
+                            }
+                        }}
+                        onModalClose={() => setSelectedSlug(undefined)}
                     />
                 </div>
             </section>
@@ -94,6 +98,9 @@ function Competitions() {
                             damping={0.5}
                             fadeOut={0.8}
                             columns={3}
+                            selectedItemSlug={selectedSlug}
+                            onItemClick={(item) => setSelectedSlug(item.slug)}
+                            onModalClose={() => setSelectedSlug(undefined)}
                         />
                     </div>
                 </section>
@@ -113,6 +120,9 @@ function Competitions() {
                         damping={0.5}
                         fadeOut={0.8}
                         columns={1}
+                        selectedItemSlug={selectedSlug}
+                        onItemClick={(item) => setSelectedSlug(item.slug)}
+                        onModalClose={() => setSelectedSlug(undefined)}
                     />
                 </div>
             </section>

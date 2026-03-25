@@ -35,21 +35,41 @@ class ErrorBoundary extends React.Component<Props, State> {
 
   render() {
     if (this.state.hasError) {
+      const isConfigError = this.state.errorMessage.includes("FIREBASE_CONFIG_ERROR");
+
       return (
         <div className="error-boundary">
           <div className="eb-content">
-            <div className="eb-icon">⚡</div>
-            <h2 className="eb-title">Something went wrong</h2>
+            <div className="eb-icon">{isConfigError ? "⚙️" : "⚡"}</div>
+            <h2 className="eb-title">
+              {isConfigError ? "Configuration Required" : "Something went wrong"}
+            </h2>
             <p className="eb-subtitle">
-              An unexpected error crashed this section. Don't worry — your data is safe.
+              {isConfigError 
+                ? "The application is missing essential environment variables. This usually happens on Vercel when keys are not added to the Dashboard."
+                : "An unexpected error crashed this section. Don't worry — your data is safe."}
             </p>
             {this.state.errorMessage && (
-              <pre className="eb-details">{this.state.errorMessage}</pre>
+              <div className="eb-details-container">
+                <span className="eb-details-label">Error Details:</span>
+                <pre className="eb-details">{this.state.errorMessage}</pre>
+              </div>
             )}
             <div className="eb-actions">
-              <button className="eb-btn eb-btn--primary" onClick={this.handleReset}>
-                ← Return Home
-              </button>
+              {isConfigError ? (
+                <a 
+                  href="https://vercel.com/dashboard" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="eb-btn eb-btn--primary"
+                >
+                  Open Vercel Dashboard
+                </a>
+              ) : (
+                <button className="eb-btn eb-btn--primary" onClick={this.handleReset}>
+                  ← Return Home
+                </button>
+              )}
               <button
                 className="eb-btn eb-btn--ghost"
                 onClick={() => window.location.reload()}

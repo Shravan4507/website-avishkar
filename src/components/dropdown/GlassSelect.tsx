@@ -15,6 +15,7 @@ interface GlassSelectProps {
   style?: React.CSSProperties;
   className?: string;
   disabled?: boolean;
+  searchable?: boolean;
 }
 
 const GlassSelect: React.FC<GlassSelectProps> = ({ 
@@ -24,12 +25,26 @@ const GlassSelect: React.FC<GlassSelectProps> = ({
   placeholder = "Select an option",
   style,
   className = "",
-  disabled = false
+  disabled = false,
+  searchable = false
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const selectedOption = options.find(opt => opt.value === value);
+
+  useEffect(() => {
+    if (!isOpen) {
+        setSearchTerm("");
+    }
+  }, [isOpen]);
+
+  const filteredOptions = searchable 
+    ? options.filter(opt => opt.label.toLowerCase().includes(searchTerm.toLowerCase()))
+    : options;
+
+  const showCustomOption = searchable && searchTerm && !options.some(opt => opt.label.toLowerCase() === searchTerm.toLowerCase());
 
   // Close on click outside
   useEffect(() => {
@@ -60,19 +75,31 @@ const GlassSelect: React.FC<GlassSelectProps> = ({
       ref={dropdownRef}
     >
       <div 
-        className={`glass-select-trigger ${isOpen ? 'open' : ''}`}
+        className={`glass-select-trigger ${isOpen ? 'open' : ''} ${searchable ? 'searchable' : ''}`}
         onClick={() => !disabled && setIsOpen(!isOpen)}
-        tabIndex={0}
+        tabIndex={searchable ? -1 : 0}
         onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
+          if (!searchable && (e.key === 'Enter' || e.key === ' ')) {
             e.preventDefault();
             if (!disabled) setIsOpen(!isOpen);
           }
         }}
       >
-        <span className={selectedOption ? 'value-selected' : 'value-placeholder'}>
-          {selectedOption ? selectedOption.label : placeholder}
-        </span>
+        {searchable && isOpen ? (
+            <input 
+                type="text" 
+                className="glass-select-input"
+                placeholder={selectedOption ? selectedOption.label : placeholder}
+                value={searchTerm}
+                autoFocus
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onClick={(e) => e.stopPropagation()}
+            />
+        ) : (
+            <span className={selectedOption || value ? 'value-selected' : 'value-placeholder'}>
+                {selectedOption ? selectedOption.label : (value || placeholder)}
+            </span>
+        )}
         <ChevronDown 
           size={18} 
           className="glass-select-chevron" 
@@ -81,10 +108,18 @@ const GlassSelect: React.FC<GlassSelectProps> = ({
 
       {isOpen && (
         <div className="glass-select-menu">
-          {options.length === 0 ? (
-            <div className="glass-select-empty">No options available</div>
+          {showCustomOption && (
+              <div 
+                className="glass-select-item custom"
+                onClick={() => handleSelect(searchTerm)}
+              >
+                Use "<strong>{searchTerm}</strong>"
+              </div>
+          )}
+          {filteredOptions.length === 0 && !showCustomOption ? (
+            <div className="glass-select-empty">No options found</div>
           ) : (
-            options.map((option) => (
+            filteredOptions.slice(0, 100).map((option) => (
               <div 
                 key={option.value}
                 className={`glass-select-item ${option.value === value ? 'selected' : ''}`}

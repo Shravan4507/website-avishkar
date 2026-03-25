@@ -39,6 +39,7 @@
   height: 17.5rem;
   width: auto;
   object-fit: contain;
+  filter: drop-shadow(0 15px 30px rgba(0, 0, 0, 0.4));
 }
 
 .hero__title {
@@ -48,6 +49,7 @@
   height: auto;
   object-fit: contain;
   max-width: min(28rem, 100%);
+  filter: drop-shadow(0 15px 45px rgba(0, 0, 0, 0.5));
 }
 
 .hero__tagline {
@@ -63,11 +65,11 @@
   align-items: center;
   gap: 1.5rem;
   padding: 1.5rem 2rem;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.65);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 2rem;
+  border-radius: 1rem;
   margin: 0.5rem 0;
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
 }
@@ -246,10 +248,11 @@
 }
 
 .about__title-logo {
-  height: 3rem;
+  height: 7rem;
   width: auto;
   max-width: 100%;
   object-fit: contain;
+  filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.4));
 }
 
 .about__description {
@@ -329,6 +332,191 @@
   font-weight: 500;
 }
 
+/* --- Pillars Section --- */
+.pillars {
+  padding: 8rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto 0;
+}
+
+.pillars__header, .highlights__header {
+  text-align: center;
+  margin-bottom: 4rem;
+}
+
+.section-title {
+  font-size: 3.5rem;
+  font-family: 'Iceland', sans-serif;
+  color: #fff;
+  margin-bottom: 0.5rem;
+  letter-spacing: 2px;
+}
+
+.section-subtitle {
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.6);
+  letter-spacing: 1px;
+}
+
+.pillars__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+}
+
+.pillar-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 4rem 2.5rem;
+  border-radius: 3rem;
+  text-align: center;
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  backdrop-filter: blur(10px);
+}
+
+.pillar-card:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(167, 139, 250, 0.4);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+}
+
+.pillar-icon {
+  margin-bottom: 2rem;
+  color: #a78bfa;
+  display: inline-flex;
+  padding: 1.5rem;
+  background: rgba(167, 139, 250, 0.1);
+  border-radius: 2rem;
+}
+
+.pillar-card h3 {
+  font-size: 2rem;
+  margin-bottom: 1.25rem;
+  color: #fff;
+}
+
+.pillar-card p {
+  font-size: 1.15rem;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* --- Highlights Section --- */
+.highlights {
+  padding: 8rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.highlights__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+}
+
+.highlight-card {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 3rem;
+  border-radius: 2.5rem;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s ease;
+}
+
+.highlight-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: radial-gradient(circle at top right, rgba(167, 139, 250, 0.15), transparent);
+  opacity: 0;
+  transition: 0.4s;
+}
+
+.highlight-card:hover {
+ background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(167, 139, 250, 0.4);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+}
+
+.highlight-card:hover::before {
+  opacity: 1;
+}
+
+.highlight-tag {
+  display: inline-block;
+  padding: 0.5rem 1.25rem;
+  background: rgba(167, 139, 250, 0.1);
+  color: #a78bfa;
+  border-radius: 100px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 2rem;
+}
+
+.highlight-card h3 {
+  font-size: 2.2rem;
+  margin-bottom: 1.5rem;
+}
+
+.highlight-card p {
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.5);
+  line-height: 1.7;
+}
+
+/* --- Final CTA --- */
+.final-cta {
+  padding: 10rem 2rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.final-cta__glass {
+  background: linear-gradient(135deg, rgba(82, 39, 255, 0.12), rgba(167, 139, 250, 0.04));
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  padding: 8rem 4rem;
+  border-radius: 5rem;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  box-shadow: 0 60px 120px rgba(0, 0, 0, 0.6);
+}
+
+.final-cta__glass h2 {
+  font-size: 4.5rem;
+  margin: 0;
+  letter-spacing: -1px;
+}
+
+.final-cta__glass p {
+  font-size: 1.8rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 1rem;
+}
+
+.final-cta-btn {
+  background: #fff;
+  color: #000;
+  padding: 1.5rem 4rem;
+  border-radius: 100px;
+  font-size: 1.4rem;
+  font-weight: 800;
+  text-decoration: none;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.final-cta-btn:active {
+  transform: scale(0.98);
+}
+
+/* --- Mobile Mobile Premium Refinement --- */
 @media (max-width: 1024px) {
   .about {
     grid-template-columns: 1fr;
@@ -336,7 +524,7 @@
   }
 
   .about__content {
-    padding: 4rem 3rem;
+    padding: 6rem 2rem; /* Increased padding for better section separation */
     align-items: center;
     text-align: center;
   }
@@ -347,37 +535,111 @@
 
   .about__description {
     margin: 0 auto;
+    font-size: 1.25rem;
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .pillars__grid {
+    grid-template-columns: 1fr;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .highlights__grid {
+    grid-template-columns: 1fr;
+    max-width: 600px;
+    margin: 0 auto;
   }
 
   .stats__container {
     grid-template-columns: repeat(2, 1fr);
     gap: 3rem;
-    padding: 3.5rem 2rem;
+    padding: 4rem 2rem;
+  }
+
+  .final-cta__glass h2 {
+    font-size: 4rem;
   }
 }
 
 @media (max-width: 768px) {
   .hero {
-    margin-top: 2rem;
-    padding: 2rem 1rem 5rem;
+    margin-top: 0; /* Let Navbar handle spacing if fixed */
+    padding: 8rem 1.5rem 6rem;
+    min-height: 100vh;
   }
 
   .hero__zcoer-logo {
-    height: 15rem;
+    height: 12rem;
   }
 
   .hero__title {
-    max-width: 22rem;
-  }
-
-  .hero__tagline {
-    font-size: 1.2rem;
+    max-width: 20rem;
   }
 
   .hero__countdown {
     gap: 1rem;
-    padding: 1.2rem 1.5rem;
-    border-radius: 1.5rem;
+    padding: 1.25rem;
+    width: 100%;
+    max-width: 400px;
+    justify-content: center;
+  }
+
+  .countdown-item {
+    min-width: 3.5rem;
+  }
+
+  .countdown-value {
+    font-size: 2.2rem;
+  }
+
+  .hero__cta-link {
+    font-size: 1.6rem;
+  }
+
+  .section-title {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+  }
+
+  .pillar-card {
+    padding: 3.5rem 2rem;
+    border-radius: 2.5rem;
+  }
+
+  .final-cta__glass {
+    padding: 6rem 1.5rem;
+    border-radius: 4rem;
+    margin: 0 1rem;
+  }
+
+  .final-cta__glass h2 {
+    font-size: 3.2rem;
+    line-height: 1.1;
+  }
+
+  .final-cta__glass p {
+    font-size: 1.4rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero {
+    padding: 6rem 1rem 5rem;
+  }
+
+  .hero__zcoer-logo {
+    height: 9rem;
+  }
+
+  .hero__title {
+    max-width: 16rem;
+  }
+
+  .hero__countdown {
+    gap: 0.5rem;
+    padding: 1rem;
+    border-radius: 1.25rem;
   }
 
   .countdown-item {
@@ -385,7 +647,7 @@
   }
 
   .countdown-value {
-    font-size: 2.2rem;
+    font-size: 1.8rem;
   }
 
   .countdown-label {
@@ -393,95 +655,62 @@
   }
 
   .hero__cta-link {
+    font-size: 1.4rem;
+  }
+
+  .section-title {
+    font-size: 2.5rem;
+  }
+
+  .section-subtitle {
+    font-size: 1rem;
+  }
+
+  .pillar-card h3 {
+    font-size: 1.75rem;
+  }
+
+  .pillar-card p {
+    font-size: 1rem;
+  }
+
+  .highlight-card {
+    padding: 2.5rem 1.5rem;
+    border-radius: 2rem;
+  }
+
+  .highlight-card h3 {
     font-size: 1.6rem;
   }
 
-  .hero__explore-link {
+  .highlight-card p {
     font-size: 1.1rem;
-  }
-
-  .about__title-text {
-    font-size: 1.6rem;
-  }
-
-  .about__title-logo {
-    height: auto;
-    max-width: 90%;
-  }
-
-  .about__description {
-    font-size: 1.2rem;
-    width: 100%;
-  }
-}
-
-@media (max-width: 480px) {
-  .hero {
-    margin-top: 2rem;
-    padding: 2rem 1rem 5rem;
-  }
-
-  .hero__zcoer-logo {
-    height: 12rem;
-    width: 80%;
-    max-width: 250px;
-  }
-
-  .hero__title {
-    max-width: 90%;
-  }
-
-  .hero__tagline {
-    font-size: 1.1rem;
-    width: 90%;
-    margin: 0 auto;
-  }
-
-  .hero__countdown {
-    gap: 0.5rem;
-    padding: 1rem 0.75rem;
-    width: 100%;
-    justify-content: center;
-    border-radius: 1rem;
-  }
-
-  .countdown-item {
-    min-width: 2rem;
-  }
-
-  .countdown-value {
-    font-size: 1.6rem;
-  }
-
-  .countdown-label {
-    font-size: 0.6rem;
-  }
-
-  .countdown-separator {
-    font-size: 1.2rem;
-  }
-
-  .about__content {
-    padding: 3rem 1.5rem;
-  }
-
-  .about__title-logo {
-    width: 100%;
-    height: auto;
-  }
-
-  .stats {
-    padding: 3rem 1rem;
   }
 
   .stats__container {
     grid-template-columns: 1fr;
-    gap: 2rem;
-    padding: 2.5rem 1.5rem;
-    border-radius: 1.5rem;
+    gap: 2.5rem;
+    padding: 3rem 1.5rem;
+    border-radius: 2rem;
   }
 
   .stats__number {
-    font-size: 2.5rem;
+    font-size: 3rem;
+  }
+
+  .final-cta__glass h2 {
+    font-size: 2.4rem;
+  }
+
+  .final-cta__glass p {
+    font-size: 1.1rem;
+  }
+
+  .final-cta-btn {
+    padding: 1.25rem 2.5rem;
+    font-size: 1.2rem;
+    width: 100%;
+    max-width: 280px;
+    text-align: center;
   }
 }

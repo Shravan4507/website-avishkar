@@ -6,8 +6,8 @@
 .bell-trigger {
   width: 44px;
   height: 44px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.05);
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0);
   border: 1px solid rgba(255, 255, 255, 0.08);
   color: #fff;
   display: flex;
@@ -18,10 +18,8 @@
   position: relative;
 }
 
-.bell-trigger:hover {
-  background: rgba(82, 39, 255, 0.1);
-  border-color: rgba(82, 39, 255, 0.3);
-  transform: translateY(-2px);
+.bell-trigger:active {
+  transform: scale(0.98);
 }
 
 .unread-badge {

@@ -97,12 +97,42 @@
     }
 }
 
-@media (max-width: 768px) {
+/* --- Mobile Mobile Premium Refinement --- */
+@media (max-width: 900px) {
     .team-page {
         padding-top: 100px;
     }
 
+    .team-header {
+        padding: 4rem 1.5rem 2rem;
+    }
+
+    .team-header h1 {
+        font-size: 3rem;
+        letter-spacing: -1px;
+    }
+
+    .team-header p {
+        font-size: 1.1rem;
+        line-height: 1.5;
+    }
+
+    .team-container {
+        min-height: auto !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .team-header h1 {
+        font-size: 2.2rem;
+    }
+
+    .team-header p {
+        font-size: 1rem;
+    }
+
     .dept-title-container h2 {
-        font-size: 1.4rem;
+        font-size: 1.2rem;
+        letter-spacing: 2px;
     }
 }
