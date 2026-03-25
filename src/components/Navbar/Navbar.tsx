@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { auth, db } from '../../firebase/firebase'
 import { onAuthStateChanged } from 'firebase/auth'
 import { doc, getDoc } from 'firebase/firestore'
+import { X } from 'lucide-react'
 const logo = `${import.meta.env.BASE_URL}assets/logos/avishkar-icon.png`
 import './Navbar.css'
 
@@ -134,11 +135,13 @@ function Navbar() {
           className="navbar__hamburger" 
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           aria-expanded={isMobileMenuOpen}
-          aria-label="Toggle menu"
+          aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
         >
-          <div className="hamburger-box">
-            <div className="hamburger-inner"></div>
-          </div>
+          {isMobileMenuOpen ? <X size={28} color="#fff" /> : (
+            <div className="hamburger-box">
+              <div className="hamburger-inner"></div>
+            </div>
+          )}
         </button>
       </nav>
 

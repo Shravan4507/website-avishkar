@@ -67,14 +67,12 @@ const LayoutManager = () => {
                       location.pathname.includes('login');
 
   return (
-    <div className="app-container">
-      <Navbar />
-
+    <>
       <div className="background-fixed">
         <Grainient
-          color1="#201d20"
+          color1="#000000"
           color2="#5227ff"
-          color3="#000000"
+          color3="#201d20"
           timeSpeed={0.25}
           colorBalance={0}
           warpStrength={1}
@@ -97,57 +95,61 @@ const LayoutManager = () => {
         />
       </div>
 
-      <main className={isDashboard ? "dashboard-layout" : "content"}>
-        <ErrorBoundary>
-          <AnimatePresence mode="wait" initial={true}>
-            <Suspense fallback={<Loader fullscreen label="Loading..." />}>
-              <Routes location={location} key={location.pathname}>
-                {/* ── Public Site Pages ── */}
-                <Route path="/"            element={<T el={settings.home ? <Home /> : <ComingSoon pageName="Home" />} />} />
-                <Route path="/workshops"   element={<T el={settings.workshops ? <Workshops /> : <ComingSoon pageName="Workshops" />} />} />
-                <Route path="/competitions"element={<T el={settings.competitions ? <Competitions /> : <ComingSoon pageName="Competitions" />} />} />
-                <Route path="/schedule"    element={<T el={settings.schedule ? <Schedule /> : <ComingSoon pageName="Schedule" />} />} />
-                <Route path="/team"        element={<T el={settings.team ? <Team /> : <ComingSoon pageName="Team" />} />} />
-                <Route path="/sponsors"    element={<T el={settings.sponsors ? <Sponsors /> : <ComingSoon pageName="Sponsors" />} />} />
-                <Route path="/contact"     element={<T el={settings.contact ? <Contact /> : <ComingSoon pageName="Contact" />} />} />
-                <Route path="/book-a-stall" element={<T el={<BookStall />} />} />
-                <Route path="/paramx" element={<T el={<ParamX />} />} />
+      <div className="app-container">
+        <Navbar />
 
-                {/* ── Student Auth ── */}
-                <Route element={<PublicRoutes />}>
-                  <Route path="/login" element={<T el={<Login />} />} />
-                </Route>
+        <main className={isDashboard ? "dashboard-layout" : "content"}>
+          <ErrorBoundary>
+            <AnimatePresence mode="wait">
+              <Suspense fallback={<Loader />}>
+                <Routes location={location} key={location.pathname}>
+                  {/* ── Public Site Pages ── */}
+                  <Route path="/"            element={<T el={settings.home ? <Home /> : <ComingSoon pageName="Home" />} />} />
+                  <Route path="/workshops"   element={<T el={settings.workshops ? <Workshops /> : <ComingSoon pageName="Workshops" />} />} />
+                  <Route path="/competitions"element={<T el={settings.competitions ? <Competitions /> : <ComingSoon pageName="Competitions" />} />} />
+                  <Route path="/schedule"    element={<T el={settings.schedule ? <Schedule /> : <ComingSoon pageName="Schedule" />} />} />
+                  <Route path="/team"        element={<T el={settings.team ? <Team /> : <ComingSoon pageName="Team" />} />} />
+                  <Route path="/sponsors"    element={<T el={settings.sponsors ? <Sponsors /> : <ComingSoon pageName="Sponsors" />} />} />
+                  <Route path="/contact"     element={<T el={settings.contact ? <Contact /> : <ComingSoon pageName="Contact" />} />} />
+                  <Route path="/book-a-stall" element={<T el={<BookStall />} />} />
+                  <Route path="/paramx" element={<T el={<ParamX />} />} />
 
-                {/* ── Admin Auth ── */}
-                <Route path="/admin-login" element={<T el={<AdminLogin />} />} />
+                  {/* ── Student Auth ── */}
+                  <Route element={<PublicRoutes />}>
+                    <Route path="/login" element={<T el={<Login />} />} />
+                  </Route>
 
-                {/* ── Student Protected ── */}
-                <Route element={<UserProtectedRoutes />}>
-                  <Route path="/signup"         element={<T el={<Signup />} />} />
-                  <Route path="/user/dashboard" element={<T el={<UserDashboard />} />} />
-                  <Route path="/user/scanner"   element={<T el={<VolunteerScanner />} />} />
-                  <Route path="/register/:slug" element={<T el={<Registration />} />} />
-                  <Route path="/hackathon-register" element={<T el={<HackathonRegistration />} />} />
-                  <Route path="/robotron-register" element={<T el={<RobotronRegistration />} />} />
-                  <Route path="/esports-register" element={<T el={<EsportsRegistration />} />} />
-                </Route>
+                  {/* ── Admin Auth ── */}
+                  <Route path="/admin-login" element={<T el={<AdminLogin />} />} />
 
-                {/* ── Admin Protected ── */}
-                <Route element={<AdminProtectedRoutes />}>
-                  <Route path="/admin/setup"     element={<T el={<AdminSetup />} />} />
-                  <Route path="/admin/dashboard" element={<T el={<AdminDashboard />} />} />
-                </Route>
+                  {/* ── Student Protected ── */}
+                  <Route element={<UserProtectedRoutes />}>
+                    <Route path="/signup"         element={<T el={<Signup />} />} />
+                    <Route path="/user/dashboard" element={<T el={<UserDashboard />} />} />
+                    <Route path="/user/scanner"   element={<T el={<VolunteerScanner />} />} />
+                    <Route path="/register/:slug" element={<T el={<Registration />} />} />
+                    <Route path="/hackathon-register" element={<T el={<HackathonRegistration />} />} />
+                    <Route path="/robotron-register" element={<T el={<RobotronRegistration />} />} />
+                    <Route path="/esports-register" element={<T el={<EsportsRegistration />} />} />
+                  </Route>
 
-                {/* ── 404 ── */}
-                <Route path="*" element={<T el={<NotFound />} />} />
-              </Routes>
-            </Suspense>
-          </AnimatePresence>
-        </ErrorBoundary>
-      </main>
+                  {/* ── Admin Protected ── */}
+                  <Route element={<AdminProtectedRoutes />}>
+                    <Route path="/admin/setup"     element={<T el={<AdminSetup />} />} />
+                    <Route path="/admin/dashboard" element={<T el={<AdminDashboard />} />} />
+                  </Route>
 
-      <Footer />
-    </div>
+                  {/* ── 404 ── */}
+                  <Route path="*" element={<T el={<NotFound />} />} />
+                </Routes>
+              </Suspense>
+            </AnimatePresence>
+          </ErrorBoundary>
+        </main>
+
+        <Footer />
+      </div>
+    </>
   );
 };
 

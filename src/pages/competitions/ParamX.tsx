@@ -4,7 +4,8 @@ import { collection, onSnapshot } from 'firebase/firestore';
 import { db } from '../../firebase/firebase';
 import SEO from '../../components/seo/SEO';
 import GlassSelect from '../../components/dropdown/GlassSelect';
-import { fetchProblemStatements, type ProblemStatement } from '../../utils/storageUtils';
+import { type ProblemStatement } from '../../utils/storageUtils';
+import problemsData from '../../data/problems.json';
 import { Search, Filter, ArrowRight, Info, Loader2 } from 'lucide-react';
 import './ParamX.css';
 
@@ -20,19 +21,11 @@ const ParamX: React.FC = () => {
     const MAX_SLOTS = 500;
 
     useEffect(() => {
-        const loadData = async () => {
-            try {
-                const psData = await fetchProblemStatements();
-                setProblems(psData);
-            } catch (err) {
-                console.error("Error loading problem statements:", err);
-            } finally {
-                setLoading(false);
-            }
-        };
-        loadData();
+        // Load problems from local JSON instead of fetching from cloud
+        setProblems(problemsData as ProblemStatement[]);
+        setLoading(false);
 
-        // Real-time counts from Firestore
+        // Real-time counts from Firestore (maintained for real-time slot tracking)
         const unsubscribe = onSnapshot(collection(db, "ps_metadata"), (snapshot) => {
             const newCounts: Record<string, number> = {};
             snapshot.forEach(doc => {
