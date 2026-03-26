@@ -74,6 +74,10 @@ function Competitions() {
                         onItemClick={(item) => {
                             if (item.slug === 'codex-26') {
                                 navigate('/paramx');
+                            } else if (item.slug === 'battle-grid-26') {
+                                navigate('/esports-register');
+                            } else if (item.slug === 'robotron-26') {
+                                navigate('/robo-kshetra');
                             } else {
                                 setSelectedSlug(item.slug);
                             }

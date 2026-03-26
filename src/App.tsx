@@ -23,7 +23,7 @@ const Sponsors = lazy(() => import('./pages/sponsors/Sponsors'));
 const ComingSoon = lazy(() => import('./pages/ComingSoon/ComingSoon'));
 const Registration = lazy(() => import('./pages/competitions/Registration'));
 const HackathonRegistration = lazy(() => import('./pages/competitions/HackathonRegistration'));
-const RobotronRegistration = lazy(() => import('./pages/competitions/RobotronRegistration'));
+const RobotronRegistration = lazy(() => import('./pages/competitions/RoboKshetra'));
 const EsportsRegistration = lazy(() => import('./pages/competitions/EsportsRegistration'));
 const BookStall = lazy(() => import('./pages/stalls/BookStall'));
 const ParamX = lazy(() => import('./pages/competitions/ParamX'));
@@ -129,7 +129,7 @@ const LayoutManager = () => {
                     <Route path="/user/scanner"   element={<T el={<VolunteerScanner />} />} />
                     <Route path="/register/:slug" element={<T el={<Registration />} />} />
                     <Route path="/hackathon-register" element={<T el={<HackathonRegistration />} />} />
-                    <Route path="/robotron-register" element={<T el={<RobotronRegistration />} />} />
+                    <Route path="/robo-kshetra" element={<T el={<RobotronRegistration />} />} />
                     <Route path="/esports-register" element={<T el={<EsportsRegistration />} />} />
                   </Route>
 
