@@ -18,7 +18,7 @@ const ParamX: React.FC = () => {
     const [selectedDomain, setSelectedDomain] = useState('All');
 
     // Default limit per PS (as per SIH example in user's image)
-    const MAX_SLOTS = 500;
+    const MAX_SLOTS = 10;
 
     useEffect(() => {
         // Load problems from local JSON instead of fetching from cloud
