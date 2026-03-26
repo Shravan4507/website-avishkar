@@ -31,6 +31,8 @@ const ROBO_EVENTS = [
         members: 4, 
         mode: 'Offline',
         color: '#d9ff00', 
+        description: 'Design an autonomous bot capable of navigating complex paths with absolute precision and speed.',
+        gradient: 'linear-gradient(135deg, #d9ff00, #000)',
         image: `${import.meta.env.BASE_URL}assets/robokshetra/line_follower.png` 
     },
     { 
@@ -42,6 +44,8 @@ const ROBO_EVENTS = [
         members: 4, 
         mode: 'Offline',
         color: '#d9ff00', 
+        description: 'Engineer an intelligent machine that can analyze and escape complex labyrinthine structures in record time.',
+        gradient: 'linear-gradient(135deg, #d9ff00, #000)',
         image: `${import.meta.env.BASE_URL}assets/robokshetra/maze_solver.png` 
     },
     { 
@@ -53,6 +57,8 @@ const ROBO_EVENTS = [
         members: 4, 
         mode: 'Offline',
         color: '#d9ff00', 
+        description: 'A grueling all-terrain challenge course designed to test your bot\'s mechanical resilience and obstacle evasion logic.',
+        gradient: 'linear-gradient(135deg, #d9ff00, #000)',
         image: `${import.meta.env.BASE_URL}assets/robokshetra/trailblazer.png` 
     },
 ] as const;
@@ -170,6 +176,9 @@ const RoboKshetra: React.FC = () => {
                                 subtitle: e.tagline,
                                 image: e.image,
                                 prizePool: e.prize,
+                                description: e.description,
+                                gradient: e.gradient,
+                                handle: e.type,
                                 isFlagship: true,
                                 borderColor: e.color,
                                 location: `${e.members}P | ${e.mode}`
