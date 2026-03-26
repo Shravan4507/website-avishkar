@@ -174,6 +174,9 @@ const RoboKshetra: React.FC = () => {
                                 borderColor: e.color,
                                 location: `${e.members}P | ${e.mode}`
                             } as any))}
+                            radius={400}
+                            damping={0.5}
+                            fadeOut={0.8}
                             columns={3}
                             onItemClick={(item: any) => setSelectedEvent(item.id as EventId)}
                         />
