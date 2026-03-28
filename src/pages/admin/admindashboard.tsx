@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import GlassSelect from '../../components/dropdown/GlassSelect';
-import { usePageSettings } from '../../context/PageSettingsContext';
+// Removed usePageSettings
 import './admindashboard.css';
 
 interface Registration {
@@ -1068,8 +1068,7 @@ const AdminDashboard: React.FC = () => {
         return (isSuper || adminProfile?.roleLevel === 'flagship_admin-paramx--26') 
           ? <HackathonRegistrationsView /> 
           : <div>Access Denied</div>;
-      case 'website_settings':
-        return isSuper ? <WebsiteSettingsView /> : <div>Access Denied</div>;
+      // website_settings removed
       default:
         return <div className="tab-content"><h1>{activeTab}</h1><p>Under construction.</p></div>;
     }
@@ -1190,103 +1189,7 @@ const AdminDirectoryView: React.FC<AdminDirectoryProps> = ({ currentUserId }) =>
   );
 };
 
-const WebsiteSettingsView: React.FC = () => {
-  const toastContext = useToast();
-  const { settings, loading } = usePageSettings();
-
-  const handleToggle = async (pageKey: string, currentValue: boolean) => {
-    try {
-      await setDoc(doc(db, 'settings', 'pages'), { [pageKey]: !currentValue }, { merge: true });
-      toastContext?.success("Page visibility updated successfully!");
-    } catch (err) {
-      console.error(err);
-      toastContext?.error("Error updating page visibility.");
-    }
-  };
-
-  if (loading) return <div>Loading settings...</div>;
-
-  const pages = [
-    { key: 'home', label: 'Home Page' },
-    { key: 'workshops', label: 'Workshops Page' },
-    { key: 'competitions', label: 'Competitions Page' },
-    { key: 'team', label: 'Team Page' },
-    { key: 'schedule', label: 'Schedule Page' },
-    { key: 'sponsors', label: 'Sponsors Page' },
-    { key: 'contact', label: 'Contact Page' }
-  ];
-
-  return (
-    <div className="admin-tab-section">
-      <div className="admin-header-card" style={{ marginBottom: '2.5rem' }}>
-        <div>
-          <h1 className="tab-title-premium">Website Settings</h1>
-          <p className="tab-subtitle-premium" style={{ margin: 0 }}>Toggle public visibility of application pages</p>
-        </div>
-      </div>
-      
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
-        {pages.map((page) => {
-          const isVisible = settings[page.key as keyof typeof settings] ?? true;
-          
-          return (
-            <div key={page.key} style={{ 
-              background: 'rgba(255,255,255,0.02)', 
-              border: '1px solid rgba(255,255,255,0.1)', 
-              borderRadius: '20px', 
-              padding: '24px',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              transition: 'all 0.3s ease'
-            }}>
-              <div>
-                <h3 style={{ color: '#fff', margin: '0 0 4px 0', fontSize: '1.2rem' }}>{page.label}</h3>
-                <span style={{ 
-                  color: isVisible ? 'rgb(94, 255, 91)' : 'rgba(255,255,255,0.4)',
-                  fontSize: '0.8rem',
-                  fontWeight: 600,
-                  textTransform: 'uppercase',
-                  background: isVisible ? 'rgba(94, 255, 91, 0.1)' : 'rgba(255,255,255,0.05)',
-                  padding: '4px 8px',
-                  borderRadius: '6px'
-                }}>
-                  {isVisible ? 'LIVE' : 'COMING SOON'}
-                </span>
-              </div>
-              
-              <button 
-                onClick={() => handleToggle(page.key, isVisible)}
-                style={{
-                  width: '56px',
-                  height: '32px',
-                  borderRadius: '20px',
-                  background: isVisible ? '#5227ff' : 'rgba(255,255,255,0.1)',
-                  border: 'none',
-                  position: 'relative',
-                  cursor: 'pointer',
-                  transition: 'background 0.3s ease'
-                }}
-              >
-                <div style={{
-                  position: 'absolute',
-                  top: '4px',
-                  left: isVisible ? '28px' : '4px',
-                  width: '24px',
-                  height: '24px',
-                  borderRadius: '50%',
-                  background: '#fff',
-                  transition: 'left 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-                  boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
-                }} />
-              </button>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-};
+// WebsiteSettingsView removed
 
 const GlobalSearchView: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');

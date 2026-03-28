@@ -1,0 +1,260 @@
+/* BattleGrid.css - Mirrored from ParamX Aethetics */
+.battle-grid-page {
+    padding: 120px 2rem 4rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    min-height: 100vh;
+}
+
+/* --- HERO --- */
+.bg-hero {
+    text-align: center;
+    margin-bottom: 8rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: fadeIn 1s ease;
+}
+
+.hero-badge {
+    background: rgba(0, 0, 0, 0);
+    color: #ff4655; /* Red Accent for BattleGrid */
+    padding: 0.5rem 1.5rem;
+    font-family: 'Iceland', sans-serif;
+    font-size: 3rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    line-height: 1.1;
+}
+
+.hero-logo {
+    max-width: 800px;
+    width: 95%;
+    height: auto;
+    margin-bottom: 2rem;
+    filter: drop-shadow(0 0 20px rgba(255, 70, 85, 0.2));
+}
+
+.hero-subtitle {
+    font-size: 1.5rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin-bottom: 3.5rem;
+}
+
+.hero-stats {
+    display: flex;
+    gap: 4rem;
+    margin-bottom: 4rem;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+}
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    color: #ff4655;
+    background: rgba(255, 70, 85, 0.05);
+    border-radius: 1rem;
+    padding: 10px;
+}
+
+.stat-content {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.stat-val {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.4);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.hero-ctas {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.primary-cta {
+    background: rgba(0, 0, 0, 0.65);
+    color: #fff;
+    padding: 1.2rem 3rem;
+    border-radius: 3.5rem;
+    font-weight: 700;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    border: 1px solid rgba(255, 70, 85, 0.3);
+    transition: all 0.3s ease;
+}
+
+.primary-cta:hover {
+    background: rgba(255, 70, 85, 0.1);
+    box-shadow: 0 0 30px rgba(255, 70, 85, 0.2);
+}
+
+.primary-cta.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.secondary-cta {
+    background: rgba(255, 255, 255, 0);
+    color: #fff;
+    padding: 1.2rem 2.5rem;
+    border-radius: 3.5rem;
+    font-weight: 600;
+    font-size: 1.05rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    text-decoration: none;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.secondary-cta:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* --- JUDGING SECTION --- */
+.judging-preview {
+    margin-bottom: 10rem;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(20px);
+    padding: 5rem 3rem;
+    border-radius: 4rem;
+    border-bottom: 3px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6);
+}
+
+.section-label {
+    color: #ff4655;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+}
+
+.judging-preview h2 {
+    font-size: 3rem;
+    font-family: 'Iceland', sans-serif;
+    margin-bottom: 4rem;
+    color: #fff;
+}
+
+.judging-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 2rem;
+}
+
+.judging-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 2.5rem;
+    border-radius: 2rem;
+    text-align: left;
+    transition: all 0.3s ease;
+}
+
+.judging-card:hover {
+    background: rgba(255, 255, 255, 0);
+    border-color: rgba(255, 70, 85, 0.3);
+}
+
+.j-icon {
+    width: 45px;
+    height: 45px;
+    background: rgba(255, 70, 85, 0.1);
+    border-radius: 0.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ff4655;
+    margin-bottom: 1.5rem;
+}
+
+.judging-card h3 {
+    font-size: 1.4rem;
+    color: #fff;
+    margin-bottom: 1rem;
+}
+
+.judging-card p {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.5);
+    line-height: 1.6;
+    margin-bottom: 2rem;
+}
+
+.weightage {
+    background: rgba(255, 70, 85, 0.15);
+    color: #ff4655;
+    padding: 0.4rem 1rem;
+    border-radius: 2rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+/* --- PORTAL HEADER --- */
+.portal-header {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto 4rem;
+    background: rgba(0, 0, 0, 0.45);
+    padding: 4rem;
+    border-radius: 4rem;
+    backdrop-filter: blur(15px);
+    border-bottom: 3px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6);
+}
+
+.portal-header h2 {
+    font-size: 3rem;
+    font-family: 'Iceland', sans-serif;
+    margin-bottom: 1rem;
+}
+
+.portal-header p {
+    color: rgba(255, 255, 255, 0.6);
+    line-height: 1.6;
+}
+
+.arenas-container {
+    padding: 0 1rem;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .bg-hero { margin-bottom: 4rem; }
+    .hero-stats { flex-direction: column; gap: 2rem; }
+    .hero-ctas { flex-direction: column; width: 100%; }
+    .primary-cta, .secondary-cta { justify-content: center; }
+    .judging-preview { padding: 3rem 1.5rem; border-radius: 2rem; }
+    .portal-header { padding: 3rem 1.5rem; border-radius: 2rem; }
+}

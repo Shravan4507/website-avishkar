@@ -10,11 +10,9 @@ import './Navbar.css'
 const TABS = [
   { label: 'Home', path: '/' },
   { label: 'Workshops', path: '/workshops' },
-  { label: 'Competitions', path: '/competitions' },
-  { label: 'Team', path: '/team' },
   { label: 'Schedule', path: '/schedule' },
+  { label: 'Competitions', path: '/competitions' },
   { label: 'Sponsors', path: '/sponsors' },
-  { label: 'Contact', path: '/contact' },
 ] as const
 
 function Navbar() {
@@ -41,13 +39,15 @@ function Navbar() {
           // Check admins collection first
           const adminDoc = await getDoc(doc(db, 'admins', user.uid))
           if (adminDoc.exists()) {
-            setUserAvatar(adminDoc.data().avatar)
+            const adminData = adminDoc.data()
+            setUserAvatar(adminData.photoURL || adminData.avatar || user.photoURL)
             setUserRole('admin')
           } else {
             // Then check user collection
             const userDoc = await getDoc(doc(db, 'user', user.uid))
             if (userDoc.exists()) {
-              setUserAvatar(userDoc.data().photoURL)
+              const userData = userDoc.data()
+              setUserAvatar(userData.photoURL || user.photoURL)
               setUserRole('user')
             } else {
               setUserAvatar(user.photoURL)
@@ -108,18 +108,35 @@ function Navbar() {
           ))}
           {currentUser ? (
             <Link to={userRole === 'admin' ? '/admin/dashboard' : '/user/dashboard'} className="navbar__avatar-link" aria-label="Dashboard">
-              {userAvatar && userAvatar.trim() !== '' ? (
-                <img 
-                  src={userAvatar} 
-                  alt="Profile" 
-                  className="navbar__avatar-img" 
-                  crossOrigin="anonymous"
-                />
-              ) : (
-                <div className="navbar__avatar-initials">
-                  {(currentUser.displayName || currentUser.email || 'U').charAt(0).toUpperCase()}
-                </div>
-              )}
+              {(() => {
+                const finalAvatar = [userAvatar, currentUser.photoURL].find(url => url && url.trim() !== '' && (url.startsWith('http') || url.startsWith('/') || url.startsWith('data:')));
+                
+                if (finalAvatar) {
+                  return (
+                    <img 
+                      src={finalAvatar} 
+                      alt="" 
+                      className="navbar__avatar-img" 
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                        const parent = target.parentElement;
+                        if (parent && !parent.querySelector('.navbar__avatar-initials')) {
+                          const initials = document.createElement('div');
+                          initials.className = 'navbar__avatar-initials';
+                          initials.innerText = (currentUser.displayName || currentUser.email || 'U').charAt(0).toUpperCase();
+                          parent.appendChild(initials);
+                        }
+                      }}
+                    />
+                  );
+                }
+                return (
+                  <div className="navbar__avatar-initials">
+                    {(currentUser.displayName || currentUser.email || 'U').charAt(0).toUpperCase()}
+                  </div>
+                );
+              })()}
             </Link>
           ) : (
             <Link 

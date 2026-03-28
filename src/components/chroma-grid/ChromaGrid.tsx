@@ -16,6 +16,7 @@ export interface ChromaItem {
     gradient?: string;
     url?: string;
     prizePool?: string;
+    entryFee?: number;
     isFlagship?: boolean;
     socials?: {
         github?: string;
@@ -35,10 +36,13 @@ export interface ChromaGridProps {
     fadeOut?: number;
     ease?: string;
     showRegister?: boolean;
+    isRegistered?: boolean;
+    registeredEventName?: string | null;
     selectedItemSlug?: string;
     onItemClick?: (item: ChromaItem) => void;
     onModalClose?: () => void;
 }
+
 
 type SetterFn = (v: number | string) => void;
 
@@ -69,10 +73,13 @@ export const ChromaGrid: React.FC<ChromaGridProps> = ({
     fadeOut = 0.6,
     ease = 'power3.out',
     showRegister = true,
+    isRegistered = false,
+    registeredEventName = null,
     selectedItemSlug,
     onItemClick,
     onModalClose
 }) => {
+
     const rootRef = useRef<HTMLDivElement>(null);
     const fadeRef = useRef<HTMLDivElement>(null);
     const modalRef = useRef<HTMLDivElement>(null);
@@ -215,6 +222,7 @@ export const ChromaGrid: React.FC<ChromaGridProps> = ({
                         {c.isFlagship && <div className="flagship-badge">Flagship</div>}
                         <img src={c.image} alt={c.title} loading="lazy" />
                         {c.prizePool && <div className="prize-tag">Prize: {c.prizePool}</div>}
+                        {c.entryFee && <div className="fee-tag">Fee: ₹{c.entryFee}</div>}
                     </div>
                     <footer className="chroma-info">
                         <h3 className="name">{c.title}</h3>
@@ -257,18 +265,25 @@ export const ChromaGrid: React.FC<ChromaGridProps> = ({
                                 </p>
                                 <div className="modal-actions">
                                     {showRegister && (
-                                        <Link 
-                                            to={
-                                                selectedMember.slug === 'codex-26' ? '/hackathon-register' : 
-                                                selectedMember.slug === 'robotron-26' ? '/robotron-register' :
-                                                selectedMember.slug === 'battle-grid-26' ? '/esports-register' :
-                                                `/register/${selectedMember.slug || encodeURIComponent(selectedMember.title)}`
-                                            } 
-                                            className="register-btn"
-                                        >
-                                            Register Now
-                                        </Link>
+                                        isRegistered ? (
+                                            <button className="register-btn disabled" disabled title={`Already registered for ${registeredEventName}`}>
+                                                Locked: {registeredEventName}
+                                            </button>
+                                        ) : (
+                                            <Link 
+                                                to={
+                                                    selectedMember.slug === 'codex-26' ? '/hackathon-register' : 
+                                                    selectedMember.slug === 'robotron-26' ? '/robotron-register' :
+                                                    selectedMember.slug === 'battle-grid-26' ? '/esports-register' :
+                                                    `/register/${selectedMember.slug || encodeURIComponent(selectedMember.title)}`
+                                                } 
+                                                className="register-btn"
+                                            >
+                                                Register Now
+                                            </Link>
+                                        )
                                     )}
+
                                     <div className="modal-socials">
                                         {selectedMember.socials?.linkedin && (
                                             <a href={selectedMember.socials.linkedin} target="_blank" rel="noopener noreferrer" className="social-icon-btn" title="LinkedIn">

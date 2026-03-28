@@ -1,4 +1,5 @@
-import React, { Suspense, lazy } from 'react';
+import React, { Suspense, lazy, useEffect } from 'react';
+
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { AnimatePresence } from 'framer-motion';
@@ -11,6 +12,8 @@ import ErrorBoundary from './components/ErrorBoundary';
 import { ToastProvider } from './components/toast/Toast';
 import Loader from './components/loader/Loader';
 import PWAReloadPrompt from './components/pwa/PWAReloadPrompt';
+import ScrollToTop from './components/common/ScrollToTop';
+
 
 // Lazy Loaded Public Pages
 const Home = lazy(() => import('./pages/home/Home'));
@@ -24,11 +27,15 @@ const ComingSoon = lazy(() => import('./pages/ComingSoon/ComingSoon'));
 const Registration = lazy(() => import('./pages/competitions/Registration'));
 const HackathonRegistration = lazy(() => import('./pages/competitions/HackathonRegistration'));
 const RobotronRegistration = lazy(() => import('./pages/competitions/RoboKshetra'));
+const RoboKshetraRules = lazy(() => import('./pages/competitions/RoboKshetraRules'));
+const BattleGrid = lazy(() => import('./pages/competitions/BattleGrid'));
 const EsportsRegistration = lazy(() => import('./pages/competitions/EsportsRegistration'));
 const BookStall = lazy(() => import('./pages/stalls/BookStall'));
 const ParamX = lazy(() => import('./pages/competitions/ParamX'));
+const ParamXRules = lazy(() => import('./pages/competitions/ParamXRules'));
 
-import { PageSettingsProvider, usePageSettings } from './context/PageSettingsContext';
+
+import { PAGE_VISIBILITY } from './config/pageVisibility';
 
 // Lazy Loaded Auth Pages
 const Login = lazy(() => import('./components/Login/Login'));
@@ -57,7 +64,7 @@ const T = ({ el }: { el: React.ReactNode }) => (
 // --- Layout wrapper that renders Navbar/Footer on ALL pages ---
 const LayoutManager = () => {
   const location = useLocation();
-  const { settings } = usePageSettings();
+  const settings = PAGE_VISIBILITY;
 
   // We still need to know if we are on a dashboard for the layout class,
   // but we no longer hide the chrome.
@@ -112,7 +119,11 @@ const LayoutManager = () => {
                   <Route path="/sponsors"    element={<T el={settings.sponsors ? <Sponsors /> : <ComingSoon pageName="Sponsors" />} />} />
                   <Route path="/contact"     element={<T el={settings.contact ? <Contact /> : <ComingSoon pageName="Contact" />} />} />
                   <Route path="/book-a-stall" element={<T el={<BookStall />} />} />
-                  <Route path="/paramx" element={<T el={<ParamX />} />} />
+                  <Route path="/robo-kshetra" element={<T el={settings.competitions ? <RobotronRegistration /> : <ComingSoon pageName="RoboKshetra" />} />} />
+                  <Route path="/robo-kshetra/rules" element={<T el={<RoboKshetraRules />} />} />
+                  <Route path="/battle-grid" element={<T el={<BattleGrid />} />} />
+                  <Route path="/param-x" element={<T el={<ParamX />} />} />
+                  <Route path="/param-x/rules" element={<T el={<ParamXRules />} />} />
 
                   {/* ── Student Auth ── */}
                   <Route element={<PublicRoutes />}>
@@ -148,9 +159,19 @@ const LayoutManager = () => {
         </main>
 
         <Footer />
+        <ScrollToTop />
       </div>
+
     </>
   );
+};
+
+const ScrollReset = () => {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
 };
 
 function App() {
@@ -158,16 +179,16 @@ function App() {
     <HelmetProvider>
       <ErrorBoundary>
         <ToastProvider>
-          <PageSettingsProvider>
             <Router>
+              <ScrollReset />
               <LayoutManager />
               <PWAReloadPrompt />
             </Router>
-          </PageSettingsProvider>
         </ToastProvider>
       </ErrorBoundary>
     </HelmetProvider>
   );
 }
+
 
 export default App;

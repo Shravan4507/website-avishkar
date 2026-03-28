@@ -1,14 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { doc, getDoc, updateDoc, onSnapshot, serverTimestamp, query, collection, getDocs, where } from 'firebase/firestore';
-import { auth, db } from '../../firebase/firebase';
+import { auth, db, storage } from '../../firebase/firebase';
+import { ref, uploadString, getDownloadURL } from 'firebase/storage';
 import { useNavigate } from 'react-router-dom';
 import { SkeletonDashboard } from '../../components/skeleton/Skeleton';
 import NotificationBell from '../../components/notifications/NotificationBell';
 import { useToast } from '../../components/toast/Toast';
-import { Award, FileText, Instagram, Youtube, BookOpen } from 'lucide-react';
+import { Award, FileText, Instagram, Youtube, BookOpen, Download, Camera, Loader2 } from 'lucide-react';
 import VirtualPass from '../../components/VirtualPass/VirtualPass';
+import { generateInvoice } from '../../utils/InvoiceGenerator';
+import { useCache } from '../../hooks/useCache';
+import ImageCropper from '../../components/image-cropper/ImageCropper';
 import './user-dashboard.css';
+
 
 interface UserProfile {
   uid: string;
@@ -36,12 +41,76 @@ const UserDashboard: React.FC = () => {
   const toast = useToast();
   
   const [userData, setUserData] = useState<UserProfile | null>(null);
+  const [cachedPhoto, setCachedPhoto] = useCache<string>('user_pfp', '', 'local');
   const [myRegistrations, setMyRegistrations] = useState<any[]>([]);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isPassOpen, setIsPassOpen] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [editForm, setEditForm] = useState<Partial<UserProfile>>({});
+  
+  // Profile Image Upload State
+  const [isCropperOpen, setIsCropperOpen] = useState(false);
+  const [imageToCrop, setImageToCrop] = useState<string>('');
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [isAvatarExpanded, setIsAvatarExpanded] = useState(false);
+
+  const getHighResUrl = (url?: string) => {
+    if (!url) return '';
+    if (url.includes('googleusercontent.com')) {
+      return url.replace(/=s\d+-c/, '=s1000-c');
+    }
+    return url;
+  };
+  
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("Image too large (Max 5MB)");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        setImageToCrop(reader.result as string);
+        setIsCropperOpen(true);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const onCropComplete = async (croppedImage: string) => {
+    if (!user || !userData) return;
+    setIsUploadingImage(true);
+    setIsCropperOpen(false);
+    toast.info("Optimizing and uploading...");
+
+    try {
+      const storageRef = ref(storage, `users/${user.uid}/avatar.webp`);
+      // uploadString with 'data_url' picks up the base64 from the cropper
+      await uploadString(storageRef, croppedImage, 'data_url', {
+        contentType: 'image/webp'
+      });
+      
+      const downloadURL = await getDownloadURL(storageRef);
+      
+      // 1. Update Firestore
+      await updateDoc(doc(db, "user", user.uid), {
+        photoURL: downloadURL,
+        updatedAt: serverTimestamp()
+      });
+
+      // 2. Update Local Cache (Super Smooth UX)
+      setCachedPhoto(croppedImage); // Use base64 locally for instant render
+      
+      toast.success("Profile picture updated!");
+    } catch (error) {
+      console.error("Avatar upload error:", error);
+      toast.error("Failed to upload image.");
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
   
   const handleDownloadPass = async () => {
     if (!userData) return;
@@ -104,6 +173,8 @@ const UserDashboard: React.FC = () => {
           if (data.avrId) {
             setUserData(data);
             setEditForm(data);
+            // Cache photo for super smooth UI on next visit
+            if (data.photoURL) setCachedPhoto(data.photoURL);
           } else {
             navigate('/signup', { replace: true });
           }
@@ -119,20 +190,57 @@ const UserDashboard: React.FC = () => {
         }
       });
 
+
       // FETCH MY REGISTRATIONS
       const fetchMyRegistrations = async () => {
         try {
-          const q = query(
-            collection(db, "registrations"), 
-            where("userEmail", "==", user.email)
-          );
-          const snap = await getDocs(q);
-          const regs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-          setMyRegistrations(regs);
+          // 1. Fetch User Profile to get AVR ID
+          const uSnap = await getDoc(doc(db, "user", user.uid));
+          const avrId = uSnap.data()?.avrId;
+
+          // Standard registrations (Check userEmail OR allAvrIds)
+          const qLeader = query(collection(db, "registrations"), where("userEmail", "==", user.email));
+          const snapLeader = await getDocs(qLeader);
+          
+          let memberRegs: any[] = [];
+          if (avrId) {
+            const qMember = query(collection(db, "registrations"), where("allAvrIds", "array-contains", avrId));
+            const snapMember = await getDocs(qMember);
+            memberRegs = snapMember.docs.map(d => ({ id: d.id, ...d.data() }));
+          }
+
+          const leaderRegs = snapLeader.docs.map(d => ({ id: d.id, ...d.data() }));
+          
+          // Combine and deduplicate by document ID
+          const combinedRegs = [...leaderRegs, ...memberRegs];
+          const uniqueRegs = Array.from(new Map(combinedRegs.map(item => [item.id, item])).values());
+
+          // Param-X / Hackathon registrations (Check leaderEmail OR allAvrIds OR allEmails)
+          const qH1 = query(collection(db, "hackathon_registrations"), where("leaderEmail", "==", user.email));
+          const snapH1 = await getDocs(qH1);
+          
+          let hMemberRegs: any[] = [];
+          if (avrId) {
+            const qH2 = query(collection(db, "hackathon_registrations"), where("allAvrIds", "array-contains", avrId));
+            const snapH2 = await getDocs(qH2);
+            hMemberRegs = snapH2.docs.map(d => ({ id: d.id, ...d.data() }));
+          }
+
+          const hLeaderRegs = snapH1.docs.map(d => ({ id: d.id, ...d.data() }));
+          const combinedHRegs = [...hLeaderRegs, ...hMemberRegs].map(reg => ({
+            ...reg,
+            eventName: 'Param-X Hackathon',
+            category: 'Tech / Hackathon',
+            isHackathon: true
+          }));
+          const uniqueHRegs = Array.from(new Map(combinedHRegs.map(item => [item.id, item])).values());
+
+          setMyRegistrations([...uniqueRegs, ...uniqueHRegs]);
         } catch (e) {
           console.error("Registrations fetch error:", e);
         }
       };
+
       
       if (user.email) {
         fetchMyRegistrations();
@@ -141,6 +249,15 @@ const UserDashboard: React.FC = () => {
       return () => unsubscribe();
     }
   }, [user, authLoading, navigate]);
+
+  useEffect(() => {
+    if (isAvatarExpanded || isPassOpen || isEditModalOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+    return () => { document.body.style.overflow = 'auto'; };
+  }, [isAvatarExpanded, isPassOpen, isEditModalOpen]);
 
   const handleLogout = async () => {
     try {
@@ -186,14 +303,36 @@ const UserDashboard: React.FC = () => {
         {/* --- HEADER --- */}
         <header className="user-dashboard-header">
           <div className="user-dashboard-profile">
-            <div className="user-dashboard-avatar">
-              {userData.photoURL && userData.photoURL.trim() !== '' ? (
-                <img src={userData.photoURL} alt="Avatar" crossOrigin="anonymous" />
-              ) : (
-                <div className="user-dashboard-initials">
-                  {(userData.firstName || 'U').charAt(0)}
-                </div>
-              )}
+            <div className="user-dashboard-avatar" onClick={() => setIsAvatarExpanded(true)} style={{ cursor: 'pointer' }}>
+              {(() => {
+                const finalUrl = [userData?.photoURL, getHighResUrl(user?.photoURL || undefined), cachedPhoto].find(url => url && url.trim() !== '' && (url.startsWith('http') || url.startsWith('/') || url.startsWith('data:')));
+                
+                if (finalUrl) {
+                  return (
+                    <img 
+                      src={finalUrl} 
+                      alt="" 
+                      crossOrigin="anonymous" 
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                        const parent = target.parentElement;
+                        if (parent && !parent.querySelector('.user-dashboard-initials')) {
+                          const initials = document.createElement('div');
+                          initials.className = 'user-dashboard-initials';
+                          initials.innerText = (userData?.firstName || 'U').charAt(0);
+                          parent.appendChild(initials);
+                        }
+                      }}
+                    />
+                  );
+                }
+                return (
+                  <div className="user-dashboard-initials">
+                    {(userData?.firstName || 'U').charAt(0)}
+                  </div>
+                );
+              })()}
             </div>
             <div className="user-dashboard-info">
               <h1 className="user-dashboard-name">Welcome, {userData.firstName}</h1>
@@ -272,8 +411,30 @@ const UserDashboard: React.FC = () => {
                       <h3>{reg.eventName}</h3>
                       <p>{reg.category}</p>
                     </div>
-                    <div className="reg-status">Registered</div>
+                    <div className="reg-actions">
+                      <div className="reg-status">Registered</div>
+                      {reg.isHackathon && (
+                        <button 
+                          className="invoice-download-btn" 
+                          title="Download Invoice"
+                          onClick={() => generateInvoice({
+                            teamName: reg.teamName,
+                            leaderName: reg.leaderName,
+                            leaderEmail: reg.leaderEmail,
+                            avrId: reg.leaderAvrId || reg.avrId,
+                            psId: reg.psId,
+                            psTitle: reg.psId, 
+                            paymentId: reg.paymentId,
+                            date: reg.createdAt?.toDate ? reg.createdAt.toDate().toLocaleDateString() : new Date().toLocaleDateString(),
+                            amount: "500.00"
+                          })}
+                        >
+                          <Download size={18} />
+                        </button>
+                      )}
+                    </div>
                   </div>
+
                 )) : (
                   <div className="empty-state-card">
                     <p>You haven't registered for any events yet!</p>
@@ -335,6 +496,36 @@ const UserDashboard: React.FC = () => {
             </div>
             
             <form onSubmit={handleEditSubmit} className="user-edit-form">
+              {/* Avatar Upload Section */}
+              <div className="user-avatar-edit-section">
+                <div className="avatar-edit-preview">
+                  {(() => {
+                    const finalUrl = [userData?.photoURL, getHighResUrl(user?.photoURL || undefined), cachedPhoto].find(url => url && url.trim() !== '' && (url.startsWith('http') || url.startsWith('/') || url.startsWith('data:')));
+                    return finalUrl ? <img src={finalUrl} alt="Avatar" /> : <div className="avatar-edit-initials">{(userData.firstName || 'U').charAt(0)}</div>;
+                  })()}
+                  {isUploadingImage && (
+                    <div className="avatar-upload-loading">
+                      <Loader2 className="spinner" />
+                    </div>
+                  )}
+                </div>
+                <button 
+                  type="button" 
+                  className="avatar-change-trigger"
+                  onClick={() => document.getElementById('avatar-input-hidden')?.click()}
+                  disabled={isUploadingImage}
+                >
+                  <Camera size={14} /> Change Photo
+                </button>
+                <input 
+                  type="file" 
+                  id="avatar-input-hidden" 
+                  hidden 
+                  accept="image/*" 
+                  onChange={handleImageSelect}
+                />
+              </div>
+
               <div className="user-form-grid">
                 <div className="user-form-group">
                   <label>First Name</label>
@@ -410,6 +601,24 @@ const UserDashboard: React.FC = () => {
           hasRegistrations: myRegistrations.length > 0
         }} 
       />
+      {isAvatarExpanded && (
+        <div className="avatar-expand-overlay" onClick={() => setIsAvatarExpanded(false)}>
+          <button className="avatar-expand-close" onClick={() => setIsAvatarExpanded(false)}>&times;</button>
+          <div className="avatar-expand-content" onClick={e => e.stopPropagation()}>
+            {(() => {
+              const finalUrl = [userData?.photoURL, getHighResUrl(user?.photoURL || undefined), cachedPhoto].find(url => url && url.trim() !== '' && (url.startsWith('http') || url.startsWith('/') || url.startsWith('data:')));
+              return finalUrl ? <img src={finalUrl} alt="Full Avatar" /> : <div className="avatar-expand-initials">{(userData?.firstName || 'U').charAt(0)}</div>;
+            })()}
+          </div>
+        </div>
+      )}
+      {isCropperOpen && (
+        <ImageCropper 
+          imageSrc={imageToCrop} 
+          onCropComplete={onCropComplete} 
+          onCancel={() => setIsCropperOpen(false)} 
+        />
+      )}
     </div>
   );
 };

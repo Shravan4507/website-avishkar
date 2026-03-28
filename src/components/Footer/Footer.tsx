@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
-const avishkarLogo = `${import.meta.env.BASE_URL}assets/logos/avishkar-white.png`
+const avishkarLogo = `${import.meta.env.BASE_URL}assets/logos/avishkar-white.webp`
+
 import './Footer.css'
 
 function Footer() {
@@ -34,6 +35,8 @@ function Footer() {
                                 <Link to="/workshops" className="footer__link">Workshops</Link>
                                 <Link to="/competitions" className="footer__link">Competitions</Link>
                                 <Link to="/sponsors" className="footer__link">Sponsors</Link>
+                                <Link to="/team" className="footer__link">Team</Link>
+                                <Link to="/contact" className="footer__link">Contact</Link>
                             </nav>
                         </div>
 
@@ -41,9 +44,7 @@ function Footer() {
                             <h3 className="footer__heading">Information</h3>
                             <nav className="footer__nav">
                                 <Link to="/join" className="footer__link">Join Us</Link>
-                                <Link to="/team" className="footer__link">Our Team</Link>
                                 <Link to="/book-a-stall" className="footer__link">Book a Stall</Link>
-                                <Link to="/contact" className="footer__link">Help Center</Link>
                                 <Link to="/login" className="footer__link">Accounts</Link>
                             </nav>
                         </div>

@@ -5,7 +5,7 @@ import './Schedule.css'
 const SCHEDULE_DATA = [
     {
         day: "Day 1",
-        date: "April 09, 2026",
+        date: "April 22, 2026",
         theme: "Inauguration & Tech-Genesis",
         events: [
             { time: "09:00 AM", title: "Grand Opening Ceremony", location: "Main Auditorium", type: "Ceremony" },
@@ -17,7 +17,7 @@ const SCHEDULE_DATA = [
     },
     {
         day: "Day 2",
-        date: "April 10, 2026",
+        date: "April 23, 2026",
         theme: "Innovation & Design",
         events: [
             { time: "10:00 AM", title: "UI/UX Masterclass", location: "Design Studio", type: "Workshop" },
@@ -28,7 +28,7 @@ const SCHEDULE_DATA = [
     },
     {
         day: "Day 3",
-        date: "April 11, 2026",
+        date: "April 24, 2026",
         theme: "The Grand Finale",
         events: [
             { time: "09:30 AM", title: "Final Coding Showdown", location: "Main Auditorium", type: "Technical" },

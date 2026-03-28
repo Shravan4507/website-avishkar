@@ -16,48 +16,59 @@ import {
     CircuitBoard,
     LayoutDashboard,
     Zap,
-    Users
+    Users,
+    AlertTriangle,
+    Target,
+    Trophy,
+    FileText,
+    Rocket,
+    HelpCircle
 } from 'lucide-react';
+import { useRegistrationGuard } from '../../hooks/useRegistrationGuard';
 import './RoboKshetra.css';
+
 
 // Robo-Kshetra Event Configurations
 const ROBO_EVENTS = [
     { 
-        id: 'line_follower', 
-        label: 'LINE FOLLOWER', 
-        tagline: 'Precision Tracking Challenge', 
+        id: 'alignx', 
+        label: 'ALIGNX', 
+        tagline: 'Line Following Robot Competition', 
         prize: '₹15,000+', 
+        fee: 400,
         type: 'TEAM', 
         members: 4, 
         mode: 'Offline',
         color: '#d9ff00', 
-        description: 'Design an autonomous bot capable of navigating complex paths with absolute precision and speed.',
+        description: 'Forge a bot capable of extreme precision. Navigate high-speed tracks and complex intersections with autonomous perfection.',
         gradient: 'linear-gradient(135deg, #d9ff00, #000)',
         image: `${import.meta.env.BASE_URL}assets/robokshetra/line_follower.png` 
     },
     { 
-        id: 'maze_solver', 
-        label: 'MAZE SOLVER', 
+        id: 'robomaze', 
+        label: 'ROBOMAZE', 
         tagline: 'Autonomous Navigation Arena', 
         prize: '₹15,000+', 
+        fee: 450,
         type: 'TEAM', 
         members: 4, 
         mode: 'Offline',
         color: '#d9ff00', 
-        description: 'Engineer an intelligent machine that can analyze and escape complex labyrinthine structures in record time.',
+        description: 'Think, adapt, escape. Engineer a machine that can solve complex labyrinths in record time using advanced sensor fusion.',
         gradient: 'linear-gradient(135deg, #d9ff00, #000)',
         image: `${import.meta.env.BASE_URL}assets/robokshetra/maze_solver.png` 
     },
     { 
-        id: 'trailblazer', 
-        label: 'ROBO TRAILBLAZER', 
+        id: 'roborush', 
+        label: 'ROBORUSH', 
         tagline: 'Obstacle Challenge Course', 
         prize: '₹20,000+', 
+        fee: 450,
         type: 'TEAM', 
         members: 4, 
         mode: 'Offline',
         color: '#d9ff00', 
-        description: 'A grueling all-terrain challenge course designed to test your bot\'s mechanical resilience and obstacle evasion logic.',
+        description: 'A grueling all-terrain challenge course designed to test mechanical resilience and obstacle evasion logic.',
         gradient: 'linear-gradient(135deg, #d9ff00, #000)',
         image: `${import.meta.env.BASE_URL}assets/robokshetra/trailblazer.png` 
     },
@@ -74,6 +85,10 @@ const RoboKshetra: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
     const [ticketId, setTicketId] = useState('');
+    const [accountabilityAccepted, setAccountabilityAccepted] = useState(false);
+
+    const { isRegistered, eventName: registeredEventName } = useRegistrationGuard();
+
 
     const activeEvent = ROBO_EVENTS.find(e => e.id === selectedEvent);
 
@@ -89,11 +104,23 @@ const RoboKshetra: React.FC = () => {
     const handleSubmit = async () => {
         if (!user || !activeEvent) return;
         
+        if (isRegistered && registeredEventName !== activeEvent.label) {
+            toast.error(`Access Denied: Already registered for ${registeredEventName}`);
+            navigate('/user/dashboard');
+            return;
+        }
+
+        if (!accountabilityAccepted) {
+            toast.error("Please acknowledge scheduling accountability.");
+            return;
+        }
+
         // Simple validation
         if (!formData.teamName || !formData.leaderAavishkarId || !formData.leaderPhone) {
             toast.error("Please fill all leader details before deployment.");
             return;
         }
+
 
         setLoading(true);
 
@@ -110,6 +137,10 @@ const RoboKshetra: React.FC = () => {
                     competitionHandle: 'Robo-Kshetra',
                     userId: user.uid,
                     registrationId: regId,
+                    allAvrIds: [
+                        formData.leaderAavishkarId,
+                        ...formData.members.map(m => m.id)
+                    ].filter(id => !!id),
                     timestamp: serverTimestamp(),
                     status: 'confirmed',
                     paymentStatus: 'pending',
@@ -162,10 +193,76 @@ const RoboKshetra: React.FC = () => {
             
             {!selectedEvent ? (
                 <div className="rk-selection-screen animate-in">
-                    <div className="rk-hero">
-                        <div className="rk-tag">PREMIER ROBOTICS ARENA</div>
-                        <h1>ROBO-<span>KSHETRA</span></h1>
-                        <p>Forge, Optimize, Combat. High-octane robotics competition where logic meets heavy metal.</p>
+                    {/* --- HERO SECTION --- */}
+                    <section className="rk-hero">
+                        <div className="hero-badge">Avishkar '26 <br/>Robotics</div>
+                        <h1 className="hero-title">ROBO-<span>KSHETRA</span></h1>
+                        <p className="hero-subtitle">Forge, Optimize, Combat. High-octane robotics competition where logic meets heavy metal.</p>
+                        
+                        <div className="hero-stats">
+                            <div className="stat-item">
+                                <Target className="stat-icon" />
+                                <div className="stat-content">
+                                    <span className="stat-val">3</span>
+                                    <span className="stat-label">Core Arenas</span>
+                                </div>
+                            </div>
+                            <div className="stat-item">
+                                <Trophy className="stat-icon" />
+                                <div className="stat-content">
+                                    <span className="stat-val">₹50,000+</span>
+                                    <span className="stat-label">Prize Pool</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="hero-ctas">
+                            <button className="primary-cta" onClick={() => document.getElementById('arena')?.scrollIntoView({ behavior: 'smooth' })}>
+                                Enter the Arena <Rocket size={18} />
+                            </button>
+                            <button className="secondary-cta" onClick={() => navigate('/robo-kshetra/rules')}>
+                                Rulebook <FileText size={18} />
+                            </button>
+                        </div>
+                    </section>
+
+                    {/* --- JUDGING SECTION --- */}
+                    <section className="judging-preview">
+                        <div className="section-label">Evaluation</div>
+                        <h2>Judging Criteria</h2>
+                        <div className="judging-grid">
+                            <div className="judging-card">
+                                <div className="j-icon"><Rocket size={20} /></div>
+                                <h3>Innovation</h3>
+                                <p>Novelty of the bot design and creative use of mechanical components.</p>
+                                <span className="weightage">30% Weight</span>
+                            </div>
+                            <div className="judging-card">
+                                <div className="j-icon"><Target size={20} /></div>
+                                <h3>Technical Execution</h3>
+                                <p>Stability, speed, and accuracy of the autonomous logic.</p>
+                                <span className="weightage">40% Weight</span>
+                            </div>
+                            <div className="judging-card">
+                                <div className="j-icon"><Users size={20} /></div>
+                                <h3>Resilience</h3>
+                                <p>Mechanical robustness and ability to handle terrain variations.</p>
+                                <span className="weightage">20% Weight</span>
+                            </div>
+                            <div className="judging-card">
+                                <div className="j-icon"><HelpCircle size={20} /></div>
+                                <h3>Presentation</h3>
+                                <p>Clarity of concept and technical demonstration quality.</p>
+                                <span className="weightage">10% Weight</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* --- EVENT PORTAL --- */}
+                    <div className="portal-header" id="arena">
+                        <div className="section-label">Combat Arena</div>
+                        <h2>Select Your Challenge</h2>
+                        <p>Choose your battlefield. Each event tests a unique aspect of robotics engineering.</p>
                     </div>
 
                     <div className="rk-grid-wrapper">
@@ -187,6 +284,8 @@ const RoboKshetra: React.FC = () => {
                             damping={0.5}
                             fadeOut={0.8}
                             columns={3}
+                            isRegistered={isRegistered}
+                            registeredEventName={registeredEventName}
                             onItemClick={(item: any) => setSelectedEvent(item.id as EventId)}
                         />
                     </div>
@@ -304,7 +403,37 @@ const RoboKshetra: React.FC = () => {
                                 </div>
                             </div>
 
-                            <div className="rk-assembly-actions">
+                             <div className="rk-assembly-actions">
+                                <div className="scheduling-notice-card" style={{ 
+                                    background: 'rgba(217, 255, 0, 0.05)', 
+                                    border: '1px solid rgba(217, 255, 0, 0.2)',
+                                    borderRadius: '12px',
+                                    padding: '1rem',
+                                    marginBottom: '1.5rem',
+                                    display: 'flex',
+                                    gap: '1rem'
+                                }}>
+                                    <AlertTriangle size={24} color="#d9ff00" style={{ flexShrink: 0 }} />
+                                    <div>
+                                        <h4 style={{ color: '#d9ff00', margin: '0 0 0.4rem 0', fontSize: '0.85rem', letterSpacing: '1px' }}>SCHEDULING ACCOUNTABILITY</h4>
+                                        <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', lineHeight: '1.4', margin: 0 }}>
+                                            One User, One Event policy active. You are solely responsible for managing any scheduling overlaps between registered events.
+                                        </p>
+                                        <div style={{ marginTop: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                            <input 
+                                                type="checkbox" 
+                                                id="rk-acc-check"
+                                                checked={accountabilityAccepted}
+                                                onChange={(e) => setAccountabilityAccepted(e.target.checked)}
+                                                style={{ width: '16px', height: '16px', accentColor: '#d9ff00', cursor: 'pointer' }}
+                                            />
+                                            <label htmlFor="rk-acc-check" style={{ color: '#fff', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer' }}>
+                                                I accept full responsibility for my schedule.
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <button 
                                     className="rk-deploy-btn"
                                     disabled={loading || !formData.teamName}
@@ -315,6 +444,7 @@ const RoboKshetra: React.FC = () => {
                                 </button>
                                 <p className="rk-disclaimer">By deploying, you agree to the official RK'26 tournament regulations.</p>
                             </div>
+
                         </div>
                     </div>
                 </div>

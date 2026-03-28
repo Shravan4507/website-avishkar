@@ -100,20 +100,29 @@
     box-shadow: 0 10px 20px rgba(82, 39, 255, 0.4);
 }
 
-.prize-tag {
+.prize-tag, .fee-tag {
     position: absolute;
-    bottom: 20px;
-    right: 20px;
     background: rgba(0, 0, 0, 0.6);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    color: #d9ff00;
     padding: 6px 14px;
     border-radius: 10px;
     font-size: 0.85rem;
     font-weight: 700;
     z-index: 5;
+}
+
+.prize-tag {
+    bottom: 20px;
+    right: 20px;
+    color: #fff;
+}
+
+.fee-tag {
+    bottom: 20px;
+    left: 20px;
+    color: #d9ff00;
 }
 
 .chroma-info {

@@ -6,8 +6,10 @@ import { auth, db } from '../../firebase/firebase';
 import { useToast } from '../../components/toast/Toast';
 import { COMPETITIONS_DATA } from '../../data/competitions';
 import type { Competition } from '../../data/competitions';
-import { Trophy, CheckCircle, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Trophy, CheckCircle, ArrowRight, ShieldCheck, AlertTriangle } from 'lucide-react';
+import { useRegistrationGuard } from '../../hooks/useRegistrationGuard';
 import './Registration.css';
+
 
 const Registration: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -22,8 +24,12 @@ const Registration: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [alreadyRegistered, setAlreadyRegistered] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [accountabilityAccepted, setAccountabilityAccepted] = useState(false);
+
+  const { isRegistered, eventName: registeredEventName } = useRegistrationGuard();
 
   const isSubmittingRef = useRef(false);
+
 
   useEffect(() => {
     const initRegistration = async () => {
@@ -81,8 +87,14 @@ const Registration: React.FC = () => {
           const regSnap = await getDoc(doc(db, 'registrations', regId));
           if (regSnap.exists()) {
             setAlreadyRegistered(true);
+          } else if (isRegistered && registeredEventName !== foundComp.title) {
+            toast.error(`Access Denied: Already registered for ${registeredEventName}`);
+            navigate('/user/dashboard', { replace: true });
+            return;
           }
         }
+
+
       } catch (err) {
         console.error("Registration Init Error:", err);
         toast.error("Failed to load competition details.");
@@ -108,6 +120,13 @@ const Registration: React.FC = () => {
 
   const handleRegister = async () => {
     if (!competition || !userData || alreadyRegistered || isSubmittingRef.current) return;
+    
+    if (!accountabilityAccepted) {
+      toast.error("Please acknowledge the scheduling policy.");
+      return;
+    }
+
+
     
     // Synchronous lock to prevent React state batching race conditions
     isSubmittingRef.current = true;
@@ -136,6 +155,7 @@ const Registration: React.FC = () => {
         userName: `${userData.firstName} ${userData.lastName}`,
         userEmail: userData.email || user!.email,
         userAVR: userData.avrId,
+        allAvrIds: [userData.avrId], // Standardized for team-wide guard
         userPhone: userData.phone || '',
         userCollege: userData.college || '',
         userMajor: userData.major || '',
@@ -217,6 +237,39 @@ const Registration: React.FC = () => {
         <div className="registration-form-section">
           <h2 className="registration-title">Official Registration</h2>
           <p className="registration-subtitle">Verify your identity profile below to secure your spot.</p>
+
+          <div className="scheduling-notice-box" style={{ 
+            background: 'rgba(217, 255, 0, 0.05)', 
+            border: '1px solid rgba(217, 255, 0, 0.2)',
+            borderRadius: '12px',
+            padding: '1.25rem',
+            marginBottom: '1.5rem',
+            display: 'flex',
+            gap: '1rem'
+          }}>
+            <div className="notice-icon" style={{ color: '#d9ff00' }}>
+              <AlertTriangle size={24} />
+            </div>
+            <div className="notice-text">
+              <h4 style={{ color: '#d9ff00', margin: '0 0 0.5rem 0', fontSize: '0.95rem', letterSpacing: '1px' }}>SCHEDULING ACCOUNTABILITY</h4>
+              <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem', lineHeight: '1.5', margin: 0 }}>
+                By registering, you acknowledge that Avishkar '26 follows a <strong>One User, One Event</strong> policy. If you register for overlapping events, the responsibility for scheduling conflicts rests solely with you. The organizing committee is not liable for participation overlaps.
+              </p>
+              <div className="notice-check" style={{ marginTop: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <input 
+                  type="checkbox" 
+                  id="acc-check"
+                  checked={accountabilityAccepted}
+                  onChange={(e) => setAccountabilityAccepted(e.target.checked)}
+                  style={{ width: '18px', height: '18px', accentColor: '#d9ff00', cursor: 'pointer' }}
+                />
+                <label htmlFor="acc-check" style={{ color: '#fff', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer' }}>
+                  I accept full responsibility for my schedule.
+                </label>
+              </div>
+            </div>
+          </div>
+
 
           {userData && (
             <div className="user-prefill-card">

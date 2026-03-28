@@ -2,9 +2,10 @@ import { useState, useEffect, useRef } from 'react'
 import SEO from '../../components/seo/SEO'
 import StarBorder from '../../components/star-border/StarBorder'
 import { Award, Cpu, Globe } from 'lucide-react'
-const zcoerLogo = `${import.meta.env.BASE_URL}assets/logos/ZCOER-Logo-White.png`
-const avishkarTitle = `${import.meta.env.BASE_URL}assets/logos/avishkar-white.png`
-const avishkarHeader = `${import.meta.env.BASE_URL}assets/logos/Avishkar '26 White.png`
+const zcoerLogo = `${import.meta.env.BASE_URL}assets/logos/ZCOER-Logo-White.webp`
+const avishkarTitle = `${import.meta.env.BASE_URL}assets/logos/avishkar-white.webp`
+const avishkarHeader = `${import.meta.env.BASE_URL}assets/logos/Avishkar '26 White.webp`
+
 import './Home.css'
 
 const CountUp = ({ end, duration = 2000, suffix = "" }: { end: number, duration?: number, suffix?: string }) => {
@@ -64,7 +65,7 @@ function Home() {
   })
 
   useEffect(() => {
-    const eventDate = new Date('April 09, 2026 00:00:00').getTime()
+    const eventDate = new Date('April 22, 2026 00:00:00').getTime()
 
     const timer = setInterval(() => {
       const now = new Date().getTime()

@@ -52,9 +52,13 @@ const dayPasses = [
     }
 ]
 
+import { useRegistrationGuard } from '../../hooks/useRegistrationGuard';
+
 function Workshops() {
     const navigate = useNavigate();
+    const { isRegistered, eventName } = useRegistrationGuard();
     const [selectedDay, setSelectedDay] = useState<typeof dayPasses[0] | null>(null);
+
     const [selectedDays, setSelectedDays] = useState<number[]>([]);
     const modalRef = useRef<HTMLDivElement>(null);
     const modalContentRef = useRef<HTMLDivElement>(null);
@@ -132,11 +136,13 @@ function Workshops() {
                                             Explore
                                         </button>
                                         <button
-                                            className={`workshop-card__btn workshop-card__btn--select ${isSelected ? 'selected' : ''}`}
+                                            className={`workshop-card__btn workshop-card__btn--select ${isSelected ? 'selected' : ''} ${isRegistered ? 'disabled' : ''}`}
+                                            disabled={isRegistered}
                                             onClick={() => toggleDaySelection(day.id)}
                                         >
-                                            {isSelected ? 'Selected' : 'Select'}
+                                            {isRegistered ? 'Locked' : (isSelected ? 'Selected' : 'Select')}
                                         </button>
+
                                     </div>
                                 </div>
                             );
@@ -151,18 +157,19 @@ function Workshops() {
                                     <h3 className="checkout-total">Total: ₹{totalCost}</h3>
                                     <p className="checkout-count">{selectedDays.length} {selectedDays.length === 1 ? 'Day' : 'Days'} Selected</p>
                                 </div>
-                                <button className="checkout-btn" onClick={() => {
+                                <button className={`checkout-btn ${isRegistered ? 'disabled' : ''}`} disabled={isRegistered} onClick={() => {
                                     const firstDay = dayPasses.find(d => selectedDays.includes(d.id));
                                     const title = selectedDays.length > 1 ? 'Festival Combo' : `${firstDay?.title} Pass`;
                                     const img = firstDay?.image || '';
                                     navigate(`/register?comp=${encodeURIComponent(title)}&img=${encodeURIComponent(img)}`);
                                 }}>
-                                    Complete Checkout
+                                    {isRegistered ? `Locked: ${eventName}` : 'Complete Checkout'}
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                                         <line x1="5" y1="12" x2="19" y2="12"></line>
                                         <polyline points="12 5 19 12 12 19"></polyline>
                                     </svg>
                                 </button>
+
                             </div>
                         </div>
                     )}
@@ -202,14 +209,16 @@ function Workshops() {
                                 </div>
                                 <div className="modal-footer">
                                     <button
-                                        className={`select-pass-btn ${selectedDays.includes(selectedDay.id) ? 'selected' : ''}`}
+                                        className={`select-pass-btn ${selectedDays.includes(selectedDay.id) ? 'selected' : ''} ${isRegistered ? 'disabled' : ''}`}
+                                        disabled={isRegistered}
                                         onClick={() => {
                                             toggleDaySelection(selectedDay.id);
                                             closePortal();
                                         }}
                                     >
-                                        {selectedDays.includes(selectedDay.id) ? 'Deselect Pass' : 'Grab This Pass'}
+                                        {isRegistered ? 'Registration Locked' : (selectedDays.includes(selectedDay.id) ? 'Deselect Pass' : 'Grab This Pass')}
                                     </button>
+
                                     <p className="modal-note">* Limited spots available for technical workshops.</p>
                                 </div>
                             </div>

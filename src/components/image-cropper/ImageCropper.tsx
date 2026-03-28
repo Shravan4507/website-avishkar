@@ -42,11 +42,18 @@ const ImageCropper = ({
         const canvas = document.createElement('canvas')
         const scaleX = image.naturalWidth / image.width
         const scaleY = image.naturalHeight / image.height
-        canvas.width = crop.width
-        canvas.height = crop.height
+        
+        // Use natural dimensions for perfect quality
+        canvas.width = crop.width * scaleX
+        canvas.height = crop.height * scaleY
+        
         const ctx = canvas.getContext('2d')
 
         if (!ctx) return ''
+
+        // Enable high-quality image smoothing
+        ctx.imageSmoothingEnabled = true
+        ctx.imageSmoothingQuality = 'high'
 
         ctx.drawImage(
             image,
@@ -56,11 +63,11 @@ const ImageCropper = ({
             crop.height * scaleY,
             0,
             0,
-            crop.width,
-            crop.height
+            crop.width * scaleX,
+            crop.height * scaleY
         )
 
-        return canvas.toDataURL('image/jpeg')
+        return canvas.toDataURL('image/webp', 0.9)
     }
 
     const handleSave = () => {

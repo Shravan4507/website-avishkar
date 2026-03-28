@@ -1,336 +1,411 @@
-.esports-reg-page {
-    padding: 120px 20px 60px;
-    max-width: 1400px;
-    margin: 0 auto;
+.esports-reg-page-v2 {
+    padding: 120px 2rem 4rem;
     min-height: 100vh;
-    animation: fadeIn 1s ease-out;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: radial-gradient(circle at top right, rgba(255, 70, 85, 0.05), transparent);
 }
 
-/* Game Selection via Unified ChromaGrid */
-.flagship-selection-wrapper {
-    margin: 40px auto;
+.esports-reg-page-v2.centered {
+    justify-content: center;
+}
+
+/* --- HEADER V2 --- */
+.esports-header-v2 {
     width: 100%;
-}
-
-.esports-layout {
-    position: relative;
-    z-index: 2;
-}
-
-/* TACTICAL FORM LAYOUT */
-.form-wrapper-enhanced {
     max-width: 1000px;
-    margin: 40px auto;
-    background: rgba(10, 10, 10, 0.8);
-    backdrop-filter: blur(40px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 32px;
-    overflow: hidden;
+    margin-bottom: 4rem;
 }
 
-.form-header-premium {
-    padding: 30px 40px;
+.nav-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: rgba(255, 255, 255, 0.02);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    border-left: 6px solid var(--game-color, #5227FF);
+    margin-bottom: 2rem;
 }
 
-.active-game-meta {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-}
-
-.back-to-games {
+.back-portal-btn {
     background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.6);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-    color: rgba(255, 255, 255, 0.5);
-    font-size: 0.7rem;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
+    padding: 0.75rem 1.5rem;
+    border-radius: 2rem;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 1px;
     cursor: pointer;
-    padding: 6px 12px;
-    margin-bottom: 10px;
-    transition: all 0.3s ease;
-    text-transform: uppercase;
-    font-weight: 700;
-}
-
-.active-game-meta h2 {
-    font-size: clamp(1.8rem, 5vw, 2.5rem);
-    font-family: 'Orbitron', sans-serif;
-    color: #fff;
-    text-transform: uppercase;
-    line-height: 1.1;
-}
-
-.active-game-meta h2 span {
-    color: rgba(255, 255, 255, 0.3);
-    font-weight: 300;
-}
-
-/* Timeline */
-.esports-steps-h {
-    padding: 20px 40px;
-    display: flex;
-    gap: 30px;
-    background: rgba(0, 0, 0, 0.2);
-}
-
-.h-step {
     display: flex;
     align-items: center;
-    gap: 12px;
-    opacity: 0.25;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
 }
 
-.h-step.active {
+.back-portal-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+.platform-tag {
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    opacity: 0.8;
+}
+
+.main-logo-row {
+    display: flex;
+    align-items: last baseline;
+    gap: 1.5rem;
+}
+
+.game-label-large {
+    font-family: 'Iceland', sans-serif;
+    font-size: 4rem;
+    color: #fff;
+    line-height: 1;
+}
+
+.reg-text-large {
+    font-family: 'Iceland', sans-serif;
+    font-size: 4rem;
+    color: rgba(255, 255, 255, 0.2);
+    line-height: 1;
+}
+
+/* --- STEPPER --- */
+.reg-stepper {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    margin-bottom: 3rem;
+    padding: 0 1rem;
+}
+
+.step-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    opacity: 0.3;
+    transition: all 0.4s ease;
+}
+
+.step-item.active {
     opacity: 1;
 }
 
-.h-step-num {
+.step-num {
     width: 28px;
     height: 28px;
     background: rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
+    border-radius: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.8rem;
-    font-weight: 800;
+    font-weight: 900;
+    font-size: 0.85rem;
+    color: #fff;
 }
 
-.h-step.active .h-step-num {
-    background: #5227FF;
+.step-item.active .step-num {
+    background: #5227ff; /* BGMI specific blue in screen, but let's use global theme or var if possible */
 }
 
-/* Form Styles */
-.cyber-form {
-    padding: 40px;
+.step-label {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #fff;
 }
 
-.grid-form {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 30px;
-}
-
-.input-group {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.input-group.full {
-    grid-column: 1 / -1;
-}
-
-.input-group label {
-    font-size: 0.75rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    color: rgba(255, 255, 255, 0.4);
-}
-
-.input-cyber-wrapper {
-    position: relative;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 12px;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-}
-
-.input-cyber-wrapper:focus-within {
-    border-color: var(--game-color);
+.step-divider {
+    width: 60px;
+    height: 1px;
     background: rgba(255, 255, 255, 0.05);
 }
 
-.cyber-icon {
-    position: absolute;
-    left: 18px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: rgba(255, 255, 255, 0.2);
+/* --- TACTICAL CARD --- */
+.esports-layout-v2 {
+    width: 100%;
+    max-width: 1000px;
 }
 
-.input-cyber-wrapper input {
-    width: 100%;
-    padding: 16px 20px 16px 52px;
+.tactical-form-card {
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(25px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 3rem;
+    padding: 4rem;
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6);
+}
+
+.tactical-label {
+    display: block;
+    color: #ff9800; /* Match yellow from screen */
+    font-size: 0.8rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+}
+
+.tactical-input-wrapper {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 1rem;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.3s ease;
+}
+
+.tactical-input-wrapper:focus-within {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.tactical-input-wrapper.readonly {
+    background: rgba(255, 255, 255, 0.01);
+    opacity: 0.6;
+}
+
+.field-icon {
+    color: rgba(255, 255, 255, 0.2);
+    flex-shrink: 0;
+}
+
+.tactical-input-wrapper input {
     background: transparent;
     border: none;
     color: #fff;
+    width: 100%;
+    font-size: 1.1rem;
     outline: none;
-    font-family: inherit;
-    font-size: 1rem;
+    font-weight: 500;
 }
 
-.section-title-cyber {
-    grid-column: 1 / -1;
-    margin: 30px 0 10px;
+.tactical-input-wrapper input::placeholder {
+    color: rgba(255, 255, 255, 0.15);
+}
+
+.form-section-header {
+    margin-bottom: 2.5rem;
+}
+
+/* --- GRID & DIVIDER --- */
+.tactical-divider {
+    margin: 4rem 0 3rem;
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 2rem;
 }
 
-.section-title-cyber span {
-    font-size: 0.85rem;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    color: var(--game-color);
-}
-
-.section-title-cyber::after {
-    content: '';
-    height: 1px;
-    flex-grow: 1;
-    background: linear-gradient(90deg, var(--game-color), transparent);
-    opacity: 0.2;
-}
-
-/* Squad Members */
-.member-cyber-card {
-    grid-column: 1 / -1;
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px dashed rgba(255, 255, 255, 0.1);
-    border-radius: 20px;
-    padding: 25px;
-}
-
-.member-label {
+.tactical-divider span {
+    color: #ff9800;
     font-size: 0.9rem;
     font-weight: 900;
-    color: #fff;
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    letter-spacing: 2px;
+    white-space: nowrap;
 }
 
-.member-label::before {
-    content: '';
-    width: 4px;
-    height: 18px;
-    background: #5227FF;
-    border-radius: 10px;
+.divider-line {
+    flex: 1;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.05);
 }
 
-.member-grid {
+.tactical-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 20px;
+    gap: 2rem;
+    margin-bottom: 2.5rem;
 }
 
-.m-input input {
-    width: 100%;
-    background: rgba(0, 0, 0, 0.25);
+/* --- COMBATANT CARD --- */
+.combatant-card {
+    background: rgba(255, 255, 255, 0.01);
     border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 10px;
-    padding: 14px;
-    color: #fff;
-    outline: none;
+    border-radius: 2rem;
+    padding: 2.5rem;
+    margin-bottom: 2rem;
 }
 
-/* Buttons */
-.form-actions-cyber {
-    margin-top: 50px;
+.combatant-header {
     display: flex;
-    gap: 20px;
-}
-
-.cyber-btn {
-    padding: 18px 30px;
-    border-radius: 14px;
-    font-family: 'Orbitron', sans-serif;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    border: none;
-    font-size: 0.9rem;
-}
-
-.cyber-btn.primary {
-    background: #5227FF;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
     color: #fff;
-    flex-grow: 1;
-    box-shadow: 0 10px 30px rgba(82, 39, 255, 0.25);
+    font-weight: 800;
 }
 
-.cyber-btn.secondary {
+.accent-bar {
+    width: 3px;
+    height: 20px;
+    background: #5227ff;
+    border-radius: 2px;
+}
+
+/* --- FOOTER CTA --- */
+.form-footer-tactical {
+    margin-top: 4rem;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.form-footer-tactical-between {
+    margin-top: 4rem;
+    display: flex;
+    justify-content: space-between;
+}
+
+.primary-cta-reg {
+    background: #5227ff;
+    color: #fff;
+    padding: 1.25rem 3rem;
+    border-radius: 4rem;
+    border: none;
+    font-family: 'Iceland', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    transition: all 0.3s ease;
+}
+
+.primary-cta-reg:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(82, 39, 255, 0.3);
+}
+
+.secondary-cta-reg {
     background: rgba(255, 255, 255, 0.05);
     color: #fff;
+    padding: 1.25rem 2.5rem;
+    border-radius: 4rem;
     border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-/* Review */
-.review-summary-glass {
-    padding: 40px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 25px;
-}
-
-.r-item {
-    background: rgba(255, 255, 255, 0.02);
-    padding: 20px;
-    border-radius: 16px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.r-item label {
-    font-size: 0.7rem;
-    color: rgba(255, 255, 255, 0.4);
-    text-transform: uppercase;
-    margin-bottom: 6px;
-    display: block;
-}
-
-.r-item p {
-    font-size: 1.1rem;
     font-weight: 700;
-    color: #fff;
-}
-
-/* Success */
-.success-cyber {
-    max-width: 600px;
-    margin: 80px auto;
-    text-align: center;
-    padding: 80px 40px;
-    background: rgba(10, 10, 10, 0.9);
-    border-radius: 40px;
-    border: 1px solid rgba(0, 230, 118, 0.1);
-}
-
-.success-icon-wrapper {
-    width: 100px;
-    height: 100px;
-    background: rgba(0, 230, 118, 0.1);
-    color: #00e676;
-    border-radius: 30px;
+    cursor: pointer;
     display: flex;
     align-items: center;
-    justify-content: center;
-    margin: 0 auto 30px;
+    gap: 0.75rem;
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(30px); }
-    to { opacity: 1; transform: translateY(0); }
+/* --- REVIEW MODE --- */
+.review-header {
+    text-align: center;
+    margin-bottom: 4rem;
 }
 
-@media (max-width: 768px) {
-    .game-selection-grid { grid-template-columns: 1fr; }
-    .grid-form, .member-grid, .review-summary-glass { grid-template-columns: 1fr; }
-    .card-flagship-image { height: 400px; }
+.review-header h3 { font-size: 2rem; color: #fff; margin-bottom: 0.5rem; }
+.review-header p { color: rgba(255, 255, 255, 0.4); }
+
+.review-scroll {
+    max-height: 500px;
+    overflow-y: auto;
+    padding-right: 1.5rem;
 }
+
+.review-entry {
+    display: flex;
+    justify-content: space-between;
+    padding: 1.5rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.review-entry .label { color: rgba(255, 255, 255, 0.3); font-weight: 600; }
+.review-entry .value { color: #fff; font-weight: 800; font-size: 1.1rem; }
+
+.review-roster {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.roster-member {
+    background: rgba(255, 255, 255, 0.02);
+    padding: 1.5rem;
+    border-radius: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.roster-member.main {
+    border: 1px solid rgba(82, 39, 255, 0.2);
+    background: rgba(82, 39, 255, 0.03);
+}
+
+.rank { width: 100px; color: #5227ff; font-weight: 900; font-size: 0.75rem; letter-spacing: 1px; }
+.member-details { display: flex; flex-direction: column; }
+.member-details .name { color: #fff; font-weight: 700; font-size: 1.2rem; }
+.member-details .avr { color: rgba(255, 255, 255, 0.3); font-family: 'Iceland', sans-serif; }
+
+.payment-summary-tactical {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 2.5rem;
+    border-radius: 2rem;
+    margin-top: 3rem;
+}
+
+.summary-row { display: flex; justify-content: space-between; margin-bottom: 1.5rem; color: rgba(255, 255, 255, 0.5); font-weight: 600; }
+.summary-row.total { 
+    margin-top: 2rem; padding-top: 2rem; 
+    border-top: 1px dashed rgba(255, 255, 255, 0.1); 
+    color: #fff; font-size: 2.5rem; font-family: 'Iceland', sans-serif; 
+}
+
+/* --- SUCCESS MODE --- */
+.success-mode { text-align: center; }
+.v-circle { width: 80px; height: 80px; background: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; margin: 0 auto 2rem; }
+.success-mode h1 { font-family: 'Iceland', sans-serif; font-size: 3rem; color: #fff; margin-bottom: 1rem; }
+
+/* Responsive */
+@media (max-width: 900px) {
+    .tactical-grid { grid-template-columns: 1fr; }
+    .tactical-form-card { padding: 2.5rem 1.5rem; border-radius: 2rem; }
+    .game-label-large, .reg-text-large { font-size: 2.5rem; }
+    .main-logo-row { flex-direction: column; gap: 0; }
+    .reg-stepper { gap: 1rem; }
+}
+
+.registered-overlay {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 600px;
+    padding: 4rem;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 70, 85, 0.1);
+    border-radius: 3rem;
+    backdrop-filter: blur(20px);
+}
+
+.locked-icon {
+    margin-bottom: 2rem;
+    filter: drop-shadow(0 0 20px rgba(255, 70, 85, 0.4));
+}
+
+.locked-title {
+    font-family: 'Iceland', sans-serif;
+    font-size: 4rem;
+    color: #fff;
+    margin-bottom: 1rem;
+    letter-spacing: 2px;
+}
+
+.locked-text {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 1.2rem;
+    margin-bottom: 3rem;
+}
+
+.scrollbar-custom::-webkit-scrollbar { width: 5px; }
+.scrollbar-custom::-webkit-scrollbar-track { background: transparent; }
+.scrollbar-custom::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }

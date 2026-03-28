@@ -11,11 +11,11 @@ const ALL_MEMBERS = [
         title: 'Shrvan',
         subtitle: 'Event Lead',
         location: 'Core Leadership',
-        handle: '@shravan45x',
-        description: 'Visionary leader driving the strategic direction of Avishkar \'26. Passionate about creating a platform where technology meets creativity. Leading over 100+ volunteers to deliver a world-class experience.',
+        handle: '@069.f5',
+        description: 'The question isn\'t how, the question is when.',
         borderColor: '#5227FF',
         gradient: 'linear-gradient(145deg, #5227FF, #000)',
-        url: 'https://instagram.com/shravan45x',
+        url: 'https://instagram.com/069.f5',
         socials: {
             instagram: 'https://instagram.com/069.f5',
             linkedin: 'https://www.linkedin.com/in/shravan45x',
@@ -161,17 +161,17 @@ function Team() {
             <main className="team-page">
             <header className="team-header">
                 <div className="header-glow"></div>
-                <h1>The Visionaries</h1>
-                <p>Meet the dedicated team working behind the scenes to make Avishkar '26 the biggest technology festival of the year. Passion, innovation, and coordination is what defines us.</p>
+                <h1>The Visionary</h1>
+                <p>Yup.... That's me!</p>
             </header>
 
             <div className="team-container" style={{ position: 'relative', minHeight: '800px' }}>
                 <ChromaGrid
-                    items={ALL_MEMBERS as any}
+                    items={ALL_MEMBERS.filter(m => m.slug === 'shrvan') as any}
                     radius={400}
                     damping={0.5}
                     fadeOut={0.8}
-                    columns={3}
+                    columns={1}
                     showRegister={false}
                     selectedItemSlug={memberSlug || undefined}
                     onItemClick={handleMemberClick}

@@ -1,472 +1,352 @@
 import React, { useState, useEffect } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
-import { useNavigate } from 'react-router-dom';
-import { doc, collection, serverTimestamp, getDoc, runTransaction, query, where, getDocs } from 'firebase/firestore';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { doc, collection, getDoc, query, where, getDocs } from 'firebase/firestore';
 import { auth, db } from '../../firebase/firebase';
 import SEO from '../../components/seo/SEO';
 import { useToast } from '../../components/toast/Toast';
-import ChromaGrid from '../../components/chroma-grid/ChromaGrid';
 import { 
     User, 
     ArrowRight, 
     ArrowLeft, 
     Loader2, 
-    Smartphone, 
-    Monitor, 
-    Hash, 
     Trophy,
-    CheckCircle2
+    CheckCircle2,
+    Target,
+    Phone,
+    Fingerprint,
+    ShieldAlert
 } from 'lucide-react';
+import { useRegistrationGuard } from '../../hooks/useRegistrationGuard';
 import './EsportsRegistration.css';
+
 
 // Game Configurations
 const GAMES = [
-    { id: 'bgmi', label: 'BGMI', tagline: 'Grid-Warrior Mobile', prize: '₹10,000+', type: 'TEAM', members: 4, platform: 'Mobile', color: '#ff9800', image: `${import.meta.env.BASE_URL}assets/esports/bgmi.png` },
-    { id: 'freefire', label: 'FREE FIRE', tagline: 'Squad Battle-Royale', prize: '₹8,000+', type: 'TEAM', members: 4, platform: 'Mobile', color: '#e91e63', image: `${import.meta.env.BASE_URL}assets/esports/freefire.png` },
-    { id: 'codm', label: 'CALL OF DUTY (MOBILE)', tagline: 'Spec-Ops Combat', prize: '₹10,000+', type: 'TEAM', members: 4, platform: 'Mobile', color: '#4caf50', image: `${import.meta.env.BASE_URL}assets/esports/codm.png` },
-    { id: 'valorant', label: 'VALORANT', tagline: 'Tactical PC Duel', prize: '₹20,000+', type: 'TEAM', members: 5, platform: 'PC', color: '#ff4655', image: `${import.meta.env.BASE_URL}assets/esports/valorant.png` },
-    { id: 'sf4_solo', label: 'SHADOW-FIGHT 4 (SOLO)', tagline: 'Arena 1v1 Combat', prize: '₹2,500+', type: 'SOLO', members: 1, platform: 'Mobile', color: '#ffeb3b', image: `${import.meta.env.BASE_URL}assets/esports/sf4.png` },
-    { id: 'sf4_duet', label: 'SHADOW-FIGHT 4 (DUET)', tagline: 'Arena 2v2 Duel', prize: '₹3,500+', type: 'TEAM', members: 2, platform: 'Mobile', color: '#ffeb3b', image: `${import.meta.env.BASE_URL}assets/esports/sf4.png` },
-    { id: 'amongus', label: 'AMONG US', tagline: 'Social Deduction', prize: '₹2,000+', type: 'SOLO', members: 1, platform: 'Mobile', color: '#00bcd4', image: `${import.meta.env.BASE_URL}assets/esports/amongus.png` },
+    { id: 'bgmi', label: 'BGMI', tagline: 'Grid-Warrior Mobile', prize: '₹10,000+', fee: 500, type: 'TEAM', members: 5, platform: 'Mobile', color: '#ff9800', image: `${import.meta.env.BASE_URL}assets/esports/bgmi.png` },
+    { id: 'freefire', label: 'FREE FIRE', tagline: 'Squad Battle-Royale', prize: '₹8,000+', fee: 250, type: 'TEAM', members: 4, platform: 'Mobile', color: '#e91e63', image: `${import.meta.env.BASE_URL}assets/esports/freefire.png` },
+    { id: 'codm', label: 'CALL OF DUTY (MOBILE)', tagline: 'Spec-Ops Combat', prize: '₹10,000+', fee: 400, type: 'TEAM', members: 4, platform: 'Mobile', color: '#4caf50', image: `${import.meta.env.BASE_URL}assets/esports/codm.png` },
+    { id: 'valorant', label: 'VALORANT', tagline: 'Tactical PC Duel', prize: '₹20,000+', fee: 350, type: 'TEAM', members: 5, platform: 'PC', color: '#ff4655', image: `${import.meta.env.BASE_URL}assets/esports/valorant.png` },
+    { id: 'sf4_solo', label: 'SHADOW-FIGHT 4 (SOLO)', tagline: 'Arena 1v1 Combat', prize: '₹15,000+', fee: 150, type: 'SOLO', members: 1, platform: 'Mobile', color: '#ffeb3b', image: `${import.meta.env.BASE_URL}assets/esports/sf4.png` },
+    { id: 'sf4_duet', label: 'SHADOW-FIGHT 4 (DUET)', tagline: 'Arena 2v2 Duel', prize: '₹25,000+', fee: 250, type: 'TEAM', members: 2, platform: 'Mobile', color: '#ffeb3b', image: `${import.meta.env.BASE_URL}assets/esports/sf4.png` },
+    { id: 'amongus', label: 'AMONG US', tagline: 'Social Deduction', prize: '₹2,000+', fee: 50, type: 'SOLO', members: 1, platform: 'Mobile', color: '#00bcd4', image: `${import.meta.env.BASE_URL}assets/esports/amongus.png` },
 ] as const;
 
 type GameId = typeof GAMES[number]['id'];
 
-// Hex to RGB helper for CSS variables
-const hexToRgb = (hex: string) => {
-    const r = parseInt(hex.slice(1, 3), 16);
-    const g = parseInt(hex.slice(3, 5), 16);
-    const b = parseInt(hex.slice(5, 7), 16);
-    return `${r}, ${g}, ${b}`;
-};
-
 const EsportsRegistration: React.FC = () => {
     const [user] = useAuthState(auth);
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const selectedGame = searchParams.get('game') as GameId;
     const { toast } = useToast();
-    
+    const { isRegistered, eventName, loading: guardLoading } = useRegistrationGuard();
+
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
-    const [selectedGame, setSelectedGame] = useState<GameId | ''>('');
-    const [errors, setErrors] = useState<Record<string, string>>({});
-
-    const [formData, setFormData] = useState({
-        teamName: '',
-        leaderInGameName: '',
-        leaderInGameId: '',
-        leaderPhone: '',
-        leaderCollege: '',
-        members: [] as { name: string, ign: string, igid: string, phone: string }[]
-    });
+    const [lookupLoading, setLookupLoading] = useState<Record<string, boolean>>({});
+    const [transactionId, setTransactionId] = useState("");
 
     const activeGame = GAMES.find(g => g.id === selectedGame);
 
+    const [formData, setFormData] = useState({
+        teamName: '',
+        leaderAvrId: '',
+        leaderName: '',
+        leaderEmail: '',
+        leaderPhone: '',
+        leaderCollege: '',
+        member2AvrId: '', member2Name: '', member2Email: '', member2Phone: '', member2College: '',
+        member3AvrId: '', member3Name: '', member3Email: '', member3Phone: '', member3College: '',
+        member4AvrId: '', member4Name: '', member4Email: '', member4Phone: '', member4College: '',
+        member5AvrId: '', member5Name: '', member5Email: '', member5Phone: '', member5College: '',
+    });
+
     useEffect(() => {
         if (!user) {
-            navigate('/login?redirect=/esports-register');
+            navigate(`/login?redirect=/esports-register?game=${selectedGame || ''}`);
             return;
         }
 
-        const loadUserMetadata = async () => {
+        if (!selectedGame) {
+            navigate('/battle-grid', { replace: true });
+            return;
+        }
+
+        const loadProfile = async () => {
             try {
                 const userSnap = await getDoc(doc(db, "user", user.uid));
                 if (userSnap.exists()) {
-                    setFormData(prev => ({ 
-                        ...prev, 
-                        leaderCollege: userSnap.data().college || '' 
+                    const data = userSnap.data();
+                    const fullName = `${data.firstName || ''} ${data.lastName || ''}`.trim() || data.name || user.displayName || '';
+                    setFormData(prev => ({
+                        ...prev,
+                        leaderAvrId: data.avrId || '',
+                        leaderName: fullName,
+                        leaderEmail: data.email || user.email || '',
+                        leaderPhone: data.whatsappNumber || data.phone || '',
+                        leaderCollege: data.college || '',
                     }));
                 }
             } catch (err) {
-                console.error("Error loading user data:", err);
+                toast("Failed to load profile", "error");
             } finally {
                 setLoading(false);
             }
         };
-        loadUserMetadata();
-    }, [user, navigate]);
-
-    useEffect(() => {
-        // Reset members when game changes
-        if (activeGame) {
-            const memberCount = activeGame.type === 'TEAM' ? activeGame.members - 1 : 0;
-            setFormData(prev => ({
-                ...prev,
-                members: Array.from({ length: memberCount }, () => ({ name: '', ign: '', igid: '', phone: '' }))
-            }));
-            setErrors({});
-        }
-    }, [selectedGame, activeGame]);
+        loadProfile();
+    }, [user, selectedGame, navigate, toast]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
-        // Clear error when user types
-        if (errors[name]) {
-            setErrors(prev => {
-                const newErrors = { ...prev };
-                delete newErrors[name];
-                return newErrors;
-            });
-        }
     };
 
-    const handleMemberChange = (index: number, field: string, value: string) => {
-        setFormData(prev => {
-            const newMembers = [...prev.members];
-            newMembers[index] = { ...newMembers[index], [field]: value };
-            return { ...prev, members: newMembers };
-        });
-        
-        const errorKey = `member${index}_${field}`;
-        if (errors[errorKey]) {
-            setErrors(prev => {
-                const newErrs = { ...prev };
-                delete newErrs[errorKey];
-                return newErrs;
-            });
-        }
+    const handleAvrInput = (e: React.ChangeEvent<HTMLInputElement>, field: string) => {
+        let val = e.target.value.toUpperCase();
+        if (!val.startsWith("AVR-")) val = "AVR-";
+        const raw = val.slice(4).replace(/[^A-Z0-9]/g, '');
+        let letters = raw.slice(0, 3).replace(/[0-9]/g, '');
+        let numbers = raw.slice(letters.length).replace(/[A-Z]/g, '');
+        let formatted = "AVR-" + letters + (letters.length === 3 ? "-" + numbers : "");
+        setFormData(prev => ({ ...prev, [`${field}AvrId`]: formatted }));
+        if (formatted.length >= 9) triggerLookup(formatted, field);
     };
 
-    const validateForm = () => {
-        const newErrors: Record<string, string> = {};
-        const phoneRegex = /^\d{10}$/;
-
-        if (!selectedGame) newErrors.game = "Please select a game";
-        
-        if (activeGame?.type === 'TEAM') {
-            if (!formData.teamName || formData.teamName.length < 3) newErrors.teamName = "Min 3 chars";
-        }
-
-        if (!formData.leaderInGameName) newErrors.leaderInGameName = "Required";
-        if (!formData.leaderInGameId) newErrors.leaderInGameId = "Required";
-        if (!formData.leaderPhone || !phoneRegex.test(formData.leaderPhone)) newErrors.leaderPhone = "10 digit WA";
-        
-        if (activeGame?.type === 'TEAM') {
-            formData.members.forEach((m, i) => {
-                if (!m.name) newErrors[`member${i}_name`] = "Required";
-                if (!m.ign) newErrors[`member${i}_ign`] = "Required";
-                if (!m.igid) newErrors[`member${i}_igid`] = "Required";
-                if (!m.phone || !phoneRegex.test(m.phone)) newErrors[`member${i}_phone`] = "10 digit WA";
-            });
-        }
-
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };
-
-    const handleSubmit = async () => {
-        if (!validateForm() || !user || !activeGame) return;
-
-        setSubmitting(true);
+    const triggerLookup = async (avrId: string, field: string) => {
+        setLookupLoading(prev => ({ ...prev, [field]: true }));
         try {
-            await runTransaction(db, async (transaction) => {
-                // Check if already registered for this specific game
-                const q = query(
-                    collection(db, "registrations"), 
-                    where("userId", "==", user.uid),
-                    where("competitionId", "==", `battle-grid-${activeGame.id}`)
-                );
-                const existing = await getDocs(q);
-                if (!existing.empty) {
-                    throw new Error(`You have already registered for ${activeGame.label}`);
-                }
-
-                const regRef = doc(collection(db, "registrations"));
-                const registrationData = {
-                    userId: user.uid,
-                    userName: user.displayName,
-                    userEmail: user.email,
-                    competitionId: `battle-grid-${activeGame.id}`,
-                    competitionName: `Battle-Grid '26: ${activeGame.label}`,
-                    teamName: activeGame.type === 'TEAM' ? formData.teamName : 'SOLO',
-                    game: activeGame.id,
-                    type: activeGame.type,
-                    platform: activeGame.platform,
-                    college: formData.leaderCollege,
-                    leader: {
-                        name: user.displayName,
-                        email: user.email,
-                        ign: formData.leaderInGameName,
-                        igid: formData.leaderInGameId,
-                        phone: formData.leaderPhone
-                    },
-                    members: formData.members,
-                    registeredAt: serverTimestamp(),
-                    status: 'PENDING'
-                };
-
-                transaction.set(regRef, registrationData);
-            });
-
-            setStep(3); // Success Step
-            toast("Victory! Registration Successful.", "success");
-        } catch (err: any) {
-            toast(err.message || "Encountered a technical glitch.", "error");
+            const q = query(collection(db, "user"), where("avrId", "==", avrId));
+            const snap = await getDocs(q);
+            if (!snap.empty) {
+                const data = snap.docs[0].data();
+                const fullName = `${data.firstName || ''} ${data.lastName || ''}`.trim() || data.name || '';
+                setFormData(prev => ({
+                    ...prev,
+                    [`${field}Name`]: fullName,
+                    [`${field}Email`]: data.email || '',
+                    [`${field}Phone`]: data.whatsappNumber || data.phone || '',
+                    [`${field}College`]: data.college || '',
+                }));
+            } else {
+                setFormData(prev => ({ ...prev, [`${field}Name`]: '', [`${field}Email`]: '', [`${field}Phone`]: '', [`${field}College`]: '' }));
+            }
+        } catch (err) {
+            console.error(err);
         } finally {
-            setSubmitting(false);
+            setLookupLoading(prev => ({ ...prev, [field]: false }));
         }
     };
 
-    if (loading) return (
-        <div className="esports-loader">
-            <Loader2 className="spinner" />
-            <p>Gathering Combat Intel...</p>
-        </div>
-    );
+    const handleNext = () => {
+        if (!formData.teamName) {
+            toast("Enter team name", "warning");
+            return;
+        }
+        setStep(2);
+        window.scrollTo(0, 0);
+    };
 
-    if (step === 3) return (
-        <div className="esports-success-container">
-            <SEO title="Registration Confirmed | Battle Grid '26" description="Your spot in the arena is locked." />
-            <div className="success-content glass-card">
-                <CheckCircle2 color="#4caf50" size={80} />
-                <h1>Registration Confirmed!</h1>
-                <p>Welcome to <strong>Battle-Grid '26</strong>: <span>{activeGame?.label}</span></p>
-                <div className="success-info">
-                    <p>Details have been logged into the grid. Join our official Discord for tournament brackets and timing schedules.</p>
+    const handlePayment = async () => {
+        setSubmitting(true);
+        // Simulate payment for now
+        setTimeout(() => {
+            const mockTxn = "TXN_" + Math.random().toString(36).substr(2, 9).toUpperCase();
+            setTransactionId(mockTxn);
+            setStep(3);
+            setSubmitting(false);
+            toast("Deployment Successful!", "success");
+        }, 2000);
+    };
+
+    if (loading || guardLoading) return <div className="loader-screen"><Loader2 className="spinner" /></div>;
+
+    if (isRegistered) {
+        return (
+            <div className="esports-reg-page-v2 centered">
+                <div className="registered-overlay fade-in">
+                    <ShieldAlert size={64} color="#ff4655" className="locked-icon" />
+                    <h1 className="locked-title">ARENA LOCKED</h1>
+                    <p className="locked-text">You are already signed for <strong>{eventName}</strong>.</p>
+                    <button className="primary-cta-reg" onClick={() => navigate('/user/dashboard')}>RETURN TO COMMAND</button>
                 </div>
-                <button className="esports-btn primary" onClick={() => navigate('/user/dashboard')}>
-                    View Dashboard <ArrowRight size={20} />
-                </button>
             </div>
-        </div>
-    );
+        );
+    }
 
     return (
-        <div className="esports-reg-page">
-            <SEO 
-                title={`${activeGame?.label || 'E-Sports'} Registration | Battle-Grid '26`} 
-                description="Join the ultimate tactical arena at Avishkar '26. Battle-Grid Esports registration is now live." 
-            />
+        <div className="esports-reg-page-v2">
+            <SEO title={`${activeGame?.label} Registration`} description="Battle-Grid '26 E-Sports Entry" />
             
-            <div className="esports-header">
-                <div className="title-wrapper">
-                    <Trophy className="title-icon" />
-                    <h1>Battle-Grid '26</h1>
+            <div className="esports-header-v2">
+                <div className="nav-row">
+                    <button className="back-portal-btn" onClick={() => navigate('/battle-grid')}>
+                        <ArrowLeft size={16} /> RE-SELECT ARENA
+                    </button>
+                    <div className="platform-tag">
+                        {activeGame?.platform === 'PC' ? <Target size={14} /> : <Phone size={14} />}
+                        {activeGame?.platform} - {activeGame?.type} Entry
+                    </div>
                 </div>
-                <p>Select your battlefield and claim your spot in the grid.</p>
+                <div className="main-logo-row">
+                    <span className="game-label-large">{activeGame?.label}</span>
+                    <span className="reg-text-large">REGISTRATION</span>
+                </div>
             </div>
 
-            <div className="esports-layout">
-                {/* Step 0: Game Selection Cards via ChromaGrid */}
-                {!selectedGame && (
-                    <div className="flagship-selection-wrapper animate-in">
-                        <ChromaGrid 
-                            items={GAMES.map(g => ({
-                                id: g.id,
-                                title: g.label,
-                                subtitle: g.tagline,
-                                image: g.image,
-                                prizePool: g.prize,
-                                isFlagship: true,
-                                borderColor: g.color,
-                                location: g.platform
-                            } as any))}
-                            columns={3}
-                            onItemClick={(item: any) => setSelectedGame(item.id as GameId)}
-                        />
+            <div className="esports-layout-v2">
+                <div className="reg-stepper">
+                    <div className={`step-item ${step >= 1 ? 'active' : ''}`}>
+                        <span className="step-num">1</span>
+                        <span className="step-label">{activeGame?.type === 'TEAM' ? 'Squad' : 'Solo'}</span>
+                    </div>
+                    <div className="step-divider" />
+                    <div className={`step-item ${step >= 2 ? 'active' : ''}`}>
+                        <span className="step-num">2</span>
+                        <span className="step-label">Review</span>
+                    </div>
+                </div>
+
+                {step === 1 && (
+                    <div className="tactical-form-card fade-in">
+                        <div className="form-section-header">
+                            <label className="tactical-label">{activeGame?.type === 'TEAM' ? 'SQUAD NAME' : 'PLAYER NAME'}</label>
+                            <div className="tactical-input-wrapper">
+                                <Trophy size={18} className="field-icon" />
+                                <input type="text" name="teamName" value={formData.teamName} onChange={handleInputChange} placeholder="Enter Name" />
+                            </div>
+                        </div>
+
+                        <div className="tactical-divider">
+                            <span>{activeGame?.type === 'TEAM' ? 'LEADER DETAILS' : 'PLAYER DETAILS'}</span>
+                            <div className="divider-line" />
+                        </div>
+
+                        <div className="tactical-grid">
+                            <div className="form-section-header">
+                                <label className="tactical-label">IN-GAME NAME (IGN)</label>
+                                <div className="tactical-input-wrapper">
+                                    <User size={18} className="field-icon" />
+                                    <input type="text" name="leaderName" value={formData.leaderName} onChange={handleInputChange} placeholder="Display Name" />
+                                </div>
+                            </div>
+                            <div className="form-section-header">
+                                <label className="tactical-label">CHARACTER ID</label>
+                                <div className="tactical-input-wrapper">
+                                    <Fingerprint size={18} className="field-icon" />
+                                    <input type="text" value={formData.leaderAvrId} readOnly className="readonly-input" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="form-section-header">
+                            <label className="tactical-label">WHATSAPP NUMBER</label>
+                            <div className="tactical-input-wrapper">
+                                <Phone size={18} className="field-icon" />
+                                <input type="tel" name="leaderPhone" value={formData.leaderPhone} onChange={handleInputChange} placeholder="WA Number" />
+                            </div>
+                        </div>
+
+                        {activeGame?.type === 'TEAM' && Array.from({ length: (activeGame?.members as number) - 1 }).map((_, i) => {
+                            const mIdx = i + 2;
+                            return (
+                                <div key={mIdx} className="combatant-card">
+                                    <div className="combatant-header">
+                                        <div className="accent-bar" />
+                                        <span>Squad Combatant {mIdx}</span>
+                                    </div>
+                                    <div className="tactical-grid">
+                                        <div className="tactical-input-wrapper">
+                                            <Fingerprint size={16} className="field-icon" />
+                                            <input type="text" placeholder="AVR ID" value={(formData as any)[`member${mIdx}AvrId`]} onChange={(e) => handleAvrInput(e, `member${mIdx}`)} />
+                                            {lookupLoading[`member${mIdx}`] && <Loader2 size={14} className="spinner" />}
+                                        </div>
+                                        <div className="tactical-input-wrapper readonly">
+                                            <User size={16} className="field-icon" />
+                                            <input type="text" value={(formData as any)[`member${mIdx}Name`]} placeholder="Verify ID" readOnly />
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })}
+
+                        <div className="form-footer-tactical">
+                            <button className="primary-cta-reg" onClick={handleNext}>PROCEED TO REVIEW <ArrowRight size={20} /></button>
+                        </div>
                     </div>
                 )}
 
-                {selectedGame && step !== 3 && (
-                    <div 
-                        className="form-wrapper-enhanced animate-in"
-                        style={{ 
-                            '--game-color': activeGame?.color,
-                            '--game-color-rgb': activeGame ? hexToRgb(activeGame.color) : '82, 39, 255'
-                        } as React.CSSProperties}
-                    >
-                        <div className="form-header-premium" style={{ borderLeftColor: activeGame?.color }}>
-                            <div className="active-game-meta">
-                                <button className="back-to-games" onClick={() => setSelectedGame('')}>
-                                    <ArrowLeft size={16} /> Re-select Arena
-                                </button>
-                                <h2>{activeGame?.label} <span>Registration</span></h2>
+                {step === 2 && (
+                    <div className="tactical-form-card review-mode fade-in">
+                        <div className="review-header">
+                            <h3>Combat Unit Review</h3>
+                            <p>Verify details before deployment</p>
+                        </div>
+                        <div className="review-scroll scrollbar-custom">
+                            <div className="review-entry"><span className="label">Competition</span><span className="value">{activeGame?.label}</span></div>
+                            <div className="review-entry"><span className="label">Unit/Squad</span><span className="value">{formData.teamName}</span></div>
+                            
+                            <div className="tactical-divider small"><span>Unit Roster</span><div className="divider-line" /></div>
+                            
+                            <div className="review-roster">
+                                <div className="roster-member main">
+                                    <span className="rank">LEADER</span>
+                                    <div className="member-details"><span className="name">{formData.leaderName}</span><span className="avr">{formData.leaderAvrId}</span></div>
+                                </div>
+                                {activeGame?.type === 'TEAM' && Array.from({ length: (activeGame?.members as number) - 1 }).map((_, i) => (
+                                    <div key={i} className="roster-member">
+                                        <span className="rank">MEMBER {i+2}</span>
+                                        <div className="member-details">
+                                            <span className="name">{(formData as any)[`member${i+2}Name`]}</span>
+                                            <span className="avr">{(formData as any)[`member${i+2}AvrId`]}</span>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
-                            <div className="platform-pill">
-                                {activeGame?.platform === 'PC' ? <Monitor size={14} /> : <Smartphone size={14} />}
-                                <span>{activeGame?.platform} - {activeGame?.type === 'TEAM' ? 'Team Entry' : 'Solo Entry'}</span>
+
+                            <div className="payment-summary-tactical">
+                                <div className="summary-row"><span>Base Registration</span><span>₹{activeGame?.fee}.00</span></div>
+                                <div className="summary-row total"><span>Grand Total</span><span>₹{activeGame?.fee}.00</span></div>
                             </div>
                         </div>
-
-                        <div className="esports-steps-h">
-                            <div className={`h-step ${step >= 1 ? 'active' : ''}`}>
-                                <div className="h-step-num">1</div>
-                                <span>{activeGame?.type === 'TEAM' ? 'Squad' : 'Details'}</span>
-                            </div>
-                            <div className="h-step-line"></div>
-                            <div className={`h-step ${step >= 2 ? 'active' : ''}`}>
-                                <div className="h-step-num">2</div>
-                                <span>Review</span>
-                            </div>
+                        <div className="form-footer-tactical-between">
+                            <button className="secondary-cta-reg" onClick={() => setStep(1)}><ArrowLeft size={18} /> BACK</button>
+                            <button className="primary-cta-reg checkout" onClick={handlePayment} disabled={submitting}>
+                                {submitting ? <Loader2 size={20} className="spinner" /> : <>DEPLOY TO ARENA <ArrowRight size={20} /></>}
+                            </button>
                         </div>
-
-                        {step === 1 ? (
-                            <div className="cyber-form animate-in">
-                                <div className="grid-form">
-                                    {activeGame?.type === 'TEAM' && (
-                                        <div className="input-group full">
-                                            <label>Squad Name</label>
-                                            <div className="input-cyber-wrapper">
-                                                <Trophy className="cyber-icon" size={18} />
-                                                <input 
-                                                    type="text" 
-                                                    name="teamName" 
-                                                    value={formData.teamName}
-                                                    onChange={handleInputChange}
-                                                    placeholder="Enter Team Name"
-                                                />
-                                            </div>
-                                            {errors.teamName && <span className="error-text-cyber">{errors.teamName}</span>}
-                                        </div>
-                                    )}
-
-                                    <div className="section-title-cyber">
-                                        <span>{activeGame?.type === 'TEAM' ? 'Leader Details' : 'Player Information'}</span>
-                                    </div>
-
-                                    <div className="input-group">
-                                        <label>In-Game Name (IGN)</label>
-                                        <div className="input-cyber-wrapper">
-                                            <User className="cyber-icon" size={18} />
-                                            <input 
-                                                type="text" 
-                                                name="leaderInGameName" 
-                                                value={formData.leaderInGameName}
-                                                onChange={handleInputChange}
-                                                placeholder="Game display name"
-                                            />
-                                        </div>
-                                        {errors.leaderInGameName && <span className="error-text-cyber">Required</span>}
-                                    </div>
-
-                                    <div className="input-group">
-                                        <label>Character ID</label>
-                                        <div className="input-cyber-wrapper">
-                                            <Hash className="cyber-icon" size={18} />
-                                            <input 
-                                                type="text" 
-                                                name="leaderInGameId" 
-                                                value={formData.leaderInGameId}
-                                                onChange={handleInputChange}
-                                                placeholder="Numeric ID"
-                                            />
-                                        </div>
-                                        {errors.leaderInGameId && <span className="error-text-cyber">Required</span>}
-                                    </div>
-
-                                    <div className="input-group full">
-                                        <label>WhatsApp Number</label>
-                                        <div className="input-cyber-wrapper">
-                                            <Smartphone className="cyber-icon" size={18} />
-                                            <input 
-                                                type="tel" 
-                                                name="leaderPhone" 
-                                                value={formData.leaderPhone}
-                                                onChange={handleInputChange}
-                                                placeholder="Official WA Number"
-                                            />
-                                        </div>
-                                        {errors.leaderPhone && <span className="error-text-cyber">{errors.leaderPhone}</span>}
-                                    </div>
-
-                                    {activeGame?.type === 'TEAM' && formData.members.map((member, i) => (
-                                        <div key={i} className="member-cyber-card animate-in">
-                                            <div className="member-label">Squad Combatant {i + 2}</div>
-                                            <div className="member-grid">
-                                                <div className="m-input">
-                                                    <input 
-                                                        placeholder="Full Name"
-                                                        value={member.name}
-                                                        onChange={(e) => handleMemberChange(i, 'name', e.target.value)}
-                                                    />
-                                                </div>
-                                                <div className="m-input">
-                                                    <input 
-                                                        placeholder="IGN"
-                                                        value={member.ign}
-                                                        onChange={(e) => handleMemberChange(i, 'ign', e.target.value)}
-                                                    />
-                                                </div>
-                                                <div className="m-input">
-                                                    <input 
-                                                        placeholder="Game ID"
-                                                        value={member.igid}
-                                                        onChange={(e) => handleMemberChange(i, 'igid', e.target.value)}
-                                                    />
-                                                </div>
-                                                <div className="m-input">
-                                                    <input 
-                                                        placeholder="WhatsApp"
-                                                        value={member.phone}
-                                                        onChange={(e) => handleMemberChange(i, 'phone', e.target.value)}
-                                                    />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-
-                                <div className="form-actions-cyber">
-                                    <button className="cyber-btn primary" onClick={() => validateForm() && setStep(2)}>
-                                        Proceed to Review <ArrowRight size={20} />
-                                    </button>
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="review-cyber animate-in">
-                                <div className="review-summary-glass">
-                                    <div className="r-summary-title">Battle Summary</div>
-                                    <div className="r-grid">
-                                        <div className="r-item">
-                                            <label>Arena</label>
-                                            <p>{activeGame?.label}</p>
-                                        </div>
-                                        {activeGame?.type === 'TEAM' && (
-                                            <div className="r-item">
-                                                <label>Squad Name</label>
-                                                <p>{formData.teamName}</p>
-                                            </div>
-                                        )}
-                                        <div className="r-item">
-                                            <label>Leader</label>
-                                            <p>{formData.leaderInGameName} ({formData.leaderInGameId})</p>
-                                        </div>
-                                        <div className="r-item">
-                                            <label>Members</label>
-                                            <p>{activeGame?.members} Total</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="disclaimer-cyber">
-                                    <p>By confirming, you agree to the tournament rules. Any form of hacking or unsportsmanlike behavior will result in an immediate permanent ban from all Avishkar '26 events.</p>
-                                </div>
-
-                                <div className="form-actions-cyber">
-                                    <button className="cyber-btn secondary" onClick={() => setStep(1)} disabled={submitting}>
-                                        <ArrowLeft size={18} /> Modify
-                                    </button>
-                                    <button className="cyber-btn primary" onClick={handleSubmit} disabled={submitting}>
-                                        {submitting ? <Loader2 className="spinner" /> : 'Confirm Combat Entry'} 
-                                        {!submitting && <ArrowRight size={18} />}
-                                    </button>
-                                </div>
-                            </div>
-                        )}
                     </div>
                 )}
 
                 {step === 3 && (
-                    <div className="success-cyber animate-in">
-                        <div className="success-icon-wrapper">
-                            <CheckCircle2 size={80} className="s-icon" />
+                    <div className="tactical-form-card success-mode fade-in">
+                        <div className="success-banner">
+                            <div className="v-circle">
+                                <CheckCircle2 size={40} />
+                            </div>
+                            <h1>DEPLOYMENT CONFIRMED</h1>
+                            <p>Your squad is now logged in the grid.</p>
                         </div>
-                        <h2>Deployment Successful!</h2>
-                        <p>Your squad/entry has been successfully deployed to the <strong>{activeGame?.label}</strong> arena. Prepare for battle!</p>
+
+                        <div className="success-data">
+                            <div className="data-row">
+                                <span className="label">Squad</span>
+                                <span className="value">{formData.teamName}</span>
+                            </div>
+                            <div className="data-row">
+                                <span className="label">Operation</span>
+                                <span className="value">{activeGame?.label}</span>
+                            </div>
+                            <div className="data-row">
+                                <span className="label">Transaction ID</span>
+                                <span className="value">{transactionId}</span>
+                            </div>
+                        </div>
+
                         <div className="success-actions">
-                            <button className="cyber-btn primary" onClick={() => navigate('/user-dashboard')}>
-                                View My Arena Pass
+                            <button className="primary-cta-reg" onClick={() => navigate('/user/dashboard')}>
+                                GO TO COMMAND CENTER <ArrowRight size={18} />
                             </button>
                         </div>
                     </div>

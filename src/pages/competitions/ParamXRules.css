@@ -1,0 +1,155 @@
+.rules-page {
+    padding: 120px 2rem 4rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    min-height: 100vh;
+}
+
+.back-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    padding: 0.6rem 1.25rem;
+    border-radius: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    margin-bottom: 2rem;
+    transition: all 0.3s ease;
+}
+
+.back-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.rules-header {
+    text-align: center;
+    margin-bottom: 4rem;
+}
+
+.rules-header h1 {
+    font-size: 3.5rem;
+    font-family: 'Iceland', sans-serif;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, #fff 0%, rgba(255, 255, 255, 0.4) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.rules-header p {
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.rules-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 2rem;
+    margin-bottom: 4rem;
+}
+
+.rule-card {
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 2rem;
+    padding: 2.5rem;
+    transition: all 0.3s ease;
+}
+
+.rule-card:hover {
+    border-color: rgba(167, 139, 250, 0.3);
+    transform: translateY(-5px);
+}
+
+.rule-icon {
+    width: 50px;
+    height: 50px;
+    background: rgba(167, 139, 250, 0.1);
+    border-radius: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #a78bfa;
+    margin-bottom: 1.5rem;
+}
+
+.rule-card h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    color: #fff;
+}
+
+.rule-card ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.rule-card li {
+    display: flex;
+    gap: 1rem;
+    line-height: 1.5;
+}
+
+.check-icon {
+    flex-shrink: 0;
+    color: #10b981;
+    margin-top: 3px;
+}
+
+.rule-card span {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.registration-callout {
+    background: linear-gradient(135deg, rgba(82, 39, 255, 0.1), rgba(0, 0, 0, 0.4));
+    border: 1px solid rgba(82, 39, 255, 0.3);
+    border-radius: 3rem;
+    padding: 4rem;
+    text-align: center;
+    margin-top: 4rem;
+}
+
+.registration-callout h2 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: #fff;
+}
+
+.registration-callout p {
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 2.5rem;
+}
+
+.rules-register-btn {
+    background: #5227ff;
+    color: #fff;
+    padding: 1rem 3rem;
+    border: none;
+    border-radius: 3rem;
+    font-weight: 700;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.rules-register-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 30px rgba(82, 39, 255, 0.4);
+}
+
+@media (max-width: 900px) {
+    .rules-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .rules-header h1 {
+        font-size: 2.5rem;
+    }
+}

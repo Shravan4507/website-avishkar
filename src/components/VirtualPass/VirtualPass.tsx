@@ -63,7 +63,7 @@ const VirtualPass: React.FC<VirtualPassProps> = ({ isOpen, isStatic, onClose, us
       <div className="pass-info-overlay">
         <h2 className="pass-name-main">{user.firstName + ' ' + user.lastName}</h2>
         <div className="pass-validity">
-          ID VALID UPTO: 3/11
+          ID VALID UPTO: 24/04
         </div>
       </div>
 

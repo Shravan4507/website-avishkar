@@ -1,68 +1,192 @@
 import React, { useState, useEffect } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
-import { useSearchParams } from 'react-router-dom';
-import { doc, collection, serverTimestamp, query, where, getDocs, runTransaction } from 'firebase/firestore';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+
+import { 
+    doc, collection, serverTimestamp, query, where, 
+    getDocs, runTransaction, getDoc 
+} from 'firebase/firestore';
 import { auth, db } from '../../firebase/firebase';
 import SEO from '../../components/seo/SEO';
 import { useToast } from '../../components/toast/Toast';
 import GlassSelect from '../../components/dropdown/GlassSelect';
 import { fetchProblemStatements, type ProblemStatement } from '../../utils/storageUtils';
-import collegesData from '../../data/colleges.json';
-import { Check, Users, ArrowRight, ArrowLeft, Loader2, User, Mail, Phone, Building2 } from 'lucide-react';
+import { generateInvoice } from '../../utils/InvoiceGenerator';
+import { 
+    Check, Users, ArrowRight, ArrowLeft, Loader2, 
+    User, Mail, Phone, Building2, Fingerprint, Search, Download, ShieldAlert 
+} from 'lucide-react';
+import { useRegistrationGuard } from '../../hooks/useRegistrationGuard';
+
+
 import './HackathonRegistration.css';
 
+// --- HELPER COMPONENT ---
+interface MemberFieldProps {
+    id: string;
+    label: string;
+    isLeader?: boolean;
+    formData: any;
+    lookupLoading: Record<string, boolean>;
+    errors: Record<string, string>;
+    handleAvrInput: (e: React.ChangeEvent<HTMLInputElement>, id: string) => void;
+    handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}
+
+const MemberField: React.FC<MemberFieldProps> = ({ 
+    id, label, isLeader = false, formData, lookupLoading, errors, handleAvrInput, handleInputChange 
+}) => {
+    const avrKey = `${id}AvrId`;
+    const nameKey = `${id}Name`;
+    const emailKey = `${id}Email`;
+    const phoneKey = `${id}Phone`;
+    const collegeKey = `${id}College`;
+
+    return (
+        <div className={`member-card ${isLeader ? 'leader' : ''} ${errors[avrKey] || errors[phoneKey] ? 'has-error' : ''}`}>
+            <div className="member-index">{label}</div>
+            <div className="member-inputs">
+                <div className={`input-with-icon avr-lookup ${lookupLoading[id] ? 'searching' : ''} ${isLeader ? 'readonly' : ''}`}>
+                    <Fingerprint size={16} />
+                    <input 
+                        type="text" 
+                        name={avrKey} 
+                        value={formData[avrKey] || ''} 
+                        onChange={(e) => handleAvrInput(e, id)}
+                        placeholder="AVR-XXX-0000"
+                        readOnly={isLeader}
+                        autoComplete="off"
+                    />
+                    {lookupLoading[id] ? <Loader2 size={16} className="spinner" /> : <Search size={16} />}
+                </div>
+
+                <div className="detail-row">
+                    <div className="input-with-icon prefilled editable">
+                        <User size={16} />
+                        <input 
+                            type="text" 
+                            name={nameKey}
+                            value={formData[nameKey] || ''} 
+                            onChange={handleInputChange}
+                            placeholder="Full Name" 
+                        />
+                    </div>
+                    <div className="input-with-icon prefilled readonly">
+                        <Mail size={16} />
+                        <input type="email" value={formData[emailKey] || ''} placeholder="Email Address" readOnly />
+                    </div>
+                </div>
+
+                <div className="detail-row">
+                    <div className={`input-with-icon prefilled editable ${errors[phoneKey] ? 'field-error' : ''}`}>
+                        <Phone size={16} />
+                        <input 
+                            type="tel" 
+                            name={phoneKey}
+                            value={formData[phoneKey] || ''} 
+                            onChange={handleInputChange}
+                            placeholder="WhatsApp Number" 
+                        />
+                        {errors[phoneKey] && <span className="error-badge">{errors[phoneKey]}</span>}
+                    </div>
+                    <div className="input-with-icon prefilled readonly">
+                        <Building2 size={16} />
+                        <input type="text" value={formData[collegeKey] || ''} placeholder="College/Institution" readOnly />
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+declare global {
+    interface Window {
+        Razorpay: any;
+    }
+}
+
 const HackathonRegistration: React.FC = () => {
+
+    const navigate = useNavigate();
     const [user] = useAuthState(auth);
-    const [searchParams] = useSearchParams();
+
+    const { isRegistered, eventName, loading: guardLoading } = useRegistrationGuard();
     const { toast } = useToast();
+
+    useEffect(() => {
+        if (!guardLoading && isRegistered) {
+            toast(`Locked: Already registered for ${eventName}. One event per user policy.`, "warning");
+            navigate('/user/dashboard', { replace: true });
+        }
+    }, [isRegistered, eventName, guardLoading, navigate, toast]);
+
+    const [searchParams] = useSearchParams();
+
     
-    // Steps: 1: Team Details, 2: Review, 3: Success
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [problems, setProblems] = useState<ProblemStatement[]>([]);
     const [errors, setErrors] = useState<Record<string, string>>({});
-    
+    const [lookupLoading, setLookupLoading] = useState<Record<string, boolean>>({});
+    const [transactionId, setTransactionId] = useState("");
+
+
     const [formData, setFormData] = useState({
         teamName: '',
         psId: searchParams.get('psId') || '',
-        leaderName: user?.displayName || '',
-        leaderEmail: user?.email || '',
+        
+        leaderAvrId: '',
+        leaderName: '',
+        leaderEmail: '',
         leaderPhone: '',
         leaderCollege: '',
+
+        member2AvrId: '',
         member2Name: '',
         member2Email: '',
         member2Phone: '',
         member2College: '',
+
+        member3AvrId: '',
         member3Name: '',
         member3Email: '',
         member3Phone: '',
         member3College: '',
+
+        member4AvrId: '',
         member4Name: '',
         member4Email: '',
         member4Phone: '',
         member4College: '',
     });
 
-
-
+    // 1. Initial Load: Fetch Leader Details
     useEffect(() => {
+        window.scrollTo(0, 0); // Scroll to top on first load
         const loadInitialData = async () => {
-            try {
-                // Load PS
-                const data = await fetchProblemStatements();
-                setProblems(data);
 
-                // Load Leader College
+            try {
+                const psData = await fetchProblemStatements();
+                setProblems(psData);
+
                 if (user) {
-                    const { doc, getDoc } = await import('firebase/firestore');
                     const userSnap = await getDoc(doc(db, "user", user.uid));
                     if (userSnap.exists()) {
-                        setFormData(prev => ({ ...prev, leaderCollege: userSnap.data().college || '' }));
+                        const data = userSnap.data();
+                        const fullName = `${data.firstName || ''} ${data.lastName || ''}`.trim() || data.name || data.displayName || user.displayName || '';
+                        setFormData(prev => ({
+                            ...prev,
+                            leaderAvrId: data.avrId || '',
+                            leaderName: fullName,
+                            leaderEmail: data.email || user.email || '',
+                            leaderPhone: data.whatsappNumber || data.whatsapp || data.phone || '',
+                            leaderCollege: data.college || '',
+                        }));
                     }
                 }
             } catch (err) {
-                toast("Failed to load initial data.", "error");
+                toast("Failed to load profile details.", "error");
             } finally {
                 setLoading(false);
             }
@@ -70,104 +194,112 @@ const HackathonRegistration: React.FC = () => {
         loadInitialData();
     }, [user, toast]);
 
+    // 2. Scroll to top on step change
+    useEffect(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, [step]);
+
+    // 3. AVR ID Formatter
+
+    const handleAvrInput = (e: React.ChangeEvent<HTMLInputElement>, id: string) => {
+        let val = e.target.value.toUpperCase();
+        const prevVal = (formData as any)[`${id}AvrId`] || '';
+
+        if (!val.startsWith("AVR-")) {
+            val = "AVR-";
+        }
+
+        const raw = val.slice(4).replace(/[^A-Z0-9]/g, '');
+        let letters = raw.slice(0, 3).replace(/[0-9]/g, '');
+        let numbers = raw.slice(letters.length).replace(/[A-Z]/g, '');
+
+        let formatted = "AVR-" + letters;
+        
+        if (letters.length === 3) {
+            if (prevVal.length > val.length && prevVal.endsWith("-") && !val.includes("-", 5)) {
+                formatted = "AVR-" + letters;
+            } else {
+                formatted += "-" + numbers;
+            }
+        }
+
+        setFormData(prev => ({ ...prev, [`${id}AvrId`]: formatted }));
+
+        if (formatted.length >= 9) {
+            handleAvrLookup(formatted, id);
+        }
+    };
+
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const validateStep1 = async () => {
-        const newErrors: Record<string, string> = {};
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        const phoneRegex = /^\d{10}$/;
+    const handleAvrLookup = async (avrId: string, memberKey: string) => {
+        if (!avrId || avrId.length < 8) return;
 
-        // 1. Basic Field Validation
-        if (!formData.teamName || formData.teamName.length < 3) newErrors.teamName = "Min 3 chars";
-        if (!formData.psId) newErrors.psId = "Required";
-        
-        // Leader
-        if (!formData.leaderName) newErrors.leaderName = "Required";
-        if (!formData.leaderPhone || !phoneRegex.test(formData.leaderPhone)) newErrors.leaderPhone = "10 digit WA";
-        if (!formData.leaderCollege) newErrors.leaderCollege = "Complete Profile First";
-
-        // Members (ParamX requires 4 members total)
-        const members = [
-            { id: '2', name: formData.member2Name, email: formData.member2Email, phone: formData.member2Phone, college: formData.member2College },
-            { id: '3', name: formData.member3Name, email: formData.member3Email, phone: formData.member3Phone, college: formData.member3College },
-            { id: '4', name: formData.member4Name, email: formData.member4Email, phone: formData.member4Phone, college: formData.member4College },
-        ];
-
-        members.forEach(m => {
-            if (!m.name) newErrors[`member${m.id}Name`] = "Required";
-            if (!m.email || !emailRegex.test(m.email)) newErrors[`member${m.id}Email`] = "Invalid";
-            if (!m.phone || !phoneRegex.test(m.phone)) newErrors[`member${m.id}Phone`] = "10 digit WA";
-            if (!m.college || m.college.length < 5) newErrors[`member${m.id}College`] = "Required";
-        });
-
-        // 2. Intra-Team Duplicate Check
-        const allEmails = [formData.leaderEmail, formData.member2Email, formData.member3Email, formData.member4Email]
-            .map(e => e.toLowerCase().trim());
-        const allPhones = [formData.leaderPhone, formData.member2Phone, formData.member3Phone, formData.member4Phone]
-            .map(p => p.trim());
-
-        // Check Email Duplicates
-        // Check Email Duplicates
-        if (new Set(allEmails).size !== 4) {
-            allEmails.forEach((email, idx) => {
-                const firstIdx = allEmails.indexOf(email);
-                if (firstIdx !== idx) {
-                    const key = idx === 0 ? 'leaderEmail' : `member${idx + 1}Email`;
-                    newErrors[key] = "Duplicate Email";
-                }
-            });
-        }
-
-        // Check Phone Duplicates
-        if (new Set(allPhones).size !== 4) {
-            allPhones.forEach((phone, idx) => {
-                const firstIdx = allPhones.indexOf(phone);
-                if (firstIdx !== idx) {
-                    const key = idx === 0 ? 'leaderPhone' : `member${idx + 1}Phone`;
-                    newErrors[key] = "Duplicate Phone";
-                }
-            });
-        }
-
-        if (Object.keys(newErrors).length > 0) {
-            setErrors(newErrors);
-            toast("Please fix highlighted errors.", "error");
-            return false;
-        }
-
-        setErrors({});
-        setSubmitting(true);
+        setLookupLoading(prev => ({ ...prev, [memberKey]: true }));
         try {
-            const registrationsRef = collection(db, "hackathon_registrations");
-            
-            // 3. Firestore Uniqueness Check: Team Name
-            const qNames = query(registrationsRef, where("teamName", "==", formData.teamName));
-            const snapNames = await getDocs(qNames);
-            if (!snapNames.empty) {
-                setErrors({ teamName: "Taken" });
-                toast("Team name already taken.", "error");
-                setSubmitting(false); // Fix submitting state
-                return false;
-            }
+            const userQuery = query(collection(db, "user"), where("avrId", "==", avrId.trim()));
+            const querySnapshot = await getDocs(userQuery);
 
-            // 4. Firestore Uniqueness Check: Global Emails
-            const qEmails = query(registrationsRef, where("allEmails", "array-contains-any", allEmails));
-            const snapEmails = await getDocs(qEmails);
-            if (!snapEmails.empty) {
-                toast("One or more members are already registered in another team!", "error");
-                setSubmitting(false);
-                return false;
+            if (!querySnapshot.empty) {
+                const data = querySnapshot.docs[0].data();
+                const fullName = `${data.firstName || ''} ${data.lastName || ''}`.trim() || data.name || data.displayName || '';
+                setFormData(prev => ({
+                    ...prev,
+                    [`${memberKey}Name`]: fullName,
+                    [`${memberKey}Email`]: data.email || '',
+                    [`${memberKey}Phone`]: data.whatsappNumber || data.whatsapp || data.phone || '',
+                    [`${memberKey}College`]: data.college || '',
+                }));
+            } else {
+                setFormData(prev => ({
+                    ...prev,
+                    [`${memberKey}Name`]: '',
+                    [`${memberKey}Email`]: '',
+                    [`${memberKey}Phone`]: '',
+                    [`${memberKey}College`]: '',
+                }));
             }
         } catch (err) {
             console.error(err);
-            toast("Validation failed. Try again.", "error");
-            setSubmitting(false);
-            return false;
         } finally {
-            setSubmitting(false);
+            setLookupLoading(prev => ({ ...prev, [memberKey]: false }));
+        }
+    };
+
+    const validateStep1 = async () => {
+        const newErrors: Record<string, string> = {};
+
+        if (!formData.teamName || formData.teamName.length < 3) newErrors.teamName = "Too short";
+        if (!formData.psId) newErrors.psId = "Required";
+        
+        const members = ['leader', 'member2', 'member3', 'member4'];
+
+        members.forEach(m => {
+            const avr = (formData as any)[`${m}AvrId`];
+            const name = (formData as any)[`${m}Name`];
+            const phone = (formData as any)[`${m}Phone`];
+
+            if (!avr || avr.length < 9) newErrors[`${m}AvrId`] = "Enter AVR ID";
+            else if (!name) newErrors[`${m}AvrId`] = "Lookup Failed";
+
+            // IMPROVED PHONE VALIDATION: Strip non-digits and check length
+            if (!phone) {
+                newErrors[`${m}Phone`] = "Required";
+            } else {
+                const cleanPhone = phone.replace(/\D/g, '');
+                if (cleanPhone.length < 10) {
+                    newErrors[`${m}Phone`] = "Min 10 digits";
+                }
+            }
+        });
+
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+            toast("Please fix the highlighted errors.", "error");
+            return false;
         }
 
         return true;
@@ -180,71 +312,93 @@ const HackathonRegistration: React.FC = () => {
         }
     };
 
-    const handleSubmitRegistration = async () => {
+    const handleSubmitRegistration = async (paymentId: string) => {
         setSubmitting(true);
         try {
-            // Transact-based Slot Management & Document Creation
             await runTransaction(db, async (transaction) => {
                 const psMetadataRef = doc(db, "ps_metadata", formData.psId);
                 const psMetadataDoc = await transaction.get(psMetadataRef);
 
                 let currentCount = 0;
-                let limit = 10;
+                if (psMetadataDoc.exists()) currentCount = psMetadataDoc.data().count || 0;
 
-                if (psMetadataDoc.exists()) {
-                    currentCount = psMetadataDoc.data().count || 0;
-                    limit = psMetadataDoc.data().limit || 10;
-                }
+                if (currentCount >= 10) throw new Error("This problem statement has no more slots.");
 
-                if (currentCount >= limit) {
-                    throw new Error("Slots for this problem statement are full. Please choose another.");
-                }
+                transaction.set(psMetadataRef, { count: currentCount + 1 }, { merge: true });
 
-                // Increment slot count
-                transaction.set(psMetadataRef, { 
-                    count: currentCount + 1,
-                    limit: limit 
-                }, { merge: true });
-
-                // Create registration document
                 const registrationRef = doc(collection(db, "hackathon_registrations"));
                 transaction.set(registrationRef, {
                     ...formData,
-                    status: 'confirmed', // Confirmed directly for now
+                    status: 'confirmed',
+                    paymentId,
+                    amount: 500,
                     allEmails: [
                         formData.leaderEmail.toLowerCase(), 
                         formData.member2Email.toLowerCase(), 
                         formData.member3Email.toLowerCase(), 
                         formData.member4Email.toLowerCase()
                     ],
+                    allAvrIds: [
+                        formData.leaderAvrId,
+                        formData.member2AvrId,
+                        formData.member3AvrId,
+                        formData.member4AvrId
+                    ],
                     createdAt: serverTimestamp(),
                     uid: user?.uid
                 });
             });
 
+            setTransactionId(paymentId);
             setStep(3);
-            toast("Registration submitted successfully!", "success");
+            toast("Team Registered!", "success");
+
         } catch (err: any) {
-            console.error(err);
-            toast(err.message || "Failed to submit registration.", "error");
+            toast(err.message, "error");
         } finally {
             setSubmitting(false);
         }
     };
 
-    if (loading) return <div className="loader-overlay"><Loader2 className="spinner" /></div>;
+    const handlePayment = () => {
+        if (!window.Razorpay) {
+            toast("Payment SDK not loaded. Check your internet.", "error");
+            return;
+        }
 
+        const options = {
+            key: import.meta.env.VITE_RAZORPAY_KEY_ID, // Enter in .env
+            amount: 500 * 100, // INR 500 in paise
+            currency: "INR",
+            name: "Avishkar '26",
+            description: "Param-X Registration",
+            image: "https://avishkar26.vercel.app/favicon.ico", // Or local logo
+            handler: async function (response: any) {
+                await handleSubmitRegistration(response.razorpay_payment_id);
+            },
+            prefill: {
+                name: formData.leaderName,
+                email: formData.leaderEmail,
+                contact: formData.leaderPhone,
+            },
+            theme: { color: "#5227ff" },
+        };
+
+        const rzp = new window.Razorpay(options);
+        rzp.open();
+    };
+
+
+    if (loading) return <div className="loader-overlay"><Loader2 className="spinner" /></div>;
     const selectedPs = problems.find(p => p.id === formData.psId);
 
     return (
         <div className="hackathon-reg-page">
             <SEO 
-                title="ParamX '26 | Hackathon Registration" 
-                description="Register your team for ParamX '26, the premier hackathon of Avishkar '26. Build innovative solutions for real-world problems."
+                title="Param-X '26 | Registration" 
+                description="Secure your spot in Param-X '26 Hackathon. Enter your details and let's build something epic."
             />
             <div className="hackathon-reg-container">
-                
-                {/* Progress Mini Map */}
                 <div className="reg-steps">
                     {[1, 2, 3].map(s => (
                         <div key={s} className={`step-dot ${step >= s ? 'active' : ''} ${step > s ? 'completed' : ''}`}>
@@ -256,205 +410,157 @@ const HackathonRegistration: React.FC = () => {
                 {step === 1 && (
                     <div className="reg-card fade-in">
                         <header>
-                            <h1>Team Details</h1>
-                            <p>Setup your squad for ParamX '26</p>
+                            <h1>Team Registration</h1>
+                            <p>Verify AVR IDs to unlock member details</p>
                         </header>
                         
-                        <div className={`form-section ${errors.psId ? 'has-error' : ''}`}>
-                            <label>Select Problem Statement*</label>
+                        <div className="form-section">
+                            <label>Problem Statement*</label>
                             <GlassSelect 
                                 options={problems.map(p => ({ label: `[${p.id}] ${p.title}`, value: p.id }))}
                                 value={formData.psId}
-                                onChange={(val) => {
-                                    setFormData(prev => ({ ...prev, psId: val }));
-                                    setErrors(prev => ({ ...prev, psId: '' }));
-                                }}
+                                onChange={(val) => setFormData(prev => ({ ...prev, psId: val }))}
                                 placeholder="Choose your challenge"
-                                className={errors.psId ? 'error-border' : ''}
                             />
-                            {errors.psId && <span className="error-hint">{errors.psId}</span>}
-                            {selectedPs && (
-                                <div className="ps-hint">
-                                    <strong>Objective:</strong> {selectedPs.objective}
-                                </div>
-                            )}
                         </div>
 
-                        <div className="form-grid single-col">
-                            <div className={`form-group ${errors.teamName ? 'has-error' : ''}`}>
-                                <label>Team Name*</label>
-                                <input type="text" name="teamName" value={formData.teamName} onChange={handleInputChange} placeholder="CyberHawks" />
-                                {errors.teamName && <span className="error-hint">{errors.teamName}</span>}
-                            </div>
+                        <div className="form-group">
+                            <label>Team Name*</label>
+                            <input type="text" name="teamName" value={formData.teamName} onChange={handleInputChange} placeholder="Squad Name" />
+                            {errors.teamName && <span className="error-hint">{errors.teamName}</span>}
+                        </div>
+
+                        <div className="accountability-notice">
+                            <ShieldAlert size={20} />
+                            <p><strong>Scheduling Notice:</strong> You are responsible for any timing overlaps. Avishkar '26 is not liable for clashes. Proceeding will lock your single allowed slot.</p>
                         </div>
 
                         <div className="members-section">
-                            <h3><Users size={18} /> Team Members</h3>
-                            
-                            {/* Leader (Read Only Email) */}
-                            <div className={`member-card leader ${errors.leaderName || errors.leaderPhone ? 'has-error' : ''}`}>
-                                <div className="member-index">Leader</div>
-                                <div className="member-inputs">
-                                    <div className={`input-with-icon ${errors.leaderName ? 'has-error' : ''}`}>
-                                        <User size={16} />
-                                        <input type="text" name="leaderName" value={formData.leaderName} onChange={handleInputChange} placeholder="Full Name" />
-                                    </div>
-                                    <div className="input-with-icon readonly">
-                                        <Mail size={16} />
-                                        <input type="email" value={formData.leaderEmail} readOnly className="readonly-input" />
-                                    </div>
-                                    <div className={`input-with-icon ${errors.leaderPhone ? 'has-error' : ''}`}>
-                                        <Phone size={16} />
-                                        <input type="tel" name="leaderPhone" value={formData.leaderPhone} onChange={handleInputChange} placeholder="WhatsApp Contact" />
-                                    </div>
-                                    <div className={`input-with-icon readonly ${errors.leaderCollege ? 'has-error' : ''}`}>
-                                        <Building2 size={16} />
-                                        <input type="text" value={formData.leaderCollege || 'Not Set (Go to Dashboard)'} readOnly className="readonly-input" />
-                                    </div>
-                                </div>
-                            </div>
 
-                            {/* Member 2 */}
-                            <div className={`member-card ${errors.member2Name || errors.member2Email || errors.member2Phone || errors.member2College ? 'has-error' : ''}`}>
-                                <div className="member-index">M2</div>
-                                <div className="member-inputs">
-                                    <div className={`input-with-icon ${errors.member2Name ? 'has-error' : ''}`}>
-                                        <User size={16} />
-                                        <input type="text" name="member2Name" value={formData.member2Name} onChange={handleInputChange} placeholder="Name" />
-                                    </div>
-                                    <div className={`input-with-icon ${errors.member2Email ? 'has-error' : ''}`}>
-                                        <Mail size={16} />
-                                        <input type="email" name="member2Email" value={formData.member2Email} onChange={handleInputChange} placeholder="Email" />
-                                    </div>
-                                    <div className={`input-with-icon ${errors.member2Phone ? 'has-error' : ''}`}>
-                                        <Phone size={16} />
-                                        <input type="tel" name="member2Phone" value={formData.member2Phone} onChange={handleInputChange} placeholder="Phone" />
-                                    </div>
-                                    <div className={`form-section no-margin ${errors.member2College ? 'has-error' : ''}`}>
-                                        <GlassSelect 
-                                            options={collegesData.map((c: string) => ({ value: c, label: c }))}
-                                            value={formData.member2College}
-                                            onChange={(val) => {
-                                                setFormData(prev => ({ ...prev, member2College: val }));
-                                                setErrors(prev => ({ ...prev, member2College: '' }));
-                                            }}
-                                            placeholder="Member 2 College"
-                                            searchable={true}
-                                            className="member-college-select"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Member 3 */}
-                            <div className={`member-card ${errors.member3Name || errors.member3Email || errors.member3Phone || errors.member3College ? 'has-error' : ''}`}>
-                                <div className="member-index">M3</div>
-                                <div className="member-inputs">
-                                    <div className={`input-with-icon ${errors.member3Name ? 'has-error' : ''}`}>
-                                        <User size={16} />
-                                        <input type="text" name="member3Name" value={formData.member3Name} onChange={handleInputChange} placeholder="Name" />
-                                    </div>
-                                    <div className={`input-with-icon ${errors.member3Email ? 'has-error' : ''}`}>
-                                        <Mail size={16} />
-                                        <input type="email" name="member3Email" value={formData.member3Email} onChange={handleInputChange} placeholder="Email" />
-                                    </div>
-                                    <div className={`input-with-icon ${errors.member3Phone ? 'has-error' : ''}`}>
-                                        <Phone size={16} />
-                                        <input type="tel" name="member3Phone" value={formData.member3Phone} onChange={handleInputChange} placeholder="Phone" />
-                                    </div>
-                                    <div className={`form-section no-margin ${errors.member3College ? 'has-error' : ''}`}>
-                                        <GlassSelect 
-                                            options={collegesData.map((c: string) => ({ value: c, label: c }))}
-                                            value={formData.member3College}
-                                            onChange={(val) => {
-                                                setFormData(prev => ({ ...prev, member3College: val }));
-                                                setErrors(prev => ({ ...prev, member3College: '' }));
-                                            }}
-                                            placeholder="Member 3 College"
-                                            searchable={true}
-                                            className="member-college-select"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Member 4 */}
-                            <div className={`member-card ${errors.member4Name || errors.member4Email || errors.member4Phone || errors.member4College ? 'has-error' : ''}`}>
-                                <div className="member-index">M4</div>
-                                <div className="member-inputs">
-                                    <div className={`input-with-icon ${errors.member4Name ? 'has-error' : ''}`}>
-                                        <User size={16} />
-                                        <input type="text" name="member4Name" value={formData.member4Name} onChange={handleInputChange} placeholder="Name" />
-                                    </div>
-                                    <div className={`input-with-icon ${errors.member4Email ? 'has-error' : ''}`}>
-                                        <Mail size={16} />
-                                        <input type="email" name="member4Email" value={formData.member4Email} onChange={handleInputChange} placeholder="Email" />
-                                    </div>
-                                    <div className={`input-with-icon ${errors.member4Phone ? 'has-error' : ''}`}>
-                                        <Phone size={16} />
-                                        <input type="tel" name="member4Phone" value={formData.member4Phone} onChange={handleInputChange} placeholder="Phone" />
-                                    </div>
-                                    <div className={`form-section no-margin ${errors.member4College ? 'has-error' : ''}`}>
-                                        <GlassSelect 
-                                            options={collegesData.map((c: string) => ({ value: c, label: c }))}
-                                            value={formData.member4College}
-                                            onChange={(val) => {
-                                                setFormData(prev => ({ ...prev, member4College: val }));
-                                                setErrors(prev => ({ ...prev, member4College: '' }));
-                                            }}
-                                            placeholder="Member 4 College"
-                                            searchable={true}
-                                            className="member-college-select"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
+                            <h3><Users size={18} /> Team Roster</h3>
+                            <MemberField id="leader" label="Leader" isLeader={true} formData={formData} lookupLoading={lookupLoading} errors={errors} handleAvrInput={handleAvrInput} handleInputChange={handleInputChange} />
+                            <MemberField id="member2" label="M2" formData={formData} lookupLoading={lookupLoading} errors={errors} handleAvrInput={handleAvrInput} handleInputChange={handleInputChange} />
+                            <MemberField id="member3" label="M3" formData={formData} lookupLoading={lookupLoading} errors={errors} handleAvrInput={handleAvrInput} handleInputChange={handleInputChange} />
+                            <MemberField id="member4" label="M4" formData={formData} lookupLoading={lookupLoading} errors={errors} handleAvrInput={handleAvrInput} handleInputChange={handleInputChange} />
                         </div>
 
                         <footer className="form-footer">
                             <button className="primary-btn" onClick={handleNext} disabled={submitting}>
-                                {submitting ? <Loader2 className="spinner" /> : <>Review Details <ArrowRight size={18} /></>}
+                                {submitting ? <Loader2 className="spinner" /> : <>Match Details <ArrowRight size={18} /></>}
                             </button>
                         </footer>
                     </div>
                 )}
 
                 {step === 2 && (
-                    <div className="reg-card fade-in">
+                    <div className="reg-card review-card fade-in">
                         <header>
-                            <h1>Review Registration</h1>
-                            <p>Verify your information before payment</p>
+                            <div className="section-label">Payment Step</div>
+                            <h1>Final Squad Review</h1>
                         </header>
+                        <div className="review-scroll scrollbar-custom">
+                            <div className="review-meta">
+                                <div className="meta-item">
+                                    <span className="meta-label">Team Name</span>
+                                    <span className="meta-value">{formData.teamName}</span>
+                                </div>
+                                <div className="meta-item">
+                                    <span className="meta-label">Problem Statement</span>
+                                    <span className="meta-value">[{formData.psId}] {selectedPs?.title}</span>
+                                </div>
+                            </div>
+                            
+                            <div className="review-members-grid">
+                                {['leader', 'member2', 'member3', 'member4'].map((m, idx) => (
+                                    <div key={m} className="review-member">
+                                        <div className="m-rank">{idx === 0 ? 'Leader' : `Member ${idx + 1}`}</div>
+                                        <div className="m-info">
+                                            <span className="m-name">{(formData as any)[`${m}Name`]}</span>
+                                            <span className="m-avr">{(formData as any)[`${m}AvrId`]}</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
 
-                        <div className="review-list">
-                            <div className="review-item"><strong>Team:</strong> {formData.teamName}</div>
-                            <div className="review-item"><strong>Topic:</strong> {selectedPs?.title}</div>
-                            <div className="review-item"><strong>Members:</strong> 4 Participants from multiple institutions</div>
+                            <div className="payment-summary">
+                                <div className="summary-row">
+                                    <span>Registration Fee</span>
+                                    <span>₹500.00</span>
+                                </div>
+                                <div className="summary-row total">
+                                    <span>Total Amount to Pay</span>
+                                    <span>₹500.00</span>
+                                </div>
+                                <p className="payment-note">Secure payment via Easebuzz Gateway</p>
+                            </div>
                         </div>
-
                         <footer className="form-footer space-between">
-                            <button className="secondary-btn" onClick={() => setStep(1)}><ArrowLeft size={18} /> Edit</button>
-                            <button className="primary-btn" onClick={handleSubmitRegistration} disabled={submitting}>
-                                {submitting ? <Loader2 className="spinner" /> : <>Confirm Registration <Check size={18} /></>}
+                            <button className="secondary-btn" onClick={() => setStep(1)}><ArrowLeft size={18} /> Edit Team</button>
+                            <button className="primary-btn payment-trigger" onClick={handlePayment} disabled={submitting}>
+                                {submitting ? <Loader2 className="spinner" /> : <>Proceed to Payment <ArrowRight size={18} /></>}
                             </button>
+
                         </footer>
                     </div>
                 )}
 
                 {step === 3 && (
-                    <div className="reg-card success fade-in">
-                        <div className="success-icon">
-                            <div className="pulse-ring"></div>
-                            <Check size={48} />
+                    <div className="reg-card success-card fade-in">
+                        <div className="success-lottie">
+                            <div className="victory-badge">
+                                <Check size={48} strokeWidth={3} />
+                            </div>
                         </div>
-                        <h1>Registration Sent!</h1>
-                        <p>Your team <strong>{formData.teamName}</strong> has been registered. We are verifying your details.</p>
-                        <div className="success-footer">
-                            <p>Check your dashboard for status updates.</p>
-                            <button className="primary-btn" onClick={() => window.location.href = '/user/dashboard'}>Go to Dashboard</button>
+                        <header>
+                            <h1>Registration Complete!</h1>
+                            <p>Get ready for the ultimate innovation marathon.</p>
+                        </header>
+                        
+                        <div className="success-content">
+                            <div className="team-highlight">
+                                <span className="label">Confirmed Squad</span>
+                                <span className="value">{formData.teamName}</span>
+                            </div>
+
+                            <div className="success-details">
+                                <div className="detail-item">
+                                    <span className="d-label">Transaction ID</span>
+                                    <span className="d-value">{transactionId}</span>
+                                </div>
+
+                                <div className="detail-item">
+                                    <span className="d-label">Status</span>
+                                    <span className="d-value status-paid">Successfully Paid</span>
+                                </div>
+                                <p className="confirmation-help">
+                                    We've sent a detailed confirmation email and rules booklet to <strong>{formData.leaderEmail}</strong>. 
+                                    Please check your inbox (and spam folder).
+                                </p>
+                            </div>
                         </div>
+
+                        <footer className="success-footer">
+                            <button className="secondary-btn invoice-btn" onClick={() => generateInvoice({
+                                teamName: formData.teamName,
+                                leaderName: formData.leaderName,
+                                leaderEmail: formData.leaderEmail,
+                                avrId: formData.leaderAvrId,
+                                psId: formData.psId,
+                                psTitle: selectedPs?.title || formData.psId,
+                                paymentId: transactionId,
+                                date: new Date().toLocaleDateString(),
+                                amount: "500.00"
+                            })}>
+                                <Download size={18} /> Download Invoice
+                            </button>
+                            <button className="primary-btn dashboard-btn" onClick={() => window.location.href = '/user/dashboard'}>
+                                Go to Dashboard <ArrowRight size={18} />
+                            </button>
+                        </footer>
+
                     </div>
                 )}
+
 
             </div>
         </div>

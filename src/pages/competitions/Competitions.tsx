@@ -8,8 +8,12 @@ import { COMPETITIONS_DATA } from '../../data/competitions';
 import type { Competition } from '../../data/competitions';
 import './Competitions.css';
 
+import { useRegistrationGuard } from '../../hooks/useRegistrationGuard';
+
 function Competitions() {
     const navigate = useNavigate();
+    const { isRegistered, eventName } = useRegistrationGuard();
+
     const flagshipCompetitions = COMPETITIONS_DATA.filter((item: any) => item.isFlagship);
     const exhibitionItems = COMPETITIONS_DATA.filter((item: any) => item.isExhibition);
     
@@ -47,7 +51,7 @@ function Competitions() {
     return (
         <>
             <SEO 
-                title="Competitions" 
+                title="Competitions | Avishkar '26" 
                 description="Push your limits. Compete in grueling coding and technical arenas at Avishkar '26." 
             />
             <main className="competitions-page">
@@ -70,12 +74,14 @@ function Competitions() {
                         damping={0.5}
                         fadeOut={0.8}
                         columns={3}
-                        selectedItemSlug={selectedSlug}
+                        isRegistered={isRegistered}
+                        registeredEventName={eventName}
                         onItemClick={(item) => {
+
                             if (item.slug === 'codex-26') {
-                                navigate('/paramx');
+                                navigate('/param-x');
                             } else if (item.slug === 'battle-grid-26') {
-                                navigate('/esports-register');
+                                navigate('/battle-grid');
                             } else if (item.slug === 'robotron-26') {
                                 navigate('/robo-kshetra');
                             } else {
@@ -103,7 +109,10 @@ function Competitions() {
                             fadeOut={0.8}
                             columns={3}
                             selectedItemSlug={selectedSlug}
+                            isRegistered={isRegistered}
+                            registeredEventName={eventName}
                             onItemClick={(item) => setSelectedSlug(item.slug)}
+
                             onModalClose={() => setSelectedSlug(undefined)}
                         />
                     </div>
@@ -125,8 +134,11 @@ function Competitions() {
                         fadeOut={0.8}
                         columns={1}
                         selectedItemSlug={selectedSlug}
+                        isRegistered={isRegistered}
+                        registeredEventName={eventName}
                         onItemClick={(item) => setSelectedSlug(item.slug)}
                         onModalClose={() => setSelectedSlug(undefined)}
+
                     />
                 </div>
             </section>

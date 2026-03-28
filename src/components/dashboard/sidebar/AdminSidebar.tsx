@@ -1,5 +1,5 @@
 import React from 'react';
-import { BarChart2, Users, Settings, Wrench, LogOut, Ticket, Shield, Search } from 'lucide-react';
+import { BarChart2, Users, Wrench, LogOut, Ticket, Shield, Search } from 'lucide-react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from '../../../firebase/firebase';
 import type { AdminProfile } from '../../../pages/admin/admindashboard';
@@ -24,9 +24,6 @@ const ADMIN_NAV = [
   { id: 'support',       label: 'Support Tickets', Icon: Users },
   { id: 'admins',        label: 'Admin Directory', Icon: Shield },
   { id: 'users',         label: 'Manage Users',   Icon: Users },
-  { id: 'events',        label: 'Event Settings', Icon: Wrench },
-  { id: 'website_settings', label: 'Website Settings', Icon: Settings },
-  { id: 'settings',      label: 'Master Settings',Icon: Settings },
 ];
 
 const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, setActiveTab, isSuper, adminProfile }) => {
