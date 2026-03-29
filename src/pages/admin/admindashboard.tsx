@@ -1069,6 +1069,14 @@ const AdminDashboard: React.FC = () => {
               subtitle="Managing all competitive programming registrations" 
             />
           : <div>Access Denied</div>;
+      case 'orbitx_regs':
+        return (isSuper || adminProfile?.roleLevel.includes('workshop-solar-spot'))
+          ? <RegistrationManager 
+              forcedHandle="OrbitX-Solar" 
+              title="Solar Spot Observation Registrations" 
+              subtitle="Managing OrbitX club workshop and observation slots" 
+            />
+          : <div>Access Denied</div>;
       // website_settings removed
       default:
         return <div className="tab-content"><h1>{activeTab}</h1><p>Under construction.</p></div>;

@@ -50,6 +50,7 @@ interface Registration {
     phone?: string;
     college?: string;
   }>;
+  moonAddon?: boolean;
   _collection: 'registrations' | 'hackathon_registrations';
 }
 
@@ -589,6 +590,7 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({ forcedHandle,
                   <DetailRow label="Category" value={detailReg.category} />
                   <DetailRow label="Status" value={detailReg.paymentStatus || 'free'} />
                   <DetailRow label="Amount" value={detailReg.amountPaid ? `₹${detailReg.amountPaid}` : '₹0'} />
+                  {detailReg.moonAddon && <DetailRow label="Add-on" value="Moon Observation" />}
                   <DetailRow label="Transaction ID" value={detailReg.transactionId || 'N/A'} copyable onCopy={copyToClipboard} />
                 </div>
               </div>
