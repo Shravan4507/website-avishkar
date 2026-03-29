@@ -162,8 +162,17 @@ const VolunteerScanner: React.FC = () => {
     if (!isAuthorized) return;
     Html5Qrcode.getCameras().then(devices => {
       if (devices && devices.length) {
-        setCameras(devices.map(d => ({ id: d.id, label: d.label })));
-        setSelectedCameraId(devices[0].id);
+        const deviceList = devices.map(d => ({ id: d.id, label: d.label }));
+        setCameras(deviceList);
+        
+        // Default to back camera (usually contains "back", "environment", or is the last one)
+        const backCamera = deviceList.find(d => 
+          d.label.toLowerCase().includes('back') || 
+          d.label.toLowerCase().includes('environment') ||
+          d.label.toLowerCase().includes('rear')
+        );
+        
+        setSelectedCameraId(backCamera ? backCamera.id : deviceList[deviceList.length - 1].id);
       }
     }).catch(err => {
       console.error(err);
@@ -436,9 +445,40 @@ const VolunteerScanner: React.FC = () => {
               </div>
               <div className="camera-controls">
                 <div style={{ flex: 1 }}>
-                  <GlassSelect options={cameras.length ? cameras.map(c => ({ value: c.id, label: c.label || `Camera ${cameras.indexOf(c) + 1}` })) : [{ value: '', label: 'No Camera Found' }]} value={selectedCameraId} onChange={setSelectedCameraId} disabled={isScanning} />
+                  <GlassSelect 
+                    options={cameras.length ? cameras.map(c => ({ value: c.id, label: c.label || `Camera ${cameras.indexOf(c) + 1}` })) : [{ value: '', label: 'No Camera Found' }]} 
+                    value={selectedCameraId} 
+                    onChange={async (id) => {
+                      const wasScanning = isScanning;
+                      if (wasScanning) await stopScanning();
+                      setSelectedCameraId(id);
+                      if (wasScanning) setTimeout(() => startScanning(), 100);
+                    }} 
+                    disabled={false} 
+                  />
                 </div>
-                <button className={`start-stop-btn ${isScanning ? 'stop' : 'start'}`} onClick={toggleCamera}>{isScanning ? <WifiOff size={18} /> : <Power size={18} />}{isScanning ? 'Stop' : 'Start'}</button>
+                <button className={`start-stop-btn ${isScanning ? 'stop' : 'start'}`} onClick={toggleCamera}>
+                  {isScanning ? <WifiOff size={18} /> : <Power size={18} />}
+                  {isScanning ? 'Stop' : 'Start'}
+                </button>
+                {cameras.length > 1 && (
+                  <button 
+                    className="camera-switch-btn" 
+                    onClick={async () => {
+                      const currentIndex = cameras.findIndex(c => c.id === selectedCameraId);
+                      const nextIndex = (currentIndex + 1) % cameras.length;
+                      const nextId = cameras[nextIndex].id;
+                      
+                      const wasScanning = isScanning;
+                      if (wasScanning) await stopScanning();
+                      setSelectedCameraId(nextId);
+                      if (wasScanning) setTimeout(() => startScanning(), 100);
+                    }}
+                    title="Switch Camera"
+                  >
+                    <RefreshCw size={18} />
+                  </button>
+                )}
               </div>
               <div className="scanner-manual-input">
                 <div style={{ display: 'flex', gap: '10px', marginBottom: '1rem' }}>

@@ -59,7 +59,8 @@
     padding: 1rem;
     border-radius: 15px;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: transform, background, border-radius;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -109,6 +110,7 @@
     opacity: 0;
     transform: translateY(20px);
     animation: fadeInUp 0.5s forwards;
+    will-change: transform, opacity;
 }
 
 @keyframes fadeInUp {
@@ -168,6 +170,7 @@
     border-radius: 20px;
     backdrop-filter: blur(10px);
     transition: transform 0.3s ease, background 0.3s ease;
+    will-change: transform;
 }
 
 .timeline-card:hover {

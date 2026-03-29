@@ -53,7 +53,6 @@ const VirtualPass: React.FC<VirtualPassProps> = ({ isOpen, isStatic, onClose, us
             src={user.photoURL} 
             alt="User" 
             className="pass-user-photo" 
-            crossOrigin="anonymous"
           />
         ) : (
           <div className="pass-user-initials">

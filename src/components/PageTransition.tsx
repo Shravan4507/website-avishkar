@@ -12,7 +12,7 @@ const PageTransition = ({ children }: { children: ReactNode }) => {
                 ease: [0.22, 1, 0.36, 1],
                 opacity: { duration: 0.4 }
             }}
-            style={{ width: '100%', height: '100%' }}
+            style={{ width: '100%', height: '100%', willChange: 'opacity, transform, filter' }}
         >
             {children}
         </motion.div>

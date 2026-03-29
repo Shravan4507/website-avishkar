@@ -10,7 +10,8 @@ import Navbar from './components/Navbar/Navbar';
 import Footer from './components/Footer/Footer';
 import ErrorBoundary from './components/ErrorBoundary';
 import { ToastProvider } from './components/toast/Toast';
-import Loader from './components/loader/Loader';
+import PageSkeleton from './components/common/PageSkeleton';
+import DashboardSkeleton from './components/common/DashboardSkeleton';
 import PWAReloadPrompt from './components/pwa/PWAReloadPrompt';
 import ScrollToTop from './components/common/ScrollToTop';
 import { BugReportProvider } from './components/BugReport/BugReport';
@@ -88,6 +89,13 @@ const LayoutManager = () => {
     document.documentElement.setAttribute('data-perf', lowSpec ? 'low' : 'high');
   }, [lowSpec]);
 
+  const SuspenseFallback = () => {
+    if (location.pathname.includes('dashboard')) {
+      return <DashboardSkeleton />;
+    }
+    return <PageSkeleton />;
+  };
+
   return (
     <>
       <div className="background-fixed">
@@ -127,7 +135,7 @@ const LayoutManager = () => {
         <main className={isDashboard ? "dashboard-layout" : "content"}>
           <ErrorBoundary>
             <AnimatePresence mode="wait">
-              <Suspense fallback={<Loader />}>
+              <Suspense fallback={<SuspenseFallback />}>
                 <Routes location={location} key={location.pathname}>
                   {/* ── Public Site Pages ── */}
                   <Route path="/"            element={<T el={settings.home ? <Home /> : <ComingSoon pageName="Home" />} />} />

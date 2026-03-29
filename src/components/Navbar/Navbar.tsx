@@ -15,6 +15,17 @@ const TABS = [
   { label: 'Sponsors', path: '/sponsors' },
 ] as const
 
+const PRELOAD_MAP: Record<string, () => Promise<any>> = {
+  '/': () => import('../../pages/home/Home'),
+  '/workshops': () => import('../../pages/workshops/Workshops'),
+  '/schedule': () => import('../../pages/schedule/Schedule'),
+  '/competitions': () => import('../../pages/competitions/Competitions'),
+  '/sponsors': () => import('../../pages/sponsors/Sponsors'),
+  '/login': () => import('../../components/Login/Login'),
+  '/user/dashboard': () => import('../../pages/user/user-dashboard'),
+  '/admin/dashboard': () => import('../../pages/admin/admindashboard'),
+};
+
 function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -84,6 +95,7 @@ function Navbar() {
               key={tab.label} 
               to={tab.path} 
               className={`navbar__tab ${location.pathname === tab.path ? 'navbar__tab--active' : ''}`}
+              onMouseEnter={() => PRELOAD_MAP[tab.path]?.()}
             >
               {tab.label}
             </Link>
@@ -102,12 +114,21 @@ function Navbar() {
               key={tab.label} 
               to={tab.path} 
               className={`navbar__tab ${location.pathname === tab.path ? 'navbar__tab--active' : ''}`}
+              onMouseEnter={() => PRELOAD_MAP[tab.path]?.()}
             >
               {tab.label}
             </Link>
           ))}
           {currentUser ? (
-            <Link to={userRole === 'admin' ? '/admin/dashboard' : '/user/dashboard'} className="navbar__avatar-link" aria-label="Dashboard">
+            <Link 
+              to={userRole === 'admin' ? '/admin/dashboard' : '/user/dashboard'} 
+              className="navbar__avatar-link" 
+              aria-label="Dashboard"
+              onMouseEnter={() => {
+                const path = userRole === 'admin' ? '/admin/dashboard' : '/user/dashboard';
+                PRELOAD_MAP[path]?.();
+              }}
+            >
               {(() => {
                 const finalAvatar = [userAvatar, currentUser.photoURL].find(url => url && url.trim() !== '' && (url.startsWith('http') || url.startsWith('/') || url.startsWith('data:')));
                 
@@ -142,6 +163,7 @@ function Navbar() {
             <Link 
               to="/login" 
               className={`navbar__tab ${location.pathname === '/login' ? 'navbar__tab--active' : ''}`}
+              onMouseEnter={() => PRELOAD_MAP['/login']?.()}
             >
               Login
             </Link>
@@ -169,6 +191,7 @@ function Navbar() {
               key={tab.label} 
               to={tab.path} 
               className={`mobile-menu__tab ${location.pathname === tab.path ? 'mobile-menu__tab--active' : ''}`}
+              onMouseEnter={() => PRELOAD_MAP[tab.path]?.()}
             >
               {tab.label}
             </Link>
@@ -177,13 +200,18 @@ function Navbar() {
             <Link 
               to={userRole === 'admin' ? '/admin/dashboard' : '/user/dashboard'} 
               className={`mobile-menu__tab ${['/user/dashboard', '/admin/dashboard'].includes(location.pathname) ? 'mobile-menu__tab--active' : ''}`}
+              onMouseEnter={() => {
+                const path = userRole === 'admin' ? '/admin/dashboard' : '/user/dashboard';
+                PRELOAD_MAP[path]?.();
+              }}
             >
               Dashboard
             </Link>
           ) : (
             <Link 
               to="/login" 
-              className={`mobile-menu__tab ${location.pathname === '/login' ? 'mobile-menu__tab--active' : ''}`}
+              className={`mobile-menu__tab ${location.pathname === '/login' ? 'navbar__tab--active' : ''}`}
+              onMouseEnter={() => PRELOAD_MAP['/login']?.()}
             >
               Login
             </Link>

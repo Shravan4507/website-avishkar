@@ -4,7 +4,7 @@ import { doc, getDoc, updateDoc, onSnapshot, serverTimestamp, query, collection,
 import { auth, db, storage } from '../../firebase/firebase';
 import { ref, uploadString, getDownloadURL } from 'firebase/storage';
 import { useNavigate } from 'react-router-dom';
-import { SkeletonDashboard } from '../../components/skeleton/Skeleton';
+import DashboardSkeleton from '../../components/common/DashboardSkeleton';
 import NotificationBell from '../../components/notifications/NotificationBell';
 import { useToast } from '../../components/toast/Toast';
 import { Award, FileText, Instagram, Youtube, BookOpen, Download, Camera, Loader2 } from 'lucide-react';
@@ -297,7 +297,7 @@ const UserDashboard: React.FC = () => {
 
 
   if (authLoading || (!userData && !authLoading)) {
-    return <SkeletonDashboard />;
+    return <DashboardSkeleton />;
   }
 
   if (!userData) return null;
@@ -318,16 +318,11 @@ const UserDashboard: React.FC = () => {
                     <img 
                       src={finalUrl} 
                       alt="" 
-                      crossOrigin="anonymous" 
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
-                        target.style.display = 'none';
                         const parent = target.parentElement;
-                        if (parent && !parent.querySelector('.user-dashboard-initials')) {
-                          const initials = document.createElement('div');
-                          initials.className = 'user-dashboard-initials';
-                          initials.innerText = (userData?.firstName || 'U').charAt(0);
-                          parent.appendChild(initials);
+                        if (parent) {
+                          parent.innerHTML = `<div class="user-dashboard-initials">${userData?.firstName?.[0] || 'U'}${userData?.lastName?.[0] || ''}</div>`;
                         }
                       }}
                     />
