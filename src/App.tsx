@@ -103,18 +103,6 @@ const LayoutManager = () => {
   return (
     <>
       <div className="background-fixed">
-        {lowSpec ? (
-          <div style={{ 
-            width: '100%', 
-            height: '100%', 
-            background: `
-              radial-gradient(circle at 50% 50%, #1a0f3c 0%, #000 70%),
-              url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")
-            `,
-            backgroundBlendMode: 'overlay',
-            opacity: 0.9
-          }} />
-        ) : (
         <Grainient
           color1="#000000"
           color2="#5227ff"
@@ -139,7 +127,6 @@ const LayoutManager = () => {
           centerY={0}
           zoom={0.9}
         />
-        )}
       </div>
 
       <div className="app-container">
