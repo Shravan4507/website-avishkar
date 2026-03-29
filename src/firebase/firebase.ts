@@ -1,7 +1,11 @@
 import { initializeApp, getApp, getApps } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
-import { getFirestore, enableMultiTabIndexedDbPersistence } from "firebase/firestore";
-import { getAnalytics } from "firebase/analytics";
+import { 
+  initializeFirestore, 
+  persistentLocalCache, 
+  persistentMultipleTabManager 
+} from "firebase/firestore";
+import { getAnalytics, isSupported } from "firebase/analytics";
 import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
@@ -22,26 +26,28 @@ if (!firebaseConfig.apiKey || firebaseConfig.apiKey === "undefined") {
 // HMR-Safe Firebase Initialization
 const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 
-export const db = getFirestore(app);
-
-// Enable Offline Persistence
-if (typeof window !== 'undefined') {
-  enableMultiTabIndexedDbPersistence(db).catch((err) => {
-    if (err.code === 'failed-precondition') {
-      // Multiple tabs open, persistence can only be enabled in one tab at a time.
-      console.warn('Firestore Persistence: Multiple tabs open, caching disabled for this tab.');
-    } else if (err.code === 'unimplemented') {
-      // The current browser does not support all of the features required to enable persistence
-      console.warn('Firestore Persistence: The current browser does not support offline caching.');
-    } else {
-      console.error('Firestore Persistence Error:', err);
-    }
-  });
-}
+// Modern Firestore Persistence (Replacement for enableMultiTabIndexedDbPersistence)
+export const db = initializeFirestore(app, {
+  localCache: persistentLocalCache({
+    tabManager: persistentMultipleTabManager()
+  })
+});
 
 export const auth = getAuth(app);
 export const storage = getStorage(app);
-export const analytics = typeof window !== 'undefined' ? getAnalytics(app) : null;
+
+// Safe Analytics Initialization
+export let analytics: any = null;
+if (typeof window !== 'undefined') {
+  isSupported().then(supported => {
+    if (supported) {
+      analytics = getAnalytics(app);
+    }
+  }).catch(err => {
+    console.warn("Firebase Analytics not supported in this environment:", err);
+  });
+}
+
 export const googleProvider = new GoogleAuthProvider();
 
 export default app;

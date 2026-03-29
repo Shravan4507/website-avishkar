@@ -12,7 +12,7 @@ export default defineConfig({
     babel({ presets: [reactCompilerPreset()] }),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['assets/favicon/favicon.ico', 'assets/favicon/apple-touch-icon.png'],
+      includeAssets: ['assets/favicon/favicon.ico'],
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
         maximumFileSizeToCacheInBytes: 5000000, // 5MB limit
