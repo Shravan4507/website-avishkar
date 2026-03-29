@@ -6,7 +6,7 @@ import { auth, db } from '../../firebase/firebase';
 import { useToast } from '../../components/toast/Toast';
 import { COMPETITIONS_DATA } from '../../data/competitions';
 import type { Competition } from '../../data/competitions';
-import { Trophy, CheckCircle, ArrowRight, ShieldCheck, AlertTriangle, CreditCard } from 'lucide-react';
+import { Trophy, CheckCircle, ArrowRight, ShieldCheck, AlertTriangle, CreditCard, Moon } from 'lucide-react';
 import { useRegistrationGuard } from '../../hooks/useRegistrationGuard';
 import { initiateEasebuzzCheckout, generateTxnId } from '../../utils/easebuzz';
 import './Registration.css';
@@ -27,6 +27,7 @@ const Registration: React.FC = () => {
   const [isSuccess, setIsSuccess] = useState(false);
   const [accountabilityAccepted, setAccountabilityAccepted] = useState(false);
   const [transactionId, setTransactionId] = useState<string | null>(null);
+  const [moonObservation, setMoonObservation] = useState(false);
 
   const { isRegistered, eventName: registeredEventName } = useRegistrationGuard();
 
@@ -134,7 +135,9 @@ const Registration: React.FC = () => {
     }
 
     const userAge = calculateAge(userData.dob);
-    const fee = competition!.entryFee || 0;
+    const baseFee = competition!.entryFee || 0;
+    const addOnFee = (competition!.slug === 'orbitx_solar' && moonObservation) ? 20 : 0;
+    const fee = baseFee + addOnFee;
 
     await setDoc(regRef, {
       // User Info
@@ -158,6 +161,7 @@ const Registration: React.FC = () => {
       // Payment
       paymentStatus: fee > 0 ? 'paid' : 'free',
       amountPaid: fee,
+      moonObservation: moonObservation,
       transactionId: paymentTxnId || null,
       // Metadata
       status: 'confirmed',
@@ -183,8 +187,8 @@ const Registration: React.FC = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           txnid,
-          amount: (competition.entryFee || 0).toFixed(2),
-          productinfo: `${competition.title} Registration`,
+          amount: ((competition.entryFee || 0) + (competition.slug === 'orbitx_solar' && moonObservation ? 20 : 0)).toFixed(2),
+          productinfo: `${competition.title}${moonObservation ? ' + Moon Observation' : ''} Registration`,
           firstname: `${userData.firstName} ${userData.lastName}`,
           email: userData.email || user.email,
           phone: userData.phone || '',
@@ -225,7 +229,9 @@ const Registration: React.FC = () => {
       return;
     }
 
-    const fee = competition.entryFee || 0;
+    const baseFee = competition.entryFee || 0;
+    const addOnFee = (competition.slug === 'orbitx_solar' && moonObservation) ? 20 : 0;
+    const fee = baseFee + addOnFee;
 
     if (fee > 0) {
       // Paid event — route through Easebuzz
@@ -365,6 +371,31 @@ const Registration: React.FC = () => {
             </div>
           )}
 
+          {competition.slug === 'orbitx_solar' && !alreadyRegistered && (
+            <div className="addon-selection-card">
+              <div className="addon-header">
+                <Moon size={18} /> EVENT ADD-ONS
+              </div>
+              <div className="addon-item">
+                <div className="addon-info">
+                  <span className="addon-name">Moon Observation</span>
+                  <p className="addon-desc">Extended evening session with high-power lunar photography assistance.</p>
+                </div>
+                <div className="addon-action">
+                  <span className="addon-price">+₹20</span>
+                  <label className="switch">
+                    <input 
+                      type="checkbox" 
+                      checked={moonObservation} 
+                      onChange={(e) => setMoonObservation(e.target.checked)} 
+                    />
+                    <span className="slider round"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="form-actions">
             {alreadyRegistered ? (
                <div className="already-registered-banner">
@@ -378,8 +409,8 @@ const Registration: React.FC = () => {
               >
                 {isSubmitting 
                   ? "Processing..." 
-                  : competition.entryFee && competition.entryFee > 0 
-                    ? `Pay ₹${competition.entryFee} & Register` 
+                  : (competition.entryFee || 0) + (competition.slug === 'orbitx_solar' && moonObservation ? 20 : 0) > 0 
+                    ? `Pay ₹${(competition.entryFee || 0) + (competition.slug === 'orbitx_solar' && moonObservation ? 20 : 0)} & Register` 
                     : "Confirm Registration"
                 }
               </button>

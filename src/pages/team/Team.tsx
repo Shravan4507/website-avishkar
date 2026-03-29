@@ -162,7 +162,7 @@ function Team() {
             <header className="team-header">
                 <div className="header-glow"></div>
                 <h1>The Visionary</h1>
-                <p>Yup.... That's me!</p>
+                <p>Everything is RELATIVE...</p>
             </header>
 
             <div className="team-container" style={{ position: 'relative', minHeight: '800px' }}>

@@ -60,6 +60,10 @@ const AdminSetup = lazy(() => import('./pages/admin/AdminSetup'));
 const AdminDashboard = lazy(() => import('./pages/admin/admindashboard'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 
+// Lazy Loaded Club Detail Pages
+const GDGClub = lazy(() => import('./pages/clubs/GDGZCOER'));
+const OrbitXClub = lazy(() => import('./pages/clubs/OrbitX'));
+
 // Route Guards
 import UserProtectedRoutes from './routes/UserProtectedRoutes';
 import AdminProtectedRoutes from './routes/AdminProtectedRoutes';
@@ -155,6 +159,10 @@ const LayoutManager = () => {
                   <Route path="/battle-grid/rules" element={<T el={<BattleGridRules />} />} />
                   <Route path="/param-x" element={<T el={<ParamX />} />} />
                   <Route path="/param-x/rules" element={<T el={<ParamXRules />} />} />
+
+                  {/* ── Club Detail Pages ── */}
+                  <Route path="/gdg-zcoer"    element={<T el={<GDGClub />} />} />
+                  <Route path="/orbitx-zcoer" element={<T el={<OrbitXClub />} />} />
 
                   {/* ── Student Auth ── */}
                   <Route element={<PublicRoutes />}>

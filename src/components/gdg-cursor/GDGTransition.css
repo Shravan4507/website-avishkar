@@ -1,0 +1,16 @@
+.gdg-transition-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100000000; /* Above everything including the cursor */
+    display: flex;
+    flex-direction: column;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.transition-bar {
+    width: 100%;
+    height: 25.1vh;
+    position: relative;
+    will-change: transform;
+}
