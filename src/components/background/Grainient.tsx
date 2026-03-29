@@ -155,14 +155,31 @@ const Grainient: React.FC<GrainientProps> = ({
   useEffect(() => {
     if (!containerRef.current) return;
 
-    const renderer = new Renderer({
-      webgl: 2,
-      alpha: true,
-      antialias: false,
-      dpr: Math.min(window.devicePixelRatio || 1, 2)
-    });
+    let renderer: Renderer;
+    try {
+      renderer = new Renderer({
+        webgl: 2,
+        alpha: true,
+        antialias: false,
+        dpr: Math.min(window.devicePixelRatio || 1, 2)
+      });
+    } catch (err) {
+      console.warn('WebGL 2.0 failed, falling back to WebGL 1.0', err);
+      try {
+        renderer = new Renderer({
+          webgl: 1,
+          alpha: true,
+          antialias: false,
+          dpr: Math.min(window.devicePixelRatio || 1, 2)
+        });
+      } catch (err2) {
+        console.error('WebGL initialization failed completely', err2);
+        return;
+      }
+    }
 
     const gl = renderer.gl;
+    if (!gl) return;
     const canvas = gl.canvas as HTMLCanvasElement;
     canvas.style.width = '100%';
     canvas.style.height = '100%';

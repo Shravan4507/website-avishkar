@@ -96,7 +96,7 @@ header, footer, nav {
 }
 
 /* Hardware Acceleration for smooth animations */
-.background-fixed, .content, .dashboard-layout {
+.content, .dashboard-layout {
   will-change: transform;
   transform: translateZ(0);
 }
