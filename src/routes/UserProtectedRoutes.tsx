@@ -55,8 +55,10 @@ const UserProtectedRoutes = () => {
   // Not logged in
   if (!user) return <Navigate to="/login" replace />;
 
-  // If Admin, they shouldn't be here
-  if (role === 'admin') return <Navigate to="/admin/dashboard" replace />;
+  // If Admin, they shouldn't be here (EXCEPT for the scanner)
+  if (role === 'admin' && location.pathname !== '/user/scanner') {
+    return <Navigate to="/admin/dashboard" replace />;
+  }
 
   // If User with NO AVR ID trying to access dashboard -> /signup
   if (role === 'user' && !hasAvrId && location.pathname !== '/signup') {

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import QRCode from 'react-qr-code';
 import { X } from 'lucide-react';
-import { signQRPayload } from '../../utils/qrCrypto';
+import { generateQRToken } from '../../utils/qrCrypto';
 import './VirtualPass.css';
 
 interface VirtualPassProps {
@@ -15,6 +15,8 @@ interface VirtualPassProps {
     email: string;
     photoURL?: string;
     avrId: string;
+    yearBorn: string;
+    eventId?: string;
     hasRegistrations?: boolean;
   };
 }
@@ -22,17 +24,25 @@ interface VirtualPassProps {
 const QRCodeComponent = (QRCode as any).default || QRCode;
 
 const VirtualPass: React.FC<VirtualPassProps> = ({ isOpen, isStatic, onClose, user }) => {
-  const [signedPayload, setSignedPayload] = useState<string>('');
+  const [qrToken, setQrToken] = useState<string>('');
+  const [isQRExpanded, setIsQRExpanded] = useState(false);
 
-  // Sign the AVR-ID every time the pass is opened
+  // Generate the secure QR token every time the pass is opened
   useEffect(() => {
     if (isOpen || isStatic) {
-      signQRPayload(user.avrId).then(setSignedPayload);
+      const token = generateQRToken({
+        firstName: user.firstName,
+        lastName: user.lastName,
+        avrId: user.avrId,
+        yearBorn: user.yearBorn,
+        eventId: user.eventId
+      });
+      setQrToken(token);
     }
-  }, [isOpen, isStatic, user.avrId]);
+  }, [isOpen, isStatic, user]);
 
   if (!isOpen && !isStatic) return null;
-  if (!signedPayload) return null; // Wait for signing
+  if (!qrToken) return null; // Wait for encryption
 
   const content = (
     <div className={`virtual-pass-card ${isStatic ? 'virtual-pass-static' : ''}`} id={isStatic ? 'virtual-pass-static-capture' : undefined}>
@@ -68,9 +78,13 @@ const VirtualPass: React.FC<VirtualPassProps> = ({ isOpen, isStatic, onClose, us
       </div>
 
       {/* QR Code Section (Inside Black Bar) */}
-      <div className="pass-footer-qr" style={{ filter: 'invert(1)', background: 'transparent' }}>
+      <div 
+        className="pass-footer-qr" 
+        style={{ filter: 'invert(1)', background: 'transparent', cursor: 'zoom-in' }}
+        onClick={() => setIsQRExpanded(true)}
+      >
         <QRCodeComponent 
-          value={signedPayload} 
+          value={qrToken} 
           size={140} 
           bgColor="#000000" 
           fgColor="#ffffff" 
@@ -78,6 +92,25 @@ const VirtualPass: React.FC<VirtualPassProps> = ({ isOpen, isStatic, onClose, us
           style={{ width: '100%', height: '100%' }}
         />
       </div>
+
+      {/* QR Expansion Overlay */}
+      {isQRExpanded && (
+        <div className="qr-expansion-overlay animate-in" onClick={(e) => { e.stopPropagation(); setIsQRExpanded(false); }}>
+          <div className="qr-expansion-content" onClick={(e) => e.stopPropagation()}>
+            <button className="qr-close-btn" onClick={() => setIsQRExpanded(false)}><X size={24} /></button>
+            <div className="qr-expanded-wrapper">
+              <QRCodeComponent 
+                value={qrToken} 
+                size={window.innerWidth < 500 ? 280 : 400} 
+                bgColor="#ffffff" 
+                fgColor="#000000" 
+                level="Q"
+              />
+            </div>
+            <p className="qr-hint">TAP ANYWHERE TO CLOSE</p>
+          </div>
+        </div>
+      )}
 
       {/* ID Number (Bottom Right) */}
       <div className="pass-id-number">{user.avrId}</div>
@@ -93,9 +126,9 @@ const VirtualPass: React.FC<VirtualPassProps> = ({ isOpen, isStatic, onClose, us
   }
 
   return (
-    <div className="virtual-pass-modal-overlay">
-      <div className="virtual-pass-modal-content animate-in">
-        <button className="virtual-pass-close-btn" onClick={onClose}><X size={24} /></button>
+    <div className="virtual-pass-modal-overlay" onClick={onClose}>
+      <button className="virtual-pass-close-btn" onClick={onClose}><X size={24} /></button>
+      <div className="virtual-pass-modal-content animate-in" onClick={(e) => e.stopPropagation()}>
         {content}
       </div>
     </div>

@@ -18,13 +18,11 @@ import './BattleGrid.css';
 
 // Game Configurations
 const GAMES = [
-    { id: 'bgmi', label: 'BGMI', tagline: 'Grid-Warrior Mobile', prize: '₹10,000+', fee: 500, type: 'TEAM', members: 5, platform: 'Mobile', color: '#ff9800', image: `${import.meta.env.BASE_URL}assets/esports/bgmi.png` },
-    { id: 'freefire', label: 'FREE FIRE', tagline: 'Squad Battle-Royale', prize: '₹8,000+', fee: 250, type: 'TEAM', members: 4, platform: 'Mobile', color: '#e91e63', image: `${import.meta.env.BASE_URL}assets/esports/freefire.png` },
-    { id: 'codm', label: 'CALL OF DUTY (MOBILE)', tagline: 'Spec-Ops Combat', prize: '₹10,000+', fee: 400, type: 'TEAM', members: 4, platform: 'Mobile', color: '#4caf50', image: `${import.meta.env.BASE_URL}assets/esports/codm.png` },
-    { id: 'valorant', label: 'VALORANT', tagline: 'Tactical PC Duel', prize: '₹20,000+', fee: 350, type: 'TEAM', members: 5, platform: 'PC', color: '#ff4655', image: `${import.meta.env.BASE_URL}assets/esports/valorant.png` },
-    { id: 'sf4_solo', label: 'SHADOW-FIGHT 4 (SOLO)', tagline: 'Arena 1v1 Combat', prize: '₹2,500+', fee: 150, type: 'SOLO', members: 1, platform: 'Mobile', color: '#ffeb3b', image: `${import.meta.env.BASE_URL}assets/esports/sf4.png` },
-    { id: 'sf4_duet', label: 'SHADOW-FIGHT 4 (DUET)', tagline: 'Arena 2v2 Duel', prize: '₹3,500+', fee: 250, type: 'TEAM', members: 2, platform: 'Mobile', color: '#ffeb3b', image: `${import.meta.env.BASE_URL}assets/esports/sf4.png` },
-    { id: 'amongus', label: 'AMONG US', tagline: 'Social Deduction', prize: '₹2,000+', fee: 50, type: 'SOLO', members: 1, platform: 'Mobile', color: '#00bcd4', image: `${import.meta.env.BASE_URL}assets/esports/amongus.png` },
+    { id: 'bgmi', label: 'BGMI', tagline: 'Grid-Warrior Mobile (4+1 Squad)', prize: '₹50,000', fee: 500, type: 'TEAM', members: 5, platform: 'Mobile', color: '#ff9800', image: `${import.meta.env.BASE_URL}assets/esports/bgmi.png` },
+    { id: 'freefire', label: 'FREE FIRE', tagline: 'Squad Battle-Royale', prize: '₹6,000', fee: 250, type: 'TEAM', members: 4, platform: 'Mobile', color: '#e91e63', image: `${import.meta.env.BASE_URL}assets/esports/freefire.png` },
+    { id: 'codm', label: 'CALL OF DUTY (MOBILE)', tagline: 'Spec-Ops Combat', prize: '₹16,000', fee: 400, type: 'TEAM', members: 4, platform: 'Mobile', color: '#4caf50', image: `${import.meta.env.BASE_URL}assets/esports/codm.png` },
+    { id: 'sf4', label: 'SHADOW-FIGHT 4', tagline: 'Arena 1v1 Combat', prize: '₹8,000', fee: 150, type: 'SOLO', members: 1, platform: 'Mobile', color: '#ffeb3b', image: `${import.meta.env.BASE_URL}assets/esports/sf4.png` },
+    { id: 'amongus', label: 'AMONG US', tagline: 'Social Deduction', prize: 'TBD', fee: 0, type: 'SOLO', members: 1, platform: 'Mobile', color: '#00bcd4', image: `${import.meta.env.BASE_URL}assets/esports/amongus.png` },
 ] as const;
 
 const BattleGrid: React.FC = () => {
@@ -56,7 +54,7 @@ const BattleGrid: React.FC = () => {
                     <div className="stat-item">
                         <Trophy className="stat-icon" />
                         <div className="stat-content">
-                            <span className="stat-val">₹50,000+</span>
+                            <span className="stat-val">₹80,000</span>
                             <span className="stat-label">Prize Pool</span>
                         </div>
                     </div>
@@ -126,7 +124,6 @@ const BattleGrid: React.FC = () => {
                             title: g.label,
                             subtitle: g.tagline,
                             image: g.image,
-                            prizePool: g.prize,
                             entryFee: g.fee,
                             isFlagship: true,
                             borderColor: g.color,

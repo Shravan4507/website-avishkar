@@ -1,8 +1,13 @@
 import { useState } from 'react'
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
+import { db } from '../../firebase/firebase'
+import { useToast } from '../../components/toast/Toast'
 import SEO from '../../components/seo/SEO'
 import './Contact.css'
 
 function Contact() {
+    const { toast } = useToast()
+    const [isSubmitting, setIsSubmitting] = useState(false)
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -15,11 +20,32 @@ function Contact() {
         setFormData(prev => ({ ...prev, [name]: value }))
     }
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        // Handle form submission logic here
-        console.log('Form submitted:', formData)
-        alert('Thank you for reaching out! We will get back to you soon.')
+        if (isSubmitting) return
+
+        setIsSubmitting(true)
+        try {
+            await addDoc(collection(db, 'contact_queries'), {
+                ...formData,
+                status: 'pending',
+                createdAt: serverTimestamp()
+            })
+
+            toast("Thank you for reaching out! We'll get back to you soon.", 'success')
+
+            setFormData({
+                name: '',
+                email: '',
+                subject: '',
+                message: ''
+            })
+        } catch (error) {
+            console.error('Error submitting contact form:', error)
+            toast('Something went wrong. Please try again later.', 'error')
+        } finally {
+            setIsSubmitting(false)
+        }
     }
 
     return (
@@ -61,22 +87,14 @@ function Contact() {
                             </div>
                             <div className="info-text">
                                 <h3>Email</h3>
-                                <a href="mailto:support.avishkar@zealeducation.com">support.avishkar@zealeducation.com</a>
+                                <a href="mailto:support.avishkarr@zealeducation.com">support.avishkarr@zealeducation.com</a>
+                                <p style={{ fontSize: '0.8rem', opacity: 0.7, fontStyle: 'italic', marginTop: '4px' }}>
+                                    Yeah, The extra "r". We know!
+                                </p>
                             </div>
                         </div>
 
-                        <div className="info-item">
-                            <div className="info-icon">
-                                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
-                                    <line x1="12" y1="18" x2="12.01" y2="18"></line>
-                                </svg>
-                            </div>
-                            <div className="info-text">
-                                <h3>Phone</h3>
-                                <a href="tel:+911234567890">+91 12345 67890</a>
-                            </div>
-                        </div>
+
                     </div>
 
                     <div className="contact-socials">
@@ -142,8 +160,8 @@ function Contact() {
                             ></textarea>
                         </div>
 
-                        <button type="submit" className="submit-btn">
-                            Send Message
+                        <button type="submit" className="submit-btn" disabled={isSubmitting}>
+                            {isSubmitting ? 'Sending...' : 'Send Message'}
                         </button>
                     </form>
                 </div>

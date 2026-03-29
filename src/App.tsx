@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useEffect } from 'react';
+import React, { Suspense, lazy, useEffect, useMemo } from 'react';
 
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
@@ -13,6 +13,8 @@ import { ToastProvider } from './components/toast/Toast';
 import Loader from './components/loader/Loader';
 import PWAReloadPrompt from './components/pwa/PWAReloadPrompt';
 import ScrollToTop from './components/common/ScrollToTop';
+import { BugReportProvider } from './components/BugReport/BugReport';
+import { isLowSpecDevice } from './utils/performance';
 
 
 // Lazy Loaded Public Pages
@@ -29,10 +31,16 @@ const HackathonRegistration = lazy(() => import('./pages/competitions/HackathonR
 const RobotronRegistration = lazy(() => import('./pages/competitions/RoboKshetra'));
 const RoboKshetraRules = lazy(() => import('./pages/competitions/RoboKshetraRules'));
 const BattleGrid = lazy(() => import('./pages/competitions/BattleGrid'));
+const BattleGridRules = lazy(() => import('./pages/competitions/BattleGridRules'));
 const EsportsRegistration = lazy(() => import('./pages/competitions/EsportsRegistration'));
 const BookStall = lazy(() => import('./pages/stalls/BookStall'));
 const ParamX = lazy(() => import('./pages/competitions/ParamX'));
 const ParamXRules = lazy(() => import('./pages/competitions/ParamXRules'));
+
+// Lazy Loaded Legal Pages
+const Privacy = lazy(() => import('./pages/legal/Privacy'));
+const Terms = lazy(() => import('./pages/legal/Terms'));
+const Cookies = lazy(() => import('./pages/legal/Cookies'));
 
 
 import { PAGE_VISIBILITY } from './config/pageVisibility';
@@ -73,9 +81,19 @@ const LayoutManager = () => {
                       location.pathname.includes('setup') ||
                       location.pathname.includes('login');
 
+  const lowSpec = useMemo(() => isLowSpecDevice(), []);
+
+  // Set data-perf attribute on root so CSS can opt-out of heavy effects
+  useEffect(() => {
+    document.documentElement.setAttribute('data-perf', lowSpec ? 'low' : 'high');
+  }, [lowSpec]);
+
   return (
     <>
       <div className="background-fixed">
+        {lowSpec ? (
+          <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #000 0%, #1a0f3c 50%, #000 100%)' }} />
+        ) : (
         <Grainient
           color1="#000000"
           color2="#5227ff"
@@ -100,6 +118,7 @@ const LayoutManager = () => {
           centerY={0}
           zoom={0.9}
         />
+        )}
       </div>
 
       <div className="app-container">
@@ -117,11 +136,15 @@ const LayoutManager = () => {
                   <Route path="/schedule"    element={<T el={settings.schedule ? <Schedule /> : <ComingSoon pageName="Schedule" />} />} />
                   <Route path="/team"        element={<T el={settings.team ? <Team /> : <ComingSoon pageName="Team" />} />} />
                   <Route path="/sponsors"    element={<T el={settings.sponsors ? <Sponsors /> : <ComingSoon pageName="Sponsors" />} />} />
+                  <Route path="/privacy"     element={<T el={<Privacy />} />} />
+                  <Route path="/terms"       element={<T el={<Terms />} />} />
+                  <Route path="/cookies"     element={<T el={<Cookies />} />} />
                   <Route path="/contact"     element={<T el={settings.contact ? <Contact /> : <ComingSoon pageName="Contact" />} />} />
                   <Route path="/book-a-stall" element={<T el={<BookStall />} />} />
                   <Route path="/robo-kshetra" element={<T el={settings.competitions ? <RobotronRegistration /> : <ComingSoon pageName="RoboKshetra" />} />} />
                   <Route path="/robo-kshetra/rules" element={<T el={<RoboKshetraRules />} />} />
                   <Route path="/battle-grid" element={<T el={<BattleGrid />} />} />
+                  <Route path="/battle-grid/rules" element={<T el={<BattleGridRules />} />} />
                   <Route path="/param-x" element={<T el={<ParamX />} />} />
                   <Route path="/param-x/rules" element={<T el={<ParamXRules />} />} />
 
@@ -140,7 +163,6 @@ const LayoutManager = () => {
                     <Route path="/user/scanner"   element={<T el={<VolunteerScanner />} />} />
                     <Route path="/register/:slug" element={<T el={<Registration />} />} />
                     <Route path="/hackathon-register" element={<T el={<HackathonRegistration />} />} />
-                    <Route path="/robo-kshetra" element={<T el={<RobotronRegistration />} />} />
                     <Route path="/esports-register" element={<T el={<EsportsRegistration />} />} />
                   </Route>
 
@@ -181,7 +203,9 @@ function App() {
         <ToastProvider>
             <Router>
               <ScrollReset />
-              <LayoutManager />
+              <BugReportProvider>
+                <LayoutManager />
+              </BugReportProvider>
               <PWAReloadPrompt />
             </Router>
         </ToastProvider>

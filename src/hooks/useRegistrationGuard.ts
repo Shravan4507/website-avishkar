@@ -9,6 +9,7 @@ export interface RegistrationStatus {
     type: 'general' | 'hackathon' | null;
     loading: boolean;
     data: any | null;
+    error?: boolean;
 }
 
 /**
@@ -60,7 +61,7 @@ export function useRegistrationGuard() {
                         const data = snap.docs[0].data();
                         setStatus({
                             isRegistered: true,
-                            eventName: data.eventName || "Registered Event",
+                            eventName: data.eventName || data.eventTitle || "Registered Event",
                             type: 'general',
                             loading: false,
                             data
@@ -100,7 +101,8 @@ export function useRegistrationGuard() {
 
             } catch (error) {
                 console.error("Critical: Registration Guard Check Failed", error);
-                setStatus(prev => ({ ...prev, loading: false }));
+                // Set loading false but also mark as errored so consumers know the check failed
+                setStatus(prev => ({ ...prev, loading: false, error: true }));
             }
         };
 

@@ -1,84 +1,84 @@
-/**
- * QR Crypto Utility
- * Uses HMAC-SHA256 via browser's SubtleCrypto API to sign and verify QR payloads.
- * Prevents QR forgery — only our app can generate valid passes.
- *
- * QR Payload Format: AVR-ID|timestamp|signature
- * The scanner verifies the signature before accepting the scan.
- */
-
-const QR_SECRET = import.meta.env.VITE_QR_SECRET || 'avishkar26-default-secret-key';
-
-// Convert string to ArrayBuffer
-function strToBuffer(str: string): ArrayBuffer {
-  return new TextEncoder().encode(str).buffer as ArrayBuffer;
-}
-
-// Convert ArrayBuffer to hex string
-function bufferToHex(buffer: ArrayBuffer): string {
-  return Array.from(new Uint8Array(buffer))
-    .map(b => b.toString(16).padStart(2, '0'))
-    .join('');
-}
-
-// Get the HMAC CryptoKey
-async function getKey(): Promise<CryptoKey> {
-  return crypto.subtle.importKey(
-    'raw',
-    strToBuffer(QR_SECRET),
-    { name: 'HMAC', hash: 'SHA-256' },
-    false,
-    ['sign', 'verify']
-  );
-}
+import CryptoJS from 'crypto-js';
 
 /**
- * Signs an AVR-ID and returns a secure QR payload string.
- * Format: AVR-ID|timestamp|signature(first 16 hex chars)
+ * QR Crypto Utility (Improved)
+ * Uses AES-256 for data encryption (offline privacy)
+ * Uses HMAC-SHA256 for digital signatures (tamper-proofing)
  */
-export async function signQRPayload(avrId: string): Promise<string> {
-  const timestamp = Date.now().toString();
-  const message = `${avrId}|${timestamp}`;
-  
-  const key = await getKey();
-  const signature = await crypto.subtle.sign('HMAC', key, strToBuffer(message));
-  const sig = bufferToHex(signature).slice(0, 16); // First 16 hex chars (64 bits)
-  
-  return `${avrId}|${timestamp}|${sig}`;
+
+const SECRET_KEY = import.meta.env.VITE_QR_SECRET_KEY;
+if (!SECRET_KEY) {
+  throw new Error('CRITICAL: VITE_QR_SECRET_KEY environment variable is not set. QR generation/verification is disabled.');
 }
 
-/**
- * Verifies a scanned QR payload.
- * Returns { valid: boolean, avrId: string, timestamp: number }
- */
-export async function verifyQRPayload(payload: string): Promise<{
-  valid: boolean;
+export interface QRPayload {
+  firstName: string;
+  lastName: string;
   avrId: string;
-  timestamp: number;
-  error?: string;
-}> {
-  const parts = payload.split('|');
+  yearBorn: string;
+  eventId?: string; // Optional: Only for participants
+}
+
+/**
+ * Generates an encrypted and signed QR string.
+ * Format: CryptoJS.AES(payload + signature)
+ */
+export function generateQRToken(data: QRPayload): string {
+  const { firstName, lastName, avrId, yearBorn, eventId = 'VISITOR' } = data;
   
-  if (parts.length !== 3) {
-    return { valid: false, avrId: '', timestamp: 0, error: 'INVALID FORMAT: Not an Avishkar QR' };
+  // 1. Create the canonical message string
+  const message = `${firstName.trim().toLowerCase()}|${lastName.trim().toLowerCase()}|${avrId.trim()}|${yearBorn}|${eventId}|${Date.now()}`;
+  
+  // 2. Generate HMAC signature of the message
+  const signature = CryptoJS.HmacSHA256(message, SECRET_KEY).toString(CryptoJS.enc.Hex).slice(0, 16);
+  
+  // 3. Combine message and signature
+  const fullPayload = `${message}|${signature}`;
+  
+  // 4. Encrypt everything with AES to prevent raw data leakage if scanned by generic apps
+  const encrypted = CryptoJS.AES.encrypt(fullPayload, SECRET_KEY).toString();
+  
+  return encrypted;
+}
+
+/**
+ * Decrypts and verifies a QR token.
+ * Returns the data if valid, throws an error otherwise.
+ */
+export function decryptAndVerifyQR(token: string): QRPayload & { timestamp: number } {
+  try {
+    // 1. Decrypt AES
+    const bytes = CryptoJS.AES.decrypt(token, SECRET_KEY);
+    const decryptedText = bytes.toString(CryptoJS.enc.Utf8);
+    
+    if (!decryptedText) throw new Error('Invalid or corrupted QR code');
+    
+    const parts = decryptedText.split('|');
+    
+    // Format: firstName|lastName|avrId|yearBorn|eventId|timestamp|signature
+    if (parts.length !== 7) throw new Error('Format mismatch: Tampered or legacy QR');
+    
+    const [firstName, lastName, avrId, yearBorn, eventId, timestampStr, signature] = parts;
+    const timestamp = parseInt(timestampStr, 10);
+    
+    // 2. Re-verify HMAC signature
+    const message = `${firstName}|${lastName}|${avrId}|${yearBorn}|${eventId}|${timestampStr}`;
+    const expectedSignature = CryptoJS.HmacSHA256(message, SECRET_KEY).toString(CryptoJS.enc.Hex).slice(0, 16);
+    
+    if (signature !== expectedSignature) {
+      throw new Error('Security Alert: Forged or modified QR detected');
+    }
+
+    return {
+      firstName,
+      lastName,
+      avrId,
+      yearBorn,
+      eventId: eventId === 'VISITOR' ? undefined : eventId,
+      timestamp
+    };
+  } catch (error) {
+    console.error('QR Decryption Error:', error);
+    throw new Error(error instanceof Error ? error.message : 'Invalid QR');
   }
-
-  const [avrId, timestampStr, receivedSig] = parts;
-  const timestamp = parseInt(timestampStr, 10);
-
-  if (!avrId.startsWith('AVR-')) {
-    return { valid: false, avrId, timestamp, error: 'INVALID ID: Not a valid AVR-ID' };
-  }
-
-  // Verify HMAC signature
-  const message = `${avrId}|${timestampStr}`;
-  const key = await getKey();
-  const signature = await crypto.subtle.sign('HMAC', key, strToBuffer(message));
-  const expectedSig = bufferToHex(signature).slice(0, 16);
-
-  if (receivedSig !== expectedSig) {
-    return { valid: false, avrId, timestamp, error: 'FORGED PASS: Signature mismatch' };
-  }
-
-  return { valid: true, avrId, timestamp };
 }

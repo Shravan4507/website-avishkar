@@ -1,17 +1,23 @@
+/* ===========================
+   ESPORTS REGISTRATION v2
+   Theme: #5227ff (Purple)
+   Pattern: RoboKshetra member-card
+   =========================== */
+
 .esports-reg-page-v2 {
     padding: 120px 2rem 4rem;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
-    background: radial-gradient(circle at top right, rgba(255, 70, 85, 0.05), transparent);
+    background: radial-gradient(circle at top right, rgba(82, 39, 255, 0.04), transparent);
 }
 
 .esports-reg-page-v2.centered {
     justify-content: center;
 }
 
-/* --- HEADER V2 --- */
+/* --- HEADER --- */
 .esports-header-v2 {
     width: 100%;
     max-width: 1000px;
@@ -26,9 +32,9 @@
 }
 
 .back-portal-btn {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(0, 0, 0, 0);
     color: rgba(255, 255, 255, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: none;
     padding: 0.75rem 1.5rem;
     border-radius: 2rem;
     font-size: 0.75rem;
@@ -41,10 +47,7 @@
     transition: all 0.3s ease;
 }
 
-.back-portal-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #fff;
-}
+.back-portal-btn:active { transform: scale(0.98); }
 
 .platform-tag {
     color: #fff;
@@ -76,304 +79,478 @@
     line-height: 1;
 }
 
-/* --- STEPPER --- */
-.reg-stepper {
-    display: flex;
-    align-items: center;
-    gap: 2rem;
-    margin-bottom: 3rem;
-    padding: 0 1rem;
-}
-
-.step-item {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    opacity: 0.3;
-    transition: all 0.4s ease;
-}
-
-.step-item.active {
-    opacity: 1;
-}
-
-.step-num {
-    width: 28px;
-    height: 28px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 900;
-    font-size: 0.85rem;
-    color: #fff;
-}
-
-.step-item.active .step-num {
-    background: #5227ff; /* BGMI specific blue in screen, but let's use global theme or var if possible */
-}
-
-.step-label {
-    font-weight: 700;
-    font-size: 1.1rem;
-    color: #fff;
-}
-
-.step-divider {
-    width: 60px;
-    height: 1px;
-    background: rgba(255, 255, 255, 0.05);
-}
-
-/* --- TACTICAL CARD --- */
+/* --- LAYOUT --- */
 .esports-layout-v2 {
     width: 100%;
     max-width: 1000px;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
 }
 
-.tactical-form-card {
-    background: rgba(0, 0, 0, 0.65);
+/* --- SECTIONS --- */
+.es-section {
+    background: rgba(0, 0, 0, 0.45);
     backdrop-filter: blur(25px);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 3px solid rgba(255, 255, 255, 0.3);
     border-radius: 3rem;
-    padding: 4rem;
-    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6);
+    padding: 3rem;
 }
 
-.tactical-label {
-    display: block;
-    color: #ff9800; /* Match yellow from screen */
-    font-size: 0.8rem;
-    font-weight: 900;
-    letter-spacing: 2px;
-    margin-bottom: 1rem;
-    text-transform: uppercase;
-}
-
-.tactical-input-wrapper {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 1rem;
-    padding: 1.25rem 1.5rem;
+.es-section-header {
     display: flex;
     align-items: center;
     gap: 1rem;
-    transition: all 0.3s ease;
+    margin-bottom: 2rem;
+    color: #5227ff;
 }
 
-.tactical-input-wrapper:focus-within {
-    background: rgba(255, 255, 255, 0.05);
-    border-color: rgba(255, 255, 255, 0.2);
+.es-section-header h3 {
+    font-family: 'Iceland', sans-serif;
+    font-size: 1.3rem;
+    letter-spacing: 2px;
+    margin: 0;
 }
 
-.tactical-input-wrapper.readonly {
-    background: rgba(255, 255, 255, 0.01);
-    opacity: 0.6;
+.es-team-input {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 1.5rem;
+    padding: 1.25rem 1.5rem;
 }
 
-.field-icon {
-    color: rgba(255, 255, 255, 0.2);
-    flex-shrink: 0;
-}
-
-.tactical-input-wrapper input {
+.es-team-input input {
     background: transparent;
     border: none;
-    color: #fff;
-    width: 100%;
-    font-size: 1.1rem;
     outline: none;
-    font-weight: 500;
+    color: #fff;
+    font-size: 1.2rem;
+    font-weight: 600;
+    width: 100%;
 }
 
-.tactical-input-wrapper input::placeholder {
+.es-team-input input::placeholder {
     color: rgba(255, 255, 255, 0.15);
 }
 
-.form-section-header {
-    margin-bottom: 2.5rem;
-}
-
-/* --- GRID & DIVIDER --- */
-.tactical-divider {
-    margin: 4rem 0 3rem;
-    display: flex;
-    align-items: center;
-    gap: 2rem;
-}
-
-.tactical-divider span {
-    color: #ff9800;
-    font-size: 0.9rem;
-    font-weight: 900;
-    letter-spacing: 2px;
-    white-space: nowrap;
-}
-
-.divider-line {
-    flex: 1;
-    height: 1px;
-    background: rgba(255, 255, 255, 0.05);
-}
-
-.tactical-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem;
-    margin-bottom: 2.5rem;
-}
-
-/* --- COMBATANT CARD --- */
-.combatant-card {
-    background: rgba(255, 255, 255, 0.01);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 2rem;
-    padding: 2.5rem;
-    margin-bottom: 2rem;
-}
-
-.combatant-header {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 2rem;
-    color: #fff;
-    font-weight: 800;
-}
-
-.accent-bar {
-    width: 3px;
-    height: 20px;
-    background: #5227ff;
-    border-radius: 2px;
-}
-
-/* --- FOOTER CTA --- */
-.form-footer-tactical {
-    margin-top: 4rem;
-    display: flex;
-    justify-content: flex-end;
-}
-
-.form-footer-tactical-between {
-    margin-top: 4rem;
-    display: flex;
-    justify-content: space-between;
-}
-
-.primary-cta-reg {
-    background: #5227ff;
-    color: #fff;
-    padding: 1.25rem 3rem;
-    border-radius: 4rem;
-    border: none;
-    font-family: 'Iceland', sans-serif;
-    font-size: 1.4rem;
-    font-weight: 800;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    transition: all 0.3s ease;
-}
-
-.primary-cta-reg:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 30px rgba(82, 39, 255, 0.3);
-}
-
-.secondary-cta-reg {
-    background: rgba(255, 255, 255, 0.05);
-    color: #fff;
-    padding: 1.25rem 2.5rem;
-    border-radius: 4rem;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    font-weight: 700;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
-
-/* --- REVIEW MODE --- */
-.review-header {
-    text-align: center;
-    margin-bottom: 4rem;
-}
-
-.review-header h3 { font-size: 2rem; color: #fff; margin-bottom: 0.5rem; }
-.review-header p { color: rgba(255, 255, 255, 0.4); }
-
-.review-scroll {
-    max-height: 500px;
-    overflow-y: auto;
-    padding-right: 1.5rem;
-}
-
-.review-entry {
-    display: flex;
-    justify-content: space-between;
-    padding: 1.5rem 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.review-entry .label { color: rgba(255, 255, 255, 0.3); font-weight: 600; }
-.review-entry .value { color: #fff; font-weight: 800; font-size: 1.1rem; }
-
-.review-roster {
+/* --- MEMBER CARDS --- */
+.es-members-section {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
 }
 
-.roster-member {
-    background: rgba(255, 255, 255, 0.02);
-    padding: 1.5rem;
-    border-radius: 1.5rem;
+.es-member-card {
+    background: rgba(0, 0, 0, 0.65);
+    border-bottom: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 2rem;
+    padding: 2rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.es-member-card.leader {
+    border-color: rgba(255, 255, 255, 0.3);
+    background: rgba(0, 0, 0, 0.65);
+}
+
+.es-member-card.has-error {
+    border-color: rgba(239, 68, 68, 0.3);
+    background: rgba(239, 68, 68, 0.02);
+}
+
+.es-member-index {
     display: flex;
     align-items: center;
-    gap: 2rem;
-}
-
-.roster-member.main {
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 0.75rem;
+    font-family: 'Iceland', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+    font-weight: 800;
+    color: #fff;
+    background: rgba(82, 39, 255, 0.15);
     border: 1px solid rgba(82, 39, 255, 0.2);
-    background: rgba(82, 39, 255, 0.03);
+    flex-shrink: 0;
 }
 
-.rank { width: 100px; color: #5227ff; font-weight: 900; font-size: 0.75rem; letter-spacing: 1px; }
-.member-details { display: flex; flex-direction: column; }
-.member-details .name { color: #fff; font-weight: 700; font-size: 1.2rem; }
-.member-details .avr { color: rgba(255, 255, 255, 0.3); font-family: 'Iceland', sans-serif; }
+.es-member-inputs {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
 
-.payment-summary-tactical {
-    background: rgba(0, 0, 0, 0.3);
-    padding: 2.5rem;
+/* --- INPUT WITH ICON --- */
+.es-input-with-icon {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 1rem;
+    padding: 0.9rem 1.2rem;
+    transition: all 0.3s ease;
+}
+
+.es-input-with-icon svg {
+    color: rgba(255, 255, 255, 0.15);
+    flex-shrink: 0;
+}
+
+.es-input-with-icon input {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #fff;
+    font-size: 0.95rem;
+    width: 100%;
+    font-weight: 500;
+}
+
+.es-input-with-icon input::placeholder {
+    color: rgba(255, 255, 255, 0.15);
+}
+
+.es-input-with-icon.avr-lookup {
+    background: rgba(82, 39, 255, 0.04);
+    border-color: rgba(82, 39, 255, 0.15);
+}
+
+.es-input-with-icon.avr-lookup:focus-within {
+    border-color: rgba(82, 39, 255, 0.4);
+    box-shadow: 0 0 20px rgba(82, 39, 255, 0.1);
+}
+
+.es-input-with-icon.avr-lookup.searching {
+    border-color: rgba(82, 39, 255, 0.4);
+}
+
+.es-input-with-icon.prefilled.readonly {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.es-input-with-icon.prefilled.readonly input {
+    cursor: not-allowed;
+}
+
+.es-input-with-icon.field-error {
+    border-color: rgba(239, 68, 68, 0.4);
+    background: rgba(239, 68, 68, 0.03);
+}
+
+.es-error-badge {
+    font-size: 0.65rem;
+    color: #ef4444;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    flex-shrink: 0;
+}
+
+/* Detail Row */
+.es-detail-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+/* --- ACTIONS SECTION --- */
+.es-actions-section {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.es-scheduling-notice {
+    background: rgba(0, 0, 0, 0.65);
+    border-bottom: 3px solid rgba(255, 255, 255, 0.3);
     border-radius: 2rem;
-    margin-top: 3rem;
+    padding: 1rem;
+    display: flex;
+    gap: 1rem;
 }
 
-.summary-row { display: flex; justify-content: space-between; margin-bottom: 1.5rem; color: rgba(255, 255, 255, 0.5); font-weight: 600; }
-.summary-row.total { 
-    margin-top: 2rem; padding-top: 2rem; 
-    border-top: 1px dashed rgba(255, 255, 255, 0.1); 
-    color: #fff; font-size: 2.5rem; font-family: 'Iceland', sans-serif; 
+.es-scheduling-notice h4 {
+    color: #5227ff;
+    margin: 0 0 0.4rem 0;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
 }
 
-/* --- SUCCESS MODE --- */
-.success-mode { text-align: center; }
-.v-circle { width: 80px; height: 80px; background: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; margin: 0 auto 2rem; }
-.success-mode h1 { font-family: 'Iceland', sans-serif; font-size: 3rem; color: #fff; margin-bottom: 1rem; }
-
-/* Responsive */
-@media (max-width: 900px) {
-    .tactical-grid { grid-template-columns: 1fr; }
-    .tactical-form-card { padding: 2.5rem 1.5rem; border-radius: 2rem; }
-    .game-label-large, .reg-text-large { font-size: 2.5rem; }
-    .main-logo-row { flex-direction: column; gap: 0; }
-    .reg-stepper { gap: 1rem; }
+.es-scheduling-notice p {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.8rem;
+    line-height: 1.4;
+    margin: 0;
 }
 
+.es-checkbox-row {
+    margin-top: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.es-checkbox-row input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: #5227ff;
+    cursor: pointer;
+}
+
+.es-checkbox-row label {
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* --- DEPLOY BUTTON --- */
+.es-deploy-btn {
+    background: #5227ff;
+    color: #fff;
+    padding: 1rem;
+    border-radius: 3rem;
+    font-family: 'Iceland', sans-serif;
+    font-weight: 800;
+    font-size: 1.5rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    box-shadow: 0 10px 40px rgba(82, 39, 255, 0.2);
+}
+
+.es-deploy-btn:active { transform: translateY(0) scale(0.98); }
+.es-deploy-btn:disabled { opacity: 0.5; filter: grayscale(1); }
+
+.es-disclaimer {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.3);
+    text-align: center;
+    font-style: italic;
+}
+
+/* --- PREVIEW PANEL --- */
+.es-preview-panel {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(82, 39, 255, 0.15);
+    border-radius: 2rem;
+    padding: 2.5rem;
+    animation: esFadeIn 0.4s ease;
+}
+
+.es-preview-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+    color: #5227ff;
+}
+
+.es-preview-header h4 {
+    font-family: 'Iceland', sans-serif;
+    font-size: 1.4rem;
+    letter-spacing: 2px;
+    margin: 0;
+}
+
+.es-preview-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.es-preview-meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.es-preview-label {
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    color: rgba(255, 255, 255, 0.35);
+    font-weight: 700;
+}
+
+.es-preview-value {
+    font-size: 1.2rem;
+    color: #fff;
+    font-weight: 600;
+}
+
+.es-preview-members {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.es-preview-member {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 1.2rem;
+    padding: 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.es-pm-rank {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    color: #5227ff;
+    letter-spacing: 1.5px;
+    font-weight: 700;
+}
+
+.es-pm-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.es-pm-name {
+    font-size: 1.05rem;
+    color: #fff;
+    font-weight: 600;
+}
+
+.es-pm-avr {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.4);
+    font-family: 'Iceland', sans-serif;
+    letter-spacing: 1px;
+}
+
+.es-payment-summary {
+    background: rgba(82, 39, 255, 0.03);
+    border: 1px solid rgba(82, 39, 255, 0.1);
+    border-radius: 1.5rem;
+    padding: 1.5rem 2rem;
+    margin-bottom: 2rem;
+}
+
+.es-summary-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.6rem 0;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.95rem;
+}
+
+.es-summary-row.total {
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    margin-top: 0.5rem;
+    padding-top: 1rem;
+    color: #5227ff;
+    font-size: 1.2rem;
+    font-weight: 800;
+    font-family: 'Iceland', sans-serif;
+    letter-spacing: 1px;
+}
+
+.es-payment-note {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.3);
+    margin-top: 0.75rem;
+    text-align: center;
+}
+
+.es-preview-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.es-edit-btn {
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.6);
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 3rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+}
+
+.es-edit-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+}
+
+/* --- SUCCESS --- */
+.es-success-card {
+    text-align: center;
+    background: rgba(0, 0, 0, 0.65);
+    border: 1px solid rgba(82, 39, 255, 0.1);
+    border-radius: 3rem;
+    padding: 4rem 3rem;
+    max-width: 550px;
+    width: 100%;
+}
+
+.es-success-icon {
+    width: 80px;
+    height: 80px;
+    background: #10b981;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    margin: 0 auto 2rem;
+}
+
+.es-success-card h1 {
+    font-family: 'Iceland', sans-serif;
+    font-size: 2.5rem;
+    color: #fff;
+    margin-bottom: 0.5rem;
+}
+
+.es-reg-id {
+    background: rgba(82, 39, 255, 0.05);
+    border: 1px solid rgba(82, 39, 255, 0.15);
+    border-radius: 1.5rem;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+}
+
+.es-reg-id .label {
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    font-weight: 700;
+}
+
+.es-reg-id .value {
+    color: #fff;
+    font-size: 1.2rem;
+    font-family: 'Iceland', sans-serif;
+    letter-spacing: 1px;
+}
+
+/* --- LOCKED OVERLAY --- */
 .registered-overlay {
     text-align: center;
     display: flex;
@@ -406,6 +583,47 @@
     margin-bottom: 3rem;
 }
 
-.scrollbar-custom::-webkit-scrollbar { width: 5px; }
-.scrollbar-custom::-webkit-scrollbar-track { background: transparent; }
-.scrollbar-custom::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+/* --- ANIMATIONS --- */
+@keyframes esFadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+    animation: esFadeIn 0.5s ease both;
+}
+
+/* --- SPINNER --- */
+.loader-screen {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+.spinner {
+    animation: spin 1s linear infinite;
+    color: #5227ff;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* --- RESPONSIVE --- */
+@media (max-width: 900px) {
+    .esports-reg-page-v2 { padding: 100px 1rem 3rem; }
+    .game-label-large, .reg-text-large { font-size: 2.5rem; }
+    .main-logo-row { flex-direction: column; gap: 0; }
+    .es-section { padding: 2rem 1.5rem; border-radius: 2rem; }
+    .es-member-card { flex-direction: column; gap: 1rem; padding: 1.5rem; }
+    .es-member-index { width: 35px; height: 35px; font-size: 0.65rem; }
+    .es-detail-row { grid-template-columns: 1fr; }
+    .es-preview-panel { padding: 1.5rem; border-radius: 1.5rem; }
+    .es-preview-meta { grid-template-columns: 1fr; }
+    .es-preview-members { grid-template-columns: 1fr; }
+    .es-preview-actions { flex-direction: column; }
+    .es-edit-btn, .es-preview-actions .es-deploy-btn { width: 100%; justify-content: center; }
+    .es-success-card { padding: 2.5rem 1.5rem; border-radius: 2rem; }
+    .nav-row { flex-direction: column; align-items: flex-start; gap: 1rem; }
+}

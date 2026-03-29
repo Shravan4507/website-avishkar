@@ -76,7 +76,7 @@ export const generateInvoice = async (data: InvoiceData) => {
             </div>
 
             <div style="background: #f0fdf4; border: 1px solid #bdf4c9; padding: 15px; border-radius: 8px; margin-bottom: 30px;">
-                <p style="margin: 0; color: #166534;"><strong>Payment Confirmed via Razorpay</strong></p>
+                <p style="margin: 0; color: #166534;"><strong>Payment Confirmed via Easebuzz</strong></p>
                 <p style="margin: 5px 0 0 0; color: #166534; font-size: 14px;">Transaction ID: ${data.paymentId}</p>
             </div>
 

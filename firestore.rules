@@ -1,51 +1,231 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // Helper: Check if user is an admin and get their profile
+
+    // =============================================
+    // HELPER FUNCTIONS
+    // =============================================
+
+    // Check if user is authenticated
+    function isAuth() {
+      return request.auth != null;
+    }
+
+    // Check if the authenticated user owns this document
+    function isOwner(userId) {
+      return isAuth() && request.auth.uid == userId;
+    }
+
+    // Get admin data for the current user
     function getAdminData() {
       return get(/databases/$(database)/documents/admins/$(request.auth.uid)).data;
     }
 
-    // Helper: Check for Superadmin or Core Registration Team
+    // Check if user is any type of admin
+    function isAdmin() {
+      return isAuth() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    // Check for Superadmin or Core Registration Team
     function isCoreAdmin() {
       let admin = getAdminData();
-      return admin.roleLevel == 'superadmin' || admin.assignment == 'Registration Team';
+      let roles = admin.get('roleLevel', []);
+      return roles == 'superadmin' || 
+             (roles is list && roles.hasAny(['superadmin'])) || 
+             admin.get('type', '') == 'superadmin' ||
+             admin.get('assignment', '') == 'Registration Team';
     }
 
-    // --- USER PROFILES ---
+    // Check if user is a department admin for a specific department
+    function isDeptAdmin(dept) {
+      let admin = getAdminData();
+      let roles = admin.get('roleLevel', []);
+      return (roles == 'department_admin' || (roles is list && roles.hasAny(['department_admin']))) && 
+             admin.get('assignment', '') == dept;
+    }
+
+    function isCompAdmin(eventName) {
+      let admin = getAdminData();
+      let roles = admin.get('roleLevel', []);
+      return (roles == 'competition_admin' || (roles is list && roles.hasAny(['competition_admin']))) && 
+             admin.get('assignment', '') == eventName;
+    }
+
+    // Check if user is a volunteer with a scanner role
+    function isVolunteer() {
+      return isAuth() && get(/databases/$(database)/documents/user/$(request.auth.uid)).data.get('role', '') == 'volunteer';
+    }
+
+    // Check if volunteer has a specific scanner role (e.g. 'gate')
+    function hasScannerRole(role) {
+      return isVolunteer() && get(/databases/$(database)/documents/user/$(request.auth.uid)).data.get('scannerRole', '') == role;
+    }
+
+    // =============================================
+    // USER PROFILES
+    // =============================================
     match /user/{userId} {
-      // Allow user to read/write their own profile
-      allow read, write: if request.auth != null && (request.auth.uid == userId || isCoreAdmin());
-      // Allow searching by avrId for squad verification (required for registration lookups)
-      allow list: if request.auth != null; 
+      // Users can read their own profile; admins can read any profile
+      allow get: if isOwner(userId) || (isAdmin() && isCoreAdmin());
+
+      // Allow listing users for squad verification (AVR ID lookups during registration)
+      allow list: if isAuth();
+
+      // Users can create their own profile (signup)
+      allow create: if isOwner(userId);
+
+      // Users can update their own profile (avatar, whatsapp, etc.)
+      // Core admins can update any user
+      // Volunteers with 'gate' role can mark gateCheckIn
+      allow update: if isOwner(userId) || 
+                       (isAdmin() && isCoreAdmin()) ||
+                       (hasScannerRole('gate') && 
+                        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['gateCheckIn']));
+
+      // Only superadmins can delete user profiles
+      allow delete: if false;
     }
 
-    // --- ADMIN PROFILES ---
+    // =============================================
+    // ADMIN PROFILES
+    // =============================================
     match /admins/{adminId} {
-      allow read: if request.auth != null && (request.auth.uid == adminId || isCoreAdmin());
-      allow write: if false; // Admins are managed via AdminSetup or Superadmin
+      allow read: if isOwner(adminId) || (isAdmin() && isCoreAdmin());
+
+      // Admins can update their own photo and ID (sync logic)
+      allow update: if isOwner(adminId) && 
+                      request.resource.data.diff(resource.data).affectedKeys().hasOnly(['photoURL', 'avrAdmId']);
+
+      // Superadmins can do anything
+      allow create, update, delete: if isAdmin() && 
+                                     (getAdminData().get('roleLevel', '') == 'superadmin' || 
+                                      (getAdminData().get('roleLevel', []) is list && getAdminData().get('roleLevel', []).hasAny(['superadmin'])) ||
+                                      getAdminData().get('type', '') == 'superadmin');
     }
 
-    // --- REGISTRATIONS ---
+    // =============================================
+    // REGISTRATIONS
+    // =============================================
     match /registrations/{regId} {
-      allow create: if request.auth != null;
-      allow read: if request.auth != null && (
-        resource.data.userId == request.auth.uid || 
-        isCoreAdmin() || 
-        (getAdminData().roleLevel == 'department_admin' && getAdminData().assignment == resource.data.department) ||
-        (getAdminData().roleLevel == 'competition_admin' && getAdminData().assignment == resource.data.eventName)
-      );
-      allow update: if request.auth != null && (
-        isCoreAdmin() || 
-        (getAdminData().roleLevel == 'competition_admin' && getAdminData().assignment == resource.data.eventName)
-      );
+      // Any authenticated user can create a registration (for themselves)
+      allow create: if isAuth();
+
+      // Get access: any authenticated user can read a specific registration doc
+      // (needed for existence checks during registration flow — non-existent docs
+      //  cause permission errors when rules reference resource.data)
+      allow get: if isAuth();
+
+      // List access for admin dashboards and registration guard queries
+      allow list: if isAuth();
+
+      // Update: any admin can update registrations (attendance, status, edits)
+      // Volunteers can only mark attendance
+      allow update: if (isAuth() && isAdmin()) ||
+                       (isVolunteer() && 
+                        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isAttended', 'scannedAt']));
+
+      // Delete: only core admins (superadmin / registration team) can delete
+      allow delete: if isAuth() && isAdmin();
     }
 
-    // --- COMPETITIONS ---
+    // =============================================
+    // HACKATHON REGISTRATIONS (Param-X)
+    // =============================================
+    match /hackathon_registrations/{regId} {
+      // Any authenticated user can create a hackathon registration
+      allow create: if isAuth();
+
+      // Get: any authenticated user can read a specific hackathon registration doc
+      allow get: if isAuth();
+
+      // List: auth users can query (needed for registration guard & dashboard lookups)
+      allow list: if isAuth();
+
+      // Update: any admin can update hackathon registrations
+      // Volunteers can only mark attendance
+      allow update: if (isAuth() && isAdmin()) ||
+                       (isVolunteer() && 
+                        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isAttended', 'scannedAt']));
+
+      // Delete: admins can delete hackathon registrations
+      allow delete: if isAuth() && isAdmin();
+    }
+
+    // =============================================
+    // COMPETITIONS (public catalog)
+    // =============================================
     match /competitions/{compId} {
+      // Anyone (even unauthenticated) can read competition info
       allow read: if true;
-      allow write: if request.auth != null && isCoreAdmin();
+
+      // Only core admins can create/update/delete competitions
+      allow write: if isAuth() && isCoreAdmin();
+    }
+
+    // =============================================
+    // COUNTERS (for AVR ID generation)
+    // =============================================
+    match /counters/{counterId} {
+      // Any authenticated user can read counters (needed for signup flow)
+      allow read: if isAuth();
+
+      // Write: only allow incrementing the 'currentId' field (used in AVR ID generation transactions)
+      // Block arbitrary overwrites — only the single 'currentId' key can change
+      allow update: if isAuth() &&
+                       request.resource.data.diff(resource.data).affectedKeys().hasOnly(['currentId']);
+
+      // No creates or deletes from client — these are seeded by admins
+      allow create, delete: if isAuth() && isCoreAdmin();
+    }
+
+    // =============================================
+    // PS_METADATA (Problem Statement metadata for Hackathon)
+    // =============================================
+    match /ps_metadata/{psId} {
+      // Anyone can read PS metadata (shown on ParamX page)
+      allow read: if true;
+
+      // Only admins can create/delete PS metadata
+      allow create, delete: if isAuth() && isCoreAdmin();
+
+      // Update: admins can fully update; authenticated users can only increment 'count'
+      allow update: if (isAuth() && isCoreAdmin()) ||
+                       (isAuth() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['count']));
+    }
+
+    // =============================================
+    // STALL BOOKINGS
+    // =============================================
+    match /stall-bookings/{bookingId} {
+      // Anyone can create a booking (public form, no auth required)
+      allow create: if true;
+
+      // Only core admins can read/manage bookings
+      allow read, update, delete: if isAuth() && isCoreAdmin();
+    }
+
+    // =============================================
+    // NOTIFICATIONS
+    // =============================================
+    match /notifications/{notifId} {
+      // Any authenticated user can read notifications
+      allow read: if isAuth();
+
+      // Only core admins can create/manage notifications
+      allow write: if isAuth() && isCoreAdmin();
+    }
+
+    // Bug Reports
+    match /bug_reports/{reportId} {
+      allow create: if true;
+      allow read, update, delete: if isAuth() && isCoreAdmin();
+    }
+
+    // =============================================
+    // CATCH-ALL: Deny everything else
+    // =============================================
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

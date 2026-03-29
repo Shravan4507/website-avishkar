@@ -145,11 +145,11 @@
 }
 
 @media (max-width: 900px) {
-    .rules-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .rules-header h1 {
-        font-size: 2.5rem;
-    }
+    .rules-page { padding: 100px 1.25rem 3rem; }
+    .rules-header h1 { font-size: 3rem; }
+    .rules-header p { font-size: 1.1rem; }
+    .rules-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+    .rule-section { padding: 1.5rem; border-radius: 1.5rem; }
+    .rule-section h2 { font-size: 1.4rem; }
+    .rule-content li { font-size: 0.9rem; }
 }

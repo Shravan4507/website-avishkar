@@ -1,5 +1,5 @@
 import React from 'react';
-import { BarChart2, Users, Wrench, LogOut, Ticket, Shield, Search } from 'lucide-react';
+import { BarChart2, Users, LogOut, Ticket, Shield, Search } from 'lucide-react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from '../../../firebase/firebase';
 import type { AdminProfile } from '../../../pages/admin/admindashboard';
@@ -13,19 +13,6 @@ interface AdminSidebarProps {
   adminProfile: AdminProfile | null;
 }
 
-const ADMIN_NAV = [
-  { id: 'overview',      label: 'Command Center', Icon: BarChart2 },
-  { id: 'registrations', label: 'Registrations',  Icon: Ticket },
-  { id: 'content',       label: 'Content Editor', Icon: Wrench },
-  { id: 'search',        label: 'Global Search',  Icon: Search },
-  { id: 'sponsors',      label: 'Sponsors & Partners', Icon: Shield },
-  { id: 'stall_bookings', label: 'Marketplace Bookings', Icon: Ticket },
-  { id: 'hackathon_regs', label: 'ParamX Registrations', Icon: Users },
-  { id: 'support',       label: 'Support Tickets', Icon: Users },
-  { id: 'admins',        label: 'Admin Directory', Icon: Shield },
-  { id: 'users',         label: 'Manage Users',   Icon: Users },
-];
-
 const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, setActiveTab, isSuper, adminProfile }) => {
   const [user] = useAuthState(auth);
 
@@ -38,24 +25,25 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, setActiveTab, is
     }
   };
 
-  const getFilteredNav = () => {
-    if (isSuper || adminProfile?.roleLevel === 'superadmin') {
-      return ADMIN_NAV.filter(item => !['overview', 'registrations', 'content', 'search'].includes(item.id));
-    }
-    
-    return ADMIN_NAV.filter(item => {
-      if (['overview', 'registrations', 'content', 'search'].includes(item.id)) return false;
-      const assignment = adminProfile?.assignment || '';
-      if (item.id === 'events' || item.id === 'settings') return assignment === 'Technical Team';
-      if (item.id === 'sponsors') return assignment === 'Sponsorship Team';
-      if (item.id === 'support') return assignment === 'Support Team';
-      if (item.id === 'users') return assignment === 'Registration Team';
-      if (item.id === 'hackathon_regs') return adminProfile?.roleLevel === 'flagship_admin-paramx--26';
-      return false;
-    });
-  };
+  const navItems = [
+    { id: 'overview',      label: 'Command Center', Icon: BarChart2, visible: true },
+    { id: 'registrations', label: 'Registrations',  Icon: Ticket, visible: isSuper },
+    { id: 'search',        label: 'Global Search',  Icon: Search, visible: isSuper },
+    { id: 'sponsors',      label: 'Sponsors & Partners', Icon: Shield, visible: isSuper || adminProfile?.assignment === 'Sponsorship Team' },
+    { id: 'stall_bookings', label: 'Marketplace Bookings', Icon: Ticket, visible: isSuper },
+    { id: 'hackathon_regs', label: 'ParamX Registrations', Icon: Users, visible: isSuper || adminProfile?.roleLevel?.includes('admin-param-x') },
+    { id: 'battlegrid_regs', label: 'Battle Grid Registrations', Icon: Ticket, visible: isSuper || adminProfile?.roleLevel?.includes('admin-battle-grid') },
+    { id: 'robokshetra_regs', label: 'Robo Kshetra Registrations', Icon: Ticket, visible: isSuper || adminProfile?.roleLevel?.includes('admin-robo-kshetra') },
+    { id: 'forgex_regs',      label: 'Forge-X Registrations',       Icon: Ticket, visible: isSuper || adminProfile?.roleLevel?.includes('admin-forge-x') },
+    { id: 'algobid_regs',     label: 'Algo-Bid Registrations',      Icon: Ticket, visible: isSuper || adminProfile?.roleLevel?.includes('admin-algo-bid') },
+    { id: 'codeladder_regs',  label: 'Code-Ladder Registrations',   Icon: Ticket, visible: isSuper || adminProfile?.roleLevel?.includes('admin-code-ladder') },
+    { id: 'support',       label: 'Support Tickets', Icon: Users, visible: isSuper || adminProfile?.assignment === 'Support Team' },
+    { id: 'admins',        label: 'Admin Directory', Icon: Shield, visible: isSuper },
+    { id: 'users',         label: 'Manage Users',   Icon: Users, visible: isSuper || adminProfile?.assignment === 'Registration Team' },
+  ];
 
-  const additionalNav = getFilteredNav();
+  const mainNav = navItems.filter(item => ['overview', 'registrations', 'search'].includes(item.id) && item.visible);
+  const additionalNav = navItems.filter(item => !['overview', 'registrations', 'search'].includes(item.id) && item.visible);
 
   return (
     <aside className="dashboard-sidebar admin-sidebar">
@@ -76,39 +64,18 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, setActiveTab, is
       </div>
 
       <nav className="sidebar-nav">
-        <button
-          className={`sidebar-btn ${activeTab === 'overview' ? 'active' : ''}`}
-          onClick={() => setActiveTab('overview')}
-        >
-          <BarChart2 size={18} strokeWidth={1.8} />
-          <span>Command Center</span>
-        </button>
+        {mainNav.map(({ id, label, Icon }) => (
+          <button
+            key={id}
+            className={`sidebar-btn ${activeTab === id ? 'active' : ''}`}
+            onClick={() => setActiveTab(id)}
+          >
+            <Icon size={18} strokeWidth={1.8} />
+            <span>{label}</span>
+          </button>
+        ))}
 
-        <button
-          className={`sidebar-btn ${activeTab === 'registrations' ? 'active' : ''}`}
-          onClick={() => setActiveTab('registrations')}
-        >
-          <Ticket size={18} strokeWidth={1.8} />
-          <span>Registrations</span>
-        </button>
-
-        <button
-          className={`sidebar-btn ${activeTab === 'content' ? 'active' : ''}`}
-          onClick={() => setActiveTab('content')}
-        >
-          <Wrench size={18} strokeWidth={1.8} />
-          <span>Content Editor</span>
-        </button>
-
-        <button
-          className={`sidebar-btn ${activeTab === 'search' ? 'active' : ''}`}
-          onClick={() => setActiveTab('search')}
-        >
-          <Search size={18} strokeWidth={1.8} />
-          <span>Global Search</span>
-        </button>
-
-        <div className="sidebar-divider" style={{ borderTop: '1px solid rgba(255,255,255,0.05)', margin: '15px 10px' }}></div>
+        {additionalNav.length > 0 && <div className="sidebar-divider" style={{ borderTop: '1px solid rgba(255,255,255,0.05)', margin: '15px 10px' }}></div>}
         
         {additionalNav.map(({ id, label, Icon }) => (
           <button

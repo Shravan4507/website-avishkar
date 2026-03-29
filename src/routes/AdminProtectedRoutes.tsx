@@ -13,26 +13,26 @@ import Loader from '../components/loader/Loader';
  */
 const AdminProtectedRoutes = () => {
   const [user, loading] = useAuthState(auth);
-  const [isAdmin, setIsAdmin] = useState<'loading' | 'true' | 'false'>('loading');
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null); // null = loading
 
   useEffect(() => {
     const checkAdmin = async () => {
       if (!user) {
-        setIsAdmin('false');
+        setIsAdmin(false);
         return;
       }
       const adminDoc = await getDoc(doc(db, "admins", user.uid));
-      setIsAdmin(adminDoc.exists() ? 'true' : 'false');
+      setIsAdmin(adminDoc.exists());
     };
     if (!loading) checkAdmin();
   }, [user, loading]);
 
-  if (loading || isAdmin === 'loading') {
+  if (loading || isAdmin === null) {
     return <Loader fullscreen label="Verifying admin credentials..." />;
   }
 
   // Not an admin? 
-  if (isAdmin === 'false') {
+  if (!isAdmin) {
     // If they have a user account, redirect to user dashboard
     return <Navigate to="/user/dashboard" replace />;
   }

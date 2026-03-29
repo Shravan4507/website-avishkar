@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { Link } from 'react-router-dom'
 import SEO from '../../components/seo/SEO'
 import StarBorder from '../../components/star-border/StarBorder'
 import { Award, Cpu, Globe } from 'lucide-react'
@@ -124,35 +125,15 @@ function Home() {
           </div>
           
           <div className="hero__cta-group">
-            <div className="hero__cta">
-              <a href="/login" className="hero__cta-link">Get Started</a>
+            <div className="hero__main-actions">
+              <Link to="/login" className="hero__btn hero__btn--primary">Get Started</Link>
+              <Link to="/competitions" className="hero__btn hero__btn--secondary">Competitions</Link>
             </div>
-            <div className="hero__explore">
-              <a href="#about" className="hero__explore-link">Explore</a>
-            </div>
+            <a href="#about" className="hero__explore-link">Explore the Universe</a>
           </div>
         </div>
 
-        <div className="hero__ticker">
-          <div className="hero__ticker-track">
-            <span>ROBO-SUMO REGISTRATIONS OPEN!</span>
-            <span className="ticker-dot">•</span>
-            <span>50+ COLLEGES PARTICIPATING</span>
-            <span className="ticker-dot">•</span>
-            <span>CODE SPRINT: ₹50K PRIZE POOL</span>
-            <span className="ticker-dot">•</span>
-            <span>TOTAL PRIZES WORTH ₹5 LAKHS+</span>
-            <span className="ticker-dot">•</span>
-            <span>ROBO-SUMO REGISTRATIONS OPEN!</span>
-            <span className="ticker-dot">•</span>
-            <span>50+ COLLEGES PARTICIPATING</span>
-            <span className="ticker-dot">•</span>
-            <span>CODE SPRINT: ₹50K PRIZE POOL</span>
-            <span className="ticker-dot">•</span>
-            <span>TOTAL PRIZES WORTH ₹5 LAKHS+</span>
-            <span className="ticker-dot">•</span>
-          </div>
-        </div>
+
       </section>
 
       {/* --- ABOUT SECTION --- */}
@@ -200,32 +181,27 @@ function Home() {
         </div>
       </section>
 
-      {/* --- MAJOR HIGHLIGHTS SECTION --- */}
+      {/* --- CORE ARENAS SECTION --- */}
       <section className="highlights">
         <div className="highlights__header">
-          <h2 className="section-title">Major Highlights</h2>
-          <p className="section-subtitle">Experience our flagship events</p>
+          <h2 className="section-title">3 Core Arenas</h2>
+          <p className="section-subtitle">Experience our flagship competitive domains</p>
         </div>
         <div className="highlights__grid">
-          <div className="highlight-card">
-            <div className="highlight-tag">Flagship</div>
-            <h3>Code Sprint</h3>
-            <p>The ultimate hackathon experience—build, break, and innovate under pressure to create solutions that matter.</p>
+          <div className="highlight-card arena-card">
+            <div className="highlight-tag">Hackathon</div>
+            <h3>PARAM-X '26</h3>
+            <p>The premier 10-hour hackathon experience—build, break, and innovate to create high-impact tech solutions.</p>
           </div>
-          <div className="highlight-card">
-            <div className="highlight-tag">Arena</div>
-            <h3>Robo-Sumo</h3>
-            <p>Where machines collide and engineering meets strategy in a battle of strength, precision, and control.</p>
+          <div className="highlight-card arena-card">
+            <div className="highlight-tag">Robotics</div>
+            <h3>ROBO-KSHETRA</h3>
+            <p>The premier combat arena where machines collide and engineering strategy meets sheer mechanical power.</p>
           </div>
-          <div className="highlight-card">
-            <div className="highlight-tag">Learning</div>
-            <h3>Technical Workshops</h3>
-            <p>Curated sessions designed to upskill, inspire, and prepare you for the demands of tomorrow’s tech landscape.</p>
-          </div>
-          <div className="highlight-card">
-            <div className="highlight-tag">Rewards</div>
-            <h3>The Prize Pool</h3>
-            <p>Compete for recognition, rewards, and the chance to prove your engineering excellence on a bigger stage.</p>
+          <div className="highlight-card arena-card">
+            <div className="highlight-tag">Esports</div>
+            <h3>BATTLE-GRID</h3>
+            <p>The high-octane gaming arena featuring top-tier competitive play and elite regional talent.</p>
           </div>
         </div>
       </section>
@@ -257,7 +233,7 @@ function Home() {
         <div className="final-cta__glass">
           <h2>Step into the future.</h2>
           <p>Build your legacy at AVISHKAR ’26.</p>
-          <a href="/login" className="final-cta-btn">Join the Ecosystem</a>
+          <Link to="/login" className="final-cta-btn">Join the Ecosystem</Link>
         </div>
       </section>
     </>

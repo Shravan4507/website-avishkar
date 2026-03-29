@@ -15,7 +15,6 @@ function Competitions() {
     const { isRegistered, eventName } = useRegistrationGuard();
 
     const flagshipCompetitions = COMPETITIONS_DATA.filter((item: any) => item.isFlagship);
-    const exhibitionItems = COMPETITIONS_DATA.filter((item: any) => item.isExhibition);
     
     const [regularCompetitions, setRegularCompetitions] = useState<Competition[]>(
         COMPETITIONS_DATA.filter((item: any) => !item.isFlagship && !item.isExhibition)
@@ -118,30 +117,6 @@ function Competitions() {
                     </div>
                 </section>
             )}
-
-            <section className="competition-section branding-section">
-                <div className="section-header">
-                    <span className="section-label">Innovation Showcase</span>
-                    <h2>Exhibitions & Branding</h2>
-                    <div className="section-desc">Non-competitive creative showcases</div>
-                    <div className="section-line"></div>
-                </div>
-                <div className="competitions-container">
-                    <ChromaGrid
-                        items={exhibitionItems}
-                        radius={400}
-                        damping={0.5}
-                        fadeOut={0.8}
-                        columns={1}
-                        selectedItemSlug={selectedSlug}
-                        isRegistered={isRegistered}
-                        registeredEventName={eventName}
-                        onItemClick={(item) => setSelectedSlug(item.slug)}
-                        onModalClose={() => setSelectedSlug(undefined)}
-
-                    />
-                </div>
-            </section>
         </main>
         </>
     )

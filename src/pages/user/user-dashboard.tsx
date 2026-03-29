@@ -54,6 +54,7 @@ const UserDashboard: React.FC = () => {
   const [imageToCrop, setImageToCrop] = useState<string>('');
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [isAvatarExpanded, setIsAvatarExpanded] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const getHighResUrl = (url?: string) => {
     if (!url) return '';
@@ -175,6 +176,11 @@ const UserDashboard: React.FC = () => {
             setEditForm(data);
             // Cache photo for super smooth UI on next visit
             if (data.photoURL) setCachedPhoto(data.photoURL);
+            
+            // Also check if admin to show scanner button
+            getDoc(doc(db, "admins", user.uid)).then(adm => {
+              if (adm.exists()) setIsAdmin(true);
+            });
           } else {
             navigate('/signup', { replace: true });
           }
@@ -361,7 +367,7 @@ const UserDashboard: React.FC = () => {
                 <h2>Quick Actions</h2>
               </div>
               <div className="user-action-buttons">
-                {userData.role === 'volunteer' && (
+                {(userData.role === 'volunteer' || isAdmin) && (
                   <button 
                     className="user-action-btn" 
                     onClick={() => navigate('/user/scanner')}
@@ -582,6 +588,8 @@ const UserDashboard: React.FC = () => {
           email: userData.email,
           photoURL: userData.photoURL,
           avrId: userData.avrId,
+          yearBorn: userData.dob ? userData.dob.split('-')[0] : (userData.passingYear ? (parseInt(userData.passingYear) - 4).toString() : '2005'),
+          eventId: myRegistrations.find(r => r.eventName === 'Param-X Hackathon')?.id || myRegistrations[0]?.id,
           hasRegistrations: myRegistrations.length > 0
         }} 
       />
@@ -598,6 +606,8 @@ const UserDashboard: React.FC = () => {
           email: userData.email,
           photoURL: userData.photoURL,
           avrId: userData.avrId,
+          yearBorn: userData.dob ? userData.dob.split('-')[0] : (userData.passingYear ? (parseInt(userData.passingYear) - 4).toString() : '2005'),
+          eventId: myRegistrations.find(r => r.eventName === 'Param-X Hackathon')?.id || myRegistrations[0]?.id,
           hasRegistrations: myRegistrations.length > 0
         }} 
       />

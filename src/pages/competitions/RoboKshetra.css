@@ -116,7 +116,7 @@
 }
 
 .secondary-cta {
-    background: rgba(255, 255, 255, 0);
+    background: rgba(0, 0, 0, 0);
     color: #fff;
     padding: 1.2rem 2.5rem;
     border-radius: 3.5rem;
@@ -127,23 +127,23 @@
     gap: 0.75rem;
     cursor: pointer;
     text-decoration: none;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: none;
     transition: all 0.3s ease;
 }
 
-.secondary-cta:hover {
-    background: rgba(255, 255, 255, 0.1);
+.secondary-cta:active {
+    transform: scale(0.98);
 }
 
 /* --- JUDGING --- */
 .judging-preview {
-    margin-bottom: 10rem;
+    margin-bottom: 6rem;
     text-align: center;
     background: rgba(0, 0, 0, 0.45);
     backdrop-filter: blur(20px);
-    padding: 5rem 3rem;
-    border-radius: 4rem;
-    border-bottom: 3px solid rgba(255, 255, 255, 0.3);
+    padding: 3rem 1.5rem;
+    border-radius: 2.5rem;
+    border-bottom: 3px solid rgba(217, 255, 0, 0.3);
     box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6);
 }
 
@@ -241,6 +241,18 @@
     margin-bottom: 5rem;
 }
 
+.rk-arenas-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+}
+
+@media (max-width: 900px) {
+    .rk-arenas-grid {
+        grid-template-columns: 1fr !important;
+        max-width: 450px;
+        margin: 0 auto;
+    }
+}
+
 /* --- ASSEMBLY (FORM) SCREEN --- */
 .rk-assembly-screen {
     max-width: 1400px;
@@ -258,9 +270,9 @@
 }
 
 .rk-back-btn {
-    background: rgba(255,255,255,0.05);
+    background: rgba(0, 0, 0, 0);
     color: #fff;
-    border: 1px solid rgba(255,255,255,0.1);
+    border: none;
     padding: 0.8rem 1.5rem;
     border-radius: 2rem;
     cursor: pointer;
@@ -274,10 +286,12 @@
     letter-spacing: 1px;
 }
 
-.rk-back-btn:hover { background: rgba(255,255,255,0.1); }
+.rk-back-btn:active {
+    transform: scale(0.95);
+  }
 
 .rk-event-info {
-    background: rgba(255, 255, 255, 0.03);
+    background: rgba(0, 0, 0, 0.63);
     padding: 2.5rem;
     border-radius: 2.5rem;
     border: 1px solid rgba(255, 255, 255, 0.05);
@@ -335,7 +349,7 @@
 .rk-spec svg { color: #d9ff00; }
 
 .rk-security-warning {
-    background: rgba(217, 255, 0, 0.02);
+    background: rgba(0, 0, 0, 0.65);
     border: 1px dashed rgba(217, 255, 0, 0.2);
     padding: 2rem;
     border-radius: 2rem;
@@ -345,11 +359,11 @@
 }
 
 .rk-security-warning svg { color: #d9ff00; flex-shrink: 0; }
-.rk-security-warning p { font-size: 0.8rem; color: rgba(255, 255, 255, 0.4); line-height: 1.5; }
+.rk-security-warning p { font-size: 0.8rem; color: rgba(255, 255, 255, 0.54); line-height: 1.5; }
 
 /* Form Arena */
 .rk-form-arena {
-    background: rgba(0, 0, 0, 0.45);
+    background: rgba(0, 0, 0, 0.65);
     backdrop-filter: blur(25px);
     border: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: 3rem;
@@ -396,8 +410,8 @@
 .rk-input-group input {
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 1.5rem;
-    padding: 1.25rem;
+    border-radius: 3rem;
+    padding: 1rem;
     color: #fff;
     font-size: 1.1rem;
     outline: none;
@@ -409,32 +423,126 @@
     background: rgba(217, 255, 0, 0.02);
 }
 
-/* Squad Registry */
-.rk-members-list { display: flex; flex-direction: column; gap: 1.5rem; }
-.rk-member-row {
-    background: rgba(255, 255, 255, 0.02);
-    padding: 2rem;
-    border-radius: 2rem;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+.rk-input-group input.readonly {
+    background: rgba(255, 255, 255, 0.015);
+    border-color: rgba(255, 255, 255, 0.03);
+    color: rgba(255, 255, 255, 0.4);
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* Squad Registry — Member Cards (matches HackathonRegistration) */
+.rk-members-section {
     display: flex;
-    align-items: center;
+    flex-direction: column;
     gap: 2rem;
 }
 
-.rk-member-rank {
-    font-family: 'Iceland', sans-serif;
-    font-size: 2rem;
-    color: #d9ff00;
-    opacity: 0.3;
+.rk-member-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 2rem;
+    padding: 2.5rem;
+    display: flex;
+    gap: 2rem;
 }
 
-.rk-member-inputs { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
-.rk-member-inputs input {
-    background: transparent;
+.rk-member-card.leader {
+    border-color: rgba(217, 255, 0, 0.3);
+    background: linear-gradient(135deg, rgba(217, 255, 0, 0.04), transparent);
+}
+
+.rk-member-card.has-error {
+    border-color: rgba(239, 68, 68, 0.4);
+}
+
+.rk-member-index {
+    background: rgba(217, 255, 0, 0.1);
+    color: #d9ff00;
+    width: 45px; height: 45px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center; justify-content: center;
+    font-weight: 800;
+    font-size: 0.75rem;
+    flex-shrink: 0;
+    letter-spacing: 1px;
+}
+
+.rk-member-inputs-v2 {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* Input with icon row */
+.rk-input-with-icon {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.08);
-    padding: 1rem;
-    border-radius: 1.25rem;
+    border-radius: 3rem;
+    padding: 0.8rem 1.2rem;
+    gap: 1rem;
+    transition: all 0.3s ease;
+}
+
+.rk-input-with-icon input {
+    background: transparent;
+    border: none;
     color: #fff;
+    width: 100%;
+    outline: none;
+    font-size: 1rem;
+}
+
+.rk-input-with-icon.avr-lookup {
+    border-color: #d9ff00;
+    background: rgba(217, 255, 0, 0.04);
+}
+
+.rk-input-with-icon.avr-lookup.readonly {
+    border-color: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.rk-input-with-icon.searching .spinner {
+    animation: rotate 1s linear infinite;
+    color: #d9ff00;
+}
+
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.rk-input-with-icon.prefilled {
+    border-color: rgba(16, 185, 129, 0.2);
+    background: rgba(16, 185, 129, 0.02);
+}
+
+.rk-input-with-icon.prefilled.readonly input {
+    color: rgba(255, 255, 255, 0.4);
+    cursor: not-allowed;
+}
+
+.rk-input-with-icon.field-error {
+    border-color: rgba(239, 68, 68, 0.5) !important;
+    background: rgba(239, 68, 68, 0.03) !important;
+}
+
+.rk-detail-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.rk-error-badge {
+    font-size: 0.7rem;
+    color: #ef4444;
+    font-weight: 700;
+    white-space: nowrap;
 }
 
 /* Actions */
@@ -448,11 +556,11 @@
 .rk-deploy-btn {
     background: #d9ff00;
     color: #000;
-    padding: 1.5rem;
+    padding: 1rem;
     border-radius: 3rem;
     font-family: 'Iceland', sans-serif;
     font-weight: 800;
-    font-size: 2rem;
+    font-size: 1.5rem;
     border: none;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -461,11 +569,6 @@
     justify-content: center;
     gap: 1rem;
     box-shadow: 0 10px 40px rgba(217, 255, 0, 0.2);
-}
-
-.rk-deploy-btn:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 20px 60px rgba(217, 255, 0, 0.3);
 }
 
 .rk-deploy-btn:active { transform: translateY(0) scale(0.98); }
@@ -488,6 +591,161 @@
     color: rgba(255, 255, 255, 0.3);
     text-align: center;
     font-style: italic;
+}
+
+/* --- PREVIEW PANEL --- */
+.rk-preview-panel {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(217, 255, 0, 0.15);
+    border-radius: 2rem;
+    padding: 2.5rem;
+    animation: fadeIn 0.4s ease;
+}
+
+.rk-preview-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+    color: #d9ff00;
+}
+
+.rk-preview-header h4 {
+    font-family: 'Iceland', sans-serif;
+    font-size: 1.4rem;
+    letter-spacing: 2px;
+    margin: 0;
+}
+
+.rk-preview-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.rk-preview-meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.rk-preview-label {
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    color: rgba(255, 255, 255, 0.35);
+    font-weight: 700;
+}
+
+.rk-preview-value {
+    font-size: 1.2rem;
+    color: #fff;
+    font-weight: 600;
+}
+
+.rk-preview-members {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.rk-preview-member {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 1.2rem;
+    padding: 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.rk-pm-rank {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    color: #d9ff00;
+    letter-spacing: 1.5px;
+    font-weight: 700;
+}
+
+.rk-pm-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.rk-pm-name {
+    font-size: 1.05rem;
+    color: #fff;
+    font-weight: 600;
+}
+
+.rk-pm-avr {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.4);
+    font-family: 'Iceland', sans-serif;
+    letter-spacing: 1px;
+}
+
+.rk-payment-summary {
+    background: rgba(217, 255, 0, 0.03);
+    border: 1px solid rgba(217, 255, 0, 0.1);
+    border-radius: 1.5rem;
+    padding: 1.5rem 2rem;
+    margin-bottom: 2rem;
+}
+
+.rk-summary-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.6rem 0;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.95rem;
+}
+
+.rk-summary-row.total {
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    margin-top: 0.5rem;
+    padding-top: 1rem;
+    color: #d9ff00;
+    font-size: 1.2rem;
+    font-weight: 800;
+    font-family: 'Iceland', sans-serif;
+    letter-spacing: 1px;
+}
+
+.rk-payment-note {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.3);
+    margin-top: 0.75rem;
+    text-align: center;
+}
+
+.rk-preview-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+.rk-edit-btn {
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.6);
+    border: none;
+    padding: 1rem 1.5rem;
+    border-radius: 3rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.rk-edit-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
 }
 
 /* --- SUCCESS --- */
@@ -554,11 +812,24 @@
 }
 
 @media (max-width: 1100px) {
-    .rk-assembly-screen { grid-template-columns: 1fr; gap: 2rem; }
-    .rk-sidebar { order: -1; }
-    .rk-form-arena { padding: 2rem; border-radius: 2rem; }
-    .hero-stats { flex-direction: column; gap: 2rem; }
-    .hero-ctas { flex-direction: column; width: 100%; }
-    .primary-cta, .secondary-cta { justify-content: center; }
-    .rk-input-grid, .rk-member-inputs { grid-template-columns: 1fr; }
+    .rk-page { padding: 100px 1.25rem 3rem; }
+    .rk-hero { margin-bottom: 4rem; }
+    .rk-hero h1 { font-size: 3.5rem; }
+    .rk-hero .hero-subtitle { font-size: 1.1rem; margin-bottom: 2.5rem; }
+    .rk-hero .hero-stats { flex-direction: column; gap: 1.5rem; margin-bottom: 3rem; }
+    .rk-hero .hero-ctas { flex-direction: column; width: 100%; gap: 1rem; }
+    .rk-hero .primary-cta, .rk-hero .secondary-cta { justify-content: center; width: 100%; }
+
+    .judging-preview h2 { font-size: 2.2rem; margin-bottom: 3rem; }
+    .judging-card { padding: 1.5rem; border-radius: 1.5rem; }
+
+    .rk-arena-grid { grid-template-columns: 1fr; gap: 2rem; }
+    .rk-assembly-screen { padding: 0; grid-template-columns: 1fr; gap: 2rem; }
+    .rk-assembly-sidebar { top: 0; }
+    
+    .rk-preview-panel { padding: 1.5rem; border-radius: 1.5rem; }
+    .rk-preview-meta { grid-template-columns: 1fr; gap: 1.5rem; }
+    .rk-preview-members { grid-template-columns: 1fr; }
+    .rk-preview-actions { flex-direction: column-reverse; gap: 1.25rem; width: 100%; align-items: stretch; }
+    .rk-edit-btn, .rk-preview-actions .rk-deploy-btn { width: 100%; justify-content: center; padding: 1.25rem; font-size: 1rem; }
 }

@@ -1,16 +1,47 @@
 rules_version = '2';
 
-// Craft rules based on data in your Firestore database
-// allow write: if firestore.get(
-//    /databases/(default)/documents/users/$(request.auth.uid)).data.isAdmin;
 service firebase.storage {
   match /b/{bucket}/o {
-    match /competitions/{allPaths=**} {
-      allow read: if true;
-      allow write: if request.auth != null && firestore.exists(/databases/(default)/documents/admins/$(request.auth.uid));
+
+    // =============================================
+    // USER AVATARS
+    // Users can only upload/read their own avatar
+    // =============================================
+    match /users/{userId}/avatar.webp {
+      allow read: if true; // Avatars are publicly viewable (profile pics)
+      allow write: if request.auth != null
+                   && request.auth.uid == userId
+                   && request.resource.size < 2 * 1024 * 1024  // Max 2MB
+                   && request.resource.contentType.matches('image/.*'); // Images only
     }
+
+    // =============================================
+    // COMPETITION IMAGES
+    // Only admins can upload; anyone can view
+    // =============================================
+    match /competitions/{allPaths=**} {
+      allow read: if true; // Competition banners are public
+      allow write: if request.auth != null
+                   && firestore.exists(/databases/(default)/documents/admins/$(request.auth.uid))
+                   && request.resource.size < 5 * 1024 * 1024  // Max 5MB
+                   && request.resource.contentType.matches('image/.*');
+    }
+
+    // =============================================
+    // PROBLEM STATEMENTS JSON
+    // Public read for ParamX; admin write only
+    // =============================================
+    match /problems.json {
+      allow read: if true;
+      allow write: if request.auth != null
+                   && firestore.exists(/databases/(default)/documents/admins/$(request.auth.uid));
+    }
+
+    // =============================================
+    // CATCH-ALL: Deny everything else
+    // =============================================
     match /{allPaths=**} {
-      allow read, write: if request.auth != null;
+      allow read, write: if false;
     }
   }
 }

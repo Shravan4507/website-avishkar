@@ -31,7 +31,7 @@
 
 /* --- Form Styles --- */
 .stall-form-card {
-    background: rgba(255, 255, 255, 0.02);
+    background: rgba(0, 0, 0, 0.65);
     backdrop-filter: blur(40px);
     -webkit-backdrop-filter: blur(40px);
     border: 1px solid rgba(255, 255, 255, 0.08);

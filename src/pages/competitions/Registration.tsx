@@ -6,8 +6,9 @@ import { auth, db } from '../../firebase/firebase';
 import { useToast } from '../../components/toast/Toast';
 import { COMPETITIONS_DATA } from '../../data/competitions';
 import type { Competition } from '../../data/competitions';
-import { Trophy, CheckCircle, ArrowRight, ShieldCheck, AlertTriangle } from 'lucide-react';
+import { Trophy, CheckCircle, ArrowRight, ShieldCheck, AlertTriangle, CreditCard } from 'lucide-react';
 import { useRegistrationGuard } from '../../hooks/useRegistrationGuard';
+import { initiateEasebuzzCheckout, generateTxnId } from '../../utils/easebuzz';
 import './Registration.css';
 
 
@@ -25,6 +26,7 @@ const Registration: React.FC = () => {
   const [alreadyRegistered, setAlreadyRegistered] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [accountabilityAccepted, setAccountabilityAccepted] = useState(false);
+  const [transactionId, setTransactionId] = useState<string | null>(null);
 
   const { isRegistered, eventName: registeredEventName } = useRegistrationGuard();
 
@@ -118,6 +120,103 @@ const Registration: React.FC = () => {
     return age;
   };
 
+  /** Write registration to Firestore */
+  const submitRegistration = async (paymentTxnId?: string) => {
+    const regId = `${competition!.id}_${userData.avrId}`;
+    const regRef = doc(db, 'registrations', regId);
+
+    // Double check using deterministic ID
+    const existingSnap = await getDoc(regRef);
+    if (existingSnap.exists()) {
+      setAlreadyRegistered(true);
+      setIsSuccess(true);
+      return;
+    }
+
+    const userAge = calculateAge(userData.dob);
+    const fee = competition!.entryFee || 0;
+
+    await setDoc(regRef, {
+      // User Info
+      userId: user!.uid,
+      userName: `${userData.firstName} ${userData.lastName}`,
+      userEmail: userData.email || user!.email,
+      userAVR: userData.avrId,
+      allAvrIds: [userData.avrId],
+      userPhone: userData.phone || '',
+      userCollege: userData.college || '',
+      userMajor: userData.major || '',
+      userAge: userAge,
+      userSex: userData.sex || '',
+      // Competition Info
+      competitionId: competition!.id,
+      eventName: competition!.title,
+      competitionHandle: competition!.handle || '',
+      category: competition!.subtitle || 'General Event',
+      department: competition!.department,
+      isFlagship: competition!.isFlagship || false,
+      // Payment
+      paymentStatus: fee > 0 ? 'paid' : 'free',
+      amountPaid: fee,
+      transactionId: paymentTxnId || null,
+      // Metadata
+      status: 'confirmed',
+      registeredAt: serverTimestamp(),
+      isAttended: false
+    });
+
+    if (paymentTxnId) setTransactionId(paymentTxnId);
+    setAlreadyRegistered(true);
+    setIsSuccess(true);
+  };
+
+  /** Handle paid registration via Easebuzz */
+  const handlePaidRegistration = async () => {
+    if (!competition || !userData || !user) return;
+    setIsSubmitting(true);
+    isSubmittingRef.current = true;
+
+    try {
+      const txnid = generateTxnId(competition.id.toUpperCase().replace(/[^A-Z0-9]/g, ''));
+      const response = await fetch("https://initiatepayment-rgvkuxdaea-uc.a.run.app", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          txnid,
+          amount: (competition.entryFee || 0).toFixed(2),
+          productinfo: `${competition.title} Registration`,
+          firstname: `${userData.firstName} ${userData.lastName}`,
+          email: userData.email || user.email,
+          phone: userData.phone || '',
+          surl: `${window.location.origin}/user/dashboard?status=success`,
+          furl: `${window.location.origin}/competitions?status=failure`
+        })
+      });
+
+      const result = await response.json();
+
+      if (result.success && result.access_key) {
+        const merchantKey = import.meta.env.VITE_EASEBUZZ_KEY;
+        initiateEasebuzzCheckout(merchantKey, result.access_key, async (ebResponse: any) => {
+          if (ebResponse.status === "success") {
+            await submitRegistration(txnid);
+          } else {
+            toast.error("Payment was not successful. Please try again.");
+          }
+        }, 'prod');
+      } else {
+        throw new Error(result.error || "Payment initiation failed.");
+      }
+    } catch (err: any) {
+      console.error("Payment Error:", err);
+      toast.error("Payment system error. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+      isSubmittingRef.current = false;
+    }
+  };
+
+  /** Main registration handler — routes to paid or free flow */
   const handleRegister = async () => {
     if (!competition || !userData || alreadyRegistered || isSubmittingRef.current) return;
     
@@ -126,60 +225,24 @@ const Registration: React.FC = () => {
       return;
     }
 
+    const fee = competition.entryFee || 0;
 
-    
-    // Synchronous lock to prevent React state batching race conditions
-    isSubmittingRef.current = true;
-    setIsSubmitting(true);
-
-    try {
-      // Deterministic document ID: competitionId_avrId
-      const regId = `${competition.id}_${userData.avrId}`;
-      const regRef = doc(db, 'registrations', regId);
-
-      // Double check using deterministic ID (faster than query)
-      const existingSnap = await getDoc(regRef);
-      if (existingSnap.exists()) {
-        setAlreadyRegistered(true);
-        setIsSuccess(true);
-        return;
+    if (fee > 0) {
+      // Paid event — route through Easebuzz
+      await handlePaidRegistration();
+    } else {
+      // Free event — direct registration
+      isSubmittingRef.current = true;
+      setIsSubmitting(true);
+      try {
+        await submitRegistration();
+      } catch (err) {
+        console.error("Registration Error:", err);
+        toast.error("Failed to register. Please try again.");
+      } finally {
+        setIsSubmitting(false);
+        isSubmittingRef.current = false;
       }
-
-      // Calculate age from DOB
-      const userAge = calculateAge(userData.dob);
-
-      // Store comprehensive registration data
-      await setDoc(regRef, {
-        // User Info
-        userId: user!.uid,
-        userName: `${userData.firstName} ${userData.lastName}`,
-        userEmail: userData.email || user!.email,
-        userAVR: userData.avrId,
-        allAvrIds: [userData.avrId], // Standardized for team-wide guard
-        userPhone: userData.phone || '',
-        userCollege: userData.college || '',
-        userMajor: userData.major || '',
-        userAge: userAge,
-        userSex: userData.sex || '',
-        // Competition Info
-        competitionId: competition.id,
-        eventName: competition.title,
-        category: competition.subtitle || 'General Event',
-        department: competition.department,
-        isFlagship: competition.isFlagship || false,
-        // Metadata
-        registeredAt: serverTimestamp(),
-        isAttended: false
-      });
-
-      setAlreadyRegistered(true);
-      setIsSuccess(true);
-    } catch (err) {
-      console.error("Registration Error:", err);
-      toast.error("Failed to register. Please try again.");
-    } finally {
-      setIsSubmitting(false);
-      isSubmittingRef.current = false;
     }
   };
 
@@ -224,6 +287,11 @@ const Registration: React.FC = () => {
               {competition.prizePool && (
                 <span className="meta-badge prize">
                   <Trophy size={14} /> Pool: {competition.prizePool}
+                </span>
+              )}
+              {competition.entryFee !== undefined && competition.entryFee > 0 && (
+                <span className="meta-badge" style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#10b981', borderColor: 'rgba(16, 185, 129, 0.3)' }}>
+                  <CreditCard size={14} /> Entry: ₹{competition.entryFee}
                 </span>
               )}
             </div>
@@ -308,7 +376,12 @@ const Registration: React.FC = () => {
                 onClick={handleRegister} 
                 disabled={isSubmitting}
               >
-                {isSubmitting ? "Locking in Matrix..." : "Confirm Registration"}
+                {isSubmitting 
+                  ? "Processing..." 
+                  : competition.entryFee && competition.entryFee > 0 
+                    ? `Pay ₹${competition.entryFee} & Register` 
+                    : "Confirm Registration"
+                }
               </button>
             )}
           </div>
@@ -324,7 +397,8 @@ const Registration: React.FC = () => {
           <h2>Access Granted.</h2>
           <p>
             Your identity <strong>{userData?.avrId}</strong> has been permanently inscribed into the registry for <strong>{competition.title}</strong>. 
-            Prepare your arsenal. We will see you at the arena.
+            {transactionId && <><br />Transaction Ref: <strong style={{ fontFamily: 'monospace', color: '#a78bfa' }}>{transactionId}</strong></>}
+            <br />Prepare your arsenal. We will see you at the arena.
           </p>
           <button className="btn-dashboard-return" onClick={() => navigate('/user/dashboard')}>
             View My Virtual Pass <ArrowRight size={18} />

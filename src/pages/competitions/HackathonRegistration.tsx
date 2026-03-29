@@ -10,6 +10,7 @@ import { auth, db } from '../../firebase/firebase';
 import SEO from '../../components/seo/SEO';
 import { useToast } from '../../components/toast/Toast';
 import GlassSelect from '../../components/dropdown/GlassSelect';
+import { initiateEasebuzzCheckout, generateTxnId } from '../../utils/easebuzz';
 import { fetchProblemStatements, type ProblemStatement } from '../../utils/storageUtils';
 import { generateInvoice } from '../../utils/InvoiceGenerator';
 import { 
@@ -99,11 +100,7 @@ const MemberField: React.FC<MemberFieldProps> = ({
     );
 };
 
-declare global {
-    interface Window {
-        Razorpay: any;
-    }
-}
+
 
 const HackathonRegistration: React.FC = () => {
 
@@ -111,11 +108,11 @@ const HackathonRegistration: React.FC = () => {
     const [user] = useAuthState(auth);
 
     const { isRegistered, eventName, loading: guardLoading } = useRegistrationGuard();
-    const { toast } = useToast();
+    const toast = useToast();
 
     useEffect(() => {
         if (!guardLoading && isRegistered) {
-            toast(`Locked: Already registered for ${eventName}. One event per user policy.`, "warning");
+            toast.warning(`Locked: Already registered for ${eventName}. One event per user policy.`);
             navigate('/user/dashboard', { replace: true });
         }
     }, [isRegistered, eventName, guardLoading, navigate, toast]);
@@ -186,7 +183,7 @@ const HackathonRegistration: React.FC = () => {
                     }
                 }
             } catch (err) {
-                toast("Failed to load profile details.", "error");
+                toast.error("Failed to load profile details.");
             } finally {
                 setLoading(false);
             }
@@ -296,9 +293,20 @@ const HackathonRegistration: React.FC = () => {
             }
         });
 
+        // Duplicate AVR-ID check
+        const avrIds = members.map(m => (formData as any)[`${m}AvrId`]).filter((id: string) => id && id.length >= 9);
+        const seen = new Set<string>();
+        for (const id of avrIds) {
+            if (seen.has(id)) {
+                toast.error(`Duplicate detected: ${id} — each member must be unique.`);
+                return false;
+            }
+            seen.add(id);
+        }
+
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
-            toast("Please fix the highlighted errors.", "error");
+            toast.error("Please fix the highlighted errors.");
             return false;
         }
 
@@ -331,7 +339,7 @@ const HackathonRegistration: React.FC = () => {
                     ...formData,
                     status: 'confirmed',
                     paymentId,
-                    amount: 500,
+                    amountPaid: 500,
                     allEmails: [
                         formData.leaderEmail.toLowerCase(), 
                         formData.member2Email.toLowerCase(), 
@@ -351,41 +359,62 @@ const HackathonRegistration: React.FC = () => {
 
             setTransactionId(paymentId);
             setStep(3);
-            toast("Team Registered!", "success");
+            toast.success("Team Registered!");
 
         } catch (err: any) {
-            toast(err.message, "error");
+            toast.error(err.message);
         } finally {
             setSubmitting(false);
         }
     };
 
-    const handlePayment = () => {
-        if (!window.Razorpay) {
-            toast("Payment SDK not loaded. Check your internet.", "error");
-            return;
+    const handlePayment = async () => {
+        setSubmitting(true);
+
+        try {
+            // 1. Generate Transaction Details
+            const txnid = generateTxnId("HACK");
+            const amount = "500.00"; // Hackathon fee
+            
+            // 2. Get access_key from Cloud Function (which calls Easebuzz API)
+            const response = await fetch("https://initiatepayment-rgvkuxdaea-uc.a.run.app", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    txnid,
+                    amount,
+                    productinfo: "Param-X '26 Registration",
+                    firstname: formData.leaderName,
+                    email: formData.leaderEmail,
+                    phone: formData.leaderPhone,
+                    surl: `${window.location.origin}/user/dashboard?status=success`,
+                    furl: `${window.location.origin}/param-x?status=failure`
+                })
+            });
+
+            const result = await response.json();
+
+            if (result.success && result.access_key) {
+                // 3. Open Easebuzz checkout overlay with callback
+                const merchantKey = import.meta.env.VITE_EASEBUZZ_KEY;
+                
+                initiateEasebuzzCheckout(merchantKey, result.access_key, async (ebResponse: any) => {
+                    if (ebResponse.status === "success") {
+                        await handleSubmitRegistration(txnid);
+                    } else {
+                        toast.error("Payment was not successful.");
+                    }
+                }, 'prod');
+            } else {
+                throw new Error(result.error || "Unable to reach payment gateway.");
+            }
+
+        } catch (err: any) {
+            console.error("Payment Error:", err);
+            toast.error("Communication Interrupted. Deployment halted.");
+        } finally {
+            setSubmitting(false);
         }
-
-        const options = {
-            key: import.meta.env.VITE_RAZORPAY_KEY_ID, // Enter in .env
-            amount: 500 * 100, // INR 500 in paise
-            currency: "INR",
-            name: "Avishkar '26",
-            description: "Param-X Registration",
-            image: "https://avishkar26.vercel.app/favicon.ico", // Or local logo
-            handler: async function (response: any) {
-                await handleSubmitRegistration(response.razorpay_payment_id);
-            },
-            prefill: {
-                name: formData.leaderName,
-                email: formData.leaderEmail,
-                contact: formData.leaderPhone,
-            },
-            theme: { color: "#5227ff" },
-        };
-
-        const rzp = new window.Razorpay(options);
-        rzp.open();
     };
 
 
@@ -419,7 +448,7 @@ const HackathonRegistration: React.FC = () => {
                             <GlassSelect 
                                 options={problems.map(p => ({ label: `[${p.id}] ${p.title}`, value: p.id }))}
                                 value={formData.psId}
-                                onChange={(val) => setFormData(prev => ({ ...prev, psId: val }))}
+                                onChange={(val: string) => setFormData(prev => ({ ...prev, psId: val }))}
                                 placeholder="Choose your challenge"
                             />
                         </div>

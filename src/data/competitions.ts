@@ -15,6 +15,8 @@ export interface Competition {
     slug?: string;
     department: string;
     entryFee?: number;
+    coordinator?: string;
+    contactNumber?: string;
 }
 
 export const COMPETITIONS_DATA: Competition[] = [
@@ -26,7 +28,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         subtitle: '10-Hour Hackathon',
         location: 'Flagship Event',
         handle: 'ParamX-Hack',
-        description: 'The premier hackathon of Avishkar. 24 hours of pure product development, intense coding, and transformative innovation. Build the future and claim the throne.',
+        description: 'The premier hackathon of Avishkar. 10 hours of pure product development, intense coding, and transformative innovation. Build the future and claim the throne.',
         borderColor: '#5227FF',
         gradient: 'linear-gradient(145deg, #5227FF, #000)',
         url: '#',
@@ -63,31 +65,12 @@ export const COMPETITIONS_DATA: Competition[] = [
         gradient: 'linear-gradient(210deg, #ff4655, #000)',
         url: '#',
         isFlagship: true,
-        prizePool: '₹50,000+',
+        prizePool: '₹80,000',
         slug: 'battle-grid-26',
         department: 'Information Technology'
     },
 
     // Standard Competitions
-    // (Department competitions are dynamically created via CompetitionForm and stored in Firestore)
-
-    // Exhibition
-    {
-        id: 'it_aiartgallery',
-        image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=600&h=400&auto=format&fit=crop',
-        title: 'AI Art Gallery',
-        subtitle: 'Exhibition & Showcase',
-        location: 'Branding Initiative',
-        handle: 'AI-Gallery',
-        description: "Explore the intersection of machine learning and fine arts. A non-competitive showcase of revolutionary AI-generated masterpieces created specifically for Avishkar '26.",
-        borderColor: '#5227FF',
-        gradient: 'linear-gradient(145deg, #5227FF, #000)',
-        url: '#',
-        isExhibition: true,
-        slug: 'ai-art-gallery',
-        department: 'Information Technology'
-    },
-    // Dynamically added from User Request (Sheet)
     {
         id: 'comp_forgex',
         image: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=600&h=400&auto=format&fit=crop',
@@ -95,13 +78,15 @@ export const COMPETITIONS_DATA: Competition[] = [
         subtitle: 'Engineering Unleashed',
         location: 'Main Arena',
         handle: 'Forge-Lead',
-        description: 'Build, innovate, and forge the next generation of industrial solutions.',
+        description: "An intensive competition for innovative minds to solve real-world problems through advanced technological solutions.",
         borderColor: '#5227FF',
         gradient: 'linear-gradient(145deg, #5227FF, #000)',
         url: '#',
         slug: 'forge-x',
         department: 'Mechanical Engineering',
-        entryFee: 99
+        entryFee: 99,
+        coordinator: "Aryan Gupta",
+        contactNumber: "9140411132"
     },
     {
         id: 'comp_algobid',
@@ -116,7 +101,9 @@ export const COMPETITIONS_DATA: Competition[] = [
         url: '#',
         slug: 'algo-bid',
         department: 'Computer Engineering',
-        entryFee: 99
+        entryFee: 99,
+        coordinator: 'Tejprakash Mirashi',
+        contactNumber: '7378965050'
     },
     {
         id: 'comp_codeladder',
@@ -131,37 +118,26 @@ export const COMPETITIONS_DATA: Competition[] = [
         url: '#',
         slug: 'code-ladder',
         department: 'Computer Engineering',
-        entryFee: 250
+        entryFee: 250,
+        coordinator: 'Shreya Kad',
+        contactNumber: '7517021872'
     },
     {
         id: 'comp_iplauction',
-        image: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=600&h=400&auto=format&fit=crop',
+        image: 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?q=80&w=600&h=400&auto=format&fit=crop',
         title: 'IPL Auction',
-        subtitle: 'Team Building Simulation',
+        subtitle: 'Strategic Bidding',
         location: 'Grand Hall',
         handle: 'IPL-Auctioneer',
-        description: 'Manage your budget and build the ultimate cricket squad in this high-intensity simulation.',
+        description: "Experience the adrenaline of the player auction in this high-stakes cricket simulation.",
         borderColor: '#5227FF',
         gradient: 'linear-gradient(145deg, #5227FF, #000)',
         url: '#',
         slug: 'ipl-auction',
         department: 'General',
-        entryFee: 250
-    },
-    {
-        id: 'comp_aiprompt',
-        image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=600&h=400&auto=format&fit=crop',
-        title: 'AI Prompt Engineering Arena',
-        subtitle: 'The Art of Input',
-        location: 'AI Lab',
-        handle: 'Prompt-Wizard',
-        description: 'Master the generative AI revolution by crafting the perfect prompts.',
-        borderColor: '#d9ff00',
-        gradient: 'linear-gradient(180deg, #d9ff00, #000)',
-        url: '#',
-        slug: 'ai-prompt-arena',
-        department: 'Computer Engineering',
-        entryFee: 0 // Free or TBD
+        entryFee: 250,
+        coordinator: "Tushar Anand",
+        contactNumber: "9236113425"
     },
     {
         id: 'comp_devclash',
@@ -176,7 +152,9 @@ export const COMPETITIONS_DATA: Competition[] = [
         url: '#',
         slug: 'dev-clash',
         department: 'Computer Engineering',
-        entryFee: 199
+        entryFee: 199,
+        coordinator: 'Om Kute',
+        contactNumber: '7709056730'
     },
     {
         id: 'comp_vibesprint',
@@ -191,7 +169,9 @@ export const COMPETITIONS_DATA: Competition[] = [
         url: '#',
         slug: 'vibe-sprint',
         department: 'General',
-        entryFee: 99
+        entryFee: 99,
+        coordinator: 'Parth Shinde',
+        contactNumber: '9168906630'
     },
     {
         id: 'comp_coderun',
@@ -206,7 +186,9 @@ export const COMPETITIONS_DATA: Competition[] = [
         url: '#',
         slug: 'code-run',
         department: 'Information Technology',
-        entryFee: 199
+        entryFee: 199,
+        coordinator: 'Vaidehi Singh',
+        contactNumber: '8766690242'
     },
     {
         id: 'comp_bridgenova',
@@ -221,7 +203,9 @@ export const COMPETITIONS_DATA: Competition[] = [
         url: '#',
         slug: 'bridge-nova',
         department: 'Civil Engineering',
-        entryFee: 150
+        entryFee: 150,
+        coordinator: 'Ashish Shinde',
+        contactNumber: '9373113736'
     },
     {
         id: 'comp_poster',
@@ -236,7 +220,9 @@ export const COMPETITIONS_DATA: Competition[] = [
         url: '#',
         slug: 'poster-presentation',
         department: 'General',
-        entryFee: 100
+        entryFee: 100,
+        coordinator: 'Pranav Katu',
+        contactNumber: '9503231138'
     },
     {
         id: 'comp_sparktank',
@@ -251,7 +237,9 @@ export const COMPETITIONS_DATA: Competition[] = [
         url: '#',
         slug: 'spark-tank',
         department: 'E&TC Engineering',
-        entryFee: 200
+        entryFee: 200,
+        coordinator: 'Harshita Jadhav',
+        contactNumber: '9356766305'
     },
     {
         id: 'comp_matlab',
@@ -266,7 +254,9 @@ export const COMPETITIONS_DATA: Competition[] = [
         url: '#',
         slug: 'matlab-madness',
         department: 'E&TC Engineering',
-        entryFee: 300
+        entryFee: 300,
+        coordinator: 'Aadesh Bartakke',
+        contactNumber: '8888487529'
     },
     {
         id: 'comp_circuitsim',
@@ -281,14 +271,169 @@ export const COMPETITIONS_DATA: Competition[] = [
         url: '#',
         slug: 'circuit-simulation',
         department: 'E&TC Engineering',
-        entryFee: 300
-    }
+        entryFee: 300,
+        coordinator: 'Saniya Jadhav',
+        contactNumber: '9699281400'
+    },
+    {
+        id: 'comp_sherlock',
+        image: 'https://images.unsplash.com/photo-1509248961158-e54f6934749c?q=80&w=600&h=400&auto=format&fit=crop',
+        title: 'Sherlock-Gnomes',
+        subtitle: 'Technical Deduction',
+        location: 'Mystery Arena',
+        handle: 'Detective-Gnome',
+        description: 'Think like a detective and solve mysteries using technical skills and deduction.',
+        borderColor: '#ff4655',
+        gradient: 'linear-gradient(145deg, #ff4655, #000)',
+        url: '#',
+        slug: 'sherlock-gnomes',
+        department: 'General',
+        entryFee: 150,
+        coordinator: "Pratham Varshney",
+        contactNumber: "9354089069"
+    },
+    {
+        id: 'comp_codex',
+        image: 'https://images.unsplash.com/photo-1515879218367-8466d910aaa4?q=80&w=600&h=400&auto=format&fit=crop',
+        title: 'Code-X',
+        subtitle: 'Algorithmic Mastery',
+        location: 'Cyber Den',
+        handle: 'Code-Elite',
+        description: 'Unleash your coding potential in this high-intensity programming competition.',
+        borderColor: '#5227FF',
+        gradient: 'linear-gradient(145deg, #5227FF, #000)',
+        url: '#',
+        slug: 'code-x',
+        department: 'Computer Engineering',
+        entryFee: 199,
+        coordinator: "Anshika Agarwal",
+        contactNumber: "8077583765"
+    },
+    {
+        id: 'comp_webpulse',
+        image: 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?q=80&w=600&h=400&auto=format&fit=crop',
+        title: 'Web-Pulse',
+        subtitle: 'Fullstack Sprint',
+        location: 'Dev Lab',
+        handle: 'Web-Surger',
+        description: 'Build cutting-edge web applications in this fast-paced development sprint.',
+        borderColor: '#d9ff00',
+        gradient: 'linear-gradient(180deg, #d9ff00, #000)',
+        url: '#',
+        slug: 'web-pulse',
+        department: 'Information Technology',
+        entryFee: 199,
+        coordinator: "Anshika Agarwal",
+        contactNumber: "8077583765"
+    },
+    {
+        id: 'comp_techtrivia',
+        image: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=600&h=400&auto=format&fit=crop',
+        title: 'Tech-Trivia',
+        subtitle: 'Ultimate Quiz',
+        location: 'Grand Hall',
+        handle: 'Quiz-Master',
+        description: 'Showcase your technical knowledge in this ultimate trivia and quiz challenge.',
+        borderColor: '#5227FF',
+        gradient: 'linear-gradient(145deg, #5227FF, #000)',
+        url: '#',
+        slug: 'tech-trivia',
+        department: 'General',
+        entryFee: 100,
+        coordinator: "Harsh Gupta",
+        contactNumber: "6388487841"
+    },
+    {
+        id: 'comp_bridgeit',
+        image: 'https://images.unsplash.com/photo-1513828583688-c52646db42da?q=80&w=600&h=400&auto=format&fit=crop',
+        title: 'Bridge-It',
+        subtitle: 'Civil Engineering',
+        location: 'Structural Lab',
+        handle: 'Bridge-Builder',
+        description: 'Design and construct high-performance bridges using technical engineering principles.',
+        borderColor: '#d9ff00',
+        gradient: 'linear-gradient(180deg, #d9ff00, #000)',
+        url: '#',
+        slug: 'bridge-it',
+        department: 'Civil Engineering',
+        entryFee: 150,
+        coordinator: "Harsh Gupta",
+        contactNumber: "6388487841"
+    },
+    {
+        id: 'comp_megastructure',
+        image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=600&h=400&auto=format&fit=crop',
+        title: 'Mega-Structure',
+        subtitle: 'Structural Analysis',
+        location: 'Main Hall',
+        handle: 'Mega-Builder',
+        description: 'Challenge your engineering skills to build stable and complex mega structures.',
+        borderColor: '#5227FF',
+        gradient: 'linear-gradient(145deg, #5227FF, #000)',
+        url: '#',
+        slug: 'mega-structure',
+        department: 'Civil Engineering',
+        entryFee: 150,
+        coordinator: "Ayush Tiwari",
+        contactNumber: "8707421160"
+    },
+    {
+        id: 'comp_townplanning',
+        image: 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?q=80&w=600&h=400&auto=format&fit=crop',
+        title: 'Town-Planning',
+        subtitle: 'Urban Design',
+        location: 'Design Den',
+        handle: 'Urban-Planner',
+        description: 'Architect the future with innovative urban designs and town planning solutions.',
+        borderColor: '#d9ff00',
+        gradient: 'linear-gradient(180deg, #d9ff00, #000)',
+        url: '#',
+        slug: 'town-planning',
+        department: 'Civil Engineering',
+        entryFee: 200,
+        coordinator: "Ashish Kumar Gupta",
+        contactNumber: "7388713506"
+    },
+    {
+        id: 'comp_cadclash',
+        image: 'https://images.unsplash.com/photo-1544383835-bda2bc66a55d?q=80&w=600&h=400&auto=format&fit=crop',
+        title: 'CAD-Clash',
+        subtitle: 'Precision Design',
+        location: 'Drafting Room',
+        handle: 'CAD-Pro',
+        description: 'Demonstrate precision and speed in this advanced CAD design competition.',
+        borderColor: '#5227FF',
+        gradient: 'linear-gradient(145deg, #5227FF, #000)',
+        url: '#',
+        slug: 'cad-clash',
+        department: 'Mechanical Engineering',
+        entryFee: 150,
+        coordinator: "Sudhir Singh",
+        contactNumber: "8299868778"
+    },
+    {
+        id: 'comp_startupsphere',
+        image: 'https://images.unsplash.com/photo-1556761175-b413da4baf72?q=80&w=600&h=400&auto=format&fit=crop',
+        title: 'Startup-Sphere',
+        subtitle: 'Business Pitch',
+        location: 'Innovation Hub',
+        handle: 'Pitch-Lead',
+        description: 'Turn your business idea into reality in this intensive startup pitching competition.',
+        borderColor: '#d9ff00',
+        gradient: 'linear-gradient(180deg, #d9ff00, #000)',
+        url: '#',
+        slug: 'startup-sphere',
+        department: 'General',
+        entryFee: 250,
+        coordinator: "Ashish Kumar Gupta",
+        contactNumber: "7388713506"
+    },
 ];
 
 // Helper: Generate a competition ID from department + title
-// e.g., "Computer Engineering" + "HalfCode Hack" → "computer_halfcodehack"
+// e.g., "Computer Engineering" + "HalfCode Hack" \u2192 "computer_halfcodehack"
 export const generateCompetitionId = (department: string, title: string): string => {
-    const deptKey = department.toLowerCase().split(' ')[0]; // "Computer Engineering" → "computer"
-    const titleKey = title.toLowerCase().replace(/[^a-z0-9]/g, ''); // "HalfCode Hack" → "halfcodehack"
+    const deptKey = department.toLowerCase().split(' ')[0]; // "Computer Engineering" \u2192 "computer"
+    const titleKey = title.toLowerCase().replace(/[^a-z0-9]/g, ''); // "HalfCode Hack" \u2192 "halfcodehack"
     return `${deptKey}_${titleKey}`;
 };

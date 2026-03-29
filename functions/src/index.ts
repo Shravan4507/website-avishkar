@@ -2,91 +2,126 @@ import * as functions from "firebase-functions/v2";
 import * as admin from "firebase-admin";
 import { defineSecret } from "firebase-functions/params";
 import crypto from "crypto";
-import corsLib from "cors";
+import axios from "axios";
 
 // Initialize admin SDK
 admin.initializeApp();
 
-// Configuration: We'll store these in Firebase Secrets
+// Configuration: Stored in Firebase Secrets
 const MERCH_KEY = defineSecret("EASEBUZZ_MERCHANT_KEY");
 const MERCH_SALT = defineSecret("EASEBUZZ_SALT");
+const SUB_ID = defineSecret("EASEBUZZ_SUBMERCHANT_ID");
 
-// CORS Configuration: Allow your website origin
-const cors = corsLib({ origin: true });
+// Easebuzz API endpoints
+const EASEBUZZ_TEST_URL = "https://testpay.easebuzz.in/payment/initiateLink";
+const EASEBUZZ_PROD_URL = "https://pay.easebuzz.in/payment/initiateLink";
 
 /**
  * Cloud Function to initiate a payment.
- * This function handles the "Handshake" where it generates a secure Hash.
+ * 1. Generates the SHA-512 hash
+ * 2. POSTs to Easebuzz Initiate Payment API
+ * 3. Returns the access_key to the frontend
  */
-export const initiatePayment = functions.https.onRequest({ secrets: [MERCH_KEY, MERCH_SALT] }, async (req, res) => {
-  return cors(req, res, async () => {
-    try {
-      // 1. Get transaction details from the frontend
-      const { 
-        txnid, 
-        amount, 
-        productinfo, 
-        firstname, 
-        email, 
-        phone, 
-        surl, 
-        furl 
-      } = req.body;
+export const initiatePayment = functions.https.onRequest({
+  secrets: [MERCH_KEY, MERCH_SALT, SUB_ID],
+  cors: true
+}, async (req, res): Promise<void> => {
+  try {
+    const {
+      txnid,
+      amount,
+      productinfo,
+      firstname,
+      email,
+      phone,
+      surl,
+      furl
+    } = req.body;
 
-      if (!txnid || !amount || !firstname || !email) {
-        return res.status(400).send({ error: "Missing required fields" });
-      }
+    if (!txnid || !amount || !firstname || !email || !phone || !surl || !furl) {
+      res.status(400).send({ error: "Missing required fields" });
+      return;
+    }
 
-      const key = MERCH_KEY.value();
-      const salt = MERCH_SALT.value();
+    // Sanitize productinfo: Easebuzz rejects special characters
+    const safeProductinfo = (productinfo || "Avishkar26 Registration")
+      .replace(/[^a-zA-Z0-9 _-]/g, "")
+      .trim()
+      .slice(0, 100) || "Avishkar26 Registration";
 
-      // 2. Prepare the Hash based on Easebuzz formula:
-      // sha512(key|txnid|amount|productinfo|firstname|email|udf1|udf2|udf3|udf4|udf5|udf6|udf7|udf8|udf9|udf10|salt)
-      // We use empty strings for UDF fields if not needed.
-      const hashString = `${key}|${txnid}|${amount}|${productinfo}|${firstname}|${email}|||||||||||${salt}`;
-      const hash = crypto.createHash("sha512").update(hashString).digest("hex");
+    const key = MERCH_KEY.value();
+    const salt = MERCH_SALT.value();
+    const submerchant_id = SUB_ID.value();
 
-      // 3. Return the hash and key to the frontend
+    // 1. Generate hash: key|txnid|amount|productinfo|firstname|email|udf1-udf10|salt
+    const hashString = `${key}|${txnid}|${amount}|${safeProductinfo}|${firstname}|${email}|||||||||||${salt}`;
+    const hash = crypto.createHash("sha512").update(hashString).digest("hex");
+
+    // 2. POST to Easebuzz API (form-urlencoded)
+    const formData = new URLSearchParams();
+    formData.append("key", key);
+    formData.append("txnid", txnid);
+    formData.append("amount", amount);
+    formData.append("productinfo", safeProductinfo);
+    formData.append("firstname", firstname);
+    formData.append("email", email);
+    formData.append("phone", phone);
+    formData.append("surl", surl);
+    formData.append("furl", furl);
+    formData.append("hash", hash);
+    formData.append("sub_merchant_id", submerchant_id);
+
+    const easebuzzResponse = await axios.post(EASEBUZZ_PROD_URL, formData.toString(), {
+      headers: { "Content-Type": "application/x-www-form-urlencoded" }
+    });
+
+    const ebData = easebuzzResponse.data;
+
+    // 3. Return access_key to frontend
+    if (ebData.status === 1 && ebData.data) {
       res.json({
         success: true,
-        hash: hash,
-        key: key
+        access_key: ebData.data // This is the access_key for the checkout overlay
       });
-
-    } catch (error) {
-      console.error("Payment initiation error:", error);
-      res.status(500).send({ error: "Failed to initiate payment" });
+    } else {
+      console.error("Easebuzz API Error:", ebData);
+      res.status(400).json({
+        success: false,
+        error: ebData.error_desc || "Easebuzz rejected the transaction"
+      });
     }
-  });
+
+  } catch (error: any) {
+    console.error("Payment initiation error:", error?.response?.data || error);
+    res.status(500).send({ error: "Failed to initiate payment" });
+  }
 });
 
 /**
  * Cloud Function to verify user payment after completion.
- * Easebuzz will call this (or the user will redirect back) with transaction data.
+ * Easebuzz will redirect the user back with transaction data.
  */
-export const verifyPayment = functions.https.onRequest({ secrets: [MERCH_KEY, MERCH_SALT] }, async (req, res) => {
-  return cors(req, res, async () => {
-    try {
-      // Data received back from Easebuzz
-      const data = req.body;
-      const salt = MERCH_SALT.value();
+export const verifyPayment = functions.https.onRequest({
+  secrets: [MERCH_KEY, MERCH_SALT],
+  cors: true
+}, async (req, res): Promise<void> => {
+  try {
+    const data = req.body;
+    const salt = MERCH_SALT.value();
 
-      // Reverse Hash Formula for verification:
-      // sha512(salt|status|udf10|udf9|udf8|udf7|udf6|udf5|udf4|udf3|udf2|udf1|email|firstname|productinfo|amount|txnid|key)
-      const hashString = `${salt}|${data.status}|||||||||||${data.email}|${data.firstname}|${data.productinfo}|${data.amount}|${data.txnid}|${data.key}`;
-      const expectedHash = crypto.createHash("sha512").update(hashString).digest("hex");
+    // Reverse Hash Formula for verification:
+    // sha512(salt|status|udf10-udf1|email|firstname|productinfo|amount|txnid|key)
+    const hashString = `${salt}|${data.status}|||||||||||${data.email}|${data.firstname}|${data.productinfo}|${data.amount}|${data.txnid}|${data.key}`;
+    const expectedHash = crypto.createHash("sha512").update(hashString).digest("hex");
 
-      if (data.hash === expectedHash) {
-        // Payment is authentic!
-        // Here you would update your Firestore database (e.g., set status: "paid")
-        res.json({ success: true, status: data.status });
-      } else {
-        res.status(400).json({ success: false, error: "Hash mismatch" });
-      }
-
-    } catch (error) {
-      console.error("Verification error:", error);
-      res.status(500).send({ error: "Failed to verify transaction" });
+    if (data.hash === expectedHash) {
+      res.json({ success: true, status: data.status });
+    } else {
+      res.status(400).json({ success: false, error: "Hash mismatch" });
     }
-  });
+
+  } catch (error) {
+    console.error("Verification error:", error);
+    res.status(500).send({ error: "Failed to verify transaction" });
+  }
 });

@@ -81,12 +81,15 @@ const CompetitionForm: React.FC<CompetitionFormProps> = ({ adminProfile }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!adminProfile || (
-      !adminProfile.roleLevel.startsWith('department_admin') && 
-      !adminProfile.roleLevel.startsWith('competition_admin') && 
-      !adminProfile.roleLevel.startsWith('core_team') && 
-      adminProfile.roleLevel !== 'superadmin'
-    )) {
+    const roles = adminProfile?.roleLevel || [];
+    const isAuthorized = roles.some(role => 
+      role.startsWith('department_admin') || 
+      role.startsWith('competition_admin') || 
+      role.startsWith('core_team') || 
+      role === 'superadmin'
+    );
+
+    if (!adminProfile || !isAuthorized) {
       error('You do not have permission to post competitions.');
       return;
     }
@@ -135,8 +138,9 @@ const CompetitionForm: React.FC<CompetitionFormProps> = ({ adminProfile }) => {
         async () => {
           const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
           // Extract department from roleLevel: "department_admin-computer engineering" → "Computer Engineering"
-          const adminDept = adminProfile.roleLevel.startsWith('department_admin-') 
-            ? adminProfile.roleLevel.replace('department_admin-', '')
+          const deptRole = adminProfile.roleLevel.find(r => r.startsWith('department_admin-'));
+          const adminDept = deptRole 
+            ? deptRole.replace('department_admin-', '')
             : adminProfile.assignment || 'Unknown';
 
           // Generate deterministic competition ID

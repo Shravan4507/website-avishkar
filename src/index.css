@@ -37,6 +37,11 @@ h1, h2, h3, h4, h5, h6, .brand-font {
   letter-spacing: 1px;
 }
 
+#root {
+  width: 100%;
+  min-height: 100%;
+}
+
 /* Global App Layout Architecture */
 .app-container {
   position: relative;
@@ -49,9 +54,13 @@ h1, h2, h3, h4, h5, h6, .brand-font {
 
 .background-fixed {
   position: fixed;
-  inset: 0;
-  z-index: -10;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
   pointer-events: none;
+  overflow: hidden;
   background: #000;
 }
 
@@ -66,34 +75,6 @@ h1, h2, h3, h4, h5, h6, .brand-font {
 header, footer, nav {
   position: relative;
   z-index: 2;
-}
-
-html::-webkit-scrollbar, body::-webkit-scrollbar {
-  display: none;
-}
-
-#root {
-  width: 100%;
-  min-height: 100%;
-}
-
-.app-container {
-  width: 100%;
-  min-height: 100%;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-}
-
-.background-fixed {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: -1;
-  pointer-events: none;
-  overflow: hidden;
 }
 
 /* Performance & Device Optimization */
@@ -128,7 +109,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 10;
+  z-index: 1;
 }
 
 /* Specific dashboard layout */
@@ -136,7 +117,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar {
   position: relative;
   width: 100%;
   min-height: 100vh;
-  z-index: 10;
+  z-index: 1;
 }
 
 /* Prevent text selection on interactive UI elements */

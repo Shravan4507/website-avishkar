@@ -17,25 +17,30 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  max-width: 100%;
+  width: calc(400px * var(--pass-scale, 1));
+  height: calc(680px * var(--pass-scale, 1));
+  transition: all 0.3s ease;
 }
 
 .virtual-pass-close-btn {
   position: absolute;
-  top: -20px;
-  right: -50px;
-  background: rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(0, 0, 0, 0);
+  top: 30px;
+  right: 30px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   color: #fff;
   border-radius: 50%;
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  z-index: 10;
+  z-index: 100;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
 .virtual-pass-close-btn:active {
@@ -57,6 +62,9 @@
   color: #fff;
   font-family: 'Inter', sans-serif;
   user-select: none;
+  transform: scale(var(--pass-scale, 1));
+  transform-origin: center center;
+  flex-shrink: 0;
 }
 
 /* ── Profile Image Section ── */
@@ -191,48 +199,91 @@
 
 /* ── Responsive ── */
 @media (max-width: 480px) {
-  .virtual-pass-card {
-    width: 330px;
-    height: 560px;
-    border-radius: 32px;
+  :root {
+    --pass-scale: 0.825; /* Scaled to ~330px width */
   }
 
-  .pass-photo-container {
-    width: 145px;
-    height: 145px;
-    top: 160px;
+  /* For very small devices like iPhone SE */
+  @media (max-width: 350px) {
+    :root {
+      --pass-scale: 0.75; /* Scaled to ~300px width */
+    }
   }
 
-  .pass-info-overlay { 
-    top: 315px; 
-    width: 68%;
+  .virtual-pass-modal-overlay {
+    padding: 120px 20px 40px;
+    align-items: flex-start;
+    overflow-y: auto;
   }
-  .pass-name-main { font-size: 1.8rem; }
-  .pass-role-secondary { font-size: 1.1rem; margin-top: 15px; }
-  .pass-validity { margin-top: 20px; font-size: 0.7rem; }
-  
-  .pass-vertical-strip {
-    right: 40px;
-    width: 68px;
-    height: 425px;
-    top: 38px;
-  }
-  .pass-vertical-role-text { font-size: 1.6rem; }
 
-  .pass-footer-qr {
-    bottom: 45px;
-    left: 36px;
-    width: 70px;
-    height: 70px;
-  }
-  .pass-id-number {
-    bottom: 52px;
-    right: 36px;
-    font-size: 1rem;
-  }
-  
   .virtual-pass-close-btn {
-    top: -55px;
-    right: 0;
+    top: 25px;
+    right: 25px;
+    width: 44px;
+    height: 44px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.2);
   }
+}
+
+/* ── QR Expansion Overlay ── */
+.qr-expansion-overlay {
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  background: rgba(0, 0, 0, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: zoom-out;
+}
+
+.qr-expansion-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  position: relative;
+}
+
+.qr-expanded-wrapper {
+  background: #fff;
+  padding: 24px;
+  border-radius: 24px;
+  box-shadow: 0 0 60px rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qr-close-btn {
+  position: absolute;
+  top: -80px;
+  right: 0;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.qr-close-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: rotate(90deg);
+}
+
+.qr-hint {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9rem;
+  letter-spacing: 2px;
+  font-weight: 600;
+  text-transform: uppercase;
 }

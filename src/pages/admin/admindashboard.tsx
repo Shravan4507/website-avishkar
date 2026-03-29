@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
+import { useNavigate } from 'react-router-dom';
 import { 
   collection, getCountFromServer, query, getDocs, 
   orderBy, doc, getDoc, where, updateDoc, setDoc, deleteDoc
@@ -7,61 +8,19 @@ import {
 import { auth, db } from '../../firebase/firebase';
 import { useToast } from '../../components/toast/Toast';
 import AdminSidebar from '../../components/dashboard/sidebar/AdminSidebar';
-import CompetitionForm from '../../components/admin/CompetitionForm';
+import RegistrationManager from '../../components/admin/RegistrationManager';
 import NotificationBell from '../../components/notifications/NotificationBell';
 
 import { 
   Users, Ticket, Download, Wrench, Shield,
-  Edit2, Trash2, X, Search, ChevronUp, ChevronDown,
-  Phone, Mail, School, BookOpen, Fingerprint, RefreshCw
+  Trash2, Search, Phone, Mail, School, BookOpen, Fingerprint, RefreshCw, IndianRupee
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import GlassSelect from '../../components/dropdown/GlassSelect';
-// Removed usePageSettings
 import './admindashboard.css';
 
-interface Registration {
-  id: string;
-  userName: string;
-  userEmail: string;
-  userAVR: string;
-  userPhone: string;
-  userCollege: string;
-  userMajor: string;
-  userAge: number;
-  userSex: string;
-  userId: string;
-  eventName: string;
-  competitionId: string;
-  category: string;
-  department: string;
-  registeredAt: any;
-  isAttended: boolean;
-}
 
-interface HackathonRegistration {
-  id: string;
-  teamName: string;
-  psId: string;
-  leaderName: string;
-  leaderEmail: string;
-  leaderPhone: string;
-  leaderCollege: string;
-  member2Name: string;
-  member2Email: string;
-  member2Phone: string;
-  member2College: string;
-  member3Name: string;
-  member3Email: string;
-  member3Phone: string;
-  member3College: string;
-  member4Name: string;
-  member4Email: string;
-  member4Phone: string;
-  member4College: string;
-  status: string;
-  createdAt: any;
-}
+
 
 interface StallBooking {
   id: string;
@@ -74,6 +33,29 @@ interface StallBooking {
   message: string;
   status: 'pending' | 'approved' | 'rejected' | 'contacted';
   createdAt: any;
+}
+
+interface ContactQuery {
+  id: string;
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  status: 'pending' | 'resolved' | 'contacted';
+  createdAt: any;
+}
+
+interface BugReport {
+  id: string;
+  url: string;
+  userAgent: string;
+  description: string;
+  timestamp: any;
+  status: 'open' | 'fixing' | 'resolved';
+  userData?: {
+    email: string;
+    uid: string;
+  };
 }
 
 // Department options for admin assignment
@@ -93,6 +75,16 @@ const FLAGSHIP_OPTIONS = [
   { value: 'battlegrid--26', label: "Battle Grid '26" }
 ];
 
+const SCANNER_ROLE_OPTIONS = [
+  { value: 'gate', label: 'Gate Entry Scanner' },
+  { value: 'param-x', label: 'Param-X Scanner' },
+  { value: 'battle-grid', label: 'Battle Grid Scanner' },
+  { value: 'robo-kshetra', label: 'Robo-Kshetra Scanner' },
+  { value: 'forge-x', label: 'Forge-X Scanner' },
+  { value: 'algo-bid', label: 'Algo-Bid Scanner' },
+  { value: 'code-ladder', label: 'Code-Ladder Scanner' }
+];
+
 export interface AdminProfile {
   id: string;
   firstName: string;
@@ -100,7 +92,7 @@ export interface AdminProfile {
   email: string;
   avrAdmId: string;     // AVR-ADM-0001 format
   type: string;         // Legacy compatibility
-  roleLevel: string;    // e.g., "department_admin-computer engineering", "superadmin", "core_team-registration team"
+  roleLevel: string[];  // e.g., ["admin-param-x", "admin-battle-grid"]
   assignment: string;   // Legacy fallback
   team?: string; // Legacy
 }
@@ -108,26 +100,25 @@ export interface AdminProfile {
 interface AdminStats {
   totalParticipants: number | null;
   totalRegistrations: number | null;
+  totalRevenue: number | null;
 }
 
 const AdminDashboard: React.FC = () => {
   const [user] = useAuthState(auth);
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
   const [isSuper, setIsSuper] = useState(false);
   const [adminProfile, setAdminProfile] = useState<AdminProfile | null>(null);
   
   const [stats, setStats] = useState<AdminStats>({ 
     totalParticipants: null,
-    totalRegistrations: null 
+    totalRegistrations: null,
+    totalRevenue: null
   });
-  const [registrations, setRegistrations] = useState<Registration[]>([]);
-  const [loadingRegs, setLoadingRegs] = useState(false);
-  
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [editingReg, setEditingReg] = useState<Registration | null>(null);
-  const [savingReg, setSavingReg] = useState(false);
+
 
   const [volunteerAvrId, setVolunteerAvrId] = useState('');
+  const [scannerRole, setScannerRole] = useState(SCANNER_ROLE_OPTIONS[0].value);
   const [assigningLoading, setAssigningLoading] = useState(false);
 
   const [adminAvrId, setAdminAvrId] = useState('');
@@ -136,17 +127,39 @@ const AdminDashboard: React.FC = () => {
   const [adminCoreTeam, setAdminCoreTeam] = useState(CORE_TEAM_OPTIONS[0]);
   const [adminFlagship, setAdminFlagship] = useState(FLAGSHIP_OPTIONS[0].value);
   const [promotingLoading, setPromotingLoading] = useState(false);
+
+  // Helper for auto-formatting AVR-ID: AVR-XXX-0000
+  const handleAvrIdChange = (val: string, setter: (v: string) => void) => {
+    let raw = val.toUpperCase();
+    if (!raw.startsWith("AVR-")) {
+      raw = "AVR-" + raw.replace(/^AVR-?/i, "");
+    }
+    
+    // Structure: AVR-[3 letters]-[4 numbers]
+    const content = raw.slice(4).replace(/[^A-Z0-9]/g, "");
+    let letters = content.slice(0, 3).replace(/[0-9]/g, "");
+    let numbers = content.slice(letters.length).replace(/[A-Z]/g, "").slice(0, 4);
+    
+    let formatted = "AVR-" + letters;
+    if (letters.length === 3) {
+      formatted += (numbers.length > 0 ? "-" + numbers : "");
+    }
+    setter(formatted);
+  };
   const [syncingLoading, setSyncingLoading] = useState(false);
   
   const [stallBookings, setStallBookings] = useState<StallBooking[]>([]);
   const [loadingStalls, setLoadingStalls] = useState(false);
   
-  // Advanced Filtering & Sorting State
-  const [filterTerm, setFilterTerm] = useState('');
-  const [filterEvent, setFilterEvent] = useState('All');
-  const [filterDept, setFilterDept] = useState('All');
-  const [filterCollege, setFilterCollege] = useState('All');
-  const [sortConfig, setSortConfig] = useState<{ key: keyof Registration; direction: 'asc' | 'desc' }>({ key: 'registeredAt', direction: 'desc' });
+  const [contactQueries, setContactQueries] = useState<ContactQuery[]>([]);
+  const [loadingContact, setLoadingContact] = useState(false);
+  
+  const [bugReports, setBugReports] = useState<BugReport[]>([]);
+  const [loadingBugs, setLoadingBugs] = useState(false);
+  
+  const [supportSubTab, setSupportSubTab] = useState<'contact' | 'bugs'>('contact');
+  
+
   
   const toast = useToast();
 
@@ -158,26 +171,29 @@ const AdminDashboard: React.FC = () => {
         const adminSnap = await getDoc(adminRef);
         if (adminSnap.exists()) {
           const data = adminSnap.data();
-          let updates: any = {};
-          
-          // Sync photoURL from Google login to Firestore for directory view
+          const updates: any = {};
+
           if (user.photoURL && data.photoURL !== user.photoURL) {
             updates.photoURL = user.photoURL;
           }
 
-          // Auto-assign avrAdmId if missing
           if (!data.avrAdmId) {
             try {
               const counterRef = doc(db, 'counters', 'admin_counter');
               const counterSnap = await getDoc(counterRef);
               const nextAdmNum = (counterSnap.exists() ? (counterSnap.data().count || 0) : 0) + 1;
               const avrAdmId = `AVR-ADM-${String(nextAdmNum).padStart(4, '0')}`;
-              
               updates.avrAdmId = avrAdmId;
               await setDoc(counterRef, { count: nextAdmNum }, { merge: true });
-              toast.success(`Welcome! Your Admin ID ${avrAdmId} has been assigned.`);
             } catch (err) {
               console.error("Error auto-assigning Admin ID:", err);
+            }
+          }
+
+          if (data.type === 'superadmin') {
+            const currentRoles = Array.isArray(data.roleLevel) ? data.roleLevel : (data.roleLevel ? [data.roleLevel] : []);
+            if (!currentRoles.includes('superadmin')) {
+              updates.roleLevel = [...currentRoles, 'superadmin'];
             }
           }
 
@@ -185,9 +201,23 @@ const AdminDashboard: React.FC = () => {
             await updateDoc(adminRef, updates);
           }
 
-          const finalData = { ...data, ...updates };
-          setIsSuper(finalData.type === 'superadmin' || finalData.roleLevel === 'superadmin');
-          setAdminProfile({ id: adminSnap.id, ...finalData } as AdminProfile);
+          const roles = Array.isArray(data.roleLevel) 
+            ? data.roleLevel.map((r: string) => r.toLowerCase()) 
+            : (data.roleLevel ? [data.roleLevel.toLowerCase()] : []);
+
+          const localProfile: AdminProfile = {
+            id: adminSnap.id,
+            firstName: data.firstName || '',
+            lastName: data.lastName || '',
+            email: data.email || '',
+            avrAdmId: data.avrAdmId || updates.avrAdmId || 'ASSIGNING...',
+            type: data.type || 'admin',
+            roleLevel: roles,
+            assignment: data.assignment || ''
+          };
+
+          setIsSuper(localProfile.type === 'superadmin' || localProfile.roleLevel.includes('superadmin'));
+          setAdminProfile(localProfile);
         }
       } catch (err) {
         console.error("Error checking admin rank:", err);
@@ -197,72 +227,35 @@ const AdminDashboard: React.FC = () => {
 
     const fetchStats = async () => {
       try {
-        const usersSnap = await getCountFromServer(collection(db, "user"));
-        const regsSnap = await getCountFromServer(collection(db, "registrations"));
+        const [usersSnap, regsSnap, hackSnap] = await Promise.all([
+          getCountFromServer(collection(db, "user")),
+          getCountFromServer(collection(db, "registrations")),
+          getCountFromServer(collection(db, "hackathon_registrations"))
+        ]);
+
+        let revenue = 0;
+        const [regsDocs, hackDocs] = await Promise.all([
+          getDocs(query(collection(db, "registrations"), where("paymentStatus", "in", ["success", "paid"]))),
+          getDocs(query(collection(db, "hackathon_registrations"), where("status", "==", "confirmed")))
+        ]);
+        
+        regsDocs.forEach(d => revenue += (d.data().amountPaid || 0));
+        hackDocs.forEach(d => revenue += (d.data().amountPaid || d.data().amount || 0));
         
         setStats({ 
           totalParticipants: usersSnap.data().count,
-          totalRegistrations: regsSnap.data().count
+          totalRegistrations: regsSnap.data().count + hackSnap.data().count,
+          totalRevenue: revenue
         });
       } catch (err) {
-        setStats({ totalParticipants: 0, totalRegistrations: 0 });
+        console.error("Error fetching stats:", err);
+        setStats({ totalParticipants: 0, totalRegistrations: 0, totalRevenue: 0 });
       }
     };
     fetchStats();
   }, [user]);
 
-  useEffect(() => {
-    const fetchRegistrations = async () => {
-      if (activeTab === 'registrations') {
-        // Wait until profile is loaded
-        if (!isSuper && !adminProfile) return;
-        
-        setLoadingRegs(true);
-        try {
-          let q;
-          
-          // Superadmin or Core Registration Team see everything
-          if (isSuper || adminProfile?.roleLevel === 'superadmin' || adminProfile?.roleLevel === 'core_team-registration team') {
-            q = query(collection(db, "registrations"), orderBy("registeredAt", "desc"));
-          } 
-          // Department Admins: roleLevel = "department_admin-computer engineering"
-          else if (adminProfile?.roleLevel.startsWith('department_admin-')) {
-            const dept = adminProfile.roleLevel.replace('department_admin-', '');
-            q = query(
-              collection(db, "registrations"), 
-              where("department", "==", dept),
-              orderBy("registeredAt", "desc")
-            );
-          }
-          // Competition Admins: roleLevel = "competition_admin-codex--26"
-          else if (adminProfile?.roleLevel.startsWith('competition_admin-')) {
-            const compId = adminProfile.roleLevel.replace('competition_admin-', '');
-            q = query(
-              collection(db, "registrations"), 
-              where("competitionId", "==", compId),
-              orderBy("registeredAt", "desc")
-            );
-          }
-          else {
-            // Other roles don't have access to list registrations
-            setRegistrations([]);
-            setLoadingRegs(false);
-            return;
-          }
 
-          const snap = await getDocs(q);
-          const fetched = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as Registration));
-          setRegistrations(fetched);
-        } catch (err) {
-          console.error("Error fetching registrations:", err);
-        } finally {
-          setLoadingRegs(false);
-        }
-      }
-    };
-    
-    fetchRegistrations();
-  }, [isSuper, adminProfile, activeTab]);
 
   useEffect(() => {
     const fetchStalls = async () => {
@@ -279,61 +272,43 @@ const AdminDashboard: React.FC = () => {
         }
       }
     };
-    fetchStalls();
-  }, [isSuper, activeTab]);
 
-  // Derived filtered and sorted registrations
-  const filteredRegs = React.useMemo(() => {
-    let result = [...registrations];
-
-    // Apply Filter Term (Search)
-    if (filterTerm.trim()) {
-      const term = filterTerm.toLowerCase();
-      result = result.filter(reg => 
-        reg.userName.toLowerCase().includes(term) || 
-        reg.userEmail.toLowerCase().includes(term) || 
-        reg.userAVR.toLowerCase().includes(term)
-      );
-    }
-
-    // Apply Event Filter
-    if (filterEvent !== 'All') {
-      result = result.filter(reg => reg.eventName === filterEvent);
-    }
-
-    // Apply Dept Filter
-    if (filterDept !== 'All') {
-      result = result.filter(reg => reg.department === filterDept);
-    }
-
-    // Apply College Filter
-    if (filterCollege !== 'All') {
-      result = result.filter(reg => reg.userCollege === filterCollege);
-    }
-
-    // Apply Sorting
-    result.sort((a, b) => {
-      let aVal = a[sortConfig.key];
-      let bVal = b[sortConfig.key];
-
-      // Handle serverTimestamp (registeredAt)
-      if (sortConfig.key === 'registeredAt') {
-        aVal = a.registeredAt?.toDate ? a.registeredAt.toDate().getTime() : (a.registeredAt || 0);
-        bVal = b.registeredAt?.toDate ? b.registeredAt.toDate().getTime() : (b.registeredAt || 0);
+    const fetchContactQueries = async () => {
+      if (activeTab === 'support' && supportSubTab === 'contact' && isSuper) {
+        setLoadingContact(true);
+        try {
+          const q = query(collection(db, "contact_queries"), orderBy("createdAt", "desc"));
+          const snap = await getDocs(q);
+          setContactQueries(snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as ContactQuery)));
+        } catch (err) {
+          console.error("Error fetching contact queries:", err);
+        } finally {
+          setLoadingContact(false);
+        }
       }
+    };
 
-      if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
-      if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1;
-      return 0;
-    });
+    const fetchBugReports = async () => {
+      if (activeTab === 'support' && supportSubTab === 'bugs' && isSuper) {
+        setLoadingBugs(true);
+        try {
+          const q = query(collection(db, "bug_reports"), orderBy("timestamp", "desc"));
+          const snap = await getDocs(q);
+          setBugReports(snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as BugReport)));
+        } catch (err) {
+          console.error("Error fetching bug reports:", err);
+        } finally {
+          setLoadingBugs(false);
+        }
+      }
+    };
 
-    return result;
-  }, [registrations, filterTerm, filterEvent, filterDept, filterCollege, sortConfig]);
+    fetchStalls();
+    fetchContactQueries();
+    fetchBugReports();
+  }, [isSuper, activeTab, supportSubTab]);
 
-  // Extract unique filter options for dropdowns
-  const uniqueEvents = React.useMemo(() => ['All', ...new Set(registrations.map(r => r.eventName))], [registrations]);
-  const uniqueDepts = React.useMemo(() => ['All', ...new Set(registrations.map(r => r.department))], [registrations]);
-  const uniqueColleges = React.useMemo(() => ['All', ...new Set(registrations.map(r => r.userCollege))], [registrations]);
+
 
   const handleAssignVolunteer = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -351,8 +326,11 @@ const AdminDashboard: React.FC = () => {
       }
       
       const userDoc = snap.docs[0];
-      await updateDoc(doc(db, "user", userDoc.id), { role: 'volunteer' });
-      toast.success(`${userDoc.data().firstName} is now a Volunteer!`);
+      await updateDoc(doc(db, "user", userDoc.id), { 
+        role: 'volunteer',
+        scannerRole: scannerRole // e.g. 'gate', 'param-x'
+      });
+      toast.success(`${userDoc.data().firstName} is now a ${scannerRole.toUpperCase()} Volunteer!`);
       setVolunteerAvrId('');
     } catch (err) {
       console.error(err);
@@ -411,7 +389,7 @@ const AdminDashboard: React.FC = () => {
         lastName: userData.lastName,
         email: userData.email,
         avrAdmId: avrAdmId,
-        roleLevel: compositeRole,
+        roleLevel: [compositeRole],
         assignment: compositeRole, // Legacy fallback
         type: adminRoleType === 'superadmin' ? 'superadmin' : 'admin'
       });
@@ -432,36 +410,7 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  const handleExportExcel = () => {
-    if (filteredRegs.length === 0) {
-      toast.error("No registrations to export!");
-      return;
-    }
-    
-    const exportData = filteredRegs.map(reg => ({
-      "Registration ID": reg.id,
-      "Name": reg.userName,
-      "Email": reg.userEmail,
-      "AVR ID": reg.userAVR,
-      "Phone": reg.userPhone || 'N/A',
-      "Age": reg.userAge || 'N/A',
-      "College": reg.userCollege || 'N/A',
-      "Major": reg.userMajor || 'N/A',
-      "Sex": reg.userSex || 'N/A',
-      "Event Name": reg.eventName,
-      "Department": reg.department || 'General',
-      "Category": reg.category,
-      "Attendance": reg.isAttended ? 'Yes' : 'No',
-      "Registered At": reg.registeredAt?.toDate ? reg.registeredAt.toDate().toLocaleString() : reg.registeredAt
-    }));
 
-    const worksheet = XLSX.utils.json_to_sheet(exportData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Registrations");
-    
-    const scope = adminProfile?.roleLevel === 'superadmin' ? 'Global' : (adminProfile?.assignment || 'Scope');
-    XLSX.writeFile(workbook, `Avishkar26_Registrations_${scope.replace(/\s+/g, '_')}_Filtered.xlsx`);
-  };
 
   const handleExportStallExcel = () => {
     if (stallBookings.length === 0) {
@@ -508,41 +457,72 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  const handleDeleteReg = async (id: string) => {
-    if (!window.confirm("Are you sure you want to completely delete this registration? This cannot be undone.")) return;
+  // --- CONTACT QUERY HANDLERS ---
+  const handleExportContactExcel = () => {
+    if (contactQueries.length === 0) {
+      toast.error("No queries to export!");
+      return;
+    }
+    
+    const exportData = contactQueries.map(q => ({
+      "Name": q.name,
+      "Email": q.email,
+      "Subject": q.subject,
+      "Message": q.message,
+      "Status": q.status || 'pending',
+      "Submitted At": q.createdAt?.toDate ? q.createdAt.toDate().toLocaleString() : 'N/A'
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Contact_Inquiries");
+    XLSX.writeFile(workbook, `Avishkar26_Contact_Queries_${new Date().toLocaleDateString()}.xlsx`);
+  };
+
+  const handleDeleteContact = async (id: string) => {
+    if (!window.confirm("Delete this contact inquiry?")) return;
     try {
-      await deleteDoc(doc(db, "registrations", id));
-      setRegistrations(prev => prev.filter(r => r.id !== id));
-      toast.success("Registration deleted.");
+      await deleteDoc(doc(db, "contact_queries", id));
+      setContactQueries(prev => prev.filter(q => q.id !== id));
+      toast.success("Inquiry deleted.");
     } catch (err) {
-      console.error(err);
-      toast.error("Failed to delete registration.");
+      toast.error("Failed to delete inquiry.");
     }
   };
 
-  const handleSaveEdit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingReg) return;
-    setSavingReg(true);
+  const handleUpdateContactStatus = async (id: string, newStatus: string) => {
     try {
-      const regRef = doc(db, "registrations", editingReg.id);
-      await updateDoc(regRef, {
-        userName: editingReg.userName,
-        userEmail: editingReg.userEmail,
-        eventName: editingReg.eventName,
-        category: editingReg.category
-      });
-      setRegistrations(prev => prev.map(r => r.id === editingReg.id ? {...editingReg} : r));
-      toast.success("Registration updated successfully!");
-      setIsEditModalOpen(false);
-      setEditingReg(null);
+      await updateDoc(doc(db, "contact_queries", id), { status: newStatus });
+      setContactQueries(prev => prev.map(q => q.id === id ? { ...q, status: newStatus as any } : q));
+      toast.success(`Inquiry marked as ${newStatus}`);
     } catch (err) {
-      console.error(err);
-      toast.error("Failed to save changes.");
-    } finally {
-      setSavingReg(false);
+      toast.error("Failed to update status.");
     }
   };
+
+  // --- BUG REPORT HANDLERS ---
+  const handleDeleteBug = async (id: string) => {
+    if (!window.confirm("Delete this bug report?")) return;
+    try {
+      await deleteDoc(doc(db, "bug_reports", id));
+      setBugReports(prev => prev.filter(b => b.id !== id));
+      toast.success("Report deleted.");
+    } catch (err) {
+      toast.error("Failed to delete report.");
+    }
+  };
+
+  const handleUpdateBugStatus = async (id: string, newStatus: string) => {
+    try {
+      await updateDoc(doc(db, "bug_reports", id), { status: newStatus });
+      setBugReports(prev => prev.map(b => b.id === id ? { ...b, status: newStatus as any } : b));
+      toast.success(`Report marked as ${newStatus}`);
+    } catch (err) {
+      toast.error("Failed to update status.");
+    }
+  };
+
+
 
   const handleSyncRegistrations = async () => {
     if (!isSuper || syncingLoading) return;
@@ -596,11 +576,7 @@ const AdminDashboard: React.FC = () => {
       }
 
       toast.success(`Successfully synced ${syncCount} registration records!`);
-      // Refresh local state if in registrations tab
-      if (activeTab === 'registrations') {
-        const freshSnap = await getDocs(collection(db, "registrations"));
-        setRegistrations(freshSnap.docs.map(d => ({ id: d.id, ...d.data() } as Registration)));
-      }
+
     } catch (err) {
       console.error("Sync Error:", err);
       toast.error("An error occurred during sync.");
@@ -659,6 +635,18 @@ const AdminDashboard: React.FC = () => {
                   <div className="stat-value-big">{stats.totalRegistrations}</div>
                 )}
               </div>
+
+              <div className="admin-stat-premium">
+                <div className="stat-label-row">
+                  <IndianRupee size={20} color="#a78bfa" />
+                  <span>Total Revenue</span>
+                </div>
+                {stats.totalRevenue === null ? (
+                  <div className="stat-value-big">...</div>
+                ) : (
+                  <div className="stat-value-big">₹{stats.totalRevenue.toLocaleString()}</div>
+                )}
+              </div>
             </div>
             
             {isSuper && (
@@ -678,6 +666,13 @@ const AdminDashboard: React.FC = () => {
                         <RefreshCw size={18} className={syncingLoading ? 'animate-spin' : ''} />
                         {syncingLoading ? 'Syncing...' : 'Sync Data'}
                       </button>
+                      <button 
+                        onClick={() => navigate('/user/scanner')} 
+                        className="user-edit-profile-btn"
+                        style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: 'rgba(52, 211, 153, 0.1)', borderColor: 'rgba(52, 211, 153, 0.3)', color: '#34d399' }}
+                      >
+                         📸 Launch Scanner
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -689,19 +684,26 @@ const AdminDashboard: React.FC = () => {
                   <h3 style={{ color: '#fff', marginBottom: '16px', fontSize: '1.2rem' }}>Role Assignment (Volunteers)</h3>
                   <form onSubmit={handleAssignVolunteer} className="whitelist-form">
                     <div className="form-group">
-                      <label style={{ color: 'rgba(255,255,255,0.7)', marginBottom: '8px', display: 'block', fontSize: '0.9rem', fontWeight: 600 }}>Assign Scan Capabilities by AVR-ID</label>
-                      <div className="input-with-btn" style={{ display: 'flex', gap: '12px' }}>
+                      <label style={{ color: 'rgba(255,255,255,0.7)', marginBottom: '8px', display: 'block', fontSize: '0.9rem', fontWeight: 600 }}>Assign Scanner Role by AVR-ID</label>
+                      <div className="input-with-btn" style={{ display: 'flex', gap: '12px', marginBottom: '1rem' }}>
                         <input 
                           type="text" 
                           placeholder="e.g. AVR-SHR-0001" 
                           value={volunteerAvrId}
-                          onChange={(e) => setVolunteerAvrId(e.target.value)}
-                          style={{ width: '100%', padding: '14px 16px', borderRadius: '12px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(167, 139, 250, 0.3)', color: '#fff', outline: 'none', fontFamily: 'inherit', fontSize: '0.95rem' }}
+                          onChange={(e) => handleAvrIdChange(e.target.value, setVolunteerAvrId)}
+                          style={{ flex: 1, padding: '14px 16px', borderRadius: '12px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(167, 139, 250, 0.3)', color: '#fff', outline: 'none', fontFamily: 'inherit', fontSize: '0.95rem' }}
                         />
-                        <button type="submit" disabled={assigningLoading} style={{ background: '#a78bfa', color: '#000', padding: '14px 24px', fontWeight: 'bold', fontSize: '1rem', borderRadius: '12px', border: 'none', cursor: assigningLoading ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap' }}>
-                          {assigningLoading ? 'Searching...' : 'Make Volunteer'}
-                        </button>
+                        <div style={{ width: '250px' }}>
+                          <GlassSelect 
+                            value={scannerRole}
+                            onChange={(val: string) => setScannerRole(val)}
+                            options={SCANNER_ROLE_OPTIONS}
+                          />
+                        </div>
                       </div>
+                      <button type="submit" disabled={assigningLoading} className="user-save-btn" style={{ width: '100%', padding: '14px', borderRadius: '12px' }}>
+                        {assigningLoading ? 'Searching...' : 'Assign Scanner Role'}
+                      </button>
                     </div>
                   </form>
                 </div>
@@ -715,7 +717,7 @@ const AdminDashboard: React.FC = () => {
                         type="text" 
                         placeholder="e.g. AVR-SHR-0001" 
                         value={adminAvrId}
-                        onChange={(e) => setAdminAvrId(e.target.value)}
+                        onChange={(e) => handleAvrIdChange(e.target.value, setAdminAvrId)}
                         style={{ width: '100%', padding: '14px 16px', borderRadius: '12px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(167, 139, 250, 0.3)', color: '#fff', outline: 'none', fontFamily: 'inherit', fontSize: '0.95rem' }}
                       />
                     </div>
@@ -773,23 +775,6 @@ const AdminDashboard: React.FC = () => {
                 </form>
               </div>
               </React.Fragment>
-            )}
-          </div>
-        );
-      case 'content':
-        return (
-          <div className="admin-overview">
-            <h2 style={{ color: '#fff', marginBottom: '24px' }}>Content Editor</h2>
-            {isSuper || adminProfile?.roleLevel.startsWith('department_admin') || 
-             adminProfile?.roleLevel.startsWith('competition_admin') || 
-             adminProfile?.roleLevel.startsWith('core_team') ? (
-              <CompetitionForm adminProfile={adminProfile} />
-            ) : (
-              <div className="admin-form-card" style={{ background: 'rgba(255,255,255,0.02)', padding: '3rem', borderRadius: '24px', textAlign: 'center', border: '1px dashed rgba(255,255,255,0.1)' }}>
-                <Wrench size={48} color="rgba(255,255,255,0.2)" style={{ margin: '0 auto 1rem auto' }} />
-                <h3 style={{ color: 'rgba(255,255,255,0.8)' }}>Other Content</h3>
-                <p style={{ color: 'rgba(255,255,255,0.4)', marginTop: '0.5rem' }}>Other website structures are managed here by specific teams.</p>
-              </div>
             )}
           </div>
         );
@@ -880,193 +865,209 @@ const AdminDashboard: React.FC = () => {
         );
       case 'support':
         return (
-          <div className="admin-overview">
-            <h2 style={{ color: '#fff', marginBottom: '24px' }}>Support Tickets</h2>
-            <div className="admin-form-card" style={{ background: 'rgba(255,255,255,0.02)', padding: '3rem', borderRadius: '24px', textAlign: 'center', border: '1px dashed rgba(255,255,255,0.1)' }}>
-              <Users size={48} color="rgba(255,255,255,0.2)" style={{ margin: '0 auto 1rem auto' }} />
-              <h3 style={{ color: 'rgba(255,255,255,0.8)' }}>Coming Soon</h3>
-              <p style={{ color: 'rgba(255,255,255,0.4)', marginTop: '0.5rem' }}>Contact page queries and support tickets will map to this team.</p>
-            </div>
-          </div>
-        );
-      case 'registrations':
-        return (
           <div className="tab-content animate-in">
-            <div className="tab-header-flex" style={{ marginBottom: '24px' }}>
+            <div className="tab-header-flex">
               <div>
-                <h1 className="tab-title">Competition Entries</h1>
-                <p className="tab-subtitle">Manage and filter participant registrations</p>
+                <h1 className="tab-title">Support & Feedback</h1>
+                <p className="tab-subtitle">Manage user inquiries and technical bug reports</p>
               </div>
-              <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-                <button onClick={handleExportExcel} className="admin-action-btn" style={{ padding: '10px 20px' }}>
-                  <Download size={18} /> Export Filtered
-                </button>
-              </div>
-            </div>
-
-            {/* Filter Bar */}
-            <div className="filter-bar" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '32px', padding: '20px', background: 'rgba(255,255,255,0.02)', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.05)' }}>
-              <div className="filter-group">
-                <label style={{ display: 'block', fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)', marginBottom: '8px', textTransform: 'uppercase' }}>Search</label>
-                <div style={{ position: 'relative' }}>
-                  <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.3)' }} />
-                  <input 
-                    type="text" 
-                    placeholder="Name, Email or AVR-ID"
-                    value={filterTerm}
-                    onChange={(e) => setFilterTerm(e.target.value)}
-                    style={{ width: '100%', padding: '10px 12px 10px 36px', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', color: '#fff' }}
-                  />
-                </div>
-              </div>
-              <div className="filter-group">
-                <label style={{ display: 'block', fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)', marginBottom: '8px', textTransform: 'uppercase' }}>Event</label>
-                <GlassSelect 
-                  value={filterEvent}
-                  onChange={(val: string) => setFilterEvent(val)}
-                  options={uniqueEvents.map(e => ({ label: e, value: e }))}
-                />
-              </div>
-              <div className="filter-group">
-                <label style={{ display: 'block', fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)', marginBottom: '8px', textTransform: 'uppercase' }}>Department</label>
-                <GlassSelect 
-                  value={filterDept}
-                  onChange={(val: string) => setFilterDept(val)}
-                  options={uniqueDepts.map(d => ({ label: d, value: d }))}
-                />
-              </div>
-              <div className="filter-group">
-                <label style={{ display: 'block', fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)', marginBottom: '8px', textTransform: 'uppercase' }}>College</label>
-                <GlassSelect 
-                  value={filterCollege}
-                  onChange={(val: string) => setFilterCollege(val)}
-                  options={uniqueColleges.map(c => ({ label: c, value: c }))}
-                />
-              </div>
-            </div>
-            <div className="premium-table-container">
-              <table className="admin-data-table" style={{ minWidth: '800px' }}>
-                <thead>
-                  <tr>
-                    <th onClick={() => setSortConfig({ key: 'userName', direction: sortConfig.key === 'userName' && sortConfig.direction === 'asc' ? 'desc' : 'asc' })} style={{ cursor: 'pointer' }}>
-                      Participant {sortConfig.key === 'userName' && (sortConfig.direction === 'asc' ? <ChevronUp size={14} /> : <ChevronDown size={14} />)}
-                    </th>
-                    <th onClick={() => setSortConfig({ key: 'userAVR', direction: sortConfig.key === 'userAVR' && sortConfig.direction === 'asc' ? 'desc' : 'asc' })} style={{ cursor: 'pointer' }}>
-                      AVR ID {sortConfig.key === 'userAVR' && (sortConfig.direction === 'asc' ? <ChevronUp size={14} /> : <ChevronDown size={14} />)}
-                    </th>
-                    <th>Email</th>
-                    <th onClick={() => setSortConfig({ key: 'eventName', direction: sortConfig.key === 'eventName' && sortConfig.direction === 'asc' ? 'desc' : 'asc' })} style={{ cursor: 'pointer' }}>
-                      Event {sortConfig.key === 'eventName' && (sortConfig.direction === 'asc' ? <ChevronUp size={14} /> : <ChevronDown size={14} />)}
-                    </th>
-                    <th>Category</th>
-                    <th>College</th>
-                    <th style={{ textAlign: 'center' }}>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {loadingRegs ? <tr><td colSpan={7} style={{ textAlign: 'center' }}>Loading registrations...</td></tr> : 
-                   filteredRegs.length === 0 ? <tr><td colSpan={7} style={{ textAlign: 'center', opacity: 0.5 }}>No registrations found.</td></tr> :
-                   filteredRegs.map(reg => (
-                    <tr key={reg.id}>
-                      <td>{reg.userName}</td>
-                      <td className="avr-id-cell">{reg.userAVR}</td>
-                      <td>{reg.userEmail}</td>
-                      <td className="event-name-cell">{reg.eventName}</td>
-                      <td><span className="category-pill">{reg.category}</span></td>
-                      <td>{reg.userCollege || 'N/A'}</td>
-                      <td>
-                        <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                          <button 
-                            onClick={() => { setEditingReg({...reg}); setIsEditModalOpen(true); }}
-                            style={{ background: 'rgba(167, 139, 250, 0.1)', border: 'none', color: '#a78bfa', padding: '8px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
-                            title="Edit"
-                          >
-                            <Edit2 size={16} />
-                          </button>
-                          <button 
-                            onClick={() => handleDeleteReg(reg.id)}
-                            style={{ background: 'rgba(255, 68, 68, 0.1)', border: 'none', color: '#ff4444', padding: '8px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
-                            title="Delete"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                   ))
-                  }
-                </tbody>
-              </table>
-            </div>
-
-            {/* Edit Modal */}
-            {isEditModalOpen && editingReg && (
-              <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(10px)' }}>
-                <div className="admin-form-card" style={{ width: '100%', maxWidth: '500px', background: 'rgba(20,20,30,0.9)', border: '1px solid rgba(167, 139, 250, 0.3)', borderRadius: '24px', padding: '32px', position: 'relative' }}>
-                  <button onClick={() => { setIsEditModalOpen(false); setEditingReg(null); }} style={{ position: 'absolute', top: '24px', right: '24px', background: 'transparent', border: 'none', color: '#fff', cursor: 'pointer' }}>
-                    <X size={24} />
+              {supportSubTab === 'contact' && (
+                <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                  <button onClick={handleExportContactExcel} className="admin-action-btn" style={{ padding: '10px 20px' }}>
+                    <Download size={18} /> Export Queries
                   </button>
-                  <h3 style={{ color: '#fff', fontSize: '1.5rem', marginBottom: '24px' }}>Edit Registration</h3>
-                  
-                  <form onSubmit={handleSaveEdit} className="whitelist-form">
-                    <div className="form-group" style={{ marginBottom: '16px' }}>
-                      <label style={{ color: 'rgba(255,255,255,0.7)', marginBottom: '8px', display: 'block', fontSize: '0.9rem', fontWeight: 600 }}>Participant Name</label>
-                      <input 
-                        type="text" 
-                        value={editingReg.userName}
-                        onChange={(e) => setEditingReg({...editingReg, userName: e.target.value})}
-                        style={{ width: '100%', padding: '14px 16px', borderRadius: '12px', background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', outline: 'none', fontFamily: 'inherit' }}
-                        required
-                      />
-                    </div>
-                    <div className="form-group" style={{ marginBottom: '16px' }}>
-                      <label style={{ color: 'rgba(255,255,255,0.7)', marginBottom: '8px', display: 'block', fontSize: '0.9rem', fontWeight: 600 }}>Email Address</label>
-                      <input 
-                        type="email" 
-                        value={editingReg.userEmail}
-                        onChange={(e) => setEditingReg({...editingReg, userEmail: e.target.value})}
-                        style={{ width: '100%', padding: '14px 16px', borderRadius: '12px', background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', outline: 'none', fontFamily: 'inherit' }}
-                        required
-                      />
-                    </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
-                      <div className="form-group" style={{ marginBottom: 0 }}>
-                        <label style={{ color: 'rgba(255,255,255,0.7)', marginBottom: '8px', display: 'block', fontSize: '0.9rem', fontWeight: 600 }}>Event Name</label>
-                        <input 
-                          type="text" 
-                          value={editingReg.eventName}
-                          onChange={(e) => setEditingReg({...editingReg, eventName: e.target.value})}
-                          style={{ width: '100%', padding: '14px 16px', borderRadius: '12px', background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', outline: 'none', fontFamily: 'inherit' }}
-                          required
-                        />
-                      </div>
-                      <div className="form-group" style={{ marginBottom: 0 }}>
-                        <label style={{ color: 'rgba(255,255,255,0.7)', marginBottom: '8px', display: 'block', fontSize: '0.9rem', fontWeight: 600 }}>Category</label>
-                        <input 
-                          type="text" 
-                          value={editingReg.category}
-                          onChange={(e) => setEditingReg({...editingReg, category: e.target.value})}
-                          style={{ width: '100%', padding: '14px 16px', borderRadius: '12px', background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', outline: 'none', fontFamily: 'inherit' }}
-                          required
-                        />
-                      </div>
-                    </div>
-                    <button type="submit" disabled={savingReg} style={{ background: '#a78bfa', color: '#000', width: '100%', padding: '14px', borderRadius: '12px', fontWeight: 'bold', fontSize: '1rem', border: 'none', cursor: savingReg ? 'not-allowed' : 'pointer' }}>
-                      {savingReg ? 'Saving...' : 'Save Changes'}
-                    </button>
-                  </form>
                 </div>
+              )}
+            </div>
+
+            <div className="support-subtabs">
+              <button 
+                className={`subtab-btn ${supportSubTab === 'contact' ? 'active' : ''}`}
+                onClick={() => setSupportSubTab('contact')}
+              >
+                <Mail size={18} /> Contact Queries
+                <span className="subtab-count">{contactQueries.length}</span>
+              </button>
+              <button 
+                className={`subtab-btn ${supportSubTab === 'bugs' ? 'active' : ''}`}
+                onClick={() => setSupportSubTab('bugs')}
+              >
+                <Wrench size={18} /> Bug Reports
+                <span className="subtab-count">{bugReports.length}</span>
+              </button>
+            </div>
+
+            {supportSubTab === 'contact' ? (
+              <div className="premium-table-container">
+                <table className="admin-data-table" style={{ minWidth: '1000px' }}>
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Subject</th>
+                      <th>Message</th>
+                      <th style={{ textAlign: 'center' }}>Status</th>
+                      <th style={{ textAlign: 'center' }}>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {loadingContact ? <tr><td colSpan={5} style={{ textAlign: 'center' }}>Loading queries...</td></tr> : 
+                     contactQueries.length === 0 ? <tr><td colSpan={5} style={{ textAlign: 'center', opacity: 0.5 }}>No contact inquiries found.</td></tr> :
+                     contactQueries.map(q => (
+                      <tr key={q.id}>
+                        <td style={{ fontWeight: 600 }}>
+                          <div style={{ display: 'flex', flexDirection: 'column' }}>
+                            <span>{q.name}</span>
+                            <span style={{ fontSize: '0.8rem', opacity: 0.5 }}>{q.email}</span>
+                          </div>
+                        </td>
+                        <td style={{ fontWeight: 600 }}>{q.subject}</td>
+                        <td style={{ maxWidth: '400px', whiteSpace: 'normal', fontSize: '0.85rem' }}>{q.message}</td>
+                        <td style={{ textAlign: 'center' }}>
+                          <select 
+                            className={`status-select status--${q.status || 'pending'}`}
+                            value={q.status || 'pending'}
+                            onChange={(e) => handleUpdateContactStatus(q.id, e.target.value)}
+                          >
+                            <option value="pending">Pending</option>
+                            <option value="contacted">Contacted</option>
+                            <option value="resolved">Resolved</option>
+                          </select>
+                        </td>
+                        <td>
+                          <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                            <button 
+                              onClick={() => handleDeleteContact(q.id)}
+                              style={{ background: 'rgba(255, 68, 68, 0.1)', border: 'none', color: '#ff4444', padding: '8px', borderRadius: '8px', cursor: 'pointer' }}
+                              title="Delete"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                     ))
+                    }
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="premium-table-container">
+                <table className="admin-data-table" style={{ minWidth: '1000px' }}>
+                  <thead>
+                    <tr>
+                      <th>URL / Device</th>
+                      <th>User</th>
+                      <th>Description</th>
+                      <th style={{ textAlign: 'center' }}>Status</th>
+                      <th style={{ textAlign: 'center' }}>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {loadingBugs ? <tr><td colSpan={5} style={{ textAlign: 'center' }}>Loading reports...</td></tr> : 
+                     bugReports.length === 0 ? <tr><td colSpan={5} style={{ textAlign: 'center', opacity: 0.5 }}>No bug reports found.</td></tr> :
+                     bugReports.map(b => (
+                      <tr key={b.id}>
+                        <td>
+                          <div style={{ display: 'flex', flexDirection: 'column' }}>
+                            <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>{b.url}</span>
+                            <span style={{ fontSize: '0.75rem', opacity: 0.5, maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis' }}>{b.userAgent}</span>
+                          </div>
+                        </td>
+                        <td>
+                          {b.userData ? (
+                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                              <span>{b.userData.email}</span>
+                              <span style={{ fontSize: '0.7rem', opacity: 0.5 }}>{b.userData.uid}</span>
+                            </div>
+                          ) : (
+                            <span style={{ opacity: 0.5 }}>Anonymous</span>
+                          )}
+                        </td>
+                        <td style={{ maxWidth: '400px', whiteSpace: 'normal', fontSize: '0.85rem' }}>{b.description}</td>
+                        <td style={{ textAlign: 'center' }}>
+                          <select 
+                            className={`status-select bug--${b.status || 'open'}`}
+                            value={b.status || 'open'}
+                            onChange={(e) => handleUpdateBugStatus(b.id, e.target.value)}
+                          >
+                            <option value="open">Open</option>
+                            <option value="fixing">Fixing</option>
+                            <option value="resolved">Resolved</option>
+                          </select>
+                        </td>
+                        <td>
+                          <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                            <button 
+                              onClick={() => handleDeleteBug(b.id)}
+                              style={{ background: 'rgba(255, 68, 68, 0.1)', border: 'none', color: '#ff4444', padding: '8px', borderRadius: '8px', cursor: 'pointer' }}
+                              title="Delete"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                     ))
+                    }
+                  </tbody>
+                </table>
               </div>
             )}
           </div>
         );
+      case 'registrations':
+        return <RegistrationManager />;
       case 'search':
         return isSuper ? <GlobalSearchView /> : <div>Access Denied</div>;
       case 'admins':
         return isSuper ? <AdminDirectoryView currentUserId={user?.uid} /> : <div>Access Denied</div>;
       case 'hackathon_regs':
-        return (isSuper || adminProfile?.roleLevel === 'flagship_admin-paramx--26') 
-          ? <HackathonRegistrationsView /> 
+        return (isSuper || adminProfile?.roleLevel.includes('admin-param-x') || adminProfile?.roleLevel.includes('flagship_admin-paramx--26')) 
+          ? <RegistrationManager 
+              forcedHandle="ParamX-Hack" 
+              title="Param-X '26 Registrations" 
+              subtitle="Managing all hackathon team registrations" 
+            /> 
+          : <div>Access Denied</div>;
+      case 'battlegrid_regs':
+        return (isSuper || adminProfile?.roleLevel.includes('admin-battle-grid'))
+          ? <RegistrationManager 
+              forcedHandle="Battle-Grid" 
+              title="Battle Grid '26 Registrations" 
+              subtitle="Managing all E-sports arena registrations" 
+            />
+          : <div>Access Denied</div>;
+      case 'robokshetra_regs':
+        return (isSuper || adminProfile?.roleLevel.includes('admin-robo-kshetra'))
+          ? <RegistrationManager 
+              forcedHandle="Robo-Kshetra" 
+              title="Robo-Kshetra '26 Registrations" 
+              subtitle="Managing all flagship robo-war registrations" 
+            />
+          : <div>Access Denied</div>;
+      case 'forgex_regs':
+        return (isSuper || adminProfile?.roleLevel.includes('admin-forge-x'))
+          ? <RegistrationManager 
+              forcedHandle="Forge-X" 
+              title="Forge-X '26 Registrations" 
+              subtitle="Managing all product design competition registrations" 
+            />
+          : <div>Access Denied</div>;
+      case 'algobid_regs':
+        return (isSuper || adminProfile?.roleLevel.includes('admin-algo-bid'))
+          ? <RegistrationManager 
+              forcedHandle="Algo-Bid" 
+              title="Algo-Bid '26 Registrations" 
+              subtitle="Managing all algorithm optimization registrations" 
+            />
+          : <div>Access Denied</div>;
+      case 'codeladder_regs':
+        return (isSuper || adminProfile?.roleLevel.includes('admin-code-ladder'))
+          ? <RegistrationManager 
+              forcedHandle="Code-Ladder" 
+              title="Code-Ladder '26 Registrations" 
+              subtitle="Managing all competitive programming registrations" 
+            />
           : <div>Access Denied</div>;
       // website_settings removed
       default:
@@ -1341,112 +1342,6 @@ const GlobalSearchView: React.FC = () => {
           </div>
         </div>
       )}
-    </div>
-  );
-};
-
-const HackathonRegistrationsView: React.FC = () => {
-  const [registrations, setRegistrations] = useState<HackathonRegistration[]>([]);
-  const [loading, setLoading] = useState(true);
-  const toast = useToast();
-
-  useEffect(() => {
-    const fetchRegs = async () => {
-      try {
-        const q = query(collection(db, "hackathon_registrations"), orderBy("createdAt", "desc"));
-        const snap = await getDocs(q);
-        setRegistrations(snap.docs.map(d => ({ id: d.id, ...d.data() } as HackathonRegistration)));
-      } catch (err) {
-        console.error(err);
-        toast.error("Failed to fetch hackathon registrations.");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchRegs();
-  }, []);
-
-  const handleExport = () => {
-    const data = registrations.map(r => ({
-      'Team Name': r.teamName,
-      'PS ID': r.psId,
-      'Leader Name': r.leaderName,
-      'Leader Email': r.leaderEmail,
-      'Leader Phone': r.leaderPhone,
-      'Leader College': r.leaderCollege,
-      'Member 2 Name': r.member2Name,
-      'Member 2 Email': r.member2Email,
-      'Member 2 Phone': r.member2Phone,
-      'Member 2 College': r.member2College,
-      'Member 3 Name': r.member3Name,
-      'Member 3 Email': r.member3Email,
-      'Member 3 Phone': r.member3Phone,
-      'Member 3 College': r.member3College,
-      'Member 4 Name': r.member4Name,
-      'Member 4 Email': r.member4Email,
-      'Member 4 Phone': r.member4Phone,
-      'Member 4 College': r.member4College,
-      'Status': r.status,
-      'Created At': r.createdAt?.toDate().toLocaleString() || 'N/A'
-    }));
-    const ws = XLSX.utils.json_to_sheet(data);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Hackathon Registrations");
-    XLSX.writeFile(wb, "ParamX_Full_Registrations_2026.xlsx");
-  };
-
-  return (
-    <div className="admin-tab-section">
-      <div className="admin-header-card" style={{ marginBottom: '2.5rem' }}>
-        <div>
-          <h1 className="tab-title-premium">ParamX '26 Registrations</h1>
-          <p className="tab-subtitle-premium" style={{ margin: 0 }}>Managing all hackathon team registrations</p>
-        </div>
-        <button onClick={handleExport} className="user-edit-profile-btn" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Download size={18} /> Export Excel
-        </button>
-      </div>
-
-      <div className="premium-table-container">
-        <table className="premium-table">
-          <thead>
-            <tr>
-              <th>Team Name</th>
-              <th>PS ID</th>
-              <th>Leader Info</th>
-              <th>Member 2</th>
-              <th>Member 3</th>
-              <th>Member 4</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? <tr><td colSpan={7}>Loading registrations...</td></tr> :
-             registrations.length === 0 ? <tr><td colSpan={7} style={{ textAlign: 'center', opacity: 0.5 }}>No registrations yet.</td></tr> :
-             registrations.map(reg => (
-              <tr key={reg.id}>
-                <td style={{ fontWeight: 700, color: '#a78bfa' }}>{reg.teamName}</td>
-                <td style={{ fontFamily: 'Iceland', fontSize: '1.2rem' }}>{reg.psId}</td>
-                <td>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                    <div style={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px' }}><Users size={14} /> {reg.leaderName}</div>
-                    <div style={{ opacity: 0.6, fontSize: '0.85rem' }}>{reg.leaderEmail}</div>
-                    <div style={{ opacity: 0.6, fontSize: '0.85rem' }}>{reg.leaderPhone}</div>
-                  </div>
-                </td>
-                <td>{reg.member2Name || '-'}</td>
-                <td>{reg.member3Name || '-'}</td>
-                <td>{reg.member4Name || '-'}</td>
-                <td>
-                  <span className="badge-premium badge-flagship">
-                    {reg.status ? reg.status.toUpperCase() : 'CONFIRMED'}
-                  </span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
     </div>
   );
 };

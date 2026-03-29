@@ -1,9 +1,12 @@
 import { Link } from 'react-router-dom'
+import { useBugReport } from '../BugReport/BugReport'
 const avishkarLogo = `${import.meta.env.BASE_URL}assets/logos/avishkar-white.webp`
 
 import './Footer.css'
 
 function Footer() {
+    const { openBugReport } = useBugReport();
+
     return (
         <footer className="footer">
             <div className="footer__container">
@@ -46,14 +49,17 @@ function Footer() {
                                 <Link to="/join" className="footer__link">Join Us</Link>
                                 <Link to="/book-a-stall" className="footer__link">Book a Stall</Link>
                                 <Link to="/login" className="footer__link">Accounts</Link>
+                                <button onClick={openBugReport} className="footer__link footer__bug-btn">Report a Bug</button>
                             </nav>
                         </div>
 
                         <div className="footer__column">
                             <h3 className="footer__heading">Contact</h3>
                             <address className="footer__address">
-                                <a href="mailto:support.avishkar@zealeducation.com" className="footer__link">support.avishkar@zealeducation.com</a>
-                                <a href="tel:+911234567890" className="footer__link">+91 123 456 7890</a>
+                                <a href="mailto:support.avishkarr@zealeducation.com" className="footer__link">support.avishkarr@zealeducation.com</a>
+                                <p style={{ fontSize: '0.7rem', opacity: 0.6, fontStyle: 'italic', marginBottom: '8px' }}>
+                                    Yeah, The extra "r". We know!
+                                </p>
                                 <p className="address-text">
                                     Zeal College of Engineering and Research, Narhe,<br />
                                     Pune, Maharashtra 411041
@@ -65,7 +71,18 @@ function Footer() {
 
                 <div className="footer__bottom">
                     <div className="footer__bottom-inner">
-                        <p className="footer__copyright">© 2026 Avishkar. Pioneering Excellence.</p>
+                        <div className="footer__bottom-left">
+                            <p className="footer__copyright">© 2026 Avishkar. Pioneering Excellence.</p>
+                            <p className="footer__timestamp">
+                                Last Updated: {new Date(__BUILD_TIMESTAMP__).toLocaleDateString('en-GB', {
+                                    day: 'numeric',
+                                    month: 'short',
+                                    year: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                })}
+                            </p>
+                        </div>
                         <div className="footer__legal">
                             <Link to="/privacy" className="footer__link">Privacy</Link>
                             <Link to="/terms" className="footer__link">Terms</Link>
