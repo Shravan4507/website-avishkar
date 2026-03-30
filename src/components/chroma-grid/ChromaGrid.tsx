@@ -8,6 +8,7 @@ export interface ChromaItem {
     image: string;
     title: string;
     subtitle: string;
+    id?: string;
     slug?: string;
     handle?: string;
     location?: string;

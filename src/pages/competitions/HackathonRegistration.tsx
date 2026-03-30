@@ -107,17 +107,23 @@ const HackathonRegistration: React.FC = () => {
     const navigate = useNavigate();
     const [user] = useAuthState(auth);
 
+    const [searchParams] = useSearchParams();
     const { isRegistered, eventName, loading: guardLoading } = useRegistrationGuard();
     const toast = useToast();
 
     useEffect(() => {
+        if (!guardLoading && !user) {
+            toast.error("Access Protected: Please log in to register.");
+            navigate(`/login?redirect=/hackathon-register?psId=${searchParams.get('psId') || ''}`);
+            return;
+        }
+
         if (!guardLoading && isRegistered) {
             toast.warning(`Locked: Already registered for ${eventName}. One event per user policy.`);
             navigate('/user/dashboard', { replace: true });
         }
-    }, [isRegistered, eventName, guardLoading, navigate, toast]);
+    }, [user, isRegistered, eventName, guardLoading, navigate, toast, searchParams]);
 
-    const [searchParams] = useSearchParams();
 
     
     const [step, setStep] = useState(1);

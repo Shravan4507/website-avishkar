@@ -275,23 +275,6 @@ export const COMPETITIONS_DATA: Competition[] = [
         coordinator: 'Saniya Jadhav',
         contactNumber: '9699281400'
     },
-    {
-        id: 'orbitx_solar',
-        image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=80',
-        title: 'Solar Spot Observation',
-        subtitle: 'OrbitX Club Event',
-        location: 'ZCOER Grounds',
-        handle: 'OrbitX-Solar',
-        description: 'Witness the sun like never before using professional H-alpha filters. Observe sunspots and solar flares in real-time.',
-        borderColor: '#ff7800',
-        gradient: 'linear-gradient(145deg, #ff7800, #000)',
-        url: '/orbitx-zcoer',
-        slug: 'orbitx_solar',
-        department: 'OrbitX Club',
-        entryFee: 30,
-        coordinator: 'OrbitX Team',
-        contactNumber: '0000000000'
-    },
 ];
 
 // Helper: Generate a competition ID from department + title

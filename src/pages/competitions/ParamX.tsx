@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { collection, onSnapshot } from 'firebase/firestore';
-import { db } from '../../firebase/firebase';
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { auth, db } from '../../firebase/firebase';
+import { useToast } from '../../components/toast/Toast';
 
 import SEO from '../../components/seo/SEO';
 import GlassSelect from '../../components/dropdown/GlassSelect';
@@ -21,6 +23,8 @@ import './ParamX.css';
 
 const ParamX: React.FC = () => {
     const navigate = useNavigate();
+    const [user] = useAuthState(auth);
+    const toast = useToast();
     const [searchParams, setSearchParams] = useSearchParams();
     const [problems, setProblems] = useState<ProblemStatement[]>([]);
     const [counts, setCounts] = useState<Record<string, number>>({});
@@ -144,14 +148,24 @@ const ParamX: React.FC = () => {
                                 <button 
                                     className={`main-register-btn ${((counts[selectedPS.id] || 0) >= MAX_SLOTS) || isRegistered ? 'disabled' : ''}`}
                                     disabled={(counts[selectedPS.id] || 0) >= MAX_SLOTS || isRegistered}
-                                    onClick={() => navigate(`/hackathon-register?psId=${selectedPS.id}`)}
+                                    onClick={() => {
+                                        if (!user) {
+                                            toast.error("Authentication required to register.");
+                                            navigate('/login');
+                                            return;
+                                        }
+                                        navigate(`/hackathon-register?psId=${selectedPS.id}`);
+                                    }}
                                 >
                                     {(counts[selectedPS.id] || 0) >= MAX_SLOTS ? 'Registration Closed' : (isRegistered ? 'Already Registered' : 'Register for this PS')}
                                 </button>
 
-                                <a href="#" className="download-sample-btn" download>
-                                    <Download size={18} /> Download Sample PPT
-                                </a>
+                                <button 
+                                    className="download-sample-btn disabled"
+                                    onClick={() => toast.info("Sample PPT will be available soon.")}
+                                >
+                                    <Download size={18} /> Sample PPT (Soon)
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -206,12 +220,12 @@ const ParamX: React.FC = () => {
                         </button>
                     )}
 
-                    <button className="secondary-cta" onClick={() => navigate('/param-x/rules')}>
-                        View Rulebook <FileText size={18} />
+                    <button className="secondary-cta disabled" onClick={() => toast.info("Rulebook is being finalized and will be available soon.")}>
+                        Rulebook (Soon) <FileText size={18} />
                     </button>
-                    <a href="#" className="glass-cta" download>
-                        Sample PPT <Download size={18} />
-                    </a>
+                    <button className="glass-cta disabled" onClick={() => toast.info("Sample PPT will be available soon.")}>
+                        Sample PPT (Soon) <Download size={18} />
+                    </button>
                 </div>
             </section>
 
@@ -321,6 +335,11 @@ const ParamX: React.FC = () => {
                                             disabled={isFull || isRegistered}
                                             onClick={(e) => {
                                                 e.stopPropagation();
+                                                if (!user) {
+                                                    toast.error("Authentication required to register.");
+                                                    navigate('/login');
+                                                    return;
+                                                }
                                                 navigate(`/hackathon-register?psId=${ps.id}`);
                                             }}
                                         >
@@ -365,6 +384,11 @@ const ParamX: React.FC = () => {
                                     disabled={isFull || isRegistered}
                                     onClick={(e) => {
                                         e.stopPropagation();
+                                        if (!user) {
+                                            toast.error("Authentication required to register.");
+                                            navigate('/login');
+                                            return;
+                                        }
                                         navigate(`/hackathon-register?psId=${ps.id}`);
                                     }}
                                 >

@@ -1,7 +1,10 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { auth } from '../../firebase/firebase';
+import { useToast } from '../../components/toast/Toast';
 import SEO from '../../components/seo/SEO';
-import ChromaGrid from '../../components/chroma-grid/ChromaGrid';
+import ChromaGrid, { type ChromaItem } from '../../components/chroma-grid/ChromaGrid';
 import { 
     Trophy, 
     Gamepad2, 
@@ -27,6 +30,8 @@ const GAMES = [
 
 const BattleGrid: React.FC = () => {
     const navigate = useNavigate();
+    const [user] = useAuthState(auth);
+    const toast = useToast();
     const { isRegistered, eventName } = useRegistrationGuard();
 
     return (
@@ -71,8 +76,8 @@ const BattleGrid: React.FC = () => {
                         </button>
                     )}
 
-                    <button className="secondary-cta" onClick={() => navigate('/battle-grid/rules')}>
-                        View Rulebook <FileText size={18} />
+                    <button className="secondary-cta disabled" onClick={() => toast.info("Rulebook is being finalized and will be available soon.")}>
+                        Rulebook (Soon) <FileText size={18} />
                     </button>
                 </div>
             </section>
@@ -128,11 +133,22 @@ const BattleGrid: React.FC = () => {
                             isFlagship: true,
                             borderColor: g.color,
                             location: g.platform
-                        } as any))}
+                        } as ChromaItem))}
                         columns={3}
                         isRegistered={isRegistered}
                         registeredEventName={eventName}
-                        onItemClick={(item: any) => navigate(`/esports-register?game=${item.id}`)}
+                        onItemClick={(item: ChromaItem) => {
+                                if (!user) {
+                                toast.error("Authentication required to enter arena.");
+                                navigate('/login');
+                                return;
+                            }
+                            if (isRegistered) {
+                                toast.warning(`Locked: Already registered for ${eventName}.`);
+                                return;
+                            }
+                            navigate(`/esports-register?game=${item.id}`);
+                        }}
                     />
                 </div>
             </div>

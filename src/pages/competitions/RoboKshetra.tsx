@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from '../../components/toast/Toast';
 import { doc, collection, serverTimestamp, runTransaction, getDoc, query, where, getDocs } from 'firebase/firestore';
 import { auth, db } from '../../firebase/firebase';
 import SEO from '../../components/seo/SEO';
-import { useToast } from '../../components/toast/Toast';
-import ChromaGrid from '../../components/chroma-grid/ChromaGrid';
+import ChromaGrid, { type ChromaItem } from '../../components/chroma-grid/ChromaGrid';
 import { 
     ArrowRight, 
     ArrowLeft, 
@@ -427,8 +427,8 @@ const RoboKshetra: React.FC = () => {
                             <button className="primary-cta" onClick={() => document.getElementById('arena')?.scrollIntoView({ behavior: 'smooth' })}>
                                 Enter the Arena <Rocket size={18} />
                             </button>
-                            <button className="secondary-cta" onClick={() => navigate('/robo-kshetra/rules')}>
-                                Rulebook <FileText size={18} />
+                            <button className="secondary-cta disabled" onClick={() => toast.info("Rulebook is being finalized and will be available soon.")}>
+                                Rulebook (Soon) <FileText size={18} />
                             </button>
                         </div>
                     </section>
@@ -487,14 +487,23 @@ const RoboKshetra: React.FC = () => {
                                 isFlagship: true,
                                 borderColor: e.color,
                                 location: `${e.members}P | ${e.mode}`
-                            } as any))}
+                            } as ChromaItem))}
                             radius={400}
                             damping={0.5}
                             fadeOut={0.8}
                             columns={3}
-                            isRegistered={isRegistered}
-                            registeredEventName={registeredEventName}
-                            onItemClick={(item: any) => setSelectedEvent(item.id as EventId)}
+                            onItemClick={(item: ChromaItem) => {
+                                if (!user) {
+                                    toast.error("Access Denied: Authentication required to enter assembly.");
+                                    navigate('/login');
+                                    return;
+                                }
+                                if (isRegistered) {
+                                    toast.warning(`Locked: Already registered for ${registeredEventName}.`);
+                                    return;
+                                }
+                                setSelectedEvent(item.id as EventId);
+                            }}
                         />
                     </div>
                 </div>

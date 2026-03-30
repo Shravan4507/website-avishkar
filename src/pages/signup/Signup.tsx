@@ -12,6 +12,9 @@ import './Signup.css';
 
 const PASSING_YEARS = ["2024", "2025", "2026", "2027", "2028"];
 
+const collegeOptions = collegesData.map(c => ({ label: c, value: c }));
+const majorOptions = majors.map(m => ({ label: m, value: m }));
+
 const Signup: React.FC = () => {
   const [user, authLoading] = useAuthState(auth);
   const navigate = useNavigate();
@@ -79,14 +82,65 @@ const Signup: React.FC = () => {
     return part.slice(0, 3);
   };
 
+  const validateForm = () => {
+    const nameRegex = /^[a-zA-Z\s.-]{2,50}$/;
+    const phoneRegex = /^[6-9]\d{9}$/;
+    const dobRegex = /^(\d{2})\/(\d{2})\/(\d{4})$/;
+
+    if (!nameRegex.test(formData.firstName)) {
+      toast.error("First name should only contain letters and be 2-50 characters.");
+      return false;
+    }
+    if (!nameRegex.test(formData.lastName)) {
+      toast.error("Last name should only contain letters.");
+      return false;
+    }
+    if (!phoneRegex.test(formData.phone)) {
+      toast.error("Please enter a valid 10-digit phone number.");
+      return false;
+    }
+    if (!formData.whatsappSameAsPhone && !phoneRegex.test(formData.whatsappNumber)) {
+      toast.error("Please enter a valid 10-digit WhatsApp number.");
+      return false;
+    }
+
+    const dobMatch = formData.dob.match(dobRegex);
+    if (!dobMatch) {
+      toast.error("Date of Birth must be in DD/MM/YYYY format.");
+      return false;
+    }
+
+    const [_, d, m, y] = dobMatch.map(Number);
+    const birthDate = new Date(y, m - 1, d);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+
+    if (isNaN(birthDate.getTime()) || birthDate > today || age < 15 || age > 50) {
+      toast.error("Please enter a valid Date of Birth (Age: 15-50).");
+      return false;
+    }
+
+    if (!formData.college) {
+      toast.error("Please select or enter your college.");
+      return false;
+    }
+    if (!formData.major) {
+      toast.error("Please select or enter your major.");
+      return false;
+    }
+
+    return true;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
     
-    if (!formData.college || !formData.major) {
-      toast.error("Please select your college and major.");
-      return;
-    }
+    if (!validateForm()) return;
 
     setSubmitting(true);
 
@@ -248,34 +302,28 @@ const Signup: React.FC = () => {
             </div>
           </div>
 
-          {/* College with Datalist for searching */}
+          {/* College with Searchable Dropdown */}
           <div className="form-group">
             <label>College Name*</label>
-            <input 
-              list="colleges-list" 
-              placeholder="Start typing your college name..."
+            <GlassSelect 
+              placeholder="Search or type your college name..."
               value={formData.college}
-              onChange={(e) => setFormData({...formData, college: e.target.value})}
-              required
+              onChange={(val) => setFormData({...formData, college: val})}
+              options={collegeOptions}
+              searchable={true}
             />
-            <datalist id="colleges-list">
-              {collegesData.map((c, i) => <option key={i} value={c} />)}
-            </datalist>
           </div>
 
-          {/* Major with Datalist for searching */}
+          {/* Major with Searchable Dropdown */}
           <div className="form-group">
-            <label>Major*</label>
-            <input 
-              list="majors-list" 
-              placeholder="Search major/branch..."
+            <label>Major/Branch*</label>
+            <GlassSelect 
+              placeholder="Search or type your major..."
               value={formData.major}
-              onChange={(e) => setFormData({...formData, major: e.target.value})}
-              required
+              onChange={(val) => setFormData({...formData, major: val})}
+              options={majorOptions}
+              searchable={true}
             />
-            <datalist id="majors-list">
-              {majors.map((m, i) => <option key={i} value={m} />)}
-            </datalist>
           </div>
 
           <button type="submit" className="signup-btn">Finish Registration</button>
