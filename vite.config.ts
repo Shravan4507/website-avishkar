@@ -14,7 +14,8 @@ export default defineConfig({
       registerType: 'prompt',
       includeAssets: ['assets/favicon/favicon.ico'],
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        globPatterns: ['**/*.{js,css,html,png,svg,woff2}'],
+        globIgnores: ['**/google*.html'],
         maximumFileSizeToCacheInBytes: 5000000, // 5MB limit
         runtimeCaching: [
           {

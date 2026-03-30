@@ -12,16 +12,13 @@ export const isLowSpecDevice = (): boolean => {
 
   // 3. Check for low memory (if supported)
   const memory = (navigator as any).deviceMemory;
-  if (memory && memory <= 4) return true;
+  if (memory && memory < 3) return true;
 
   // 4. Check for low CPU cores
   const cores = navigator.hardwareConcurrency;
   
-  // If we are on mobile, 4 cores or less is low-spec.
-  // On desktop, 4 cores is usually sufficient for WebGL unless memory is also low.
-  if (isMobile && cores && cores <= 4) return true;
-  
-  // Only highly restricted devices (e.g. 2 cores or less) are low-spec on desktop
+  // Only extremely restricted devices are considered low-spec.
+  if (isMobile && cores && cores <= 2) return true;
   if (!isMobile && cores && cores <= 2) return true;
 
   return false;
