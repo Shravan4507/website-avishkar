@@ -106,7 +106,7 @@ const GDGZCOER: React.FC = () => {
                         className="hero-logo" 
                     />
                     <div className="hero-titles">
-                        <span className="brand-label">Google Developer Groups</br>On Campus</span>
+                        <span className="brand-label">Google Developer Groups On Campus</span>
                         <h1 className="iceland-text">ZCOER</h1>
                         <p className="hero-desc">The official technical partner of Avishkar '26, bringing <br/>world-class developer workshops to ZCOER.</p>
                     </div>
