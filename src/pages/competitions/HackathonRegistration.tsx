@@ -15,7 +15,8 @@ import { fetchProblemStatements, type ProblemStatement } from '../../utils/stora
 import { generateInvoice } from '../../utils/InvoiceGenerator';
 import { 
     Check, Users, ArrowRight, ArrowLeft, Loader2, 
-    User, Mail, Phone, Building2, Fingerprint, Search, Download, ShieldAlert 
+    User, Mail, Phone, Building2, Fingerprint, Search, Download, ShieldAlert,
+    Copy 
 } from 'lucide-react';
 import { useRegistrationGuard } from '../../hooks/useRegistrationGuard';
 
@@ -32,16 +33,19 @@ interface MemberFieldProps {
     errors: Record<string, string>;
     handleAvrInput: (e: React.ChangeEvent<HTMLInputElement>, id: string) => void;
     handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    lookupFailed: Record<string, boolean>;
 }
 
 const MemberField: React.FC<MemberFieldProps> = ({ 
-    id, label, isLeader = false, formData, lookupLoading, errors, handleAvrInput, handleInputChange 
+    id, label, isLeader = false, formData, lookupLoading, lookupFailed, errors, handleAvrInput, handleInputChange 
 }) => {
     const avrKey = `${id}AvrId`;
     const nameKey = `${id}Name`;
     const emailKey = `${id}Email`;
     const phoneKey = `${id}Phone`;
     const collegeKey = `${id}College`;
+    const avrVal = formData[avrKey] || '';
+    const notFound = lookupFailed?.[id] || false;
 
     return (
         <div className={`member-card ${isLeader ? 'leader' : ''} ${errors[avrKey] || errors[phoneKey] ? 'has-error' : ''}`}>
@@ -59,6 +63,25 @@ const MemberField: React.FC<MemberFieldProps> = ({
                         autoComplete="off"
                     />
                     {lookupLoading[id] ? <Loader2 size={16} className="spinner" /> : <Search size={16} />}
+                </div>
+
+                {/* HELPERS & ERROR FEEDBACK */}
+                <div className="member-status-bar">
+                    {notFound && avrVal.length >= 9 && (
+                        <div className="status-label not-found animated">
+                            Member not discovered. <span className="highlight-hint">Ask them to register on this portal.</span>
+                        </div>
+                    )}
+                    {!notFound && avrVal.length >= 9 && (
+                        <div className="status-label found animated">
+                            Identity Verified
+                        </div>
+                    )}
+                    {avrVal.length < 9 && !isLeader && (
+                        <div className="status-label hint">
+                            Members MUST have a website account.
+                        </div>
+                    )}
                 </div>
 
                 <div className="detail-row">
@@ -132,6 +155,7 @@ const HackathonRegistration: React.FC = () => {
     const [problems, setProblems] = useState<ProblemStatement[]>([]);
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [lookupLoading, setLookupLoading] = useState<Record<string, boolean>>({});
+    const [lookupFailed, setLookupFailed] = useState<Record<string, boolean>>({});
     const [transactionId, setTransactionId] = useState("");
 
 
@@ -256,6 +280,7 @@ const HackathonRegistration: React.FC = () => {
                     [`${memberKey}Phone`]: data.whatsappNumber || data.whatsapp || data.phone || '',
                     [`${memberKey}College`]: data.college || '',
                 }));
+                setLookupFailed(prev => ({ ...prev, [memberKey]: false }));
             } else {
                 setFormData(prev => ({
                     ...prev,
@@ -264,6 +289,8 @@ const HackathonRegistration: React.FC = () => {
                     [`${memberKey}Phone`]: '',
                     [`${memberKey}College`]: '',
                 }));
+                // Only set as 'failed' if they have actually typed a full ID
+                setLookupFailed(prev => ({ ...prev, [memberKey]: true }));
             }
         } catch (err) {
             console.error(err);
@@ -393,6 +420,7 @@ const HackathonRegistration: React.FC = () => {
                     firstname: formData.leaderName,
                     email: formData.leaderEmail,
                     phone: formData.leaderPhone,
+                    udf1: formData.leaderCollege,
                     surl: `${window.location.origin}/user/dashboard?status=success`,
                     furl: `${window.location.origin}/param-x?status=failure`
                 })
@@ -446,8 +474,22 @@ const HackathonRegistration: React.FC = () => {
                     <div className="reg-card fade-in">
                         <header>
                             <h1>Team Registration</h1>
-                            <p>Verify AVR IDs to unlock member details</p>
+                            <p className="primary-instruction">Every teammate must have a registered account to be discovered below.</p>
                         </header>
+
+                        <div className="protocol-banner">
+                            <div className="protocol-icon"><ShieldAlert size={20} /></div>
+                            <div className="protocol-content">
+                                <h3>Account Requirement Policy</h3>
+                                <p>We synchronize verified data from our member database. If a member hasn't created an account, their AVR ID will not work.</p>
+                                <button className="share-link-btn" onClick={() => {
+                                    navigator.clipboard.writeText(`${window.location.origin}/signup`);
+                                    toast.success("Signup link copied! Share it with your team.");
+                                }}>
+                                    <Copy size={14} /> Share Signup Link
+                                </button>
+                            </div>
+                        </div>
                         
                         <div className="form-section">
                             <label>Problem Statement*</label>
@@ -473,10 +515,10 @@ const HackathonRegistration: React.FC = () => {
                         <div className="members-section">
 
                             <h3><Users size={18} /> Team Roster</h3>
-                            <MemberField id="leader" label="Leader" isLeader={true} formData={formData} lookupLoading={lookupLoading} errors={errors} handleAvrInput={handleAvrInput} handleInputChange={handleInputChange} />
-                            <MemberField id="member2" label="M2" formData={formData} lookupLoading={lookupLoading} errors={errors} handleAvrInput={handleAvrInput} handleInputChange={handleInputChange} />
-                            <MemberField id="member3" label="M3" formData={formData} lookupLoading={lookupLoading} errors={errors} handleAvrInput={handleAvrInput} handleInputChange={handleInputChange} />
-                            <MemberField id="member4" label="M4" formData={formData} lookupLoading={lookupLoading} errors={errors} handleAvrInput={handleAvrInput} handleInputChange={handleInputChange} />
+                            <MemberField id="leader" label="Leader" isLeader={true} formData={formData} lookupLoading={lookupLoading} lookupFailed={lookupFailed} errors={errors} handleAvrInput={handleAvrInput} handleInputChange={handleInputChange} />
+                            <MemberField id="member2" label="M2" formData={formData} lookupLoading={lookupLoading} lookupFailed={lookupFailed} errors={errors} handleAvrInput={handleAvrInput} handleInputChange={handleInputChange} />
+                            <MemberField id="member3" label="M3" formData={formData} lookupLoading={lookupLoading} lookupFailed={lookupFailed} errors={errors} handleAvrInput={handleAvrInput} handleInputChange={handleInputChange} />
+                            <MemberField id="member4" label="M4" formData={formData} lookupLoading={lookupLoading} lookupFailed={lookupFailed} errors={errors} handleAvrInput={handleAvrInput} handleInputChange={handleInputChange} />
                         </div>
 
                         <footer className="form-footer">

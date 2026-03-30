@@ -527,3 +527,117 @@
     display: block;
     margin-bottom: 2px;
 }
+/* Registration Instructions & Protocol */
+.primary-instruction {
+    color: #a78bfa !important;
+    font-weight: 600;
+    margin-top: 0.5rem;
+}
+
+.protocol-banner {
+    background: rgba(82, 39, 255, 0.1);
+    border: 1x solid rgba(82, 39, 255, 0.3);
+    border-bottom: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 3rem;
+    padding: 2rem;
+    margin-bottom: 3rem;
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    backdrop-filter: blur(10px);
+}
+
+.protocol-icon {
+    width: 50px;
+    height: 50px;
+    background: rgba(82, 39, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #5227ff;
+    flex-shrink: 0;
+}
+
+.protocol-content h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.1rem;
+    color: #fff;
+    font-family: 'Iceland', sans-serif;
+    letter-spacing: 1px;
+}
+
+.protocol-content p {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.share-link-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    padding: 0.5rem 1rem;
+    border-radius: 2rem;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.share-link-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: #5227ff;
+}
+
+/* Member Status Bar */
+.member-status-bar {
+    margin-top: -0.5rem;
+    padding: 0 0.5rem;
+    min-height: 20px;
+}
+
+.status-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.status-label.hint {
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.status-label.found {
+    color: #10b981;
+}
+
+.status-label.not-found {
+    color: #ef4444;
+}
+
+.highlight-hint {
+    color: #fff;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.animated {
+    animation: fadeInSlide 0.4s ease forwards;
+}
+
+@keyframes fadeInSlide {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Mobile Adjustments for Protocol Banner */
+@media (max-width: 600px) {
+    .protocol-banner {
+        flex-direction: column;
+        padding: 1.5rem;
+        text-align: center;
+    }
+}

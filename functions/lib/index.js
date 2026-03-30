@@ -53,7 +53,7 @@ exports.initiatePayment = functions.https.onRequest({
     cors: true
 }, async (req, res) => {
     try {
-        const { txnid, amount, productinfo, firstname, email, phone, surl, furl } = req.body;
+        const { txnid, amount, productinfo, firstname, email, phone, udf1, surl, furl } = req.body;
         if (!txnid || !amount || !firstname || !email || !phone || !surl || !furl) {
             res.status(400).send({ error: "Missing required fields" });
             return;
@@ -65,7 +65,7 @@ exports.initiatePayment = functions.https.onRequest({
         const key = MERCH_KEY.value();
         const salt = MERCH_SALT.value();
         const submerchant_id = SUB_ID.value();
-        const hashString = `${key}|${txnid}|${amount}|${safeProductinfo}|${firstname}|${email}|||||||||||${salt}`;
+        const hashString = `${key}|${txnid}|${amount}|${safeProductinfo}|${firstname}|${email}|${udf1 || ''}||||||||||${salt}`;
         const hash = crypto_1.default.createHash("sha512").update(hashString).digest("hex");
         const formData = new URLSearchParams();
         formData.append("key", key);
@@ -78,6 +78,7 @@ exports.initiatePayment = functions.https.onRequest({
         formData.append("surl", surl);
         formData.append("furl", furl);
         formData.append("hash", hash);
+        formData.append("udf1", udf1 || '');
         formData.append("sub_merchant_id", submerchant_id);
         const easebuzzResponse = await axios_1.default.post(EASEBUZZ_PROD_URL, formData.toString(), {
             headers: { "Content-Type": "application/x-www-form-urlencoded" }
@@ -109,7 +110,7 @@ exports.verifyPayment = functions.https.onRequest({
     try {
         const data = req.body;
         const salt = MERCH_SALT.value();
-        const hashString = `${salt}|${data.status}|||||||||||${data.email}|${data.firstname}|${data.productinfo}|${data.amount}|${data.txnid}|${data.key}`;
+        const hashString = `${salt}|${data.status}|||||||||${data.udf1 || ''}|${data.email}|${data.firstname}|${data.productinfo}|${data.amount}|${data.txnid}|${data.key}`;
         const expectedHash = crypto_1.default.createHash("sha512").update(hashString).digest("hex");
         if (data.hash === expectedHash) {
             res.json({ success: true, status: data.status });

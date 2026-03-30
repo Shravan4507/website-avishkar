@@ -147,11 +147,11 @@
 
 @media (max-width: 768px) {
   .signup-container {
-    padding: 80px 1.5rem;
+    padding: 80px 1rem;
   }
 
   .signup-card {
-    padding: 2.5rem 1.5rem;
+    padding: 2.5rem 1.25rem;
     border-radius: 1.5rem;
   }
 
@@ -160,12 +160,22 @@
   }
 
   .signup-subtitle {
-     font-size: 0.9rem;
+     font-size: 0.85rem;
      margin-bottom: 2rem;
   }
 
   .form-rows {
     grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .signup-form {
+    gap: 15px;
+  }
+
+  .form-group label {
+    font-size: 0.75rem;
+    margin-bottom: -2px;
   }
 
   .form-group input, .form-group select {
@@ -179,6 +189,14 @@
     height: 52px;
     font-size: 1rem;
     border-radius: 3rem;
+  }
+
+  .checkbox-group {
+    gap: 10px;
+  }
+
+  .checkbox-group label {
+    font-size: 0.85rem;
   }
 }
 

@@ -28,7 +28,11 @@ import {
     User,
     Mail,
     Phone,
-    Building2
+    Check,
+    Building2,
+    ShieldAlert,
+    Copy,
+    ExternalLink,
 } from 'lucide-react';
 import { useRegistrationGuard } from '../../hooks/useRegistrationGuard';
 import { initiateEasebuzzCheckout, generateTxnId } from '../../utils/easebuzz';
@@ -131,6 +135,7 @@ const RoboKshetra: React.FC = () => {
     });
 
     const [lookupLoading, setLookupLoading] = useState<Record<string, boolean>>({});
+    const [lookupFailed, setLookupFailed] = useState<Record<string, boolean>>({});
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     // Prefill leader from Firestore profile
@@ -200,7 +205,6 @@ const RoboKshetra: React.FC = () => {
         try {
             const userQuery = query(collection(db, "user"), where("avrId", "==", avrId.trim()));
             const querySnapshot = await getDocs(userQuery);
-
             if (!querySnapshot.empty) {
                 const data = querySnapshot.docs[0].data();
                 const fullName = `${data.firstName || ''} ${data.lastName || ''}`.trim() || data.name || data.displayName || '';
@@ -211,6 +215,7 @@ const RoboKshetra: React.FC = () => {
                     [`${memberKey}Phone`]: data.whatsappNumber || data.whatsapp || data.phone || '',
                     [`${memberKey}College`]: data.college || '',
                 }));
+                setLookupFailed(prev => ({ ...prev, [memberKey]: false }));
             } else {
                 setFormData(prev => ({
                     ...prev,
@@ -219,6 +224,7 @@ const RoboKshetra: React.FC = () => {
                     [`${memberKey}Phone`]: '',
                     [`${memberKey}College`]: '',
                 }));
+                setLookupFailed(prev => ({ ...prev, [memberKey]: true }));
             }
         } catch (err) {
             console.error("Member lookup error:", err);
@@ -338,6 +344,7 @@ const RoboKshetra: React.FC = () => {
                     firstname: formData.leaderName || user.displayName || "Participant",
                     email: formData.leaderEmail || user.email,
                     phone: formData.leaderPhone,
+                    udf1: formData.leaderCollege,
                     surl: `${window.location.origin}/user/dashboard?status=success`,
                     furl: `${window.location.origin}/robo-kshetra?status=failure`
                 })
@@ -403,7 +410,7 @@ const RoboKshetra: React.FC = () => {
                     {/* --- HERO SECTION --- */}
                     <section className="rk-hero">
                         <div className="hero-badge">Avishkar '26 <br/>Robotics</div>
-                        <h1 className="hero-title">ROBO-<span>KSHETRA</span></h1>
+                        <img src={`${import.meta.env.BASE_URL}assets/logos/Robokshetra.png`} alt="Robo-Kshetra" className="hero-logo" />
                         <p className="hero-subtitle">Forge, Optimize, Combat. High-octane robotics competition where logic meets heavy metal.</p>
                         
                         <div className="hero-stats">
@@ -562,12 +569,28 @@ const RoboKshetra: React.FC = () => {
                                 </div>
                             </div>
 
-                            {/* Squad Members — same layout as HackathonRegistration */}
+                            {/* Squad Members */}
                             <div className="rk-section">
                                 <div className="rk-section-header">
                                     <Cpu className="rk-section-icon" />
                                     <h3>SQUAD_REGISTRY</h3>
                                 </div>
+
+                                <div className="rk-protocol-banner">
+                                    <div className="rk-protocol-icon"><ShieldAlert size={20} /></div>
+                                    <div className="rk-protocol-content">
+                                        <h3>Authentication Protocol</h3>
+                                        <p>Every squadron member must have an account on this platform. We synchronize verified data via AVR IDs.</p>
+                                        <button className="rk-share-btn" onClick={() => {
+                                            navigator.clipboard.writeText(`${window.location.origin}/signup`);
+                                            toast.success("Signup link copied!");
+                                        }}>
+                                            <Copy size={14} /> Share Signup Link
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <p className="rk-form-hint">Ensure all members have created an account before proceeding with registration.</p>
 
                                 <div className="rk-members-section">
                                     {/* LEADER */}
@@ -620,6 +643,25 @@ const RoboKshetra: React.FC = () => {
                                                     />
                                                     {lookupLoading[id] ? <Loader2 size={16} className="spinner" /> : <Search size={16} />}
                                                 </div>
+
+                                                <div className="rk-status-bar">
+                                                    {formData[`${id}AvrId`]?.length >= 9 ? (
+                                                        lookupFailed[id] ? (
+                                                            <div className="rk-status failure">
+                                                                <ShieldAlert size={12} /> Member not discovered
+                                                            </div>
+                                                        ) : (
+                                                            <div className="rk-status success">
+                                                                <Check size={12} /> Identity Verified
+                                                            </div>
+                                                        )
+                                                    ) : (
+                                                        <div className="rk-status info">
+                                                            <ExternalLink size={12} /> Needs website account
+                                                        </div>
+                                                    )}
+                                                </div>
+
                                                 <div className="rk-detail-row">
                                                     <div className="rk-input-with-icon prefilled editable">
                                                         <User size={16} />
@@ -634,7 +676,7 @@ const RoboKshetra: React.FC = () => {
                                                     <div className={`rk-input-with-icon prefilled editable ${errors[`${id}Phone`] ? 'field-error' : ''}`}>
                                                         <Phone size={16} />
                                                         <input type="tel" name={`${id}Phone`} value={formData[`${id}Phone`] || ''} onChange={handleInputChange} placeholder="WhatsApp Number" />
-                                                        {errors[`${id}Phone`] && <span className="rk-error-badge">{errors[`${id}Phone`]}</span>}
+                                                        {errors[`${id}Phone`] && <span className="rk-error-badge">{errors[`${id}Phone`] || ''}</span>}
                                                     </div>
                                                     <div className="rk-input-with-icon prefilled readonly">
                                                         <Building2 size={16} />
@@ -744,7 +786,6 @@ const RoboKshetra: React.FC = () => {
                                     </div>
                                 )}
                             </div>
-
                         </div>
                     </div>
                 </div>

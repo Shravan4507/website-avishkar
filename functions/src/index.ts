@@ -34,6 +34,7 @@ export const initiatePayment = functions.https.onRequest({
       firstname,
       email,
       phone,
+      udf1,
       surl,
       furl
     } = req.body;
@@ -54,7 +55,7 @@ export const initiatePayment = functions.https.onRequest({
     const submerchant_id = SUB_ID.value();
 
     // 1. Generate hash: key|txnid|amount|productinfo|firstname|email|udf1-udf10|salt
-    const hashString = `${key}|${txnid}|${amount}|${safeProductinfo}|${firstname}|${email}|||||||||||${salt}`;
+    const hashString = `${key}|${txnid}|${amount}|${safeProductinfo}|${firstname}|${email}|${udf1 || ''}||||||||||${salt}`;
     const hash = crypto.createHash("sha512").update(hashString).digest("hex");
 
     // 2. POST to Easebuzz API (form-urlencoded)
@@ -69,6 +70,7 @@ export const initiatePayment = functions.https.onRequest({
     formData.append("surl", surl);
     formData.append("furl", furl);
     formData.append("hash", hash);
+    formData.append("udf1", udf1 || '');
     formData.append("sub_merchant_id", submerchant_id);
 
     const easebuzzResponse = await axios.post(EASEBUZZ_PROD_URL, formData.toString(), {
@@ -111,7 +113,7 @@ export const verifyPayment = functions.https.onRequest({
 
     // Reverse Hash Formula for verification:
     // sha512(salt|status|udf10-udf1|email|firstname|productinfo|amount|txnid|key)
-    const hashString = `${salt}|${data.status}|||||||||||${data.email}|${data.firstname}|${data.productinfo}|${data.amount}|${data.txnid}|${data.key}`;
+    const hashString = `${salt}|${data.status}|||||||||${data.udf1 || ''}|${data.email}|${data.firstname}|${data.productinfo}|${data.amount}|${data.txnid}|${data.key}`;
     const expectedHash = crypto.createHash("sha512").update(hashString).digest("hex");
 
     if (data.hash === expectedHash) {

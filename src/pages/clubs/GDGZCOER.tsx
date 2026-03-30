@@ -1,7 +1,6 @@
 import React from 'react';
 import SEO from '../../components/seo/SEO';
 import { motion } from 'framer-motion';
-import CanvasCursor from '../../components/gdg-cursor/CanvasCursor';
 import GDGTransition from '../../components/gdg-cursor/GDGTransition';
 import './GDGZCOER.css';
 
@@ -75,14 +74,12 @@ const gdgSessions: Session[] = [
 const GDGZCOER: React.FC = () => {
     return (
         <div className="gdg-page-root">
-            {/* ── Entry Transition (GDG page only) ── */}
+            {/* ── Entry Transition (GDGOC page only) ── */}
             <GDGTransition />
 
-            {/* ── User-provided High-Tech Canvas Cursor (GDG page only) ── */}
-            <CanvasCursor />
             <SEO 
-                title="GDG ZCOER | Avishkar '26" 
-                description="Join the official GDG ZCOER workshops at Avishkar '26. Master Git, Docker, Kubernetes, AI/ML, and System Design." 
+                title="GDGOC ZCOER | Avishkar '26" 
+                description="Join the official GDGOC ZCOER workshops at Avishkar '26. Master Git, Docker, Kubernetes, AI/ML, and System Design." 
             />
 
             {/* --- Hero Section --- */}
@@ -102,7 +99,7 @@ const GDGZCOER: React.FC = () => {
                 >
                     <img 
                         src="/assets/logos/LOGO GDG Bandung/Horizontal/_GDG Bandung - Logo Only.png" 
-                        alt="GDG ZCOER" 
+                        alt="GDGOC ZCOER" 
                         className="hero-logo" 
                     />
                     <div className="hero-titles">
@@ -164,7 +161,7 @@ const GDGZCOER: React.FC = () => {
 
                 <section className="guidelines-footer">
                     <div className="neo-note">
-                        <p>Note: Official Google Developer Group events. Adhere to GDG Community Guidelines.</p>
+                        <p>Note: Official Google Developer Group On Campus events. Adhere to GDGOC Community Guidelines.</p>
                     </div>
                 </section>
             </main>

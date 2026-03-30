@@ -5,10 +5,10 @@ import './Workshops.css'
 
 const technicalClubs: ChromaItem[] = [
     {
-        title: 'GDG ZCOER',
+        title: 'GDGOC ZCOER',
         subtitle: 'Developer Community',
-        slug: 'gdg-zcoer',
-        description: 'The premier developer community at ZCOER, powered by Google Developers. Join us for hands-on tech stacks, cloud computing, and industry-grade workshops.',
+        slug: 'gdgoc-zcoer',
+        description: 'The premier developer community at ZCOER, powered by Google Developer Groups on Campus. Join us for hands-on tech stacks, cloud computing, and industry-grade workshops.',
         image: '/assets/logos/LOGO GDG Bandung/Horizontal/_GDG Bandung - Logo Only.png',
         location: 'ZCOER Campus',
         borderColor: '#4285F4',

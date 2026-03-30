@@ -10,7 +10,7 @@ import collegesData from '../../data/colleges.json';
 import GlassSelect from '../../components/dropdown/GlassSelect';
 import './Signup.css';
 
-const PASSING_YEARS = ["2024", "2025", "2026", "2027", "2028"];
+const PASSING_YEARS = ["2024", "2025", "2026", "2027", "2028", "2029", "2030", "2031", "2032", "2033"];
 
 const collegeOptions = collegesData.map(c => ({ label: c, value: c }));
 const majorOptions = majors.map(m => ({ label: m, value: m }));
@@ -193,6 +193,19 @@ const Signup: React.FC = () => {
   const handleDOBChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let val = e.target.value.replace(/\D/g, '');
     if (val.length > 8) val = val.slice(0, 8);
+    
+    // Prevent some obvious invalid entries
+    if (val.length >= 2) {
+      const day = parseInt(val.slice(0, 2));
+      if (day > 31) val = '31' + val.slice(2);
+      if (day === 0) val = '01' + val.slice(2);
+    }
+    if (val.length >= 4) {
+      const month = parseInt(val.slice(2, 4));
+      if (month > 12) val = val.slice(0, 2) + '12' + val.slice(4);
+      if (month === 0) val = val.slice(0, 2) + '01' + val.slice(4);
+    }
+
     let formatted = val;
     if (val.length > 2) formatted = val.slice(0, 2) + '/' + val.slice(2);
     if (val.length > 4) formatted = val.slice(0, 2) + '/' + val.slice(2, 4) + '/' + val.slice(4);
@@ -201,11 +214,16 @@ const Signup: React.FC = () => {
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value.replace(/\D/g, '').slice(0, 10);
-    setFormData({ 
-      ...formData, 
+    setFormData(prev => ({ 
+      ...prev, 
       phone: val,
-      whatsappNumber: formData.whatsappSameAsPhone ? val : formData.whatsappNumber 
-    });
+      whatsappNumber: prev.whatsappSameAsPhone ? val : prev.whatsappNumber 
+    }));
+  };
+
+  const handleNameChange = (field: 'firstName' | 'lastName', val: string) => {
+    const sanitized = val.replace(/[^a-zA-Z\s.-]/g, '').slice(0, 50);
+    setFormData(prev => ({ ...prev, [field]: sanitized }));
   };
 
   if (authLoading || isCheckingProfile) {
@@ -226,11 +244,23 @@ const Signup: React.FC = () => {
           <div className="form-rows">
             <div className="form-group">
               <label>First Name*</label>
-              <input type="text" value={formData.firstName} required onChange={(e) => setFormData({...formData, firstName: e.target.value})} />
+              <input 
+                type="text" 
+                value={formData.firstName} 
+                required 
+                placeholder="John"
+                onChange={(e) => handleNameChange('firstName', e.target.value)} 
+              />
             </div>
             <div className="form-group">
               <label>Last Name*</label>
-              <input type="text" value={formData.lastName} required onChange={(e) => setFormData({...formData, lastName: e.target.value})} />
+              <input 
+                type="text" 
+                value={formData.lastName} 
+                required 
+                placeholder="Doe"
+                onChange={(e) => handleNameChange('lastName', e.target.value)} 
+              />
             </div>
           </div>
 

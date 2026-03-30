@@ -14,14 +14,17 @@ import {
     Target,
     Phone,
     Fingerprint,
-    ShieldAlert,
-    Search,
-    User,
-    Mail,
     Building2,
     Shield,
     AlertTriangle,
-    Cpu
+    Cpu,
+    ShieldAlert,
+    Copy,
+    Check,
+    ExternalLink,
+    Search,
+    User,
+    Mail
 } from 'lucide-react';
 import { useRegistrationGuard } from '../../hooks/useRegistrationGuard';
 import { initiateEasebuzzCheckout, generateTxnId } from '../../utils/easebuzz';
@@ -53,6 +56,7 @@ const EsportsRegistration: React.FC = () => {
     const [showPreview, setShowPreview] = useState(false);
     const [accountabilityAccepted, setAccountabilityAccepted] = useState(false);
     const [lookupLoading, setLookupLoading] = useState<Record<string, boolean>>({});
+    const [lookupFailed, setLookupFailed] = useState<Record<string, boolean>>({});
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     const activeGame = GAMES.find(g => g.id === selectedGame);
@@ -145,9 +149,13 @@ const EsportsRegistration: React.FC = () => {
     };
 
     const handleAvrLookup = async (avrId: string, memberKey: string) => {
-        if (!avrId || avrId.length < 8) return;
+        if (!avrId || avrId.length < 8) {
+            setLookupFailed(prev => ({ ...prev, [memberKey]: false }));
+            return;
+        }
 
         setLookupLoading(prev => ({ ...prev, [memberKey]: true }));
+        setLookupFailed(prev => ({ ...prev, [memberKey]: false }));
         try {
             const userQuery = query(collection(db, "user"), where("avrId", "==", avrId.trim()));
             const querySnapshot = await getDocs(userQuery);
@@ -162,6 +170,7 @@ const EsportsRegistration: React.FC = () => {
                     [`${memberKey}Phone`]: data.whatsappNumber || data.whatsapp || data.phone || '',
                     [`${memberKey}College`]: data.college || '',
                 }));
+                setLookupFailed(prev => ({ ...prev, [memberKey]: false }));
             } else {
                 setFormData(prev => ({
                     ...prev,
@@ -170,9 +179,11 @@ const EsportsRegistration: React.FC = () => {
                     [`${memberKey}Phone`]: '',
                     [`${memberKey}College`]: '',
                 }));
+                setLookupFailed(prev => ({ ...prev, [memberKey]: true }));
             }
         } catch (err) {
             console.error("Lookup error:", err);
+            setLookupFailed(prev => ({ ...prev, [memberKey]: true }));
         } finally {
             setLookupLoading(prev => ({ ...prev, [memberKey]: false }));
         }
@@ -290,6 +301,7 @@ const EsportsRegistration: React.FC = () => {
                     firstname: formData.leaderName || user.displayName || "Participant",
                     email: formData.leaderEmail || user.email,
                     phone: formData.leaderPhone,
+                    udf1: formData.leaderCollege,
                     surl: `${window.location.origin}/user/dashboard?status=success`,
                     furl: `${window.location.origin}/battle-grid?status=failure`
                 })
@@ -402,6 +414,22 @@ const EsportsRegistration: React.FC = () => {
                         <h3>{activeGame?.type === 'TEAM' ? 'SQUAD_REGISTRY' : 'PLAYER_REGISTRY'}</h3>
                     </div>
 
+                    <div className="es-protocol-banner">
+                        <div className="es-protocol-icon"><ShieldAlert size={20} /></div>
+                        <div className="es-protocol-content">
+                            <h3>Authentication Protocol</h3>
+                            <p>Every participant must have an account on this platform. We synchronize verified data via AVR IDs.</p>
+                            <button className="es-share-btn" onClick={() => {
+                                navigator.clipboard.writeText(`${window.location.origin}/signup`);
+                                toast.success("Signup link copied!");
+                            }}>
+                                <Copy size={14} /> Share Signup Link
+                            </button>
+                        </div>
+                    </div>
+
+                    <p className="es-form-hint">Ensure all members have created an account before proceeding with registration.</p>
+
                     <div className="es-members-section">
                         {/* LEADER */}
                         <div className={`es-member-card leader ${errors.leaderAvrId || errors.leaderPhone ? 'has-error' : ''}`}>
@@ -411,6 +439,11 @@ const EsportsRegistration: React.FC = () => {
                                     <Fingerprint size={16} />
                                     <input type="text" value={formData.leaderAvrId || ''} placeholder="AVR-XXX-0000" readOnly autoComplete="off" />
                                     <Search size={16} />
+                                </div>
+                                <div className="es-status-bar">
+                                    <div className="es-status success">
+                                        <Check size={12} /> Identity Verified
+                                    </div>
                                 </div>
                                 <div className="es-detail-row">
                                     <div className="es-input-with-icon prefilled readonly">
@@ -454,6 +487,23 @@ const EsportsRegistration: React.FC = () => {
                                             autoComplete="off"
                                         />
                                         {lookupLoading[id] ? <Loader2 size={16} className="spinner" /> : <Search size={16} />}
+                                    </div>
+                                    <div className="es-status-bar">
+                                        {formData[`${id}AvrId`]?.length >= 9 ? (
+                                            lookupFailed[id] ? (
+                                                <div className="es-status failure">
+                                                    <ShieldAlert size={12} /> Member not discovered
+                                                </div>
+                                            ) : (
+                                                <div className="es-status success">
+                                                    <Check size={12} /> Identity Verified
+                                                </div>
+                                            )
+                                        ) : (
+                                            <div className="es-status info">
+                                                <ExternalLink size={12} /> Needs website account
+                                            </div>
+                                        )}
                                     </div>
                                     <div className="es-detail-row">
                                         <div className="es-input-with-icon prefilled editable">

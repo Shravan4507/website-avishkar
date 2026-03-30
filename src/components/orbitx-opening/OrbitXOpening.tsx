@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import './OrbitXOpening.css';
 
@@ -8,6 +8,15 @@ interface OrbitXOpeningProps {
 
 const OrbitXOpening: React.FC<OrbitXOpeningProps> = ({ onComplete }) => {
   const [isExiting, setIsExiting] = useState(false);
+
+  useEffect(() => {
+    // Automatically proceed after 100ms
+    const timer = setTimeout(() => {
+      startTransition();
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const startTransition = () => {
     if (isExiting) return;
@@ -19,7 +28,7 @@ const OrbitXOpening: React.FC<OrbitXOpeningProps> = ({ onComplete }) => {
   };
 
   return (
-    <div className={`orbitx-opening-wrapper ${isExiting ? 'exiting' : ''}`} onClick={startTransition}>
+    <div className={`orbitx-opening-wrapper ${isExiting ? 'exiting' : ''}`}>
       <motion.div 
         className="eclipse-splash"
         initial={{ opacity: 0 }}
@@ -29,10 +38,6 @@ const OrbitXOpening: React.FC<OrbitXOpeningProps> = ({ onComplete }) => {
         <div className="eclipse-container">
           <img src="/assets/logos/OrbitX/Logo-OrbitX.png" alt="OrbitX" className="opening-logo" />
         </div>
-
-        <button className="get-started-button">
-          GET STARTED
-        </button>
       </motion.div>
     </div>
   );

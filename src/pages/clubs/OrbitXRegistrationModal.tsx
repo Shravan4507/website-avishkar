@@ -61,6 +61,7 @@ const OrbitXRegistrationModal: React.FC<OrbitXRegistrationModalProps> = ({ onClo
           firstname: `${userData.firstName} ${userData.lastName}`,
           email: userData.email || user.email,
           phone: userData.phone || '',
+          udf1: userData.college || 'N/A',
           surl: `${window.location.origin}/orbitx-zcoer?status=success`,
           furl: `${window.location.origin}/orbitx-zcoer?status=failure`
         })

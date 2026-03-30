@@ -1,8 +1,12 @@
 import { useState, useEffect, useRef } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import SEO from '../../components/seo/SEO'
 import StarBorder from '../../components/star-border/StarBorder'
 import { Award, Cpu, Globe } from 'lucide-react'
+import ChromaGrid from '../../components/chroma-grid/ChromaGrid'
+import { COMPETITIONS_DATA } from '../../data/competitions'
+import { useRegistrationGuard } from '../../hooks/useRegistrationGuard'
+
 const zcoerLogo = `${import.meta.env.BASE_URL}assets/logos/ZCOER-Logo-White.webp`
 const avishkarTitle = `${import.meta.env.BASE_URL}assets/logos/avishkar-white.webp`
 const avishkarHeader = `${import.meta.env.BASE_URL}assets/logos/Avishkar '26 White.webp`
@@ -58,6 +62,10 @@ const CountUp = ({ end, duration = 2000, suffix = "" }: { end: number, duration?
 }
 
 function Home() {
+  const navigate = useNavigate();
+  const { isRegistered, eventName } = useRegistrationGuard();
+  const flagshipCompetitions = COMPETITIONS_DATA.filter((item: any) => item.isFlagship);
+
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
     hours: 0,
@@ -123,36 +131,79 @@ function Home() {
               <span className="countdown-label">Secs</span>
             </div>
           </div>
-          
-          <div className="hero__cta-group">
-            <div className="hero__main-actions">
-              <Link to="/login" className="hero__btn hero__btn--primary">Get Started</Link>
-              <Link to="/competitions" className="hero__btn hero__btn--secondary">Competitions</Link>
+
+          <div className="home-arenas">
+            <div className="arena-header">
+              <span className="arena-label">The Flagships</span>
+              <h2>3 CORE ARENAS</h2>
+              <div className="arena-line"></div>
             </div>
-            <a href="#about" className="hero__explore-link">Explore the Universe</a>
+            <div className="home-competitions-container">
+              <ChromaGrid 
+                items={flagshipCompetitions}
+                radius={350}
+                damping={0.5}
+                fadeOut={0.8}
+                columns={3}
+                isRegistered={isRegistered}
+                registeredEventName={eventName}
+                onItemClick={(item) => {
+                  if (item.slug === 'codex-26') {
+                    navigate('/param-x');
+                  } else if (item.slug === 'battle-grid-26') {
+                    navigate('/battle-grid');
+                  } else if (item.slug === 'robotron-26') {
+                    navigate('/robo-kshetra');
+                  } else {
+                    navigate('/competitions');
+                  }
+                }}
+              />
+            </div>
           </div>
-        </div>
+          
+          <div className="arena-ctas">
+            <Link to="/workshops" className="arena-cta secondary">
+              <span>WORKSHOPS</span>
+            </Link>
+            <Link to="/signup" className="arena-cta primary">
+              <div className="cta-content">
+                <span>GET STARTED</span>
+                <div className="cta-glow"></div>
+              </div>
+            </Link>
+            <Link to="/competitions" className="arena-cta secondary">
+              <span>COMPETITIONS</span>
+            </Link>
+          </div>
 
+          {/* --- WHAT IS AVISHKAR (CENTERED) --- */}
+          <div className="hero__about">
+            <div className="hero__about-content">
+              <h2 className="hero__about-title">
+                <span className="hero__about-prefix">What is</span>
+                <img src={avishkarHeader} alt="AVISHKAR '26" className="hero__about-logo" />
+              </h2>
+            </div>
+            
+            <div className="hero__about-video-placeholder">
+              <StarBorder as="div" color="#5227FF" speed="6s" thickness={2} borderRadius={32}>
+                <div className="video-teaser">
+                  <div className="teaser-content">
+                    <div className="teaser-icon">
+                      <div className="play-ring"></div>
+                    </div>
+                    <span className="teaser-text">You'll Know Very Soon...</span>
+                  </div>
+                </div>
+              </StarBorder>
+            </div>
 
-      </section>
-
-      {/* --- ABOUT SECTION --- */}
-      <section className="about" id="about">
-        <div className="about__content">
-          <h2 className="about__title">
-            <span className="about__title-text">What is</span>
-            <img src={avishkarHeader} alt="AVISHKAR '26" className="about__title-logo" />
-          </h2>
-          <p className="about__description">
-            AVISHKAR ’26 is not just a technical festival—it is an ecosystem built to cultivate innovation, collaboration, and engineering excellence. 
-            Designed for the future-ready generation, it brings together minds across disciplines to explore, experiment, and execute ideas that matter. 
-            At ZCOER, Pune, we are building a legacy-driven platform where technology meets purpose. AVISHKAR empowers participants to move beyond learning and step into creation.
-          </p>
-        </div>
-        <div className="about__image-wrapper">
-          <StarBorder as="div" color="magenta" speed="6s" thickness={2} borderRadius={32} className="about__star-border">
-            <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=80" alt="Technical fest workshop" className="about__image" />
-          </StarBorder>
+            <p className="hero__about-description">
+              AVISHKAR ’26 is not just a technical festival—it is an ecosystem built to cultivate innovation, collaboration, and engineering excellence. 
+              At ZCOER, Pune, we are building a legacy-driven platform where technology meets purpose. AVISHKAR empowers participants to move beyond learning and step into creation.
+            </p>
+          </div>
         </div>
       </section>
 
@@ -177,31 +228,6 @@ function Home() {
             <div className="pillar-icon"><Globe size={32} /></div>
             <h3>Future-Ready Network</h3>
             <p>Connect with innovators, industry experts, and like-minded creators shaping the next wave of technology.</p>
-          </div>
-        </div>
-      </section>
-
-      {/* --- CORE ARENAS SECTION --- */}
-      <section className="highlights">
-        <div className="highlights__header">
-          <h2 className="section-title">3 Core Arenas</h2>
-          <p className="section-subtitle">Experience our flagship competitive domains</p>
-        </div>
-        <div className="highlights__grid">
-          <div className="highlight-card arena-card">
-            <div className="highlight-tag">Hackathon</div>
-            <h3>PARAM-X '26</h3>
-            <p>The premier 10-hour hackathon experience—build, break, and innovate to create high-impact tech solutions.</p>
-          </div>
-          <div className="highlight-card arena-card">
-            <div className="highlight-tag">Robotics</div>
-            <h3>ROBO-KSHETRA</h3>
-            <p>The premier combat arena where machines collide and engineering strategy meets sheer mechanical power.</p>
-          </div>
-          <div className="highlight-card arena-card">
-            <div className="highlight-tag">Esports</div>
-            <h3>BATTLE-GRID</h3>
-            <p>The high-octane gaming arena featuring top-tier competitive play and elite regional talent.</p>
           </div>
         </div>
       </section>

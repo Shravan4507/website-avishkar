@@ -8,6 +8,9 @@ interface OrbProps {
   rotateOnHover?: boolean;
   forceHoverState?: boolean;
   backgroundColor?: string;
+  logoSrc?: string;
+  autoCycle?: boolean;
+  colorMode?: number; // 0 = Solar, 1 = Lunar (if autoCycle is false)
 }
 
 export default function Orb({
@@ -15,7 +18,10 @@ export default function Orb({
   hoverIntensity = 0.2,
   rotateOnHover = true,
   forceHoverState = false,
-  backgroundColor = '#000000'
+  backgroundColor = '#000000',
+  logoSrc,
+  autoCycle = false,
+  colorMode = 0
 }: OrbProps) {
   const ctnDom = useRef<HTMLDivElement>(null);
 
@@ -39,6 +45,7 @@ export default function Orb({
     uniform float hover;
     uniform float rot;
     uniform float hoverIntensity;
+    uniform float uColorMode;
     uniform vec3 backgroundColor;
     varying vec2 vUv;
 
@@ -109,9 +116,16 @@ export default function Orb({
       return vec4(colorIn.rgb / (a + 1e-5), a);
     }
     
-    const vec3 baseColor1 = vec3(1.0, 0.45, 0.05);  // Vivid Orange
-    const vec3 baseColor2 = vec3(1.0, 0.95, 0.4);   // White-ish Yellow
-    const vec3 baseColor3 = vec3(0.15, 0.02, 0.01); // Deep Ember
+    // Solar Palette
+    const vec3 s1 = vec3(1.0, 0.45, 0.05);  // Vivid Orange
+    const vec3 s2 = vec3(1.0, 0.95, 0.4);   // White-ish Yellow
+    const vec3 s3 = vec3(0.15, 0.02, 0.01); // Deep Ember
+
+    // Lunar Palette (Cold Blue)
+    const vec3 l1 = vec3(0.05, 0.45, 1.0);  // Deep Blue/Cyan
+    const vec3 l2 = vec3(0.4, 0.9, 1.0);    // Ice White
+    const vec3 l3 = vec3(0.01, 0.02, 0.15); // Deep Void
+    
     const float innerRadius = 0.62;
     const float noiseScale = 0.8;
     
@@ -124,6 +138,10 @@ export default function Orb({
     }
     
     vec4 draw(vec2 uv) {
+      vec3 baseColor1 = mix(s1, l1, uColorMode);
+      vec3 baseColor2 = mix(s2, l2, uColorMode);
+      vec3 baseColor3 = mix(s3, l3, uColorMode);
+
       vec3 color1 = adjustHue(baseColor1, hue);
       vec3 color2 = adjustHue(baseColor2, hue);
       vec3 color3 = adjustHue(baseColor3, hue);
@@ -214,6 +232,7 @@ export default function Orb({
         hover: { value: 0 },
         rot: { value: 0 },
         hoverIntensity: { value: hoverIntensity },
+        uColorMode: { value: colorMode },
         backgroundColor: { value: hexToVec3(backgroundColor) }
       }
     });
@@ -285,6 +304,18 @@ export default function Orb({
       program.uniforms.hue.value = hue;
       program.uniforms.hoverIntensity.value = hoverIntensity;
 
+      // Color Mode Oscillation (Slow 15s cycle if autoCycle is true)
+      let colorModeValue = colorMode;
+      if (autoCycle) {
+        const cycleSpeed = 0.4;
+        colorModeValue = 0.5 + 0.5 * Math.sin(t * 0.001 * cycleSpeed);
+      }
+      
+      program.uniforms.uColorMode.value = colorModeValue;
+      
+      // Update variable for logo sync (children only)
+      container.style.setProperty('--u-color-mode', colorModeValue.toString());
+
       const effectiveHover = forceHoverState ? 1 : targetHover;
       program.uniforms.hover.value += (effectiveHover - program.uniforms.hover.value) * 0.1;
 
@@ -308,9 +339,17 @@ export default function Orb({
       }
       gl.getExtension('WEBGL_lose_context')?.loseContext();
     };
-  }, [hue, hoverIntensity, rotateOnHover, forceHoverState, backgroundColor, vert, frag]);
+  }, [hue, hoverIntensity, rotateOnHover, forceHoverState, backgroundColor, vert, frag, autoCycle, colorMode]);
 
-  return <div ref={ctnDom} className="orb-container" />;
+  return (
+    <div ref={ctnDom} className="orb-container">
+      {logoSrc && (
+        <div className="orb-logo">
+          <img src={logoSrc} alt="Orb Logo" />
+        </div>
+      )}
+    </div>
+  );
 }
 
 function hslToRgb(h: number, s: number, l: number) {

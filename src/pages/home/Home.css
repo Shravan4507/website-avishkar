@@ -16,7 +16,7 @@
   align-items: center;
   text-align: center;
   gap: 1.5rem;
-  max-width: 640px;
+  max-width: 1400px;
 }
 
 .hero__logo-btn {
@@ -36,7 +36,7 @@
 
 .hero__zcoer-logo {
   display: block;
-  height: 17.5rem;
+  height: 12.5rem;
   width: auto;
   object-fit: contain;
   filter: drop-shadow(0 15px 30px rgba(0, 0, 0, 0.4));
@@ -45,10 +45,9 @@
 .hero__title {
   display: block;
   width: 100%;
-  max-width: 28rem;
+  max-width: 75rem;
   height: auto;
   object-fit: contain;
-  max-width: min(28rem, 100%);
   filter: drop-shadow(0 15px 45px rgba(0, 0, 0, 0.5));
 }
 
@@ -89,6 +88,7 @@
   /* text-shadow: 0 0 20px rgba(255, 255, 255, 0.3); */
 }
 
+
 .countdown-label {
   font-size: 0.85rem;
   color: rgba(255, 255, 255, 0.5);
@@ -103,66 +103,81 @@
   transform: translateY(-8px);
 }
 
-.hero__cta-group {
-  margin-top: 1.5rem;
+/* --- Arena CTAs --- */
+.arena-ctas {
   display: flex;
-  flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 2rem;
+  margin-top: 2rem;
+  z-index: 10;
+  width: 100%;
 }
 
-.hero__main-actions {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  gap: 1.5rem;
-  flex-wrap: wrap;
-}
-
-.hero__btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1.25rem 2.75rem;
-  border-radius: 100px;
-  font-size: 1.25rem;
+.arena-cta {
+  height: 56px;
+  min-width: 200px;
+  padding: 0 2.5rem;
+  border-radius: 3rem;
+  font-family: 'Iceland', sans-serif;
+  font-size: 1.5rem;
   font-weight: 700;
   text-decoration: none;
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  min-width: 180px;
+  letter-spacing: 1.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
+  text-transform: uppercase;
 }
 
-.hero__btn--primary {
+.arena-cta.primary {
   background: #fff;
   color: #000;
-  box-shadow: 0 0 20px rgba(255, 255, 255, 0.15);
 }
 
-.hero__btn--primary:hover {
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
-  background: rgba(255, 255, 255, 0.95);
+.arena-cta.primary .cta-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.hero__btn--secondary {
-  background: rgba(255, 255, 255, 0.03);
+.arena-cta.primary:active {
+  transform: scale(0.98);
+}
+
+.arena-cta.secondary {
+  background: rgba(255, 255, 255, 0.05);
   color: #fff;
   border: 1px solid rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
 }
 
-.hero__btn--secondary:hover {
-  border-color: rgba(255, 255, 255, 0.3);
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+.arena-cta.secondary:active {
+  transform: scale(0.98);
 }
 
-.hero__btn:active {
-  transform: translateY(-2px) scale(0.98);
+.hero__btn:active, .arena-cta:active {
+  transform: scale(0.98);
+}
+
+@media (max-width: 768px) {
+  .arena-ctas {
+    flex-direction: column;
+    gap: 1.25rem;
+    padding: 0 1.5rem;
+    margin-top: 1.5rem;
+  }
+  
+  .arena-cta {
+    width: 100%;
+    height: 56px;
+    min-width: unset;
+    font-size: 1.4rem;
+  }
 }
 
 .hero__explore-link {
@@ -249,78 +264,141 @@
   animation-play-state: paused;
 }
 
-/* About Section */
-.about {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  min-height: 80vh;
+/* --- What is Avishkar (Centered) --- */
+.hero__about {
+  margin-top: 3rem;
   width: 100%;
-  overflow: hidden;
-}
-
-.about__content {
+  max-width: 1000px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  padding: 4rem 3rem 4rem 6rem;
-  gap: 2rem;
+  align-items: center;
+  gap: 4rem;
+  position: relative;
+  z-index: 5;
 }
 
-.about__title {
+.hero__about-content {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
+  text-align: center;
+  gap: 1.5rem;
+}
+
+.hero__about-title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: 0.5rem;
 }
 
-.about__title-text {
+.hero__about-prefix {
   font-size: 2rem;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.9);
+  color: rgb(255, 255, 255);
+  text-transform: none;
 }
 
-.about__title-logo {
-  height: 7rem;
+.hero__about-logo {
+  height: 8rem;
   width: auto;
   max-width: 100%;
-  object-fit: contain;
-  filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.4));
+  filter: drop-shadow(0 15px 35px rgba(0, 0, 0, 0.4));
 }
 
-.about__description {
-  font-size: 1.5rem;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.9);
-  line-height: 1.7;
-  max-width: 540px;
+.hero__about-video-placeholder {
+  width: 100%;
+  max-width: 900px;
+  padding: 0 1rem;
 }
 
-.about__image-wrapper {
+.video-teaser {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: rgba(255, 255, 255, 0.02);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
+  border-radius: 32px;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
 }
 
-.about__image {
+.teaser-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  z-index: 2;
+}
+
+.teaser-icon {
+  width: 80px;
+  height: 80px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.play-ring {
   width: 100%;
   height: 100%;
-  max-height: 500px;
-  object-fit: cover;
-  object-position: center;
-  border-radius: 2rem;
+  border: 4px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  position: absolute;
+  animation: teaserPulse 2s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+
+.play-ring::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 55%;
+  transform: translate(-50%, -50%);
+  border-top: 15px solid transparent;
+  border-bottom: 15px solid transparent;
+  border-left: 25px solid rgba(255, 255, 255, 0.8);
+}
+
+.teaser-text {
+  font-family: 'Iceland', sans-serif;
+  font-size: 2.2rem;
+  color: #fff;
+  letter-spacing: 2px;
+  animation: teaserTextFade 2s ease-in-out infinite;
+}
+
+@keyframes teaserPulse {
+  0% { transform: scale(1); opacity: 0.8; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+
+@keyframes teaserTextFade {
+  0%, 100% { opacity: 0.5; transform: translateY(0); }
+  50% { opacity: 1; transform: translateY(-5px); }
+}
+
+.hero__about-description {
+  font-size: 1.4rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.8;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 /* Stats Section */
 .stats {
-  padding: 6rem 2rem;
+  padding: 8rem 2rem;
   width: 100%;
   background: transparent;
 }
 
 .stats__container {
   max-width: 1200px;
-  margin: 0 auto;
+  margin: -120px auto;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 2.5rem;
@@ -368,7 +446,7 @@
 .pillars {
   padding: 8rem 2rem;
   max-width: 1200px;
-  margin: 0 auto 0;
+  margin: -150px auto 0;
 }
 
 .pillars__header, .highlights__header {
@@ -397,7 +475,7 @@
 }
 
 .pillar-card {
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(0, 0, 0, 0.65);
   border: 1px solid rgba(255, 255, 255, 0.08);
   padding: 4rem 2.5rem;
   border-radius: 3rem;
@@ -407,9 +485,7 @@
 }
 
 .pillar-card:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(167, 139, 250, 0.4);
-  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.85);
 }
 
 .pillar-icon {
@@ -433,70 +509,66 @@
   color: rgba(255, 255, 255, 0.6);
 }
 
-/* --- Highlights Section --- */
-.highlights {
-  padding: 8rem 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.highlights__grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2rem;
-}
-
-.highlight-card {
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  padding: 3rem;
-  border-radius: 2.5rem;
+/* --- Home Arenas Section --- */
+.home-arenas {
+  width: 100%;
+  max-width: 1400px;
+  margin: 3rem auto;
+  padding: 0 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
   position: relative;
-  overflow: hidden;
-  transition: all 0.4s ease;
+  z-index: 5;
 }
 
-.highlight-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; width: 100%; height: 100%;
-  background: radial-gradient(circle at top right, rgba(167, 139, 250, 0.15), transparent);
-  opacity: 0;
-  transition: 0.4s;
+.arena-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
 }
 
-.highlight-card:hover {
- background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(167, 139, 250, 0.4);
-  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
-}
-
-.highlight-card:hover::before {
-  opacity: 1;
-}
-
-.highlight-tag {
-  display: inline-block;
-  padding: 0.5rem 1.25rem;
-  background: rgba(167, 139, 250, 0.1);
-  color: #a78bfa;
-  border-radius: 100px;
-  font-size: 0.85rem;
-  font-weight: 700;
+.arena-label {
+  font-size: 0.9rem;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 1.5px;
-  margin-bottom: 2rem;
+  letter-spacing: 4px;
+  color: #ffffff;
+  display: block;
 }
 
-.highlight-card h3 {
-  font-size: 2.2rem;
-  margin-bottom: 1.5rem;
+.arena-header h2 {
+  font-family: 'Iceland', sans-serif;
+  font-size: 3.5rem;
+  color: #fff;
+  margin: 0;
+  letter-spacing: 2px;
 }
 
-.highlight-card p {
-  font-size: 1.2rem;
-  color: rgba(255, 255, 255, 0.5);
-  line-height: 1.7;
+.arena-line {
+  width: 60px;
+  height: 4px;
+  background: #5227FF;
+  border-radius: 2px;
+}
+
+.home-competitions-container {
+  width: 100%;
+  min-height: 500px;
+}
+
+@media (max-width: 768px) {
+  .arena-header h2 {
+    font-size: 2.5rem;
+  }
+  
+  .home-arenas {
+    margin: 2rem auto;
+    gap: 1rem;
+  }
 }
 
 /* --- Final CTA --- */
@@ -507,7 +579,7 @@
 }
 
 .final-cta__glass {
-  background: linear-gradient(135deg, rgba(82, 39, 255, 0.12), rgba(167, 139, 250, 0.04));
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.65));
   backdrop-filter: blur(40px);
   -webkit-backdrop-filter: blur(40px);
   padding: 8rem 4rem;
@@ -536,9 +608,10 @@
 .final-cta-btn {
   background: #fff;
   color: #000;
-  padding: 1.5rem 4rem;
+  padding: 1.25rem 3rem;
   border-radius: 100px;
-  font-size: 1.4rem;
+  font-family: 'Iceland', sans-serif;
+  font-size: 2rem;
   font-weight: 800;
   text-decoration: none;
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
@@ -550,25 +623,32 @@
 
 /* --- Mobile Mobile Premium Refinement --- */
 @media (max-width: 1024px) {
-  .about {
-    grid-template-columns: 1fr;
-    min-height: auto;
+  .hero__about {
+    margin-top: 6rem;
+    padding: 0 2rem;
+    gap: 3rem;
   }
 
-  .about__content {
-    padding: 6rem 2rem; /* Increased padding for better section separation */
-    align-items: center;
-    text-align: center;
+  .hero__about-logo {
+    height: 6rem;
   }
 
-  .about__title {
-    align-items: center;
+  .hero__about-prefix {
+    font-size: 1.8rem;
   }
 
-  .about__description {
-    margin: 0 auto;
-    font-size: 1.25rem;
-    color: rgba(255, 255, 255, 0.7);
+  .teaser-text {
+    font-size: 1.8rem;
+  }
+
+  .teaser-icon {
+    width: 60px;
+    height: 60px;
+  }
+
+  .hero__about-description {
+    font-size: 1.2rem;
+    line-height: 1.6;
   }
 
   .pillars__grid {
@@ -606,7 +686,7 @@
   }
 
   .hero__title {
-    max-width: 20rem;
+    max-width: 55rem;
   }
 
   .hero__countdown {
@@ -622,15 +702,15 @@
   }
 
   .countdown-value {
-    font-size: 2.2rem;
+    font-size: 2.8rem;
   }
 
   .hero__cta-link {
-    font-size: 1.6rem;
+    font-size: 2rem;
   }
 
   .section-title {
-    font-size: 3rem;
+    font-size: 3.5rem;
     margin-bottom: 1rem;
   }
 
@@ -665,7 +745,7 @@
   }
 
   .hero__title {
-    max-width: 16rem;
+    max-width: 35rem;
   }
 
   .hero__countdown {
@@ -679,7 +759,7 @@
   }
 
   .countdown-value {
-    font-size: 1.8rem;
+    font-size: 2.4rem;
   }
 
   .countdown-label {
@@ -744,5 +824,39 @@
     width: 100%;
     max-width: 280px;
     text-align: center;
+  }
+
+  .hero__about {
+    margin-top: 4rem;
+    gap: 2rem;
+  }
+
+  .hero__about-logo {
+    height: 4.5rem;
+  }
+
+  .hero__about-prefix {
+    font-size: 1.25rem;
+  }
+
+  .teaser-text {
+    font-size: 1.4rem;
+    letter-spacing: 1px;
+  }
+
+  .teaser-icon {
+    width: 50px;
+    height: 50px;
+  }
+
+  .play-ring::before {
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+    border-left: 18px solid rgba(255, 255, 255, 0.8);
+  }
+
+  .hero__about-description {
+    font-size: 1rem;
+    line-height: 1.6;
   }
 }

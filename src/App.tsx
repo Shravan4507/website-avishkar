@@ -69,6 +69,8 @@ import UserProtectedRoutes from './routes/UserProtectedRoutes';
 import AdminProtectedRoutes from './routes/AdminProtectedRoutes';
 import PublicRoutes from './routes/PublicRoutes';
 
+import SplashCursor from './components/splash-cursor/SplashCursor';
+
 // Wrap element with PageTransition for every route
 const T = ({ el }: { el: React.ReactNode }) => (
   <PageTransition>{el}</PageTransition>
@@ -102,6 +104,14 @@ const LayoutManager = () => {
 
   return (
     <>
+      {!lowSpec && (
+        <SplashCursor 
+          SPLASH_COLORS={['#5227ff', '#000000', '#201d20']} 
+          DENSITY_DISSIPATION={4.5}
+          SPLAT_RADIUS={0.15}
+          SPLAT_FORCE={3000}
+        />
+      )}
       <div className="background-fixed">
         <Grainient
           color1="#000000"
@@ -157,7 +167,7 @@ const LayoutManager = () => {
                   <Route path="/param-x/rules" element={<T el={<ParamXRules />} />} />
 
                   {/* ── Club Detail Pages ── */}
-                  <Route path="/gdg-zcoer"    element={<T el={<GDGClub />} />} />
+                  <Route path="/gdgoc-zcoer"    element={<T el={<GDGClub />} />} />
                   <Route path="/orbitx-zcoer" element={<T el={<OrbitXClub />} />} />
 
                   {/* ── Student Auth ── */}
