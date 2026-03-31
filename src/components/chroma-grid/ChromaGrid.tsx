@@ -18,6 +18,7 @@ export interface ChromaItem {
     url?: string;
     prizePool?: string;
     entryFee?: number;
+    comingSoon?: boolean;
     coordinator?: string;
     contactNumber?: string;
     isFlagship?: boolean;
@@ -226,11 +227,13 @@ export const ChromaGrid: React.FC<ChromaGridProps> = ({
                         <img src={c.image} alt={c.title} loading="lazy" />
                         {c.prizePool && <div className="prize-tag">Prize: {c.prizePool}</div>}
                         {c.entryFee && <div className="fee-tag">Fee: ₹{c.entryFee}</div>}
+                        {c.comingSoon && <div className="coming-soon-badge">COMING SOON</div>}
                     </div>
                     <footer className="chroma-info">
                         <h3 className="name">{c.title}</h3>
                         {c.handle && <span className="handle">{c.handle}</span>}
                         <p className="role">{c.subtitle}</p>
+                        {c.description && <p className="desc">{c.description}</p>}
                         {c.location && <span className="location">{c.location}</span>}
                     </footer>
                 </article>
@@ -245,11 +248,13 @@ export const ChromaGrid: React.FC<ChromaGridProps> = ({
                         <div className="modal-main">
                             <div className="modal-image">
                                 <img src={selectedMember.image} alt={selectedMember.title} />
+                                {selectedMember.comingSoon && <div className="modal-coming-soon">COMING SOON</div>}
                             </div>
                             <div className="modal-details">
                                 <div className="modal-header-top">
                                     <span className="modal-loc">{selectedMember.location}</span>
                                     {selectedMember.prizePool && <span className="modal-prize-pool">Pool: {selectedMember.prizePool}</span>}
+                                    {selectedMember.entryFee && <span className="modal-prize-pool">Fee: ₹{selectedMember.entryFee}</span>}
                                 </div>
                                 <h2>{selectedMember.title}</h2>
                                 <div className="modal-meta">

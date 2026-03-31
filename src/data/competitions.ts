@@ -17,6 +17,7 @@ export interface Competition {
     entryFee?: number;
     coordinator?: string;
     contactNumber?: string;
+    comingSoon?: boolean;
 }
 
 export const COMPETITIONS_DATA: Competition[] = [
@@ -65,9 +66,10 @@ export const COMPETITIONS_DATA: Competition[] = [
         gradient: 'linear-gradient(210deg, #ff4655, #000)',
         url: '#',
         isFlagship: true,
-        prizePool: '₹80,000',
+        prizePool: '₹80,000+',
         slug: 'battle-grid-26',
-        department: 'Information Technology'
+        department: 'Information Technology',
+        comingSoon: true
     },
 
     // Standard Competitions
@@ -138,6 +140,23 @@ export const COMPETITIONS_DATA: Competition[] = [
         entryFee: 250,
         coordinator: "Tushar Anand",
         contactNumber: "9236113425"
+    },
+    {
+        id: 'comp_blindcode',
+        image: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=600&h=400&auto=format&fit=crop',
+        title: 'Blind Code Challenge',
+        subtitle: 'Unseen Logic',
+        location: 'Coding Lab',
+        handle: 'Blind-Coder',
+        description: 'Can you code without looking? Test your memory and syntax accuracy by coding with your monitor turned off.',
+        borderColor: '#5227FF',
+        gradient: 'linear-gradient(145deg, #5227FF, #000)',
+        url: '#',
+        slug: 'blind-code',
+        department: 'Computer Engineering',
+        entryFee: 200,
+        coordinator: 'Shirish Kadu',
+        contactNumber: '8668383832'
     },
     {
         id: 'comp_devclash',

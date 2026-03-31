@@ -19,7 +19,6 @@ import {
     Users,
     AlertTriangle,
     Target,
-    Trophy,
     FileText,
     Rocket,
     HelpCircle,
@@ -53,7 +52,7 @@ const ROBO_EVENTS = [
         members: 4, 
         mode: 'Offline',
         color: '#d9ff00', 
-        description: 'Forge a bot capable of extreme precision. Navigate high-speed tracks and complex intersections with autonomous perfection.',
+        description: 'Forge a bot capable of extreme precision. Navigate high-speed tracks and complex intersections with autonomous perfection. Engineering focus: PID control, sensor calibration, and mechanical stability.',
         gradient: 'linear-gradient(135deg, #d9ff00, #000)',
         image: `${import.meta.env.BASE_URL}assets/robokshetra/line_follower.png`
     },
@@ -67,7 +66,7 @@ const ROBO_EVENTS = [
         members: 4, 
         mode: 'Offline',
         color: '#d9ff00', 
-        description: 'Think, adapt, escape. Engineer a machine that can solve complex labyrinths in record time using advanced sensor fusion.',
+        description: 'Think, adapt, escape. Engineer a machine that can solve complex labyrinths in record time using advanced sensor fusion and pathfinding algorithms. Engineering focus: Maze mapping, wall following, and fast turns.',
         gradient: 'linear-gradient(135deg, #d9ff00, #000)',
         image: `${import.meta.env.BASE_URL}assets/robokshetra/maze_solver.png`
     },
@@ -81,7 +80,7 @@ const ROBO_EVENTS = [
         members: 4, 
         mode: 'Offline',
         color: '#d9ff00', 
-        description: 'A grueling all-terrain challenge course designed to test mechanical resilience and obstacle evasion logic.',
+        description: 'A grueling all-terrain challenge course designed to test mechanical resilience and obstacle evasion logic. Navigate ramps, pits, and moving obstacles in a race against time. Engineering focus: All-terrain chassis, torque management, and real-time obstacle avoidance.',
         gradient: 'linear-gradient(135deg, #d9ff00, #000)',
         image: `${import.meta.env.BASE_URL}assets/robokshetra/trailblazer.png`
     },
@@ -103,8 +102,14 @@ const RoboKshetra: React.FC = () => {
 
     const { isRegistered, eventName: registeredEventName } = useRegistrationGuard();
 
-
     const activeEvent = ROBO_EVENTS.find(e => e.id === selectedEvent);
+
+    // Scroll to top when switching to form
+    React.useEffect(() => {
+        if (selectedEvent) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    }, [selectedEvent]);
 
     // Form states — flat keys matching hackathon pattern
     const [formData, setFormData] = useState<Record<string, string>>({
@@ -421,13 +426,6 @@ const RoboKshetra: React.FC = () => {
                                     <span className="stat-label">Core Arenas</span>
                                 </div>
                             </div>
-                            <div className="stat-item">
-                                <Trophy className="stat-icon" />
-                                <div className="stat-content">
-                                    <span className="stat-val">₹50,000+</span>
-                                    <span className="stat-label">Prize Pool</span>
-                                </div>
-                            </div>
                         </div>
 
                         <div className="hero-ctas">
@@ -487,7 +485,7 @@ const RoboKshetra: React.FC = () => {
                                 title: e.label,
                                 subtitle: e.tagline,
                                 image: e.image,
-                                prizePool: e.prize,
+                                entryFee: e.fee,
                                 description: e.description,
                                 gradient: e.gradient,
                                 handle: e.type,

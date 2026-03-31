@@ -76,11 +76,15 @@ function Competitions() {
                         isRegistered={isRegistered}
                         registeredEventName={eventName}
                         onItemClick={(item) => {
+                            if (item.comingSoon) {
+                                setSelectedSlug(item.slug);
+                                return;
+                            }
 
                             if (item.slug === 'codex-26') {
                                 navigate('/param-x');
                             } else if (item.slug === 'battle-grid-26') {
-                                navigate('/battle-grid');
+                                setSelectedSlug(item.slug);
                             } else if (item.slug === 'robotron-26') {
                                 navigate('/robo-kshetra');
                             } else {
