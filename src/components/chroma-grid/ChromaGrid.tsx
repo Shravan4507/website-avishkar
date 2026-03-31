@@ -288,7 +288,11 @@ export const ChromaGrid: React.FC<ChromaGridProps> = ({
                                 )}
                                 <div className="modal-actions">
                                     {showRegister && (
-                                        isRegistered ? (
+                                        selectedMember.comingSoon ? (
+                                            <button className="register-btn disabled" disabled>
+                                                Coming Soon
+                                            </button>
+                                        ) : isRegistered ? (
                                             <button className="register-btn disabled" disabled title={`Already registered for ${registeredEventName}`}>
                                                 Locked: {registeredEventName}
                                             </button>

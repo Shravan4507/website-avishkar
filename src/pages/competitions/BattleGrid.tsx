@@ -33,6 +33,12 @@ const BattleGrid: React.FC = () => {
     const toast = useToast();
     const { isRegistered, eventName } = useRegistrationGuard();
 
+    // GLOBAL LOCK: Battle Grid is undergoing recalibration
+    React.useEffect(() => {
+        toast.info("Battle Grid '26 is currently undergoing tactical recalibration. Access restricted.");
+        navigate('/competitions');
+    }, [navigate, toast]);
+
     return (
         <div className="battle-grid-page">
             <SEO 
