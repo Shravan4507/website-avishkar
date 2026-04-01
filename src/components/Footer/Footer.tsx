@@ -47,6 +47,7 @@ function Footer() {
                             <h3 className="footer__heading">Information</h3>
                             <nav className="footer__nav">
                                 
+                                <Link to="/faq" className="footer__link">FAQs</Link>
                                 <Link to="/book-a-stall" className="footer__link">Book a Stall</Link>
                                 <Link to="/login" className="footer__link">Accounts</Link>
                                 <button onClick={openBugReport} className="footer__link footer__bug-btn">Report a Bug</button>

@@ -43,6 +43,7 @@ const ParamXRules = lazy(() => import('./pages/competitions/ParamXRules'));
 const Privacy = lazy(() => import('./pages/legal/Privacy'));
 const Terms = lazy(() => import('./pages/legal/Terms'));
 const Cookies = lazy(() => import('./pages/legal/Cookies'));
+const FAQ = lazy(() => import('./pages/info/FAQ'));
 
 
 import { PAGE_VISIBILITY } from './config/pageVisibility';
@@ -158,6 +159,7 @@ const LayoutManager = () => {
                   <Route path="/privacy"     element={<T el={<Privacy />} />} />
                   <Route path="/terms"       element={<T el={<Terms />} />} />
                   <Route path="/cookies"     element={<T el={<Cookies />} />} />
+                  <Route path="/faq"         element={<T el={<FAQ />} />} />
                   <Route path="/contact"     element={<T el={settings.contact ? <Contact /> : <ComingSoon pageName="Contact" />} />} />
                   <Route path="/book-a-stall" element={<T el={<BookStall />} />} />
                   <Route path="/robo-kshetra" element={<T el={settings.competitions ? <RobotronRegistration /> : <ComingSoon pageName="RoboKshetra" />} />} />

@@ -92,25 +92,6 @@ const VirtualPass: React.FC<VirtualPassProps> = ({ isOpen, isStatic, onClose, us
         />
       </div>
 
-      {/* QR Expansion Overlay */}
-      {isQRExpanded && (
-        <div className="qr-expansion-overlay animate-in" onClick={(e) => { e.stopPropagation(); setIsQRExpanded(false); }}>
-          <div className="qr-expansion-content" onClick={(e) => e.stopPropagation()}>
-            <button className="qr-close-btn" onClick={() => setIsQRExpanded(false)}><X size={24} /></button>
-            <div className="qr-expanded-wrapper">
-              <QRCodeComponent 
-                value={qrToken} 
-                size={window.innerWidth < 500 ? 280 : 400} 
-                bgColor="#ffffff" 
-                fgColor="#000000" 
-                level="Q"
-              />
-            </div>
-            <p className="qr-hint">TAP ANYWHERE TO CLOSE</p>
-          </div>
-        </div>
-      )}
-
       {/* ID Number (Bottom Right) */}
       <div className="pass-id-number">{user.avrId}</div>
     </div>
@@ -130,6 +111,25 @@ const VirtualPass: React.FC<VirtualPassProps> = ({ isOpen, isStatic, onClose, us
       <div className="virtual-pass-modal-content animate-in" onClick={(e) => e.stopPropagation()}>
         {content}
       </div>
+
+      {/* QR Expansion Overlay Moved outside card to avoid transform/overflow clipping */}
+      {isQRExpanded && (
+        <div className="qr-expansion-overlay animate-in" onClick={(e) => { e.stopPropagation(); setIsQRExpanded(false); }}>
+          <div className="qr-expansion-content" onClick={(e) => e.stopPropagation()}>
+            <button className="qr-close-btn" onClick={() => setIsQRExpanded(false)}><X size={24} /></button>
+            <div className="qr-expanded-wrapper">
+              <QRCodeComponent 
+                value={qrToken} 
+                size={window.innerWidth < 500 ? 280 : 400} 
+                bgColor="#ffffff" 
+                fgColor="#000000" 
+                level="Q"
+              />
+            </div>
+            <p className="qr-hint">TAP ANYWHERE TO CLOSE</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
