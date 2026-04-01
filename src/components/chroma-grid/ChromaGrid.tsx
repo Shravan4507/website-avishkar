@@ -139,22 +139,26 @@ export const ChromaGrid: React.FC<ChromaGridProps> = ({
     };
 
     const handleCardClick = (member: ChromaItem) => {
-        if (disableModal && onItemClick) {
-            onItemClick(member);
-        } else {
+        onItemClick?.(member);
+        if (!disableModal) {
             setSelectedMember(member);
         }
     };
 
     const closePortal = () => {
-        if (onModalClose) {
-            onModalClose();
-        } else {
-            const tl = gsap.timeline({
-                onComplete: () => setSelectedMember(null)
-            });
+        const tl = gsap.timeline({
+            onComplete: () => {
+                setSelectedMember(null);
+                onModalClose?.();
+            }
+        });
+        
+        if (modalContentRef.current && modalRef.current) {
             tl.to(modalContentRef.current, { scale: 0.9, opacity: 0, duration: 0.3, ease: 'power2.in' })
-                .to(modalRef.current, { opacity: 0, duration: 0.2 }, "-=0.2");
+              .to(modalRef.current, { opacity: 0, duration: 0.2 }, "-=0.2");
+        } else {
+            setSelectedMember(null);
+            onModalClose?.();
         }
     };
 
