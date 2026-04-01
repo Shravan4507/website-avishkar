@@ -492,3 +492,272 @@ input:checked + .slider:before {
 .slider.round:before {
     border-radius: 50%;
 }
+
+/* --- Squad Assembly Section --- */
+.squad-assembly-section {
+    margin-top: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.reg-section-divider {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin: 1.5rem 0 0.5rem 0;
+}
+
+.divider-label {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #a78bfa;
+    letter-spacing: 2px;
+    white-space: nowrap;
+}
+
+.reg-section-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(167, 139, 250, 0.3) 0%, rgba(167, 139, 250, 0) 100%);
+}
+
+.team-name-input-group {
+    margin-bottom: 0.5rem;
+}
+
+.reg-input-wrapper, .lookup-input-box, .detail-input-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.reg-input-wrapper svg:first-child, 
+.lookup-input-box svg:first-child,
+.detail-input-box svg:first-child {
+    position: absolute;
+    left: 12px;
+    color: rgba(255, 255, 255, 0.3);
+    z-index: 2;
+}
+
+.reg-input-wrapper input, 
+.lookup-input-box input,
+.detail-input-box input {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 0.85rem 1rem 0.85rem 2.8rem;
+    color: #fff;
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.detail-input-box input {
+    padding: 0.65rem 1rem 0.65rem 2.5rem;
+    font-size: 0.9rem;
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.reg-input-wrapper input:focus, 
+.lookup-input-box input:focus,
+.detail-input-box input:focus {
+    border-color: #a78bfa;
+    background: rgba(0, 0, 0, 0.5);
+    box-shadow: 0 0 0 4px rgba(167, 139, 250, 0.1);
+}
+
+.detail-input-box.readonly input {
+    background: rgba(255, 255, 255, 0.02);
+    border-color: transparent;
+    color: rgba(255, 255, 255, 0.5);
+    cursor: default;
+}
+
+/* Protocol Banner */
+.squad-protocol-banner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(167, 139, 250, 0.05);
+    border: 1px solid rgba(167, 139, 250, 0.1);
+    padding: 0.85rem 1rem;
+    border-radius: 14px;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.85rem;
+}
+
+.squad-protocol-banner p {
+    flex: 1;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.protocol-action-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.protocol-action-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Squad Grid & Cards */
+.squad-members-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+}
+
+.member-entry-card {
+    position: relative;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.member-entry-card:hover {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.08);
+}
+
+.member-entry-card.searching {
+    border-color: rgba(167, 139, 250, 0.4);
+    box-shadow: 0 0 20px rgba(167, 139, 250, 0.1);
+}
+
+.member-entry-card.failed {
+    border-color: rgba(239, 68, 68, 0.3);
+}
+
+.member-index-tag {
+    position: absolute;
+    top: 0.5rem;
+    right: 1rem;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 3rem;
+    font-weight: 900;
+    color: rgba(255, 255, 255, 0.03);
+    pointer-events: none;
+    line-height: 1;
+}
+
+.member-lookup-row {
+    margin-bottom: 1.25rem;
+    z-index: 2;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.lookup-input-box input {
+    font-family: monospace;
+    letter-spacing: 1.5px;
+    font-weight: 600;
+    background: rgba(0, 0, 0, 0.4);
+}
+
+.lookup-input-box svg:last-child {
+    position: absolute;
+    right: 12px;
+    color: rgba(255, 255, 255, 0.2);
+}
+
+.lookup-status {
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    letter-spacing: 1.5px;
+}
+
+.lookup-status.success { color: #10b981; }
+.lookup-status.error { color: #ef4444; }
+
+.member-details-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.detail-input-row {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 0.75rem;
+}
+
+.squad-requirement-hint {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #f59e0b;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-top: 0.5rem;
+    background: rgba(245, 158, 11, 0.05);
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    border: 1px solid rgba(245, 158, 11, 0.1);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.spin {
+    animation: spin 1s linear infinite;
+}
+
+@media (max-width: 600px) {
+    .detail-input-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .member-entry-card {
+        padding: 1.25rem;
+    }
+    
+    .squad-protocol-banner {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+    
+    .protocol-action-btn {
+        justify-content: center;
+    }
+    
+    .member-index-tag {
+        font-size: 2rem;
+    }
+}

@@ -1,12 +1,17 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuthState } from 'react-firebase-hooks/auth';
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc, setDoc, serverTimestamp, collection, query, where, getDocs } from 'firebase/firestore';
 import { auth, db } from '../../firebase/firebase';
 import { useToast } from '../../components/toast/Toast';
 import { COMPETITIONS_DATA } from '../../data/competitions';
 import type { Competition } from '../../data/competitions';
-import { Trophy, CheckCircle, ArrowRight, ShieldCheck, AlertTriangle, CreditCard, Moon } from 'lucide-react';
+import { 
+  Trophy, CheckCircle, ArrowRight, ShieldCheck, 
+  AlertTriangle, CreditCard, Moon, Fingerprint, 
+  User, Mail, Phone, Building2, Search, Users, 
+  Copy, Loader2, ShieldAlert, Check 
+} from 'lucide-react';
 import { useRegistrationGuard } from '../../hooks/useRegistrationGuard';
 import { initiateEasebuzzCheckout, generateTxnId } from '../../utils/easebuzz';
 import './Registration.css';
@@ -28,6 +33,12 @@ const Registration: React.FC = () => {
   const [accountabilityAccepted, setAccountabilityAccepted] = useState(false);
   const [transactionId, setTransactionId] = useState<string | null>(null);
   const [moonObservation, setMoonObservation] = useState(false);
+
+  // --- Squad State ---
+  const [teamName, setTeamName] = useState('');
+  const [squadMembers, setSquadMembers] = useState<any[]>([]);
+  const [lookupLoading, setLookupLoading] = useState<Record<number, boolean>>({});
+  const [lookupFailed, setLookupFailed] = useState<Record<number, boolean>>({});
 
   const { isRegistered, eventName: registeredEventName } = useRegistrationGuard();
 
@@ -85,7 +96,20 @@ const Registration: React.FC = () => {
         if (foundComp) {
           setCompetition(foundComp);
           
-          // 3. Check if already registered using deterministic doc ID
+          // 3. Initialize Squad Slates if Team Event
+          if ((foundComp.maxTeamSize || 1) > 1) {
+            const slotsCount = (foundComp.maxTeamSize || 1) - 1;
+            const initialSquad = Array.from({ length: slotsCount }, () => ({
+              avrId: '',
+              name: '',
+              email: '',
+              phone: '',
+              college: ''
+            }));
+            setSquadMembers(initialSquad);
+          }
+
+          // 4. Check if already registered using deterministic doc ID
           const regId = `${foundComp.id}_${uData.avrId}`;
           const regSnap = await getDoc(doc(db, 'registrations', regId));
           if (regSnap.exists()) {
@@ -121,6 +145,77 @@ const Registration: React.FC = () => {
     return age;
   };
 
+  // --- AVR Lookup Logic ---
+  const handleAvrInput = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
+    let val = e.target.value.toUpperCase();
+    const prevVal = squadMembers[index]?.avrId || '';
+
+    if (!val.startsWith("AVR-")) {
+        val = "AVR-";
+    }
+
+    const raw = val.slice(4).replace(/[^A-Z0-9]/g, '');
+    let letters = raw.slice(0, 3).replace(/[0-9]/g, '');
+    let numbers = raw.slice(letters.length).replace(/[A-Z]/g, '').slice(0, 4);
+
+    let formatted = "AVR-" + letters;
+
+    if (letters.length === 3) {
+        if (prevVal.length > val.length && prevVal.endsWith("-") && !val.includes("-", 5)) {
+            formatted = "AVR-" + letters;
+        } else {
+            formatted += "-" + numbers;
+        }
+    }
+
+    const newSquad = [...squadMembers];
+    newSquad[index] = { ...newSquad[index], avrId: formatted };
+    setSquadMembers(newSquad);
+
+    if (formatted.length >= 9) {
+        handleAvrLookup(formatted, index);
+    }
+  };
+
+  const handleMemberInputChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
+    const { name, value } = e.target;
+    const newSquad = [...squadMembers];
+    newSquad[index] = { ...newSquad[index], [name]: value };
+    setSquadMembers(newSquad);
+  };
+
+  const handleAvrLookup = async (avrId: string, index: number) => {
+    if (!avrId || avrId.length < 8) return;
+
+    setLookupLoading(prev => ({ ...prev, [index]: true }));
+    try {
+        const userQuery = query(collection(db, "user"), where("avrId", "==", avrId.trim()));
+        const querySnapshot = await getDocs(userQuery);
+        if (!querySnapshot.empty) {
+            const data = querySnapshot.docs[0].data();
+            const fullName = `${data.firstName || ''} ${data.lastName || ''}`.trim() || data.name || data.displayName || '';
+            
+            const newSquad = [...squadMembers];
+            newSquad[index] = {
+                ...newSquad[index],
+                name: fullName,
+                email: data.email || '',
+                phone: data.whatsappNumber || data.whatsapp || data.phone || '',
+                college: data.college || '',
+            };
+            setSquadMembers(newSquad);
+            setLookupFailed(prev => ({ ...prev, [index]: false }));
+        } else {
+            setLookupFailed(prev => ({ ...prev, [index]: true }));
+        }
+    } catch (err) {
+        console.error("Member lookup error:", err);
+    } finally {
+        setLookupLoading(prev => ({ ...prev, [index]: false }));
+    }
+  };
+
+
   /** Write registration to Firestore */
   const submitRegistration = async (paymentTxnId?: string) => {
     const regId = `${competition!.id}_${userData.avrId}`;
@@ -139,18 +234,34 @@ const Registration: React.FC = () => {
     const addOnFee = (competition!.slug === 'orbitx_solar' && moonObservation) ? 20 : 0;
     const fee = baseFee + addOnFee;
 
+    const allMembersAvr = [
+      userData.avrId,
+      ...squadMembers
+        .filter(m => !!m.avrId && m.avrId.length >= 9)
+        .map(m => m.avrId)
+    ];
+
     await setDoc(regRef, {
-      // User Info
+      // User Info (Leader)
       userId: user!.uid,
       userName: `${userData.firstName} ${userData.lastName}`,
       userEmail: userData.email || user!.email,
       userAVR: userData.avrId,
-      allAvrIds: [userData.avrId],
+      allAvrIds: allMembersAvr,
       userPhone: userData.phone || '',
       userCollege: userData.college || '',
       userMajor: userData.major || '',
       userAge: userAge,
       userSex: userData.sex || '',
+      // Team Info
+      teamName: teamName || null,
+      squad: squadMembers.filter(m => !!m.avrId && m.avrId.length >= 9).map(m => ({
+        avrId: m.avrId,
+        name: m.name,
+        email: m.email,
+        phone: m.phone,
+        college: m.college
+      })),
       // Competition Info
       competitionId: competition!.id,
       eventName: competition!.title,
@@ -232,6 +343,44 @@ const Registration: React.FC = () => {
     const baseFee = competition.entryFee || 0;
     const addOnFee = (competition.slug === 'orbitx_solar' && moonObservation) ? 20 : 0;
     const fee = baseFee + addOnFee;
+
+    // --- Team Validation ---
+    if ((competition.maxTeamSize || 1) > 1) {
+      if (!teamName.trim()) {
+        toast.error("TEAM_IDENTIFIER required for registration.");
+        return;
+      }
+
+      const activeMembers = squadMembers.filter(m => m.avrId && m.avrId.length >= 9);
+      const totalCount = activeMembers.length + 1; // +1 for Leader
+
+      if (totalCount < (competition.minTeamSize || 1)) {
+        toast.error(`Minimum ${competition.minTeamSize} members required for this arena.`);
+        return;
+      }
+
+      // Check for duplicates
+      const allAvrIds = [userData.avrId, ...activeMembers.map(m => m.avrId)];
+      const seen = new Set();
+      for (const id of allAvrIds) {
+        if (seen.has(id)) {
+          toast.error(`Duplicate detected: ${id}. Every squad member must be unique.`);
+          return;
+        }
+        seen.add(id);
+      }
+
+      // Check for missing data in active members
+      for (let i = 0; i < squadMembers.length; i++) {
+        const m = squadMembers[i];
+        if (m.avrId && m.avrId.length >= 9) {
+          if (!m.name || !m.phone) {
+            toast.error(`Incomplete details for Squadron Member P${i + 2}`);
+            return;
+          }
+        }
+      }
+    }
 
     if (fee > 0) {
       // Paid event — route through Easebuzz
@@ -393,6 +542,102 @@ const Registration: React.FC = () => {
                   </label>
                 </div>
               </div>
+            </div>
+          )}
+          {(competition.maxTeamSize || 1) > 1 && (
+            <div className="squad-assembly-section animate-in">
+                {/* Team Name */}
+                <div className="reg-section-divider">
+                    <span className="divider-label">TEAM_IDENTIFIER</span>
+                </div>
+                <div className="team-name-input-group">
+                    <div className="reg-input-wrapper">
+                        <Users size={18} className="input-icon" />
+                        <input 
+                            type="text" 
+                            placeholder="Enter Squadron Name" 
+                            value={teamName}
+                            onChange={(e) => setTeamName(e.target.value)}
+                        />
+                    </div>
+                </div>
+
+                {/* Squad Members */}
+                <div className="reg-section-divider">
+                    <span className="divider-label">SQUAD_REGISTRY</span>
+                </div>
+                
+                <div className="squad-protocol-banner">
+                    <ShieldAlert size={18} />
+                    <p>All members must have a verified account. Data is synced via Global AVR IDs.</p>
+                    <button className="protocol-action-btn" onClick={() => {
+                        navigator.clipboard.writeText(`${window.location.origin}/signup`);
+                        toast.success("Signup link copied!");
+                    }}>
+                        <Copy size={12} /> Share Link
+                    </button>
+                </div>
+
+                <div className="squad-members-grid">
+                    {squadMembers.map((member, index) => (
+                        <div key={index} className={`member-entry-card ${lookupLoading[index] ? 'searching' : ''} ${lookupFailed[index] ? 'failed' : ''}`}>
+                            <div className="member-index-tag">P{index + 2}</div>
+                            
+                            <div className="member-lookup-row">
+                                <div className="lookup-input-box">
+                                    <Fingerprint size={16} />
+                                    <input 
+                                        type="text" 
+                                        placeholder="AVR-XXX-0000"
+                                        value={member.avrId}
+                                        onChange={(e) => handleAvrInput(e, index)}
+                                    />
+                                    {lookupLoading[index] ? <Loader2 size={16} className="spin" /> : <Search size={16} />}
+                                </div>
+                                
+                                {member.avrId.length >= 9 && (
+                                    <div className={`lookup-status ${lookupFailed[index] ? 'error' : 'success'}`}>
+                                        {lookupFailed[index] ? <ShieldAlert size={12} /> : <Check size={12} />}
+                                        {lookupFailed[index] ? 'Not Found' : 'Verified'}
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="member-details-rows">
+                                <div className="detail-input-box readonly">
+                                    <User size={14} />
+                                    <input type="text" placeholder="Full Name" value={member.name} readOnly />
+                                </div>
+                                <div className="detail-input-box readonly">
+                                    <Mail size={14} />
+                                    <input type="email" placeholder="Email Address" value={member.email} readOnly />
+                                </div>
+                                <div className="detail-input-row">
+                                    <div className="detail-input-box">
+                                        <Phone size={14} />
+                                        <input 
+                                            type="tel" 
+                                            name="phone"
+                                            placeholder="WhatsApp Number" 
+                                            value={member.phone} 
+                                            onChange={(e) => handleMemberInputChange(e, index)}
+                                        />
+                                    </div>
+                                    <div className="detail-input-box readonly">
+                                        <Building2 size={14} />
+                                        <input type="text" placeholder="Institution" value={member.college} readOnly />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                {squadMembers.length < (competition.minTeamSize || 1) - 1 && (
+                    <p className="squad-requirement-hint">
+                        <AlertTriangle size={14} /> This arena requires at least {competition.minTeamSize} total members.
+                    </p>
+                )}
             </div>
           )}
 
