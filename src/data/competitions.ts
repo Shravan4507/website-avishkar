@@ -82,7 +82,7 @@ export const COMPETITIONS_DATA: Competition[] = [
     // Standard Competitions
     {
         id: 'comp_forgex',
-        image: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=600&h=400&auto=format&fit=crop',
+        image: `${import.meta.env.BASE_URL}assets/competitions/forgex.png`,
         title: 'Forge-X',
         subtitle: 'Engineering Unleashed',
         location: 'Main Arena',
@@ -101,7 +101,7 @@ export const COMPETITIONS_DATA: Competition[] = [
     },
     {
         id: 'comp_algobid',
-        image: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?q=80&w=600&h=400&auto=format&fit=crop',
+        image: `${import.meta.env.BASE_URL}assets/competitions/algobid.png`,
         title: 'Algo Bid: Auction Coding',
         subtitle: 'Strategic Programming',
         location: 'Coding Den',
@@ -120,7 +120,7 @@ export const COMPETITIONS_DATA: Competition[] = [
     },
     {
         id: 'comp_codeladder',
-        image: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?q=80&w=600&h=400&auto=format&fit=crop',
+        image: `${import.meta.env.BASE_URL}assets/competitions/codeladder.png`,
         title: 'Code Ladder',
         subtitle: 'Step-by-Step Logic',
         location: 'Cyber Arena',
@@ -139,7 +139,7 @@ export const COMPETITIONS_DATA: Competition[] = [
     },
     {
         id: 'comp_iplauction',
-        image: 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?q=80&w=600&h=400&auto=format&fit=crop',
+        image: `${import.meta.env.BASE_URL}assets/competitions/iplauction.png`,
         title: 'IPL Auction',
         subtitle: 'Strategic Bidding',
         location: 'Grand Hall',
@@ -158,7 +158,7 @@ export const COMPETITIONS_DATA: Competition[] = [
     },
     {
         id: 'comp_blindcode',
-        image: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=600&h=400&auto=format&fit=crop',
+        image: `${import.meta.env.BASE_URL}assets/competitions/blindcode.png`,
         title: 'Blind Code Challenge',
         subtitle: 'Unseen Logic',
         location: 'Coding Lab',
@@ -177,7 +177,7 @@ export const COMPETITIONS_DATA: Competition[] = [
     },
     {
         id: 'comp_devclash',
-        image: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=600&h=400&auto=format&fit=crop',
+        image: `${import.meta.env.BASE_URL}assets/competitions/devclash.png`,
         title: 'Dev Clash',
         subtitle: 'Product Development',
         location: 'Design Studio',
@@ -196,7 +196,7 @@ export const COMPETITIONS_DATA: Competition[] = [
     },
     {
         id: 'comp_vibesprint',
-        image: 'https://images.unsplash.com/photo-1626544823105-df33a1e16356?q=80&w=600&h=400&auto=format&fit=crop',
+        image: 'https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=600&h=400&auto=format&fit=crop',
         title: 'Vibe Sprint',
         subtitle: 'Creative Dash',
         location: 'Main Ground',
@@ -215,7 +215,7 @@ export const COMPETITIONS_DATA: Competition[] = [
     },
     {
         id: 'comp_coderun',
-        image: 'https://images.unsplash.com/photo-1605379399642-870262d3d051?q=80&w=600&h=400&auto=format&fit=crop',
+        image: `${import.meta.env.BASE_URL}assets/competitions/coderun.png`,
         title: 'Code Run',
         subtitle: 'Competitive Programming',
         location: 'Coding Den',
@@ -234,7 +234,7 @@ export const COMPETITIONS_DATA: Competition[] = [
     },
     {
         id: 'comp_bridgenova',
-        image: 'https://images.unsplash.com/photo-1549490349-8643362247b5?q=80&w=600&h=400&auto=format&fit=crop',
+        image: `${import.meta.env.BASE_URL}assets/competitions/bridgenova.png`,
         title: 'Bridge Nova',
         subtitle: 'Structural Engineering',
         location: 'Design Lab',
@@ -253,7 +253,7 @@ export const COMPETITIONS_DATA: Competition[] = [
     },
     {
         id: 'comp_poster',
-        image: 'https://images.unsplash.com/photo-1572044162444-ad60f128bdea?q=80&w=600&h=400&auto=format&fit=crop',
+        image: `${import.meta.env.BASE_URL}assets/competitions/poster.png`,
         title: 'Poster Presentation',
         subtitle: 'Research Showcase',
         location: 'Seminar Hall',
@@ -272,7 +272,7 @@ export const COMPETITIONS_DATA: Competition[] = [
     },
     {
         id: 'comp_sparktank',
-        image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=600&h=400&auto=format&fit=crop',
+        image: `${import.meta.env.BASE_URL}assets/competitions/sparktank.png`,
         title: 'Spark Tank',
         subtitle: 'Electro-Innovation Pitch',
         location: 'Tech Hub',
@@ -291,7 +291,7 @@ export const COMPETITIONS_DATA: Competition[] = [
     },
     {
         id: 'comp_matlab',
-        image: 'https://images.unsplash.com/photo-1554415707-6e8cfc93fe23?q=80&w=600&h=400&auto=format&fit=crop',
+        image: `${import.meta.env.BASE_URL}assets/competitions/matlab.png`,
         title: 'Matlab Madness',
         subtitle: 'Mathematical Computing',
         location: 'Simulation Lab',
