@@ -318,7 +318,7 @@
 .ps-id { font-family: 'Iceland', sans-serif; font-size: 1.25rem; color: #a78bfa; white-space: nowrap; }
 
 .ps-title { font-weight: 700; color: #fff; margin-bottom: 0.4rem; font-size: 1.15rem; }
-.ps-objective-preview { font-size: 0.9rem; color: rgba(255, 255, 255, 0.4); }
+.ps-objective-preview { font-size: 0.9rem; color: rgba(255, 255, 255, 0.9); }
 
 .center { text-align: center; }
 
@@ -570,7 +570,7 @@
     border-bottom: 1px solid rgba(255,255,255,0.05);
     padding-bottom: 0.75rem;
 }
-.detail-section p { font-size: 1.15rem; color: rgba(255,255,255,0.6); line-height: 1.8; }
+.detail-section p { font-size: 1.15rem; color: rgba(255,255,255,0.9); line-height: 1.8; }
 
 .artifact-grid {
     display: grid;
@@ -589,7 +589,7 @@
 
 
 .artifact-card h4 { color: #a78bfa; margin-bottom: 1rem; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px; }
-.artifact-card p { font-size: 0.95rem; color: rgba(255,255,255,0.4); line-height: 1.6; }
+.artifact-card p { font-size: 0.95rem; color: rgba(255,255,255,0.9); line-height: 1.6; }
 
 .sidebar { display: flex; flex-direction: column; gap: 2rem; }
 
@@ -633,9 +633,9 @@
 
 .slot-info { display: flex; flex-direction: column; align-items: center; }
 .slots-taken { font-size: 3.5rem; font-weight: 800; color: #fff; line-height: 1; }
-.slots-total { font-size: 1.1rem; color: rgba(255,255,255,0.3); }
+.slots-total { font-size: 1.1rem; color: rgba(255,255,255,0.9); }
 
-.slot-hint { font-size: 0.85rem; color: rgba(255,255,255,0.3); font-style: italic; text-align: center; }
+.slot-hint { font-size: 0.85rem; color: rgba(255,255,255,0.9); font-style: italic; text-align: center; }
 
 @media (max-width: 1000px) {
     .detail-container {
@@ -719,6 +719,25 @@
 }
 
 .download-sample-btn:active { transform: scale(0.98); }
+
+.upload-submission-btn {
+    background: rgba(0, 102, 255, 0.1);
+    color: #0066ff;
+    padding: 1.1rem;
+    border-radius: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    font-weight: 700;
+    border: 1px solid rgba(0, 102, 255, 0.2);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.upload-submission-btn:active {
+    transform: scale(0.98);
+}
 
 @media (max-width: 1100px) {
     .detail-grid { grid-template-columns: 1fr; gap: 2rem; }

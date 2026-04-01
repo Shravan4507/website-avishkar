@@ -75,6 +75,7 @@ function Competitions() {
                         columns={3}
                         isRegistered={isRegistered}
                         registeredEventName={eventName}
+                        disableModal={true}
                         onItemClick={(item) => {
                             if (item.comingSoon) {
                                 setSelectedSlug(item.slug);
@@ -84,14 +85,13 @@ function Competitions() {
                             if (item.slug === 'codex-26') {
                                 navigate('/param-x');
                             } else if (item.slug === 'battle-grid-26') {
-                                setSelectedSlug(item.slug);
+                                navigate('/battle-grid');
                             } else if (item.slug === 'robotron-26') {
                                 navigate('/robo-kshetra');
                             } else {
                                 setSelectedSlug(item.slug);
                             }
                         }}
-                        onModalClose={() => setSelectedSlug(undefined)}
                     />
                 </div>
             </section>

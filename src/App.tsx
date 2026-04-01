@@ -36,6 +36,7 @@ const BattleGridRules = lazy(() => import('./pages/competitions/BattleGridRules'
 const EsportsRegistration = lazy(() => import('./pages/competitions/EsportsRegistration'));
 const BookStall = lazy(() => import('./pages/stalls/BookStall'));
 const ParamX = lazy(() => import('./pages/competitions/ParamX'));
+const ParamXUpload = lazy(() => import('./pages/competitions/ParamXUpload'));
 const ParamXRules = lazy(() => import('./pages/competitions/ParamXRules'));
 
 // Lazy Loaded Legal Pages
@@ -165,6 +166,7 @@ const LayoutManager = () => {
                   <Route path="/battle-grid/rules" element={<T el={<BattleGridRules />} />} />
                   <Route path="/param-x" element={<T el={<ParamX />} />} />
                   <Route path="/param-x/rules" element={<T el={<ParamXRules />} />} />
+                  <Route path="/param-x/upload" element={<T el={<ParamXUpload />} />} />
 
                   {/* ── Club Detail Pages ── */}
                   <Route path="/gdgoc-zcoer"    element={<T el={<GDGClub />} />} />
@@ -212,9 +214,28 @@ const LayoutManager = () => {
 
 const ScrollReset = () => {
   const { pathname } = useLocation();
+
   useEffect(() => {
+    // Disable browser's automatic scroll restoration on refresh
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+  }, []);
+
+  useEffect(() => {
+    // Immediate scroll reset on route change
     window.scrollTo(0, 0);
+    document.documentElement.scrollTo(0, 0);
+    document.body.scrollTo(0, 0);
+    
+    // Delayed fallback for complex page entries
+    const timeoutId = setTimeout(() => {
+       window.scrollTo(0, 0);
+    }, 10);
+
+    return () => clearTimeout(timeoutId);
   }, [pathname]);
+
   return null;
 };
 

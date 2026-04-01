@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../../components/toast/Toast';
@@ -54,7 +54,16 @@ const ROBO_EVENTS = [
         color: '#d9ff00', 
         description: 'Forge a bot capable of extreme precision. Navigate high-speed tracks and complex intersections with autonomous perfection. Engineering focus: PID control, sensor calibration, and mechanical stability.',
         gradient: 'linear-gradient(135deg, #d9ff00, #000)',
-        image: `${import.meta.env.BASE_URL}assets/robokshetra/line_follower.png`
+        image: `${import.meta.env.BASE_URL}assets/robokshetra/line_follower.png`,
+        highlights: [
+            "Fully Autonomous Robot (No Bluetooth / manual control)",
+            "Size Limit: 20 x 20 × 20 cm",
+            "Max Voltage: 16.8V",
+            "Track: Turns, intersections, crossovers, color change",
+            "Requirement: Auto speed modes + fail-safe system",
+            "Team Size: Max 4 members",
+            "Rounds: Preliminary + Finals"
+        ]
     },
     { 
         id: 'robomaze', 
@@ -68,7 +77,15 @@ const ROBO_EVENTS = [
         color: '#d9ff00', 
         description: 'Think, adapt, escape. Engineer a machine that can solve complex labyrinths in record time using advanced sensor fusion and pathfinding algorithms. Engineering focus: Maze mapping, wall following, and fast turns.',
         gradient: 'linear-gradient(135deg, #d9ff00, #000)',
-        image: `${import.meta.env.BASE_URL}assets/robokshetra/maze_solver.png`
+        image: `${import.meta.env.BASE_URL}assets/robokshetra/maze_solver.png`,
+        highlights: [
+            "🤖 Fully Autonomous Robot (No remote control)",
+            "📏 Max Size: 30 × 30 cm",
+            "🛣️ Task: Navigate maze (START → END)",
+            "🧩 Maze: Multiple paths, dead ends, hidden routes",
+            "⏱️ Goal: Reach center in minimum time",
+            "👥 Team Size: 2–4 members"
+        ]
     },
     { 
         id: 'roborush', 
@@ -82,7 +99,15 @@ const ROBO_EVENTS = [
         color: '#d9ff00', 
         description: 'A grueling all-terrain challenge course designed to test mechanical resilience and obstacle evasion logic. Navigate ramps, pits, and moving obstacles in a race against time. Engineering focus: All-terrain chassis, torque management, and real-time obstacle avoidance.',
         gradient: 'linear-gradient(135deg, #d9ff00, #000)',
-        image: `${import.meta.env.BASE_URL}assets/robokshetra/trailblazer.png`
+        image: `${import.meta.env.BASE_URL}assets/robokshetra/trailblazer.png`,
+        highlights: [
+            "🎮 Remote-Controlled Robot (NOT autonomous)",
+            "📏 Size Limit: 30 × 30 cm",
+            "⚖️ Weight: 1–1.5 kg",
+            "🛣️ Task: Navigate obstacle track (START → END)",
+            "🧱 Arena: Obstacles, turns, dead ends, unstable surfaces",
+            "👥 Team Size: 2–4 members"
+        ]
     },
 ] as const;
 
@@ -104,8 +129,7 @@ const RoboKshetra: React.FC = () => {
 
     const activeEvent = ROBO_EVENTS.find(e => e.id === selectedEvent);
 
-    // Scroll to top when switching to form
-    React.useEffect(() => {
+    useEffect(() => {
         if (selectedEvent) {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
@@ -480,31 +504,50 @@ const RoboKshetra: React.FC = () => {
                     <div className="rk-grid-wrapper">
                         <ChromaGrid 
                             className="rk-arenas-grid"
-                            items={ROBO_EVENTS.map(e => ({
-                                id: e.id,
-                                title: e.label,
-                                subtitle: e.tagline,
-                                image: e.image,
-                                entryFee: e.fee,
-                                description: e.description,
-                                gradient: e.gradient,
-                                handle: e.type,
-                                isFlagship: true,
-                                borderColor: e.color,
-                                location: `${e.members}P | ${e.mode}`
-                            } as ChromaItem))}
+                            items={ROBO_EVENTS.map(event => ({
+                                id: event.id,
+                                title: event.label,
+                                subtitle: event.tagline,
+                                image: event.image,
+                                borderColor: event.color,
+                                slug: event.id,
+                                prizePool: event.prize,
+                                handle: event.type,
+                                location: `${event.members}P | ${event.mode}`,
+                                description: (
+                                    <div className="rk-modal-highlights">
+                                        <p className="rk-modal-main-desc">{event.description}</p>
+                                        <div className="rk-highlights-section">
+                                            <h3 style={{ borderLeft: `4px solid ${event.color}`, paddingLeft: '12px', color: '#fff', fontSize: '1rem', letterSpacing: '2px', marginBottom: '15px' }}>
+                                                KEY HIGHLIGHTS
+                                            </h3>
+                                            <div className="rk-highlights-mini-grid">
+                                                {event.highlights.map((h, i) => (
+                                                    <div key={i} className="rk-mini-h-item">
+                                                        <div className="rk-h-dot" style={{ backgroundColor: event.color }} />
+                                                        <span>{h}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )
+                            }))}
                             radius={400}
                             damping={0.5}
                             fadeOut={0.8}
                             columns={3}
+                            isRegistered={isRegistered}
+                            registeredEventName={registeredEventName}
                             onItemClick={(item: ChromaItem) => {
                                 if (!user) {
-                                    toast.error("Access Denied: Authentication required to enter assembly.");
+                                    toast.error("Access Denied: Please log in to register.");
                                     navigate('/login');
                                     return;
                                 }
                                 if (isRegistered) {
-                                    toast.warning(`Locked: Already registered for ${registeredEventName}.`);
+                                    const event = registeredEventName || "Robotics Challenge";
+                                    toast.warning(`Locked: Already registered for ${event}.`);
                                     return;
                                 }
                                 setSelectedEvent(item.id as EventId);
@@ -788,6 +831,7 @@ const RoboKshetra: React.FC = () => {
                     </div>
                 </div>
             )}
+
         </div>
     );
 };

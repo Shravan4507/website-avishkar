@@ -68,8 +68,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         isFlagship: true,
         prizePool: '₹80,000+',
         slug: 'battle-grid-26',
-        department: 'Information Technology',
-        comingSoon: true
+        department: 'Information Technology'
     },
 
     // Standard Competitions

@@ -641,3 +641,21 @@
         text-align: center;
     }
 }
+
+/* Team ID Highlight Styles */
+.id-highlight {
+    background: rgba(82, 39, 255, 0.12) !important;
+    border: 2px solid rgba(82, 39, 255, 0.3) !important;
+    box-shadow: 0 0 40px rgba(82, 39, 255, 0.15);
+}
+
+.id-highlight .label {
+    color: #a78bfa !important;
+}
+
+.id-highlight .value {
+    font-family: 'Iceland', sans-serif;
+    letter-spacing: 4px;
+    color: #fff !important;
+    text-shadow: 0 0 15px rgba(167, 139, 250, 0.5);
+}

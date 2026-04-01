@@ -157,6 +157,7 @@ const HackathonRegistration: React.FC = () => {
     const [lookupLoading, setLookupLoading] = useState<Record<string, boolean>>({});
     const [lookupFailed, setLookupFailed] = useState<Record<string, boolean>>({});
     const [transactionId, setTransactionId] = useState("");
+    const [teamId, setTeamId] = useState("");
 
 
     const [formData, setFormData] = useState({
@@ -356,6 +357,7 @@ const HackathonRegistration: React.FC = () => {
     const handleSubmitRegistration = async (paymentId: string) => {
         setSubmitting(true);
         try {
+            let generatedTeamId = "";
             await runTransaction(db, async (transaction) => {
                 const psMetadataRef = doc(db, "ps_metadata", formData.psId);
                 const psMetadataDoc = await transaction.get(psMetadataRef);
@@ -365,11 +367,23 @@ const HackathonRegistration: React.FC = () => {
 
                 if (currentCount >= 10) throw new Error("This problem statement has no more slots.");
 
+                // Generate Unique Team ID
+                const teamCounterRef = doc(db, "counters", "hackathon_team_counter");
+                const teamCounterDoc = await transaction.get(teamCounterRef);
+                let nextTeamCount = 1;
+                if (teamCounterDoc.exists()) {
+                    nextTeamCount = (teamCounterDoc.data().count || 0) + 1;
+                }
+
+                transaction.update(teamCounterRef, { count: nextTeamCount });
+                generatedTeamId = `AVR-PRM-${nextTeamCount.toString().padStart(4, '0')}`;
+
                 transaction.set(psMetadataRef, { count: currentCount + 1 }, { merge: true });
 
                 const registrationRef = doc(collection(db, "hackathon_registrations"));
                 transaction.set(registrationRef, {
                     ...formData,
+                    teamId: generatedTeamId,
                     status: 'confirmed',
                     paymentId,
                     amountPaid: 500,
@@ -391,8 +405,9 @@ const HackathonRegistration: React.FC = () => {
             });
 
             setTransactionId(paymentId);
+            setTeamId(generatedTeamId);
             setStep(3);
-            toast.success("Team Registered!");
+            toast.success(`Team Registered! ID: ${generatedTeamId}`);
 
         } catch (err: any) {
             toast.error(err.message);
@@ -600,6 +615,11 @@ const HackathonRegistration: React.FC = () => {
                             </div>
 
                             <div className="success-details">
+                                <div className="detail-item id-highlight">
+                                    <span className="d-label">Team ID</span>
+                                    <span className="d-value team-id">{teamId}</span>
+                                </div>
+
                                 <div className="detail-item">
                                     <span className="d-label">Transaction ID</span>
                                     <span className="d-value">{transactionId}</span>

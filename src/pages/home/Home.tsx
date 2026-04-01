@@ -147,6 +147,7 @@ function Home() {
                 columns={3}
                 isRegistered={isRegistered}
                 registeredEventName={eventName}
+                disableModal={true}
                 onItemClick={(item) => {
                   if (item.slug === 'codex-26') {
                     navigate('/param-x');

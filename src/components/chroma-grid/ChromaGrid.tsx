@@ -12,7 +12,7 @@ export interface ChromaItem {
     slug?: string;
     handle?: string;
     location?: string;
-    description?: string;
+    description?: string | React.ReactNode;
     borderColor?: string;
     gradient?: string;
     url?: string;
@@ -44,6 +44,7 @@ export interface ChromaGridProps {
     registeredEventName?: string | null;
     selectedItemSlug?: string;
     onItemClick?: (item: ChromaItem) => void;
+    disableModal?: boolean;
     onModalClose?: () => void;
 }
 
@@ -81,6 +82,7 @@ export const ChromaGrid: React.FC<ChromaGridProps> = ({
     registeredEventName = null,
     selectedItemSlug,
     onItemClick,
+    disableModal = false,
     onModalClose
 }) => {
 
@@ -137,7 +139,7 @@ export const ChromaGrid: React.FC<ChromaGridProps> = ({
     };
 
     const handleCardClick = (member: ChromaItem) => {
-        if (onItemClick) {
+        if (disableModal && onItemClick) {
             onItemClick(member);
         } else {
             setSelectedMember(member);
@@ -295,6 +297,16 @@ export const ChromaGrid: React.FC<ChromaGridProps> = ({
                                         ) : isRegistered ? (
                                             <button className="register-btn disabled" disabled title={`Already registered for ${registeredEventName}`}>
                                                 Locked: {registeredEventName}
+                                            </button>
+                                        ) : onItemClick ? (
+                                            <button 
+                                                className="register-btn" 
+                                                onClick={() => {
+                                                    onItemClick(selectedMember);
+                                                    closePortal();
+                                                }}
+                                            >
+                                                Register Now
                                             </button>
                                         ) : (
                                             <Link 

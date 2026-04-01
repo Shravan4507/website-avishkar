@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import DashboardSkeleton from '../../components/common/DashboardSkeleton';
 import NotificationBell from '../../components/notifications/NotificationBell';
 import { useToast } from '../../components/toast/Toast';
-import { Award, FileText, Instagram, Youtube, BookOpen, Download, Camera, Loader2 } from 'lucide-react';
+import { Award, FileText, Instagram, Youtube, BookOpen, Download, Camera, Loader2, CloudUpload } from 'lucide-react';
 import VirtualPass from '../../components/VirtualPass/VirtualPass';
 import { generateInvoice } from '../../utils/InvoiceGenerator';
 import { useCache } from '../../hooks/useCache';
@@ -406,32 +406,48 @@ const UserDashboard: React.FC = () => {
               </div>
               <div className="registrations-grid">
                 {myRegistrations.length > 0 ? myRegistrations.map((reg) => (
-                  <div key={reg.id} className="registration-card">
+                    <div key={reg.id} className="registration-card">
                     <div className="reg-icon"><Award size={20}/></div>
                     <div className="reg-details">
                       <h3>{reg.eventName}</h3>
                       <p>{reg.category}</p>
+
+                      {reg.teamId && (
+                        <div className="reg-team-id">
+                          <span className="id-label">Team ID</span>
+                          <span className="id-value">{reg.teamId}</span>
+                        </div>
+                      )}
                     </div>
                     <div className="reg-actions">
                       <div className="reg-status">Registered</div>
                       {reg.isHackathon && (
-                        <button 
-                          className="invoice-download-btn" 
-                          title="Download Invoice"
-                          onClick={() => generateInvoice({
-                            teamName: reg.teamName,
-                            leaderName: reg.leaderName,
-                            leaderEmail: reg.leaderEmail,
-                            avrId: reg.leaderAvrId || reg.avrId,
-                            psId: reg.psId,
-                            psTitle: reg.psId, 
-                            paymentId: reg.paymentId,
-                            date: reg.createdAt?.toDate ? reg.createdAt.toDate().toLocaleDateString() : new Date().toLocaleDateString(),
-                            amount: "500.00"
-                          })}
-                        >
-                          <Download size={18} />
-                        </button>
+                        <div className="reg-hackathon-actions">
+                          <button 
+                            className="invoice-download-btn" 
+                            title="Download Invoice"
+                            onClick={() => generateInvoice({
+                              teamName: reg.teamName,
+                              leaderName: reg.leaderName,
+                              leaderEmail: reg.leaderEmail,
+                              avrId: reg.leaderAvrId || reg.avrId,
+                              psId: reg.psId,
+                              psTitle: reg.psId, 
+                              paymentId: reg.paymentId,
+                              date: reg.createdAt?.toDate ? reg.createdAt.toDate().toLocaleDateString() : new Date().toLocaleDateString(),
+                              amount: "500.00"
+                            })}
+                          >
+                            <Download size={18} />
+                          </button>
+                          <button 
+                            className="dashboard-upload-btn"
+                            title="Upload PPT"
+                            onClick={() => navigate('/param-x/upload')}
+                          >
+                            <CloudUpload size={18} />
+                          </button>
+                        </div>
                       )}
                     </div>
                   </div>

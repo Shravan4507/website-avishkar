@@ -12,7 +12,7 @@ import problemsData from '../../data/problems.json';
 import { 
     Search, Filter, ArrowRight, Info, Loader2,
     FileText, Download, Target, Trophy, HelpCircle,
-    Users, Rocket, ArrowLeft, ShieldAlert
+    Users, Rocket, ArrowLeft, ShieldAlert, CreditCard, CloudUpload
 } from 'lucide-react';
 import { useRegistrationGuard } from '../../hooks/useRegistrationGuard';
 
@@ -31,8 +31,27 @@ const ParamX: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedDomain, setSelectedDomain] = useState('All');
-    
+    const [isDownloading, setIsDownloading] = useState(false);
     const { isRegistered, eventName } = useRegistrationGuard();
+
+    const handleDownload = async () => {
+        if (isDownloading) return;
+        setIsDownloading(true);
+        toast.info("Preparing your sample PPT...");
+
+        // Artificial delay for smooth animation transition
+        await new Promise(resolve => setTimeout(resolve, 1200));
+
+        const link = document.createElement('a');
+        link.href = '/assets/paramx/ParamX_Sample_PPT.pptx';
+        link.download = 'ParamX_Sample_PPT.pptx';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        setIsDownloading(false);
+        toast.success("Download started!");
+    };
 
     
     const problemId = searchParams.get('problem');
@@ -161,10 +180,30 @@ const ParamX: React.FC = () => {
                                 </button>
 
                                 <button 
-                                    className="download-sample-btn disabled"
-                                    onClick={() => toast.info("Sample PPT will be available soon.")}
+                                    className={`download-sample-btn ${isDownloading ? 'loading' : ''}`}
+                                    onClick={handleDownload}
+                                    disabled={isDownloading}
                                 >
-                                    <Download size={18} /> Sample PPT (Soon)
+                                    {isDownloading ? <Loader2 size={18} className="spinner" /> : <Download size={18} />}
+                                    {isDownloading ? 'Starting...' : 'Sample PPT'}
+                                </button>
+
+                                <button 
+                                    className={`upload-submission-btn ${!isRegistered ? 'disabled' : ''}`}
+                                    onClick={() => {
+                                        if (!user) {
+                                            toast.error("Please log in to upload your project.");
+                                            navigate('/login');
+                                            return;
+                                        }
+                                        if (!isRegistered) {
+                                            toast.error("Registration required to access the upload portal.");
+                                            return;
+                                        }
+                                        navigate('/param-x/upload');
+                                    }}
+                                >
+                                    <CloudUpload size={18} /> Upload Submission
                                 </button>
                             </div>
                         </div>
@@ -206,6 +245,13 @@ const ParamX: React.FC = () => {
                             <span className="stat-label">Prize Pool</span>
                         </div>
                     </div>
+                    <div className="stat-item">
+                        <CreditCard className="stat-icon" />
+                        <div className="stat-content">
+                            <span className="stat-val">₹500</span>
+                            <span className="stat-label">Entry Fee</span>
+                        </div>
+                    </div>
                 </div>
 
 
@@ -223,8 +269,17 @@ const ParamX: React.FC = () => {
                     <button className="secondary-cta disabled" onClick={() => toast.info("Rulebook is being finalized and will be available soon.")}>
                         Rulebook (Soon) <FileText size={18} />
                     </button>
-                    <button className="glass-cta disabled" onClick={() => toast.info("Sample PPT will be available soon.")}>
-                        Sample PPT (Soon) <Download size={18} />
+                    <button 
+                        className={`glass-cta ${isDownloading ? 'loading' : ''}`} 
+                        onClick={handleDownload}
+                        disabled={isDownloading}
+                    >
+                        {isDownloading ? 'Starting...' : 'Sample PPT'}
+                        {isDownloading ? <Loader2 size={18} className="spinner" /> : <Download size={18} />}
+                    </button>
+                    
+                    <button className="glass-cta" onClick={() => navigate('/param-x/upload')}>
+                        Upload Submission <CloudUpload size={18} />
                     </button>
                 </div>
             </section>
