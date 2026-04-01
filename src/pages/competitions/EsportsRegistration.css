@@ -90,7 +90,7 @@
 
 /* --- SECTIONS --- */
 .es-section {
-    background: rgba(0, 0, 0, 0.45);
+    background: rgba(0, 0, 0, 0.65);
     backdrop-filter: blur(25px);
     border-bottom: 3px solid rgba(255, 255, 255, 0.3);
     border-radius: 3rem;
@@ -102,7 +102,7 @@
     align-items: center;
     gap: 1rem;
     margin-bottom: 2rem;
-    color: #5227ff;
+    color: #27ff39;
 }
 
 .es-section-header h3 {
@@ -115,7 +115,7 @@
 .es-team-input {
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 1.5rem;
+    border-radius: 3rem;
     padding: 1.25rem 1.5rem;
 }
 
@@ -167,7 +167,7 @@
     justify-content: center;
     width: 42px;
     height: 42px;
-    border-radius: 0.75rem;
+    border-radius: 3rem;
     font-family: 'Iceland', sans-serif;
     font-size: 0.75rem;
     letter-spacing: 1px;
@@ -192,13 +192,13 @@
     gap: 0.75rem;
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 1rem;
+    border-radius: 3rem;
     padding: 0.9rem 1.2rem;
     transition: all 0.3s ease;
 }
 
 .es-input-with-icon svg {
-    color: rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.45);
     flex-shrink: 0;
 }
 
@@ -213,7 +213,7 @@
 }
 
 .es-input-with-icon input::placeholder {
-    color: rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.55);
 }
 
 .es-input-with-icon.avr-lookup {
@@ -428,6 +428,14 @@
     font-weight: 600;
 }
 
+.es-pm-ign {
+    font-size: 0.8rem;
+    color: #27ff39;
+    font-family: 'Iceland', sans-serif;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
 .es-pm-avr {
     font-size: 0.8rem;
     color: rgba(255, 255, 255, 0.4);
@@ -635,7 +643,7 @@
     padding: 1.5rem;
     background: rgba(82, 39, 255, 0.05);
     border: 1px solid rgba(82, 39, 255, 0.2);
-    border-radius: 12px;
+    border-radius: 2rem;
     margin-bottom: 2rem;
     backdrop-filter: blur(10px);
 }
@@ -645,7 +653,7 @@
     height: 44px;
     background: rgba(82, 39, 255, 0.1);
     border: 1px solid rgba(82, 39, 255, 0.3);
-    border-radius: 10px;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -675,17 +683,15 @@
     background: #5227ff;
     color: white;
     border: none;
-    border-radius: 6px;
+    border-radius: 3rem;
     font-size: 0.85rem;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.3s ease;
 }
 
-.es-share-btn:hover {
-    background: #4119e6;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(82, 39, 255, 0.3);
+.es-share-btn:active {
+    transform: scale(0.98);
 }
 
 .es-form-hint {

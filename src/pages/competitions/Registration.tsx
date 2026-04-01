@@ -192,7 +192,6 @@ const Registration: React.FC = () => {
           firstname: `${userData.firstName} ${userData.lastName}`,
           email: userData.email || user.email,
           phone: userData.phone || '',
-          udf1: userData.college || '',
           surl: `${window.location.origin}/user/dashboard?status=success`,
           furl: `${window.location.origin}/competitions?status=failure`
         })

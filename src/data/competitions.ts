@@ -18,6 +18,8 @@ export interface Competition {
     coordinator?: string;
     contactNumber?: string;
     comingSoon?: boolean;
+    minTeamSize?: number;
+    maxTeamSize?: number;
 }
 
 export const COMPETITIONS_DATA: Competition[] = [
@@ -36,7 +38,9 @@ export const COMPETITIONS_DATA: Competition[] = [
         isFlagship: true,
         prizePool: '₹1,00,000+',
         slug: 'codex-26',
-        department: 'Computer Engineering'
+        department: 'Computer Engineering',
+        minTeamSize: 2,
+        maxTeamSize: 4
     },
     {
         id: 'robotron--26',
@@ -52,7 +56,9 @@ export const COMPETITIONS_DATA: Competition[] = [
         isFlagship: true,
         prizePool: '₹1,00,000+',
         slug: 'robotron-26',
-        department: 'E&TC Engineering'
+        department: 'E&TC Engineering',
+        minTeamSize: 2,
+        maxTeamSize: 4
     },
     {
         id: 'battlegrid--26',
@@ -68,7 +74,9 @@ export const COMPETITIONS_DATA: Competition[] = [
         isFlagship: true,
         prizePool: '₹80,000+',
         slug: 'battle-grid-26',
-        department: 'Information Technology'
+        department: 'Information Technology',
+        minTeamSize: 4,
+        maxTeamSize: 5
     },
 
     // Standard Competitions
@@ -87,7 +95,9 @@ export const COMPETITIONS_DATA: Competition[] = [
         department: 'Mechanical Engineering',
         entryFee: 99,
         coordinator: "Aryan Gupta",
-        contactNumber: "9140411132"
+        contactNumber: "9140411132",
+        minTeamSize: 2,
+        maxTeamSize: 4
     },
     {
         id: 'comp_algobid',
@@ -104,7 +114,9 @@ export const COMPETITIONS_DATA: Competition[] = [
         department: 'Computer Engineering',
         entryFee: 99,
         coordinator: 'Tejprakash Mirashi',
-        contactNumber: '7378965050'
+        contactNumber: '7378965050',
+        minTeamSize: 1,
+        maxTeamSize: 2
     },
     {
         id: 'comp_codeladder',
@@ -121,7 +133,9 @@ export const COMPETITIONS_DATA: Competition[] = [
         department: 'Computer Engineering',
         entryFee: 250,
         coordinator: 'Shreya Kad',
-        contactNumber: '7517021872'
+        contactNumber: '7517021872',
+        minTeamSize: 1,
+        maxTeamSize: 1
     },
     {
         id: 'comp_iplauction',
@@ -138,7 +152,9 @@ export const COMPETITIONS_DATA: Competition[] = [
         department: 'General',
         entryFee: 250,
         coordinator: "Tushar Anand",
-        contactNumber: "9236113425"
+        contactNumber: "9236113425",
+        minTeamSize: 2,
+        maxTeamSize: 4
     },
     {
         id: 'comp_blindcode',
@@ -155,7 +171,9 @@ export const COMPETITIONS_DATA: Competition[] = [
         department: 'Computer Engineering',
         entryFee: 200,
         coordinator: 'Shirish Kadu',
-        contactNumber: '8668383832'
+        contactNumber: '8668383832',
+        minTeamSize: 1,
+        maxTeamSize: 1
     },
     {
         id: 'comp_devclash',
@@ -172,7 +190,9 @@ export const COMPETITIONS_DATA: Competition[] = [
         department: 'Computer Engineering',
         entryFee: 199,
         coordinator: 'Om Kute',
-        contactNumber: '7709056730'
+        contactNumber: '7709056730',
+        minTeamSize: 2,
+        maxTeamSize: 3
     },
     {
         id: 'comp_vibesprint',
@@ -189,7 +209,9 @@ export const COMPETITIONS_DATA: Competition[] = [
         department: 'General',
         entryFee: 99,
         coordinator: 'Parth Shinde',
-        contactNumber: '9168906630'
+        contactNumber: '9168906630',
+        minTeamSize: 1,
+        maxTeamSize: 1
     },
     {
         id: 'comp_coderun',
@@ -206,7 +228,9 @@ export const COMPETITIONS_DATA: Competition[] = [
         department: 'Information Technology',
         entryFee: 199,
         coordinator: 'Vaidehi Singh',
-        contactNumber: '8766690242'
+        contactNumber: '8766690242',
+        minTeamSize: 1,
+        maxTeamSize: 1
     },
     {
         id: 'comp_bridgenova',
@@ -223,7 +247,9 @@ export const COMPETITIONS_DATA: Competition[] = [
         department: 'Civil Engineering',
         entryFee: 150,
         coordinator: 'Ashish Shinde',
-        contactNumber: '9373113736'
+        contactNumber: '9373113736',
+        minTeamSize: 2,
+        maxTeamSize: 4
     },
     {
         id: 'comp_poster',
@@ -240,7 +266,9 @@ export const COMPETITIONS_DATA: Competition[] = [
         department: 'General',
         entryFee: 100,
         coordinator: 'Pranav Katu',
-        contactNumber: '9503231138'
+        contactNumber: '9503231138',
+        minTeamSize: 1,
+        maxTeamSize: 2
     },
     {
         id: 'comp_sparktank',
@@ -257,7 +285,9 @@ export const COMPETITIONS_DATA: Competition[] = [
         department: 'E&TC Engineering',
         entryFee: 200,
         coordinator: 'Harshita Jadhav',
-        contactNumber: '9356766305'
+        contactNumber: '9356766305',
+        minTeamSize: 1,
+        maxTeamSize: 3
     },
     {
         id: 'comp_matlab',
@@ -274,7 +304,9 @@ export const COMPETITIONS_DATA: Competition[] = [
         department: 'E&TC Engineering',
         entryFee: 300,
         coordinator: 'Aadesh Bartakke',
-        contactNumber: '8888487529'
+        contactNumber: '8888487529',
+        minTeamSize: 1,
+        maxTeamSize: 2
     },
     {
         id: 'comp_circuitsim',
@@ -291,7 +323,9 @@ export const COMPETITIONS_DATA: Competition[] = [
         department: 'E&TC Engineering',
         entryFee: 300,
         coordinator: 'Saniya Jadhav',
-        contactNumber: '9699281400'
+        contactNumber: '9699281400',
+        minTeamSize: 1,
+        maxTeamSize: 2
     },
 ];
 

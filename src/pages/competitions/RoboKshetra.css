@@ -910,8 +910,8 @@
 }
 
 @media (max-width: 1100px) {
-    .rk-page { padding: 100px 1.25rem 3rem; }
-    .rk-hero { margin-bottom: 4rem; }
+    .rk-page { padding: 80px 1rem 3rem; }
+    .rk-hero { margin-bottom: 3rem; }
     .rk-hero h1 { font-size: 3.5rem; }
     .rk-hero .hero-subtitle { font-size: 1.1rem; margin-bottom: 2.5rem; }
     .rk-hero .hero-stats { flex-direction: column; gap: 1.5rem; margin-bottom: 3rem; }
@@ -921,15 +921,16 @@
     .judging-preview h2 { font-size: 2.2rem; margin-bottom: 3rem; }
     .judging-card { padding: 1.5rem; border-radius: 1.5rem; }
 
-    .rk-arena-grid { grid-template-columns: 1fr; gap: 2rem; }
-    .rk-assembly-screen { padding: 0; grid-template-columns: 1fr; gap: 2rem; }
-    .rk-assembly-sidebar { top: 0; }
+    .rk-arena-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+    .rk-assembly-screen { padding: 0; grid-template-columns: 1fr; gap: 3rem; }
+    .rk-assembly-sidebar { top: 0; position: static; }
     
-    .rk-preview-panel { padding: 1.5rem; border-radius: 1.5rem; }
-    .rk-preview-meta { grid-template-columns: 1fr; gap: 1.5rem; }
-    .rk-preview-members { grid-template-columns: 1fr; }
-    .rk-preview-actions { flex-direction: column-reverse; gap: 1.25rem; width: 100%; align-items: stretch; }
-    .rk-edit-btn, .rk-preview-actions .rk-deploy-btn { width: 100%; justify-content: center; padding: 1.25rem; font-size: 1rem; }
+    .rk-form-arena { padding: 2.5rem; border-radius: 2rem; }
+    .rk-preview-panel { padding: 2rem; border-radius: 1.5rem; }
+    .rk-preview-meta { grid-template-columns: 1fr; gap: 1.25rem; }
+    .rk-preview-members { grid-template-columns: 1fr; gap: 1rem; }
+    .rk-preview-actions { flex-direction: column-reverse; gap: 1rem; width: 100%; align-items: stretch; }
+    .rk-edit-btn, .rk-preview-actions .rk-deploy-btn { width: 100%; justify-content: center; padding: 1.2rem; font-size: 1rem; }
 }
 
 /* --- HIGHLIGHTS MODAL --- */
@@ -976,8 +977,59 @@
 }
 
 @media (max-width: 768px) {
+    .rk-form-arena {
+        padding: 1.25rem;
+        border-radius: 1.5rem;
+    }
+
+    .rk-form-scroll {
+        gap: 2rem;
+    }
+
+    .rk-member-card {
+        padding: 1.5rem;
+        flex-direction: column;
+        gap: 1.5rem;
+        border-radius: 1.5rem;
+    }
+
+    .rk-detail-row {
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+    }
+
+    .rk-input-grid {
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+    }
+
+    .rk-success-card {
+        padding: 2.5rem 1.5rem;
+        border-radius: 2rem;
+    }
+
+    .rk-success-card h1 {
+        font-size: 2.2rem;
+    }
+
+    .rk-reg-id {
+        padding: 1.5rem;
+        border-radius: 1.5rem;
+        margin: 2rem 0;
+    }
+
+    .rk-reg-id .value {
+        font-size: 1.8rem;
+    }
+
     .rk-highlights-mini-grid {
         grid-template-columns: 1fr;
+    }
+
+    .rk-protocol-banner {
+        flex-direction: column;
+        border-radius: 1.5rem;
+        padding: 1.25rem;
     }
 }
 

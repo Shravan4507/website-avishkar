@@ -267,19 +267,32 @@ const RoboKshetra: React.FC = () => {
         setLoading(true);
 
         try {
-            const regId = `RK26-${activeEvent.id.toUpperCase()}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
-            
             const memberKeys = ['leader', 'member2', 'member3', 'member4'];
+            let generatedTeamId = "";
+
             await runTransaction(db, async (transaction) => {
-                const regRef = doc(collection(db, 'registrations'), regId);
+                // Generate Unique Team ID
+                const teamCounterRef = doc(db, "counters", "robokshetra_team_counter");
+                const teamCounterDoc = await transaction.get(teamCounterRef);
+                
+                let nextTeamCount = 1;
+                if (teamCounterDoc.exists()) {
+                    nextTeamCount = (teamCounterDoc.data().count || 0) + 1;
+                }
+
+                transaction.set(teamCounterRef, { count: nextTeamCount }, { merge: true });
+                generatedTeamId = `AVR-ROB-${nextTeamCount.toString().padStart(4, '0')}`;
+
+                const regRef = doc(collection(db, 'registrations')); // Auto-ID for doc, use generatedTeamId inside
                 transaction.set(regRef, {
                     ...formData,
+                    teamId: generatedTeamId, // Sequential ID
                     eventTitle: activeEvent.label,
                     eventSubtitle: activeEvent.tagline,
                     competitionId: `robokshetra_${activeEvent.id}`,
                     competitionHandle: 'Robo-Kshetra',
                     userId: user.uid,
-                    registrationId: regId,
+                    registrationId: generatedTeamId,
                     transactionId: txnId,
                     allAvrIds: memberKeys
                         .map(k => formData[`${k}AvrId`])
@@ -291,9 +304,9 @@ const RoboKshetra: React.FC = () => {
                 });
             });
 
-            setTicketId(regId);
+            setTicketId(generatedTeamId);
             setSuccess(true);
-            toast.success("Deployment Confirmed! Your machine is ready.");
+            toast.success(`Deployment Confirmed! Squad ID: ${generatedTeamId}`);
         } catch (error) {
             console.error("Registration failed:", error);
             toast.error("Database sync failed. Contact support with your Txn ID.");
@@ -373,8 +386,7 @@ const RoboKshetra: React.FC = () => {
                     firstname: formData.leaderName || user.displayName || "Participant",
                     email: formData.leaderEmail || user.email,
                     phone: formData.leaderPhone,
-                    udf1: formData.leaderCollege,
-                    surl: `${window.location.origin}/user/dashboard?status=success`,
+                    surl: `${window.location.origin}/robo-kshetra?status=success`,
                     furl: `${window.location.origin}/robo-kshetra?status=failure`
                 })
             });
@@ -511,7 +523,7 @@ const RoboKshetra: React.FC = () => {
                                 image: event.image,
                                 borderColor: event.color,
                                 slug: event.id,
-                                prizePool: event.prize,
+                                entryFee: event.fee,
                                 handle: event.type,
                                 location: `${event.members}P | ${event.mode}`,
                                 description: (

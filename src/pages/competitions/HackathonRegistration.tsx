@@ -435,9 +435,8 @@ const HackathonRegistration: React.FC = () => {
                     firstname: formData.leaderName,
                     email: formData.leaderEmail,
                     phone: formData.leaderPhone,
-                    udf1: formData.leaderCollege,
-                    surl: `${window.location.origin}/user/dashboard?status=success`,
-                    furl: `${window.location.origin}/param-x?status=failure`
+                    surl: `${window.location.origin}/hackathon-register?status=success`,
+                    furl: `${window.location.origin}/hackathon-register?status=failure`
                 })
             });
 

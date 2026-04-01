@@ -24,7 +24,9 @@ import {
     ExternalLink,
     Search,
     User,
-    Mail
+    Mail,
+    Gamepad2,
+    Hash
 } from 'lucide-react';
 import { useRegistrationGuard } from '../../hooks/useRegistrationGuard';
 import { initiateEasebuzzCheckout, generateTxnId } from '../../utils/easebuzz';
@@ -64,11 +66,11 @@ const EsportsRegistration: React.FC = () => {
     // Build flat form data keys for up to 5 members
     const [formData, setFormData] = useState<Record<string, string>>({
         teamName: '',
-        leaderAvrId: '', leaderName: '', leaderEmail: '', leaderPhone: '', leaderCollege: '',
-        member2AvrId: '', member2Name: '', member2Email: '', member2Phone: '', member2College: '',
-        member3AvrId: '', member3Name: '', member3Email: '', member3Phone: '', member3College: '',
-        member4AvrId: '', member4Name: '', member4Email: '', member4Phone: '', member4College: '',
-        member5AvrId: '', member5Name: '', member5Email: '', member5Phone: '', member5College: '',
+        leaderAvrId: '', leaderName: '', leaderEmail: '', leaderPhone: '', leaderCollege: '', leaderIgn: '', leaderBgmiId: '',
+        member2AvrId: '', member2Name: '', member2Email: '', member2Phone: '', member2College: '', member2Ign: '', member2BgmiId: '',
+        member3AvrId: '', member3Name: '', member3Email: '', member3Phone: '', member3College: '', member3Ign: '', member3BgmiId: '',
+        member4AvrId: '', member4Name: '', member4Email: '', member4Phone: '', member4College: '', member4Ign: '', member4BgmiId: '',
+        member5AvrId: '', member5Name: '', member5Email: '', member5Phone: '', member5College: '', member5Ign: '', member5BgmiId: '',
     });
 
     // Get member keys based on game type
@@ -178,6 +180,8 @@ const EsportsRegistration: React.FC = () => {
                     [`${memberKey}Email`]: '',
                     [`${memberKey}Phone`]: '',
                     [`${memberKey}College`]: '',
+                    [`${memberKey}Ign`]: '',
+                    [`${memberKey}BgmiId`]: '',
                 }));
                 setLookupFailed(prev => ({ ...prev, [memberKey]: true }));
             }
@@ -195,19 +199,32 @@ const EsportsRegistration: React.FC = () => {
         setSubmitting(true);
 
         try {
-            const regId = `BG26-${activeGame.id.toUpperCase()}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
             const memberKeys = getMemberKeys();
+            let generatedTeamId = "";
 
             await runTransaction(db, async (transaction) => {
-                const regRef = doc(collection(db, 'registrations'), regId);
+                // Generate Unique Team ID
+                const teamCounterRef = doc(db, "counters", "esports_team_counter");
+                const teamCounterDoc = await transaction.get(teamCounterRef);
+                
+                let nextTeamCount = 1;
+                if (teamCounterDoc.exists()) {
+                    nextTeamCount = (teamCounterDoc.data().count || 0) + 1;
+                }
+
+                transaction.set(teamCounterRef, { count: nextTeamCount }, { merge: true });
+                generatedTeamId = `AVR-ESP-${nextTeamCount.toString().padStart(4, '0')}`;
+
+                const regRef = doc(collection(db, 'registrations')); // Let auto-ID for document, but use generatedTeamId inside
                 transaction.set(regRef, {
                     ...formData,
+                    teamId: generatedTeamId, // Sequential ID
                     eventTitle: activeGame.label,
                     eventSubtitle: activeGame.tagline,
                     competitionId: `battlegrid_${activeGame.id}`,
                     competitionHandle: 'Battle-Grid',
                     userId: user.uid,
-                    registrationId: regId,
+                    registrationId: generatedTeamId,
                     transactionId: txnId,
                     allAvrIds: memberKeys
                         .map(k => formData[`${k}AvrId`])
@@ -219,9 +236,9 @@ const EsportsRegistration: React.FC = () => {
                 });
             });
 
-            setTicketId(regId);
+            setTicketId(generatedTeamId);
             setSuccess(true);
-            toast.success("Deployment Confirmed! You're in the arena.");
+            toast.success(`Deployment Confirmed! Squad ID: ${generatedTeamId}`);
         } catch (error) {
             console.error("Registration failed:", error);
             toast.error("Database sync failed. Contact support.");
@@ -248,19 +265,36 @@ const EsportsRegistration: React.FC = () => {
 
         // Validate all required members
         const memberKeys = getMemberKeys();
-        memberKeys.forEach(m => {
+        memberKeys.forEach((m, idx) => {
             const avr = formData[`${m}AvrId`];
             const name = formData[`${m}Name`];
             const phone = formData[`${m}Phone`];
+            const ign = formData[`${m}Ign`];
+            const bgmiId = formData[`${m}BgmiId`];
 
-            if (!avr || avr.length < 9) newErrors[`${m}AvrId`] = "Enter AVR ID";
-            else if (!name) newErrors[`${m}AvrId`] = "Lookup Failed";
+            // For BGMI, members 1-4 are mandatory, 5 is optional unless AVR provided
+            const isMandatory = activeGame.id === 'bgmi' ? (idx < 4) : true;
+            const hasData = !!avr || !!ign || !!bgmiId;
 
-            if (!phone) {
-                newErrors[`${m}Phone`] = "Required";
-            } else {
-                const cleanPhone = phone.replace(/\D/g, '');
-                if (cleanPhone.length < 10) newErrors[`${m}Phone`] = "Min 10 digits";
+            if (isMandatory || hasData) {
+                if (!avr || avr.length < 9) newErrors[`${m}AvrId`] = "Enter AVR ID";
+                else if (!name) newErrors[`${m}AvrId`] = "Lookup Failed";
+
+                if (!phone) {
+                    newErrors[`${m}Phone`] = "Required";
+                } else {
+                    const cleanPhone = phone.replace(/\D/g, '');
+                    if (cleanPhone.length < 10) newErrors[`${m}Phone`] = "Min 10 digits";
+                }
+
+                if (activeGame.id === 'bgmi') {
+                    if (!ign) newErrors[`${m}Ign`] = "IGN Required";
+                    if (!bgmiId) {
+                        newErrors[`${m}BgmiId`] = "ID Required";
+                    } else if (!/^\d{10}$/.test(bgmiId)) {
+                        newErrors[`${m}BgmiId`] = "Exactly 10 digits";
+                    }
+                }
             }
         });
 
@@ -301,9 +335,8 @@ const EsportsRegistration: React.FC = () => {
                     firstname: formData.leaderName || user.displayName || "Participant",
                     email: formData.leaderEmail || user.email,
                     phone: formData.leaderPhone,
-                    udf1: formData.leaderCollege,
-                    surl: `${window.location.origin}/user/dashboard?status=success`,
-                    furl: `${window.location.origin}/battle-grid?status=failure`
+                    surl: `${window.location.origin}/esports-register?status=success`,
+                    furl: `${window.location.origin}/esports-register?status=failure`
                 })
             });
 
@@ -466,6 +499,20 @@ const EsportsRegistration: React.FC = () => {
                                         <input type="text" value={formData.leaderCollege || ''} placeholder="College/Institution" readOnly />
                                     </div>
                                 </div>
+                                {activeGame?.id === 'bgmi' && (
+                                    <div className="es-detail-row">
+                                        <div className={`es-input-with-icon prefilled editable ${errors.leaderIgn ? 'field-error' : ''}`}>
+                                            <Gamepad2 size={16} />
+                                            <input type="text" name="leaderIgn" value={formData.leaderIgn || ''} onChange={handleInputChange} placeholder="In-game Name" />
+                                            {errors.leaderIgn && <span className="es-error-badge">{errors.leaderIgn}</span>}
+                                        </div>
+                                        <div className={`es-input-with-icon prefilled editable ${errors.leaderBgmiId ? 'field-error' : ''}`}>
+                                            <Hash size={16} />
+                                            <input type="text" name="leaderBgmiId" value={formData.leaderBgmiId || ''} onChange={handleInputChange} placeholder="BGMI ID (10-digit)" />
+                                            {errors.leaderBgmiId && <span className="es-error-badge">{errors.leaderBgmiId}</span>}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
 
@@ -526,6 +573,20 @@ const EsportsRegistration: React.FC = () => {
                                             <input type="text" value={formData[`${id}College`] || ''} placeholder="College/Institution" readOnly />
                                         </div>
                                     </div>
+                                    {activeGame?.id === 'bgmi' && (
+                                        <div className="es-detail-row">
+                                            <div className={`es-input-with-icon prefilled editable ${errors[`${id}Ign`] ? 'field-error' : ''}`}>
+                                                <Gamepad2 size={16} />
+                                                <input type="text" name={`${id}Ign`} value={formData[`${id}Ign`] || ''} onChange={handleInputChange} placeholder="In-game Name" />
+                                                {errors[`${id}Ign`] && <span className="es-error-badge">{errors[`${id}Ign`]}</span>}
+                                            </div>
+                                            <div className={`es-input-with-icon prefilled editable ${errors[`${id}BgmiId`] ? 'field-error' : ''}`}>
+                                                <Hash size={16} />
+                                                <input type="text" name={`${id}BgmiId`} value={formData[`${id}BgmiId`] || ''} onChange={handleInputChange} placeholder="BGMI ID (10-digit)" />
+                                                {errors[`${id}BgmiId`] && <span className="es-error-badge">{errors[`${id}BgmiId`]}</span>}
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         ))}
@@ -589,6 +650,9 @@ const EsportsRegistration: React.FC = () => {
                                         <span className="es-pm-rank">{idx === 0 ? (activeGame?.type === 'TEAM' ? 'CMD' : 'PLAYER') : `P${idx + 1}`}</span>
                                         <div className="es-pm-info">
                                             <span className="es-pm-name">{formData[`${m}Name`]}</span>
+                                            {activeGame?.id === 'bgmi' && formData[`${m}Ign`] && (
+                                                <span className="es-pm-ign">{formData[`${m}Ign`]} | {formData[`${m}BgmiId`]}</span>
+                                            )}
                                             <span className="es-pm-avr">{formData[`${m}AvrId`]}</span>
                                         </div>
                                     </div>

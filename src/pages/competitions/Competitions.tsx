@@ -114,8 +114,6 @@ function Competitions() {
                             selectedItemSlug={selectedSlug}
                             isRegistered={isRegistered}
                             registeredEventName={eventName}
-                            onItemClick={(item) => setSelectedSlug(item.slug)}
-
                             onModalClose={() => setSelectedSlug(undefined)}
                         />
                     </div>

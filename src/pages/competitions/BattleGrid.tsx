@@ -12,7 +12,8 @@ import {
     Zap,
     Sword,
     FileText,
-    HelpCircle
+    HelpCircle,
+    Rocket
 } from 'lucide-react';
 import { useRegistrationGuard } from '../../hooks/useRegistrationGuard';
 
@@ -20,7 +21,7 @@ import './BattleGrid.css';
 
 // Game Configurations
 const GAMES = [
-    { id: 'bgmi', label: 'BGMI', tagline: 'Grid-Warrior Mobile (4+1 Squad)', prize: '₹50,000', fee: 500, type: 'TEAM', members: 5, platform: 'Mobile', color: '#ff9800', image: `${import.meta.env.BASE_URL}assets/esports/bgmi.png`, comingSoon: true },
+    { id: 'bgmi', label: 'BGMI', tagline: 'Grid-Warrior Mobile (4+1 Squad)', prize: '₹50,000', fee: 500, type: 'TEAM', members: 5, platform: 'Mobile', color: '#ff9800', image: `${import.meta.env.BASE_URL}assets/esports/bgmi.png` },
     { id: 'freefire', label: 'FREE FIRE', tagline: 'Squad Battle-Royale', prize: '₹6,000', fee: 250, type: 'TEAM', members: 4, platform: 'Mobile', color: '#e91e63', image: `${import.meta.env.BASE_URL}assets/esports/freefire.png` },
     { id: 'codm', label: 'CALL OF DUTY (MOBILE)', tagline: 'Spec-Ops Combat', prize: '₹16,000', fee: 400, type: 'TEAM', members: 4, platform: 'Mobile', color: '#4caf50', image: `${import.meta.env.BASE_URL}assets/esports/codm.png` },
     { id: 'sf4', label: 'SHADOW-FIGHT 4', tagline: 'Arena 1v1 Combat', prize: '₹8,000', fee: 150, type: 'SOLO', members: 1, platform: 'Mobile', color: '#ffeb3b', image: `${import.meta.env.BASE_URL}assets/esports/sf4.png` },
@@ -33,11 +34,6 @@ const BattleGrid: React.FC = () => {
     const toast = useToast();
     const { isRegistered, eventName } = useRegistrationGuard();
 
-    // GLOBAL LOCK: Battle Grid is undergoing recalibration
-    React.useEffect(() => {
-        toast.info("Battle Grid '26 is currently undergoing tactical recalibration. Access restricted.");
-        navigate('/competitions');
-    }, [navigate, toast]);
 
     return (
         <div className="battle-grid-page">
@@ -76,13 +72,13 @@ const BattleGrid: React.FC = () => {
                             Registered: {eventName} <ShieldCheck size={18} />
                         </button>
                     ) : (
-                        <button className="primary-cta disabled" disabled>
-                            Portal Locked <Zap size={18} />
+                        <button className="primary-cta" onClick={() => document.getElementById('arenas')?.scrollIntoView({ behavior: 'smooth' })}>
+                            Enter Arena <Rocket size={18} />
                         </button>
                     )}
 
-                    <button className="secondary-cta disabled" onClick={() => toast.info("Battle Grid is currently undergoing tactical recalibration. Check back soon!")}>
-                        Deploying Soon <FileText size={18} />
+                    <button className="secondary-cta" onClick={() => window.open('/assets/docs/BG_RULES.pdf', '_blank')}>
+                        Tournament Rulebook <FileText size={18} />
                     </button>
                 </div>
             </section>
@@ -144,17 +140,17 @@ const BattleGrid: React.FC = () => {
                         isRegistered={isRegistered}
                         registeredEventName={eventName}
                         onItemClick={(item: ChromaItem) => {
-                                if (!user) {
+                            if (item.comingSoon) {
+                                toast.info("BGMI Registration is opening soon! Complete your squad's profiles while you wait.");
+                                return;
+                            }
+                            if (!user) {
                                 toast.error("Authentication required to enter arena.");
                                 navigate('/login');
                                 return;
                             }
                             if (isRegistered) {
                                 toast.warning(`Locked: Already registered for ${eventName}.`);
-                                return;
-                            }
-                            if (item.comingSoon) {
-                                toast.info("BGMI Registration is opening soon! Complete your squad's profiles while you wait.");
                                 return;
                             }
                             navigate(`/esports-register?game=${item.id}`);
