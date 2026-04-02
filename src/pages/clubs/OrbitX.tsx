@@ -46,8 +46,8 @@ const OrbitX: React.FC = () => {
     // Add class to body to remove global footer margin/styles for this page
     document.body.classList.add('orbitx-layout-active');
     
-    // Set event date for Cosmic Window (April 22, 2026 - Solar Start at 2:00 PM)
-    const eventDate = new Date('April 22, 2026 14:00:00').getTime();
+    // Set event date for Cosmic Window (April 23, 2026 - Solar Start at 2:00 PM)
+    const eventDate = new Date('April 23, 2026 14:00:00').getTime();
 
     const timer = setInterval(() => {
       const now = new Date().getTime();
@@ -133,7 +133,7 @@ const OrbitX: React.FC = () => {
             <div className="hero-left">
               <div className="event-badge">
                 <span className="badge-dot" />
-                LIVE EVENT • APRIL 22, 2026
+                LIVE EVENT • APRIL 23, 2026
               </div>
 
               <h1 className="hero-title">

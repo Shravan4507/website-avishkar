@@ -56,7 +56,7 @@ const FAQ: React.FC = () => {
                 },
                 {
                     q: "When and where is the event being held?",
-                    a: "Avishkar '26 is scheduled for April 2026. All primary events take place at the Zeal College of Engineering and Research campus in Narhe, Pune. Exact dates for specific events can be found on the 'Schedule' page."
+                    a: "Avishkar '26 is scheduled for April 23-25, 2026. All primary events take place at the Zeal College of Engineering and Research campus in Narhe, Pune. Exact dates for specific events can be found on the 'Schedule' page."
                 },
                 {
                     q: "Who can participate?",
