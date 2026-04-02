@@ -224,7 +224,7 @@ const ParamX: React.FC = () => {
             {/* --- HERO SECTION --- */}
             <section className="paramx-hero">
                 <div className="hero-badge">Avishkar '26 <br/>Flagships</div>
-                <img src="/assets/logos/Param-X-White.png" alt="Param-X '26" className="hero-logo" />
+                <img src="/assets/logos/Param-X-White.webp" alt="Param-X '26" className="hero-logo" />
 
                 {/* <h1>Param-X '26</h1> */}
 

@@ -12,7 +12,7 @@ const SEO: React.FC<SEOProps> = ({
   title, 
   description, 
   url = "https://shravan4507.github.io/website-avishkar/", 
-  image = "https://shravan4507.github.io/website-avishkar/assets/logos/avishkar-icon.png" 
+  image = "https://shravan4507.github.io/website-avishkar/assets/logos/avishkar-icon.webp" 
 }) => {
   const fullTitle = title.includes("Avishkar '26") ? title : `${title} | Avishkar '26`;
 

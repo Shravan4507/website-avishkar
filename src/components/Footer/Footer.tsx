@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useBugReport } from '../BugReport/BugReport'
 const avishkarLogo = `${import.meta.env.BASE_URL}assets/logos/avishkar-white.webp`
@@ -6,6 +7,38 @@ import './Footer.css'
 
 function Footer() {
     const { openBugReport } = useBugReport();
+    const [speed, setSpeed] = useState<number | null>(null);
+    const [isOnline, setIsOnline] = useState(navigator.onLine);
+
+    useEffect(() => {
+        const connection = (navigator as any).connection || (navigator as any).mozConnection || (navigator as any).webkitConnection;
+        
+        const updateSpeed = () => {
+            if (connection) {
+                setSpeed(connection.downlink);
+            }
+        };
+
+        const updateOnlineStatus = () => setIsOnline(navigator.onLine);
+
+        updateSpeed();
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+
+        if (connection) {
+            connection.addEventListener('change', updateSpeed);
+            return () => {
+                connection.removeEventListener('change', updateSpeed);
+                window.removeEventListener('online', updateOnlineStatus);
+                window.removeEventListener('offline', updateOnlineStatus);
+            };
+        }
+
+        return () => {
+            window.removeEventListener('online', updateOnlineStatus);
+            window.removeEventListener('offline', updateOnlineStatus);
+        };
+    }, []);
 
     return (
         <footer className="footer">
@@ -74,15 +107,23 @@ function Footer() {
                     <div className="footer__bottom-inner">
                         <div className="footer__bottom-left">
                             <p className="footer__copyright">© 2026 Avishkar. Pioneering Excellence.</p>
-                            <p className="footer__timestamp">
-                                Last Updated: {new Date(__BUILD_TIMESTAMP__).toLocaleDateString('en-GB', {
-                                    day: 'numeric',
-                                    month: 'short',
-                                    year: 'numeric',
-                                    hour: '2-digit',
-                                    minute: '2-digit'
-                                })}
-                            </p>
+                            <div className="footer__status-row">
+                                <p className="footer__timestamp">
+                                    Last Updated: {new Date(__BUILD_TIMESTAMP__).toLocaleDateString('en-GB', {
+                                        day: 'numeric',
+                                        month: 'short',
+                                        year: 'numeric',
+                                        hour: '2-digit',
+                                        minute: '2-digit'
+                                    })}
+                                </p>
+                                <div className="footer__speed" title={speed ? "Estimated Network Speed" : "Connection Status"}>
+                                    <span className={`speed-dot ${!isOnline ? 'poor' : (speed && speed > 10) ? 'excellent' : 'good'}`}></span>
+                                    <span className="speed-text">
+                                        {!isOnline ? 'Offline' : (speed ? `${speed} Mbps` : 'Online • Stable')}
+                                    </span>
+                                </div>
+                            </div>
                         </div>
                         <div className="footer__legal">
                             <Link to="/privacy" className="footer__link">Privacy</Link>

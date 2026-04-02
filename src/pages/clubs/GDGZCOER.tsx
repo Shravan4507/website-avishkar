@@ -98,7 +98,7 @@ const GDGZCOER: React.FC = () => {
                     transition={{ duration: 0.8 }}
                 >
                     <img 
-                        src="/assets/logos/LOGO GDG Bandung/Horizontal/_GDG Bandung - Logo Only.png" 
+                        src="/assets/logos/LOGO GDG Bandung/Horizontal/_GDG Bandung - Logo Only.webp" 
                         alt="GDGOC ZCOER" 
                         className="hero-logo" 
                     />

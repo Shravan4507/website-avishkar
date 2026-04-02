@@ -7,7 +7,7 @@ const ALL_MEMBERS = [
     // Core Leadership
     {
         slug: 'shrvan',
-        image: `${import.meta.env.BASE_URL}members/Shravan G.png`,
+        image: `${import.meta.env.BASE_URL}members/Shravan G.webp`,
         title: 'Shrvan',
         subtitle: 'Event Lead',
         location: 'Core Leadership',

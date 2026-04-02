@@ -34,11 +34,11 @@ import './EsportsRegistration.css';
 
 // Game Configurations
 const GAMES = [
-    { id: 'bgmi', label: 'BGMI', tagline: 'Grid-Warrior Mobile (4+1 Squad)', prize: '₹50,000', fee: 500, type: 'TEAM', members: 5, platform: 'Mobile', color: '#ff9800', image: `${import.meta.env.BASE_URL}assets/esports/bgmi.png` },
-    { id: 'freefire', label: 'FREE FIRE', tagline: 'Squad Battle-Royale', prize: '₹6,000', fee: 250, type: 'TEAM', members: 4, platform: 'Mobile', color: '#e91e63', image: `${import.meta.env.BASE_URL}assets/esports/freefire.png` },
-    { id: 'codm', label: 'CALL OF DUTY (MOBILE)', tagline: 'Spec-Ops Combat', prize: '₹16,000', fee: 400, type: 'TEAM', members: 4, platform: 'Mobile', color: '#4caf50', image: `${import.meta.env.BASE_URL}assets/esports/codm.png` },
-    { id: 'sf4', label: 'SHADOW-FIGHT 4', tagline: 'Arena 1v1 Combat', prize: '₹8,000', fee: 150, type: 'SOLO', members: 1, platform: 'Mobile', color: '#ffeb3b', image: `${import.meta.env.BASE_URL}assets/esports/sf4.png` },
-    { id: 'amongus', label: 'AMONG US', tagline: 'Social Deduction', prize: 'TBD', fee: 0, type: 'SOLO', members: 1, platform: 'Mobile', color: '#00bcd4', image: `${import.meta.env.BASE_URL}assets/esports/amongus.png` },
+    { id: 'bgmi', label: 'BGMI', tagline: 'Grid-Warrior Mobile (4+1 Squad)', prize: '₹50,000', fee: 500, type: 'TEAM', members: 5, platform: 'Mobile', color: '#ff9800', image: `${import.meta.env.BASE_URL}assets/esports/bgmi.webp` },
+    { id: 'freefire', label: 'FREE FIRE', tagline: 'Garena Battle-Royale (4-Player Squad)', prize: '₹6,000', fee: 250, type: 'TEAM', members: 4, platform: 'Mobile', color: '#e91e63', image: `${import.meta.env.BASE_URL}assets/esports/freefire.webp` },
+    { id: 'codm', label: 'CALL OF DUTY (MOBILE)', tagline: 'Tactical 5v5 Combat', prize: '₹16,000', fee: 400, type: 'TEAM', members: 5, platform: 'Mobile', color: '#4caf50', image: `${import.meta.env.BASE_URL}assets/esports/codm.webp` },
+    { id: 'sf4', label: 'SHADOW-FIGHT 4', tagline: 'Arena 1v1 Combat', prize: '₹8,000', fee: 150, type: 'SOLO', members: 1, platform: 'Mobile', color: '#ffeb3b', image: `${import.meta.env.BASE_URL}assets/esports/sf4.webp` },
+    { id: 'amongus', label: 'AMONG US', tagline: 'Social Deduction', prize: 'TBD', fee: 0, type: 'SOLO', members: 1, platform: 'Mobile', color: '#00bcd4', image: `${import.meta.env.BASE_URL}assets/esports/amongus.webp` },
 ] as const;
 
 type GameId = typeof GAMES[number]['id'];
@@ -66,11 +66,11 @@ const EsportsRegistration: React.FC = () => {
     // Build flat form data keys for up to 5 members
     const [formData, setFormData] = useState<Record<string, string>>({
         teamName: '',
-        leaderAvrId: '', leaderName: '', leaderEmail: '', leaderPhone: '', leaderCollege: '', leaderIgn: '', leaderBgmiId: '',
-        member2AvrId: '', member2Name: '', member2Email: '', member2Phone: '', member2College: '', member2Ign: '', member2BgmiId: '',
-        member3AvrId: '', member3Name: '', member3Email: '', member3Phone: '', member3College: '', member3Ign: '', member3BgmiId: '',
-        member4AvrId: '', member4Name: '', member4Email: '', member4Phone: '', member4College: '', member4Ign: '', member4BgmiId: '',
-        member5AvrId: '', member5Name: '', member5Email: '', member5Phone: '', member5College: '', member5Ign: '', member5BgmiId: '',
+        leaderAvrId: '', leaderName: '', leaderEmail: '', leaderPhone: '', leaderCollege: '', leaderIgn: '', leaderBgmiId: '', leaderFfId: '', leaderCodmId: '', leaderSf4Id: '',
+        member2AvrId: '', member2Name: '', member2Email: '', member2Phone: '', member2College: '', member2Ign: '', member2BgmiId: '', member2FfId: '', member2CodmId: '', member2Sf4Id: '',
+        member3AvrId: '', member3Name: '', member3Email: '', member3Phone: '', member3College: '', member3Ign: '', member3BgmiId: '', member3FfId: '', member3CodmId: '', member3Sf4Id: '',
+        member4AvrId: '', member4Name: '', member4Email: '', member4Phone: '', member4College: '', member4Ign: '', member4BgmiId: '', member4FfId: '', member4CodmId: '', member4Sf4Id: '',
+        member5AvrId: '', member5Name: '', member5Email: '', member5Phone: '', member5College: '', member5Ign: '', member5BgmiId: '', member5FfId: '', member5CodmId: '', member5Sf4Id: '',
     });
 
     // Get member keys based on game type
@@ -182,6 +182,9 @@ const EsportsRegistration: React.FC = () => {
                     [`${memberKey}College`]: '',
                     [`${memberKey}Ign`]: '',
                     [`${memberKey}BgmiId`]: '',
+                    [`${memberKey}FfId`]: '',
+                    [`${memberKey}CodmId`]: '',
+                    [`${memberKey}Sf4Id`]: '',
                 }));
                 setLookupFailed(prev => ({ ...prev, [memberKey]: true }));
             }
@@ -295,6 +298,40 @@ const EsportsRegistration: React.FC = () => {
                         newErrors[`${m}BgmiId`] = "Exactly 10 digits";
                     }
                 }
+
+                if (activeGame.id === 'freefire') {
+                    const ffId = formData[`${m}FfId`];
+                    if (!ign) newErrors[`${m}Ign`] = "IGN Required";
+                    if (!ffId) {
+                        newErrors[`${m}FfId`] = "ID Required";
+                    } else if (!/^\d{9,10}$/.test(ffId)) {
+                        newErrors[`${m}FfId`] = "9-10 digits";
+                    }
+                }
+
+                if (activeGame.id === 'codm') {
+                    const codmId = formData[`${m}CodmId`];
+                    if (!ign) newErrors[`${m}Ign`] = "IGN Required";
+                    if (!codmId) {
+                        newErrors[`${m}CodmId`] = "ID Required";
+                    } else if (!/^\d+$/.test(codmId)) {
+                        newErrors[`${m}CodmId`] = "Must be numeric";
+                    }
+                }
+
+                if (activeGame.id === 'sf4') {
+                    const sf4Id = formData[`${m}Sf4Id`];
+                    if (!ign) newErrors[`${m}Ign`] = "IGN Required";
+                    if (!sf4Id) {
+                        newErrors[`${m}Sf4Id`] = "ID Required";
+                    } else if (!/^\d+$/.test(sf4Id)) {
+                        newErrors[`${m}Sf4Id`] = "Must be numeric";
+                    }
+                }
+
+                if (activeGame.id === 'amongus') {
+                    if (!ign) newErrors[`${m}Ign`] = "Character Name Required";
+                }
             }
         });
 
@@ -325,6 +362,13 @@ const EsportsRegistration: React.FC = () => {
 
         try {
             const txnid = generateTxnId(activeGame.id.toUpperCase());
+
+            // Handle Free Entry (e.g. Among Us)
+            if (activeGame.fee === 0) {
+                await handleRegistrationSubmit(`FREE_${txnid}`);
+                return;
+            }
+
             const response = await fetch("https://initiatepayment-rgvkuxdaea-uc.a.run.app", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -513,6 +557,57 @@ const EsportsRegistration: React.FC = () => {
                                         </div>
                                     </div>
                                 )}
+                                {activeGame?.id === 'freefire' && (
+                                    <div className="es-detail-row">
+                                        <div className={`es-input-with-icon prefilled editable ${errors.leaderIgn ? 'field-error' : ''}`}>
+                                            <Gamepad2 size={16} />
+                                            <input type="text" name="leaderIgn" value={formData.leaderIgn || ''} onChange={handleInputChange} placeholder="In-game Name" />
+                                            {errors.leaderIgn && <span className="es-error-badge">{errors.leaderIgn}</span>}
+                                        </div>
+                                        <div className={`es-input-with-icon prefilled editable ${errors.leaderFfId ? 'field-error' : ''}`}>
+                                            <Hash size={16} />
+                                            <input type="text" name="leaderFfId" value={formData.leaderFfId || ''} onChange={handleInputChange} placeholder="Free Fire UID" />
+                                            {errors.leaderFfId && <span className="es-error-badge">{errors.leaderFfId}</span>}
+                                        </div>
+                                    </div>
+                                )}
+                                {activeGame?.id === 'codm' && (
+                                    <div className="es-detail-row">
+                                        <div className={`es-input-with-icon prefilled editable ${errors.leaderIgn ? 'field-error' : ''}`}>
+                                            <Gamepad2 size={16} />
+                                            <input type="text" name="leaderIgn" value={formData.leaderIgn || ''} onChange={handleInputChange} placeholder="In-game Name" />
+                                            {errors.leaderIgn && <span className="es-error-badge">{errors.leaderIgn}</span>}
+                                        </div>
+                                        <div className={`es-input-with-icon prefilled editable ${errors.leaderCodmId ? 'field-error' : ''}`}>
+                                            <Hash size={16} />
+                                            <input type="text" name="leaderCodmId" value={formData.leaderCodmId || ''} onChange={handleInputChange} placeholder="CODM Player UID" />
+                                            {errors.leaderCodmId && <span className="es-error-badge">{errors.leaderCodmId}</span>}
+                                        </div>
+                                    </div>
+                                )}
+                                {activeGame?.id === 'sf4' && (
+                                    <div className="es-detail-row">
+                                        <div className={`es-input-with-icon prefilled editable ${errors.leaderIgn ? 'field-error' : ''}`}>
+                                            <Gamepad2 size={16} />
+                                            <input type="text" name="leaderIgn" value={formData.leaderIgn || ''} onChange={handleInputChange} placeholder="In-game Name" />
+                                            {errors.leaderIgn && <span className="es-error-badge">{errors.leaderIgn}</span>}
+                                        </div>
+                                        <div className={`es-input-with-icon prefilled editable ${errors.leaderSf4Id ? 'field-error' : ''}`}>
+                                            <Hash size={16} />
+                                            <input type="text" name="leaderSf4Id" value={formData.leaderSf4Id || ''} onChange={handleInputChange} placeholder="Shadow Fight Arena ID" />
+                                            {errors.leaderSf4Id && <span className="es-error-badge">{errors.leaderSf4Id}</span>}
+                                        </div>
+                                    </div>
+                                )}
+                                {activeGame?.id === 'amongus' && (
+                                    <div className="es-detail-row">
+                                        <div className={`es-input-with-icon prefilled editable ${errors.leaderIgn ? 'field-error' : ''}`}>
+                                            <Gamepad2 size={16} />
+                                            <input type="text" name="leaderIgn" value={formData.leaderIgn || ''} onChange={handleInputChange} placeholder="Among Us Character Name" />
+                                            {errors.leaderIgn && <span className="es-error-badge">{errors.leaderIgn}</span>}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
 
@@ -587,6 +682,34 @@ const EsportsRegistration: React.FC = () => {
                                             </div>
                                         </div>
                                     )}
+                                    {activeGame?.id === 'freefire' && (
+                                        <div className="es-detail-row">
+                                            <div className={`es-input-with-icon prefilled editable ${errors[`${id}Ign`] ? 'field-error' : ''}`}>
+                                                <Gamepad2 size={16} />
+                                                <input type="text" name={`${id}Ign`} value={formData[`${id}Ign`] || ''} onChange={handleInputChange} placeholder="In-game Name" />
+                                                {errors[`${id}Ign`] && <span className="es-error-badge">{errors[`${id}Ign`]}</span>}
+                                            </div>
+                                            <div className={`es-input-with-icon prefilled editable ${errors[`${id}FfId`] ? 'field-error' : ''}`}>
+                                                <Hash size={16} />
+                                                <input type="text" name={`${id}FfId`} value={formData[`${id}FfId`] || ''} onChange={handleInputChange} placeholder="Free Fire UID" />
+                                                {errors[`${id}FfId`] && <span className="es-error-badge">{errors[`${id}FfId`]}</span>}
+                                            </div>
+                                        </div>
+                                    )}
+                                    {activeGame?.id === 'codm' && (
+                                        <div className="es-detail-row">
+                                            <div className={`es-input-with-icon prefilled editable ${errors[`${id}Ign`] ? 'field-error' : ''}`}>
+                                                <Gamepad2 size={16} />
+                                                <input type="text" name={`${id}Ign`} value={formData[`${id}Ign`] || ''} onChange={handleInputChange} placeholder="In-game Name" />
+                                                {errors[`${id}Ign`] && <span className="es-error-badge">{errors[`${id}Ign`]}</span>}
+                                            </div>
+                                            <div className={`es-input-with-icon prefilled editable ${errors[`${id}CodmId`] ? 'field-error' : ''}`}>
+                                                <Hash size={16} />
+                                                <input type="text" name={`${id}CodmId`} value={formData[`${id}CodmId`] || ''} onChange={handleInputChange} placeholder="CODM Player UID" />
+                                                {errors[`${id}CodmId`] && <span className="es-error-badge">{errors[`${id}CodmId`]}</span>}
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         ))}
@@ -652,6 +775,18 @@ const EsportsRegistration: React.FC = () => {
                                             <span className="es-pm-name">{formData[`${m}Name`]}</span>
                                             {activeGame?.id === 'bgmi' && formData[`${m}Ign`] && (
                                                 <span className="es-pm-ign">{formData[`${m}Ign`]} | {formData[`${m}BgmiId`]}</span>
+                                            )}
+                                            {activeGame?.id === 'freefire' && formData[`${m}Ign`] && (
+                                                <span className="es-pm-ign">{formData[`${m}Ign`]} | {formData[`${m}FfId`]}</span>
+                                            )}
+                                            {activeGame?.id === 'codm' && formData[`${m}Ign`] && (
+                                                <span className="es-pm-ign">{formData[`${m}Ign`]} | {formData[`${m}CodmId`]}</span>
+                                            )}
+                                            {activeGame?.id === 'sf4' && formData[`${m}Ign`] && (
+                                                <span className="es-pm-ign">{formData[`${m}Ign`]} | {formData[`${m}Sf4Id`]}</span>
+                                            )}
+                                            {activeGame?.id === 'amongus' && formData[`${m}Ign`] && (
+                                                <span className="es-pm-ign">{formData[`${m}Ign`]}</span>
                                             )}
                                             <span className="es-pm-avr">{formData[`${m}AvrId`]}</span>
                                         </div>

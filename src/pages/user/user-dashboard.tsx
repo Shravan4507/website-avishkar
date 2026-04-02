@@ -146,8 +146,8 @@ const UserDashboard: React.FC = () => {
       });
 
       const link = document.createElement('a');
-      link.download = `Avishkar26_Pass_${userData.firstName}.png`;
-      link.href = canvas.toDataURL('image/png', 1.0);
+      link.download = `Avishkar26_Pass_${userData.firstName}.webp`;
+      link.href = canvas.toDataURL('image/webp', 1.0);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);

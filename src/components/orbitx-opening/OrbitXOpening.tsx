@@ -36,7 +36,7 @@ const OrbitXOpening: React.FC<OrbitXOpeningProps> = ({ onComplete }) => {
         transition={{ duration: 1 }}
       >
         <div className="eclipse-container">
-          <img src="/assets/logos/OrbitX/Logo-OrbitX.png" alt="OrbitX" className="opening-logo" />
+          <img src="/assets/logos/OrbitX/Logo-OrbitX.webp" alt="OrbitX" className="opening-logo" />
         </div>
       </motion.div>
     </div>

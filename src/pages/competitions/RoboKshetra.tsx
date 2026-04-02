@@ -54,7 +54,7 @@ const ROBO_EVENTS = [
         color: '#d9ff00', 
         description: 'Forge a bot capable of extreme precision. Navigate high-speed tracks and complex intersections with autonomous perfection. Engineering focus: PID control, sensor calibration, and mechanical stability.',
         gradient: 'linear-gradient(135deg, #d9ff00, #000)',
-        image: `${import.meta.env.BASE_URL}assets/robokshetra/line_follower.png`,
+        image: `${import.meta.env.BASE_URL}assets/robokshetra/line_follower.webp`,
         highlights: [
             "Fully Autonomous Robot (No Bluetooth / manual control)",
             "Size Limit: 20 x 20 × 20 cm",
@@ -77,7 +77,7 @@ const ROBO_EVENTS = [
         color: '#d9ff00', 
         description: 'Think, adapt, escape. Engineer a machine that can solve complex labyrinths in record time using advanced sensor fusion and pathfinding algorithms. Engineering focus: Maze mapping, wall following, and fast turns.',
         gradient: 'linear-gradient(135deg, #d9ff00, #000)',
-        image: `${import.meta.env.BASE_URL}assets/robokshetra/maze_solver.png`,
+        image: `${import.meta.env.BASE_URL}assets/robokshetra/maze_solver.webp`,
         highlights: [
             "🤖 Fully Autonomous Robot (No remote control)",
             "📏 Max Size: 30 × 30 cm",
@@ -99,7 +99,7 @@ const ROBO_EVENTS = [
         color: '#d9ff00', 
         description: 'A grueling all-terrain challenge course designed to test mechanical resilience and obstacle evasion logic. Navigate ramps, pits, and moving obstacles in a race against time. Engineering focus: All-terrain chassis, torque management, and real-time obstacle avoidance.',
         gradient: 'linear-gradient(135deg, #d9ff00, #000)',
-        image: `${import.meta.env.BASE_URL}assets/robokshetra/trailblazer.png`,
+        image: `${import.meta.env.BASE_URL}assets/robokshetra/trailblazer.webp`,
         highlights: [
             "🎮 Remote-Controlled Robot (NOT autonomous)",
             "📏 Size Limit: 30 × 30 cm",
@@ -451,7 +451,7 @@ const RoboKshetra: React.FC = () => {
                     {/* --- HERO SECTION --- */}
                     <section className="rk-hero">
                         <div className="hero-badge">Avishkar '26 <br/>Robotics</div>
-                        <img src={`${import.meta.env.BASE_URL}assets/logos/Robokshetra.png`} alt="Robo-Kshetra" className="hero-logo" />
+                        <img src={`${import.meta.env.BASE_URL}assets/logos/Robokshetra.webp`} alt="Robo-Kshetra" className="hero-logo" />
                         <p className="hero-subtitle">Forge, Optimize, Combat. High-octane robotics competition where logic meets heavy metal.</p>
                         
                         <div className="hero-stats">

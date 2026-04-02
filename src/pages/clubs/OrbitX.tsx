@@ -117,7 +117,7 @@ const OrbitX: React.FC = () => {
             hoverIntensity={0.5} 
             rotateOnHover={true} 
             autoCycle={true}
-            logoSrc="/assets/logos/OrbitX/Logo-OrbitX.png"
+            logoSrc="/assets/logos/OrbitX/Logo-OrbitX.webp"
           />
         </div>
 

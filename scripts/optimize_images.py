@@ -13,14 +13,8 @@ def optimize_image(source_path):
         source_size = os.path.getsize(source_path)
         target_size = os.path.getsize(target_path)
         
-        if target_size < source_size:
-            reduction = (source_size - target_size) / source_size * 100
-            print(f"Optimized: {os.path.basename(source_path)} ({reduction:.1f}% reduction)")
-            # Optional: remove source file if user wants total migration
-            # os.remove(source_path) 
-        else:
-            print(f"Skipped: {os.path.basename(source_path)} (WebP was larger)")
-            os.remove(target_path) # Clean up larger file
+        print(f"Converted: {os.path.basename(source_path)}")
+        os.remove(source_path) 
             
     except Exception as e:
         print(f"Failed to convert {os.path.basename(source_path)}: {e}")

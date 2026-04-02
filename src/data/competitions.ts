@@ -26,7 +26,7 @@ export const COMPETITIONS_DATA: Competition[] = [
     // Flagships (Fixed IDs)
     {
         id: 'codex--26',
-        image: `${import.meta.env.BASE_URL}assets/competitions/paramx.png`,
+        image: `${import.meta.env.BASE_URL}assets/competitions/paramx.webp`,
         title: "Param-X '26",
         subtitle: '10-Hour Hackathon',
         location: 'Flagship Event',
@@ -44,7 +44,7 @@ export const COMPETITIONS_DATA: Competition[] = [
     },
     {
         id: 'robotron--26',
-        image: `${import.meta.env.BASE_URL}assets/competitions/robokshetra.png`,
+        image: `${import.meta.env.BASE_URL}assets/competitions/robokshetra.webp`,
         title: "Robo-Kshetra '26",
         subtitle: 'Robo War',
         location: 'Flagship Event',
@@ -62,7 +62,7 @@ export const COMPETITIONS_DATA: Competition[] = [
     },
     {
         id: 'battlegrid--26',
-        image: `${import.meta.env.BASE_URL}assets/competitions/battlegrid.png`,
+        image: `${import.meta.env.BASE_URL}assets/competitions/battlegrid.webp`,
         title: "Battle Grid '26",
         subtitle: 'E-Sports Arena',
         location: 'Flagship Event',
@@ -82,7 +82,7 @@ export const COMPETITIONS_DATA: Competition[] = [
     // Standard Competitions
     {
         id: 'comp_forgex',
-        image: `${import.meta.env.BASE_URL}assets/competitions/forgex.png`,
+        image: `${import.meta.env.BASE_URL}assets/competitions/forgex.webp`,
         title: 'Forge-X',
         subtitle: 'Engineering Unleashed',
         location: 'Main Arena',
@@ -101,7 +101,7 @@ export const COMPETITIONS_DATA: Competition[] = [
     },
     {
         id: 'comp_algobid',
-        image: `${import.meta.env.BASE_URL}assets/competitions/algobid.png`,
+        image: `${import.meta.env.BASE_URL}assets/competitions/algobid.webp`,
         title: 'Algo Bid: Auction Coding',
         subtitle: 'Strategic Programming',
         location: 'Coding Den',
@@ -120,7 +120,7 @@ export const COMPETITIONS_DATA: Competition[] = [
     },
     {
         id: 'comp_codeladder',
-        image: `${import.meta.env.BASE_URL}assets/competitions/codeladder.png`,
+        image: `${import.meta.env.BASE_URL}assets/competitions/codeladder.webp`,
         title: 'Code Ladder',
         subtitle: 'Step-by-Step Logic',
         location: 'Cyber Arena',
@@ -139,7 +139,7 @@ export const COMPETITIONS_DATA: Competition[] = [
     },
     {
         id: 'comp_iplauction',
-        image: `${import.meta.env.BASE_URL}assets/competitions/iplauction.png`,
+        image: `${import.meta.env.BASE_URL}assets/competitions/iplauction.webp`,
         title: 'IPL Auction',
         subtitle: 'Strategic Bidding',
         location: 'Grand Hall',
@@ -158,7 +158,7 @@ export const COMPETITIONS_DATA: Competition[] = [
     },
     {
         id: 'comp_blindcode',
-        image: `${import.meta.env.BASE_URL}assets/competitions/blindcode.png`,
+        image: `${import.meta.env.BASE_URL}assets/competitions/blindcode.webp`,
         title: 'Blind Code Challenge',
         subtitle: 'Unseen Logic',
         location: 'Coding Lab',
@@ -177,7 +177,7 @@ export const COMPETITIONS_DATA: Competition[] = [
     },
     {
         id: 'comp_devclash',
-        image: `${import.meta.env.BASE_URL}assets/competitions/devclash.png`,
+        image: `${import.meta.env.BASE_URL}assets/competitions/devclash.webp`,
         title: 'Dev Clash',
         subtitle: 'Product Development',
         location: 'Design Studio',
@@ -215,7 +215,7 @@ export const COMPETITIONS_DATA: Competition[] = [
     },
     {
         id: 'comp_coderun',
-        image: `${import.meta.env.BASE_URL}assets/competitions/coderun.png`,
+        image: `${import.meta.env.BASE_URL}assets/competitions/coderun.webp`,
         title: 'Code Run',
         subtitle: 'Competitive Programming',
         location: 'Coding Den',
@@ -234,7 +234,7 @@ export const COMPETITIONS_DATA: Competition[] = [
     },
     {
         id: 'comp_bridgenova',
-        image: `${import.meta.env.BASE_URL}assets/competitions/bridgenova.png`,
+        image: `${import.meta.env.BASE_URL}assets/competitions/bridgenova.webp`,
         title: 'Bridge Nova',
         subtitle: 'Structural Engineering',
         location: 'Design Lab',
@@ -253,7 +253,7 @@ export const COMPETITIONS_DATA: Competition[] = [
     },
     {
         id: 'comp_poster',
-        image: `${import.meta.env.BASE_URL}assets/competitions/poster.png`,
+        image: `${import.meta.env.BASE_URL}assets/competitions/poster.webp`,
         title: 'Poster Presentation',
         subtitle: 'Research Showcase',
         location: 'Seminar Hall',
@@ -272,7 +272,7 @@ export const COMPETITIONS_DATA: Competition[] = [
     },
     {
         id: 'comp_sparktank',
-        image: `${import.meta.env.BASE_URL}assets/competitions/sparktank.png`,
+        image: `${import.meta.env.BASE_URL}assets/competitions/sparktank.webp`,
         title: 'Spark Tank',
         subtitle: 'Electro-Innovation Pitch',
         location: 'Tech Hub',
@@ -291,7 +291,7 @@ export const COMPETITIONS_DATA: Competition[] = [
     },
     {
         id: 'comp_matlab',
-        image: `${import.meta.env.BASE_URL}assets/competitions/matlab.png`,
+        image: `${import.meta.env.BASE_URL}assets/competitions/matlab.webp`,
         title: 'Matlab Madness',
         subtitle: 'Mathematical Computing',
         location: 'Simulation Lab',
