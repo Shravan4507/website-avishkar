@@ -166,8 +166,8 @@ export const ChromaGrid: React.FC<ChromaGridProps> = ({
         if (selectedItemSlug) {
             const item = data.find(i => i.slug === selectedItemSlug);
             if (item) setSelectedMember(item);
-        } else {
-            // Only clear it if it was previously set (to allow internal modal closing)
+        } else if (selectedItemSlug === null || selectedItemSlug === '') {
+            // Only clear it if explicitly set to null/empty from outside
             if (selectedMember) {
                 const tl = gsap.timeline({
                     onComplete: () => setSelectedMember(null)

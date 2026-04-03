@@ -141,7 +141,7 @@ function Home() {
             <div className="home-competitions-container">
               <ChromaGrid 
                 items={flagshipCompetitions}
-                radius={350}
+                radius={400}
                 damping={0.5}
                 fadeOut={0.8}
                 columns={3}

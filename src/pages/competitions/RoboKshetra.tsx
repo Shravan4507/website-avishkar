@@ -56,7 +56,7 @@ const ROBO_EVENTS = [
         gradient: 'linear-gradient(135deg, #d9ff00, #000)',
         image: `${import.meta.env.BASE_URL}assets/robokshetra/line_follower.webp`,
         highlights: [
-            "Fully Autonomous Robot (No Bluetooth / manual control)",
+            "Autonomous Robot (No Bluetooth / manual control)",
             "Size Limit: 20 x 20 × 20 cm",
             "Max Voltage: 16.8V",
             "Track: Turns, intersections, crossovers, color change",
@@ -79,12 +79,14 @@ const ROBO_EVENTS = [
         gradient: 'linear-gradient(135deg, #d9ff00, #000)',
         image: `${import.meta.env.BASE_URL}assets/robokshetra/maze_solver.webp`,
         highlights: [
-            "🤖 Fully Autonomous Robot (No remote control)",
-            "📏 Max Size: 30 × 30 cm",
-            "🛣️ Task: Navigate maze (START → END)",
-            "🧩 Maze: Multiple paths, dead ends, hidden routes",
-            "⏱️ Goal: Reach center in minimum time",
-            "👥 Team Size: 2–4 members"
+            "Autonomous Robot (No remote control)",
+            "Max Size: 30 × 30 cm",
+            "Max Weight: 1 kg",
+            "Task: Navigate maze (START → END)",
+            "Maze: Multiple paths, dead ends, checkpoints path",
+            "Goal: Reach END in minimum time",
+            "Team Size: 2–4 members",
+            "Rounds: Preliminary + Finals"
         ]
     },
     { 
@@ -101,12 +103,13 @@ const ROBO_EVENTS = [
         gradient: 'linear-gradient(135deg, #d9ff00, #000)',
         image: `${import.meta.env.BASE_URL}assets/robokshetra/trailblazer.webp`,
         highlights: [
-            "🎮 Remote-Controlled Robot (NOT autonomous)",
-            "📏 Size Limit: 30 × 30 cm",
-            "⚖️ Weight: 1–1.5 kg",
-            "🛣️ Task: Navigate obstacle track (START → END)",
-            "🧱 Arena: Obstacles, turns, dead ends, unstable surfaces",
-            "👥 Team Size: 2–4 members"
+            "Remote-Controlled Robot (NOT autonomous)",
+            "Size Limit: 30 × 30 cm",
+            "Weight: 1–1.5 kg",
+            "Task: Navigate obstacle track (START → END)",
+            "Arena: Obstacles, turns, dead ends, unstable surfaces",
+            "Team Size: 2–4 members",
+            "Rounds: Preliminary + Finals"
         ]
     },
 ] as const;

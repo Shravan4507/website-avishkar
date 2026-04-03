@@ -58,6 +58,7 @@ function Workshops() {
                             columns={2}
                             radius={450}
                             showRegister={false}
+                            disableModal={true}
                             onItemClick={(item) => navigate(`/${item.slug}`)}
                         />
                     </div>

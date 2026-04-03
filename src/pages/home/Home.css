@@ -514,7 +514,7 @@
   width: 100%;
   max-width: 1400px;
   margin: 3rem auto;
-  padding: 0 1.5rem;
+  padding: 0; /* Align with ChromaGrid internal padding */
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -566,8 +566,10 @@
   }
   
   .home-arenas {
-    margin: 2rem auto;
+    margin: 2rem -1.5rem; /* Negate hero padding to match Competitions page width */
+    width: calc(100% + 3rem);
     gap: 1rem;
+    padding: 0;
   }
 }
 
