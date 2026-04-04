@@ -515,6 +515,38 @@
     transform: scale(0.95);
 }
 
+.rulebook-download-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 24px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 100px;
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.rulebook-download-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: #5227FF;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(82, 39, 255, 0.2);
+}
+
+.rulebook-download-btn svg {
+    color: #5227FF;
+    transition: transform 0.3s ease;
+}
+
+.rulebook-download-btn:hover svg {
+    transform: scale(1.1);
+}
+
 .modal-socials {
     display: flex;
     gap: 12px;

@@ -73,7 +73,7 @@
 }
 
 .navbar__logo {
-  height: 50px;
+  height: 60px;
   width: auto;
   object-fit: contain;
   filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.2));
@@ -251,7 +251,7 @@
     left: 0;
     width: 100%;
     height: 100vh;
-    background: rgba(0, 0, 0, 0.98);
+    background: rgba(0, 0, 0, 0.95);
     backdrop-filter: blur(30px);
     z-index: 1000;
     align-items: center;
