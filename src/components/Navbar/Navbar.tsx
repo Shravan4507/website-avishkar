@@ -4,7 +4,7 @@ import { auth, db } from '../../firebase/firebase'
 import { onAuthStateChanged } from 'firebase/auth'
 import { doc, getDoc } from 'firebase/firestore'
 import { X } from 'lucide-react'
-const logo = `${import.meta.env.BASE_URL}assets/logos/avishkar-icon.webp`
+const logo = `${import.meta.env.BASE_URL}assets/logos/avishkar-icon.webp?v=1`
 import './Navbar.css'
 
 const TABS = [
