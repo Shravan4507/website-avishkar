@@ -151,11 +151,11 @@ export const COMPETITIONS_DATA: Competition[] = [
         url: '#',
         slug: 'ipl-auction',
         department: 'General',
-        entryFee: 250,
+        entryFee: 400,
         coordinator: "Tushar Anand",
         contactNumber: "9236113425",
-        minTeamSize: 2,
-        maxTeamSize: 4
+        minTeamSize: 1,
+        maxTeamSize: 5
     },
     {
         id: 'comp_blindcode',
