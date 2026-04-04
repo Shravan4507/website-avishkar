@@ -127,6 +127,7 @@ const RoboKshetra: React.FC = () => {
     const [ticketId, setTicketId] = useState('');
     const [accountabilityAccepted, setAccountabilityAccepted] = useState(false);
     const [showPreview, setShowPreview] = useState(false);
+    const [showRulebookDropdown, setShowRulebookDropdown] = useState(false);
 
     const { isRegistered, eventName: registeredEventName } = useRegistrationGuard();
 
@@ -471,9 +472,36 @@ const RoboKshetra: React.FC = () => {
                             <button className="primary-cta" onClick={() => document.getElementById('arena')?.scrollIntoView({ behavior: 'smooth' })}>
                                 Enter the Arena <Rocket size={18} />
                             </button>
-                            <button className="secondary-cta disabled" onClick={() => toast.info("Rulebook is being finalized and will be available soon.")}>
-                                Rulebook (Soon) <FileText size={18} />
-                            </button>
+                            
+                            <div className="rk-rulebook-dropdown-container">
+                                <button 
+                                    className={`secondary-cta ${showRulebookDropdown ? 'active' : ''}`} 
+                                    onClick={() => setShowRulebookDropdown(!showRulebookDropdown)}
+                                >
+                                    Rulebooks <FileText size={18} />
+                                </button>
+                                
+                                {showRulebookDropdown && (
+                                    <div className="rk-rulebook-menu animate-slide-up">
+                                        {[
+                                            { label: 'AlignX (Line Follower)', file: 'AlignX.pdf' },
+                                            { label: 'RoboRush (Obstacle)', file: 'RoboRush.pdf' }
+                                        ].map((rb, idx) => (
+                                            <a 
+                                                key={idx}
+                                                href={`${import.meta.env.BASE_URL}assets/rule-books/${encodeURIComponent(rb.file)}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="rk-rb-item"
+                                                download
+                                            >
+                                                <FileText size={14} />
+                                                <span>{rb.label}</span>
+                                            </a>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </section>
 
