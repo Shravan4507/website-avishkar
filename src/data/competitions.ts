@@ -20,6 +20,7 @@ export interface Competition {
     comingSoon?: boolean;
     minTeamSize?: number;
     maxTeamSize?: number;
+    rulebook?: string;
 }
 
 export const COMPETITIONS_DATA: Competition[] = [
@@ -192,11 +193,12 @@ export const COMPETITIONS_DATA: Competition[] = [
         coordinator: 'Om Kute',
         contactNumber: '7709056730',
         minTeamSize: 2,
-        maxTeamSize: 3
+        maxTeamSize: 3,
+        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/DevClash%20RuleBook%20.pdf`
     },
     {
         id: 'comp_vibesprint',
-        image: 'https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=600&h=400&auto=format&fit=crop',
+        image: `${import.meta.env.BASE_URL}assets/competitions/vibesprint.webp`,
         title: 'Vibe Sprint',
         subtitle: 'Creative Dash',
         location: 'Main Ground',
@@ -211,7 +213,8 @@ export const COMPETITIONS_DATA: Competition[] = [
         coordinator: 'Parth Shinde',
         contactNumber: '9168906630',
         minTeamSize: 1,
-        maxTeamSize: 1
+        maxTeamSize: 1,
+        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/Vibe%20Coding%20RuleBook.pdf`
     },
     {
         id: 'comp_coderun',
@@ -268,7 +271,8 @@ export const COMPETITIONS_DATA: Competition[] = [
         coordinator: 'Pranav Katu',
         contactNumber: '9503231138',
         minTeamSize: 1,
-        maxTeamSize: 2
+        maxTeamSize: 2,
+        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/Poster%20Presentation.pdf`
     },
     {
         id: 'comp_sparktank',
@@ -287,7 +291,8 @@ export const COMPETITIONS_DATA: Competition[] = [
         coordinator: 'Harshita Jadhav',
         contactNumber: '9356766305',
         minTeamSize: 1,
-        maxTeamSize: 3
+        maxTeamSize: 3,
+        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/Spark%20Tank.pdf`
     },
     {
         id: 'comp_matlab',
@@ -310,7 +315,7 @@ export const COMPETITIONS_DATA: Competition[] = [
     },
     {
         id: 'comp_circuitsim',
-        image: 'https://images.unsplash.com/photo-1517077304055-6e89abbf09b0?q=80&w=600&h=400&auto=format&fit=crop',
+        image: `${import.meta.env.BASE_URL}assets/competitions/circuitsim.webp`,
         title: 'Circuit Simulation',
         subtitle: 'Virtual Electronics',
         location: 'Simulation Lab',
@@ -326,6 +331,26 @@ export const COMPETITIONS_DATA: Competition[] = [
         contactNumber: '9699281400',
         minTeamSize: 1,
         maxTeamSize: 2
+    },
+    {
+        id: 'comp_contraption',
+        image: `${import.meta.env.BASE_URL}assets/competitions/contraption.webp`,
+        title: 'Contraptions Challenge',
+        subtitle: 'Energy Conversion - Hit & Drop',
+        location: 'Assembly Hall',
+        handle: 'Master-Builder',
+        description: 'Design and build intricate systems of energy conversion. Create complex chain reactions to perform simple tasks with maximum precision, innovation, and robustness.',
+        borderColor: '#ff9800',
+        gradient: 'linear-gradient(135deg, #ff9800, #000)',
+        url: '#',
+        slug: 'contraptions-challenge',
+        department: 'General',
+        entryFee: 150,
+        coordinator: 'Deepak Patil',
+        contactNumber: '9158306630',
+        minTeamSize: 2,
+        maxTeamSize: 4,
+        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/Contraptions.pdf`
     },
 ];
 

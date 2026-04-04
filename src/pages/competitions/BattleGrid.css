@@ -129,9 +129,8 @@
     transition: all 0.3s ease;
 }
 
-.secondary-cta:hover {
-    background: rgba(255, 255, 255, 0.1);
-}
+
+/* Removed hover effect to keep rulebook clean */
 
 /* --- JUDGING SECTION --- */
 .judging-preview {
