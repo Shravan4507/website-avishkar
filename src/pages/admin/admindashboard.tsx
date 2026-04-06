@@ -3,7 +3,7 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import { useNavigate } from 'react-router-dom';
 import { 
   collection, getCountFromServer, query, getDocs, 
-  orderBy, doc, getDoc, where, updateDoc, setDoc, deleteDoc
+  orderBy, doc, getDoc, where, updateDoc, setDoc, deleteDoc, addDoc
 } from 'firebase/firestore';
 import { auth, db } from '../../firebase/firebase';
 import { useToast } from '../../components/toast/Toast';
@@ -13,7 +13,7 @@ import NotificationBell from '../../components/notifications/NotificationBell';
 
 import { 
   Users, Ticket, Download, Wrench, Shield,
-  Trash2, Search, Phone, Mail, School, BookOpen, Fingerprint, RefreshCw, IndianRupee
+  Trash2, Search, Phone, Mail, School, BookOpen, Fingerprint, RefreshCw, IndianRupee, Send, Eye, CheckCircle2, AlertCircle
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import GlassSelect from '../../components/dropdown/GlassSelect';
@@ -158,8 +158,19 @@ const AdminDashboard: React.FC = () => {
   const [loadingBugs, setLoadingBugs] = useState(false);
   
   const [supportSubTab, setSupportSubTab] = useState<'contact' | 'bugs'>('contact');
-  
 
+  // --- Email Tester State ---
+  const [emailTestAvrId, setEmailTestAvrId] = useState('');
+  const [emailTestType, setEmailTestType] = useState('REGISTRATION_SUCCESS');
+  const [emailTestLoading, setEmailTestLoading] = useState(false);
+  const [emailTestResult, setEmailTestResult] = useState<{ status: 'idle' | 'success' | 'error'; message: string }>({ status: 'idle', message: '' });
+  const [emailPreviewHtml, setEmailPreviewHtml] = useState<string | null>(null);
+
+  const EMAIL_TYPE_OPTIONS = [
+    { label: 'Registration Success', value: 'REGISTRATION_SUCCESS' },
+    { label: 'Payment Pending', value: 'PAYMENT_PENDING' },
+    { label: 'Payment Failure', value: 'PAYMENT_FAILURE' },
+  ];
   
   const toast = useToast();
 
@@ -1078,6 +1089,196 @@ const AdminDashboard: React.FC = () => {
             />
           : <div>Access Denied</div>;
       // website_settings removed
+      case 'email_tester':
+        return (
+          <div className="tab-content animate-in">
+            <div className="tab-header-flex">
+              <div>
+                <h1 className="tab-title">Email Tester</h1>
+                <p className="tab-subtitle">Send test emails to any registered user by AVR-ID</p>
+              </div>
+            </div>
+
+            <div className="email-tester-grid">
+              {/* Send Panel */}
+              <div className="admin-form-card" style={{ background: 'rgba(0,0,0,0.4)', borderRadius: '24px', padding: '32px', border: '1px solid rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px' }}>
+                  <Mail size={22} color="#a78bfa" />
+                  <h3 style={{ color: '#fff', margin: 0, fontSize: '1.15rem' }}>Compose Test Email</h3>
+                </div>
+
+                <div style={{ marginBottom: '20px' }}>
+                  <label style={{ color: 'rgba(255,255,255,0.6)', marginBottom: '8px', display: 'block', fontSize: '0.85rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Target AVR-ID</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. AVR-SHR-0001"
+                    value={emailTestAvrId}
+                    onChange={(e) => handleAvrIdChange(e.target.value, setEmailTestAvrId)}
+                    className="email-tester-input"
+                  />
+                </div>
+
+                <div style={{ marginBottom: '24px' }}>
+                  <label style={{ color: 'rgba(255,255,255,0.6)', marginBottom: '8px', display: 'block', fontSize: '0.85rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Email Type</label>
+                  <GlassSelect
+                    value={emailTestType}
+                    onChange={(val: string) => setEmailTestType(val)}
+                    options={EMAIL_TYPE_OPTIONS}
+                    style={{ width: '100%' }}
+                  />
+                </div>
+
+                {/* Status Indicator */}
+                {emailTestResult.status !== 'idle' && (
+                  <div className={`email-test-status ${emailTestResult.status === 'success' ? 'status-success' : 'status-error'}`}>
+                    {emailTestResult.status === 'success' ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}
+                    <span>{emailTestResult.message}</span>
+                  </div>
+                )}
+
+                <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
+                  <button
+                    onClick={async () => {
+                      if (!emailTestAvrId.trim() || emailTestAvrId.length < 12) {
+                        toast.error('Please enter a valid AVR-ID (e.g. AVR-SHR-0001)');
+                        return;
+                      }
+                      setEmailTestLoading(true);
+                      setEmailTestResult({ status: 'idle', message: '' });
+                      try {
+                        // 1. Find user by AVR-ID
+                        const q = query(collection(db, 'user'), where('avrId', '==', emailTestAvrId.trim().toUpperCase()));
+                        const snap = await getDocs(q);
+                        if (snap.empty) {
+                          setEmailTestResult({ status: 'error', message: `User ${emailTestAvrId.toUpperCase()} not found.` });
+                          setEmailTestLoading(false);
+                          return;
+                        }
+                        const userData = snap.docs[0].data();
+                        const recipientEmail = userData.email;
+                        const recipientName = `${userData.firstName || ''} ${userData.lastName || ''}`.trim() || 'Participant';
+                        const avrId = emailTestAvrId.trim().toUpperCase();
+
+                        // 2. Build test data
+                        const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(avrId)}&bgcolor=ffffff&color=0f172a`;
+                        const testData: Record<string, string> = {
+                          EVENT_NAME: '[TEST] Battle Grid \'26',
+                          AVR_ID: avrId,
+                          LEADER_NAME: recipientName,
+                          REG_DATE: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }),
+                          QR_CODE_URL: qrCodeUrl,
+                          DASHBOARD_URL: 'https://avishkar.zcoer.in/user/dashboard',
+                          AMOUNT: '₹200',
+                          SUPPORT_URL: 'mailto:support.avishkarr@zealeducation.com',
+                          RETRY_URL: 'https://avishkar.zcoer.in/user/dashboard',
+                        };
+
+                        // 3. Determine subject line
+                        let subject = `[TEST] Registration Confirmed — ${testData.EVENT_NAME} | Avishkar '26`;
+                        if (emailTestType === 'PAYMENT_PENDING') {
+                          subject = `[TEST] Payment Pending — ${testData.EVENT_NAME} | Avishkar '26`;
+                        } else if (emailTestType === 'PAYMENT_FAILURE') {
+                          subject = `[TEST] Payment Failed — ${testData.EVENT_NAME} | Avishkar '26`;
+                        }
+
+                        // 4. Generate HTML via EmailService
+                        const { generateEmailHTML } = await import('../../utils/EmailService');
+                        const htmlContent = generateEmailHTML(emailTestType as any, testData);
+
+                        // 5. Write to Firestore 'mail' collection (Trigger Email extension picks it up)
+                        await addDoc(collection(db, 'mail'), {
+                          to: recipientEmail,
+                          message: {
+                            subject: subject,
+                            html: htmlContent,
+                          },
+                          metadata: {
+                            type: 'test-email',
+                            sentBy: user?.email || 'superadmin',
+                            templateType: emailTestType,
+                            targetAvrId: avrId,
+                            sentAt: new Date().toISOString(),
+                          },
+                        });
+
+                        setEmailTestResult({ status: 'success', message: `Email queued to ${recipientEmail}` });
+                        toast.success(`Test email sent to ${recipientName} (${recipientEmail})`);
+                      } catch (err: any) {
+                        console.error('[EmailTester] Error:', err);
+                        setEmailTestResult({ status: 'error', message: err.message || 'Failed to send email.' });
+                        toast.error('Failed to queue test email.');
+                      } finally {
+                        setEmailTestLoading(false);
+                      }
+                    }}
+                    disabled={emailTestLoading}
+                    className="email-tester-send-btn"
+                  >
+                    <Send size={18} />
+                    {emailTestLoading ? 'Sending...' : 'Send Test Email'}
+                  </button>
+
+                  <button
+                    onClick={async () => {
+                      try {
+                        const testData: Record<string, string> = {
+                          EVENT_NAME: '[PREVIEW] Battle Grid \'26',
+                          AVR_ID: emailTestAvrId.trim().toUpperCase() || 'AVR-TST-0000',
+                          LEADER_NAME: 'Preview User',
+                          REG_DATE: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }),
+                          QR_CODE_URL: `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=AVR-TST-0000&bgcolor=ffffff&color=0f172a`,
+                          DASHBOARD_URL: '#',
+                          AMOUNT: '₹200',
+                          SUPPORT_URL: '#',
+                          RETRY_URL: '#',
+                        };
+                        const { generateEmailHTML } = await import('../../utils/EmailService');
+                        const html = generateEmailHTML(emailTestType as any, testData);
+                        setEmailPreviewHtml(html);
+                      } catch (err) {
+                        toast.error('Failed to generate preview.');
+                      }
+                    }}
+                    className="email-tester-preview-btn"
+                  >
+                    <Eye size={18} />
+                    Preview
+                  </button>
+                </div>
+
+                {/* Info Box */}
+                <div style={{ marginTop: '24px', padding: '16px 20px', background: 'rgba(167, 139, 250, 0.06)', borderRadius: '16px', border: '1px solid rgba(167, 139, 250, 0.15)' }}>
+                  <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.8rem', margin: 0, lineHeight: 1.5 }}>
+                    Test emails are sent with a <span style={{ color: '#a78bfa', fontWeight: 700 }}>[TEST]</span> prefix in the subject and event name. The user's real email and name are used for delivery. Data like amounts and dates are placeholder values.
+                  </p>
+                </div>
+              </div>
+
+              {/* Preview Panel */}
+              {emailPreviewHtml && (
+                <div className="admin-form-card" style={{ background: 'rgba(0,0,0,0.3)', borderRadius: '24px', padding: '12px', border: '1px solid rgba(255,255,255,0.05)', position: 'relative' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <Eye size={18} color="#a78bfa" />
+                      <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', fontWeight: 600 }}>Email Preview</span>
+                    </div>
+                    <button
+                      onClick={() => setEmailPreviewHtml(null)}
+                      style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', cursor: 'pointer', fontSize: '1.2rem', padding: '4px 8px' }}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  <iframe
+                    srcDoc={emailPreviewHtml}
+                    title="Email Preview"
+                    className="email-preview-iframe"
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+        );
       default:
         return <div className="tab-content"><h1>{activeTab}</h1><p>Under construction.</p></div>;
     }

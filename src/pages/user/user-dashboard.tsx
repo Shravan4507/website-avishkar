@@ -388,7 +388,7 @@ const UserDashboard: React.FC = () => {
                 <a href="https://www.instagram.com/zeal_avishkar/" target="_blank" rel="noreferrer" className="social-icon-btn">
                   <Instagram size={24} />
                 </a>
-                <a href="https://www.youtube.com/@zealavishkar" target="_blank" rel="noreferrer" className="social-icon-btn">
+                <a href="https://www.youtube.com/@zeal_avishkar" target="_blank" rel="noreferrer" className="social-icon-btn">
                   <Youtube size={24} />
                 </a>
               </div>

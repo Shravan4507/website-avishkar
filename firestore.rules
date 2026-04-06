@@ -222,6 +222,17 @@ service cloud.firestore {
     }
 
     // =============================================
+    // MAIL (Firebase Trigger Email Extension)
+    // =============================================
+    match /mail/{mailId} {
+      // Only superadmins can queue emails (Email Tester + Cloud Functions handle production)
+      allow create: if isAuth() && isCoreAdmin();
+
+      // No client reads needed — the extension processes server-side
+      allow read, update, delete: if false;
+    }
+
+    // =============================================
     // CATCH-ALL: Deny everything else
     // =============================================
     match /{document=**} {

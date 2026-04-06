@@ -1,5 +1,5 @@
 import React from 'react';
-import { BarChart2, Users, LogOut, Ticket, Shield, Search, Sparkles } from 'lucide-react';
+import { BarChart2, Users, LogOut, Ticket, Shield, Search, Sparkles, Mail } from 'lucide-react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from '../../../firebase/firebase';
 import type { AdminProfile } from '../../../pages/admin/admindashboard';
@@ -38,6 +38,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, setActiveTab, is
     { id: 'algobid_regs',     label: 'Algo-Bid Registrations',      Icon: Ticket, visible: isSuper || adminProfile?.roleLevel?.includes('admin-algo-bid') },
     { id: 'codeladder_regs',  label: 'Code-Ladder Registrations',   Icon: Ticket, visible: isSuper || adminProfile?.roleLevel?.includes('admin-code-ladder') },
     { id: 'orbitx_regs',      label: 'Solar Spot Registrations',    Icon: Sparkles, visible: isSuper || adminProfile?.roleLevel?.includes('workshop-solar-spot') },
+    { id: 'email_tester', label: 'Email Tester',  Icon: Mail, visible: isSuper },
     { id: 'support',       label: 'Support Tickets', Icon: Users, visible: isSuper || adminProfile?.assignment === 'Support Team' },
     { id: 'admins',        label: 'Admin Directory', Icon: Shield, visible: isSuper },
     { id: 'users',         label: 'Manage Users',   Icon: Users, visible: isSuper || adminProfile?.assignment === 'Registration Team' },

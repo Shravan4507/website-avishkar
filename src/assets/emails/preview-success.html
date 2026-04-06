@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avishkar '26 | Registration Success Preview</title>
     <!--[if !mso]><!-->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
     <!--<![endif]-->
@@ -106,6 +107,7 @@
             font-size: 14px;
             text-transform: uppercase;
             letter-spacing: 1px;
+            transition: transform 0.2s;
         }
         .btn-primary { background-color: #0f172a; color: #ffffff; }
     </style>
@@ -145,15 +147,15 @@
                     </div>
                     
                     <h2 class="h1">REGISTRATION CONFIRMED</h2>
-                    <p class="text-muted" style="margin: 10px 0 35px 0; font-size: 15px;">Your registration for <span class="text-accent text-bold">{{EVENT_NAME}}</span> is verified.</p>
+                    <p class="text-muted" style="margin: 10px 0 35px 0; font-size: 15px;">Your registration for <span class="text-accent text-bold">BATTLE GRID '26</span> is verified.</p>
                     
                     <!-- Pass Section -->
                     <div class="summary-box">
                         <p class="text-muted uppercase text-bold" style="font-size: 11px; margin-bottom: 5px;">Unique Pass ID</p>
-                        <h3 class="h1" style="font-family: 'Courier New', Courier, monospace; letter-spacing: 4px;">{{AVR_ID}}</h3>
+                        <h3 class="h1" style="font-family: 'Courier New', Courier, monospace; letter-spacing: 4px;">AVR26-BG-4402</h3>
                         
                         <div style="background-color: #ffffff; border-radius: 16px; padding: 25px; width: 170px; margin: 25px auto 0 auto; display: inline-block; border: 1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.02);">
-                            <img src="{{QR_CODE_URL}}" alt="Verification QR Code" width="150" style="display: block;">
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=AVR26-BG-4402" alt="Verification QR Code" width="150" style="display: block;">
                         </div>
                         
                         <p class="text-muted uppercase text-bold" style="font-size: 11px; margin-top: 25px;">Present this QR code for Entry</p>
@@ -163,11 +165,11 @@
                     <div class="details-list" style="text-align: left;">
                         <div class="details-item">
                             <p class="text-muted uppercase text-bold" style="font-size: 10px;">Team Leader</p>
-                            <p class="text-bold" style="font-size: 16px; margin: 5px 0 0 0;">{{LEADER_NAME}}</p>
+                            <p class="text-bold" style="font-size: 16px; margin: 5px 0 0 0;">Shravan Chaudhary</p>
                         </div>
                         <div class="details-item">
                             <p class="text-muted uppercase text-bold" style="font-size: 10px;">Registration Date</p>
-                            <p class="text-bold" style="font-size: 16px; margin: 5px 0 0 0;">{{REG_DATE}}</p>
+                            <p class="text-bold" style="font-size: 16px; margin: 5px 0 0 0;">April 06, 2026</p>
                         </div>
                         <div class="details-item">
                             <p class="text-muted uppercase text-bold" style="font-size: 10px;">Venue</p>
@@ -177,7 +179,7 @@
 
                     <p class="text-muted" style="margin-bottom: 30px; font-size: 14px;">An official invoice is attached to this email. You can view all details in your portal.</p>
                     
-                    <a href="{{DASHBOARD_URL}}" class="btn btn-primary">Go to Dashboard</a>
+                    <a href="https://avishkar.zcoer.in/dashboard" class="btn btn-primary">Go to Dashboard</a>
                 </div>
             </div>
 
@@ -193,7 +195,7 @@
                 
                 <div>
                     Support: <a href="mailto:support.avishkarr@zealeducation.com" class="text-accent text-bold" style="text-decoration: none;">support.avishkarr@zealeducation.com</a><br>
-                    &copy; 2026 Avishkar Tech. Pioneering Excellence.
+                    © 2026 Avishkar Tech. Pioneering Excellence.
                 </div>
             </div>
         </div>
