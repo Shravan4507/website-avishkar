@@ -38,6 +38,7 @@ const BookStall = lazy(() => import('./pages/stalls/BookStall'));
 const ParamX = lazy(() => import('./pages/competitions/ParamX'));
 const ParamXUpload = lazy(() => import('./pages/competitions/ParamXUpload'));
 const ParamXRules = lazy(() => import('./pages/competitions/ParamXRules'));
+const Rules = lazy(() => import('./pages/rules/Rules'));
 
 // Lazy Loaded Legal Pages
 const Privacy = lazy(() => import('./pages/legal/Privacy'));
@@ -169,6 +170,7 @@ const LayoutManager = () => {
                   <Route path="/param-x" element={<T el={<ParamX />} />} />
                   <Route path="/param-x/rules" element={<T el={<ParamXRules />} />} />
                   <Route path="/param-x/upload" element={<T el={<ParamXUpload />} />} />
+                  <Route path="/rules" element={<T el={<Rules />} />} />
 
                   {/* ── Club Detail Pages ── */}
                   <Route path="/gdgoc-zcoer"    element={<T el={<GDGClub />} />} />

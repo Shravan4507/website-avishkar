@@ -41,7 +41,8 @@ export const COMPETITIONS_DATA: Competition[] = [
         slug: 'codex-26',
         department: 'Computer Engineering',
         minTeamSize: 2,
-        maxTeamSize: 4
+        maxTeamSize: 4,
+        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/Param-X.pdf`
     },
     {
         id: 'robotron--26',
@@ -85,10 +86,10 @@ export const COMPETITIONS_DATA: Competition[] = [
         id: 'comp_forgex',
         image: `${import.meta.env.BASE_URL}assets/competitions/forgex.webp`,
         title: 'Forge-X',
-        subtitle: 'Engineering Unleashed',
+        subtitle: 'Build Fast. Build Smart.',
         location: 'Main Arena',
         handle: 'Forge-Lead',
-        description: "An intensive competition for innovative minds to solve real-world problems through advanced technological solutions.",
+        description: "A multi-round programming and development competition focused on building fully functional applications within a strict 90-minute time limit.",
         borderColor: '#5227FF',
         gradient: 'linear-gradient(145deg, #5227FF, #000)',
         url: '#',
@@ -97,17 +98,18 @@ export const COMPETITIONS_DATA: Competition[] = [
         entryFee: 99,
         coordinator: "Aryan Gupta",
         contactNumber: "9140411132",
-        minTeamSize: 2,
-        maxTeamSize: 4
+        minTeamSize: 1,
+        maxTeamSize: 2,
+        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/FORGEX.pdf`
     },
     {
         id: 'comp_algobid',
         image: `${import.meta.env.BASE_URL}assets/competitions/algobid.webp`,
-        title: 'Algo Bid: Auction Coding',
-        subtitle: 'Strategic Programming',
+        title: 'AlgoBid',
+        subtitle: 'Bid Smart. Code Faster.',
         location: 'Coding Den',
         handle: 'Algo-Master',
-        description: 'Where algorithms meet auctions. Bid for your problems and solve them under pressure.',
+        description: 'A high-energy, strategy-driven competitive programming event combining live auctions with algorithmic problem-solving.',
         borderColor: '#d9ff00',
         gradient: 'linear-gradient(180deg, #d9ff00, #000)',
         url: '#',
@@ -116,17 +118,18 @@ export const COMPETITIONS_DATA: Competition[] = [
         entryFee: 99,
         coordinator: 'Tejprakash Mirashi',
         contactNumber: '7378965050',
-        minTeamSize: 1,
-        maxTeamSize: 2
+        minTeamSize: 3,
+        maxTeamSize: 4,
+        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/ALGOBID.pdf`
     },
     {
         id: 'comp_codeladder',
         image: `${import.meta.env.BASE_URL}assets/competitions/codeladder.webp`,
         title: 'Code Ladder',
-        subtitle: 'Step-by-Step Logic',
+        subtitle: 'Climb the Logic Ladder',
         location: 'Cyber Arena',
         handle: 'Code-Climber',
-        description: 'Climb the leaderboard with incrementally challenging coding hurdles.',
+        description: 'An innovative physical event simulating programming concepts through an interactive, game-based environment with increasing difficulty.',
         borderColor: '#5227FF',
         gradient: 'linear-gradient(145deg, #5227FF, #000)',
         url: '#',
@@ -135,8 +138,9 @@ export const COMPETITIONS_DATA: Competition[] = [
         entryFee: 250,
         coordinator: 'Shreya Kad',
         contactNumber: '7517021872',
-        minTeamSize: 1,
-        maxTeamSize: 1
+        minTeamSize: 4,
+        maxTeamSize: 4,
+        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/CODE%20LADDER.pdf`
     },
     {
         id: 'comp_iplauction',
@@ -155,7 +159,8 @@ export const COMPETITIONS_DATA: Competition[] = [
         coordinator: "Tushar Anand",
         contactNumber: "9236113425",
         minTeamSize: 1,
-        maxTeamSize: 5
+        maxTeamSize: 5,
+        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/IPL%20Auction.pdf`
     },
     {
         id: 'comp_blindcode',
@@ -174,27 +179,28 @@ export const COMPETITIONS_DATA: Competition[] = [
         coordinator: 'Shirish Kadu',
         contactNumber: '8668383832',
         minTeamSize: 1,
-        maxTeamSize: 1
+        maxTeamSize: 1,
+        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/Blind%20Coding.pdf`
     },
     {
         id: 'comp_devclash',
         image: `${import.meta.env.BASE_URL}assets/competitions/devclash.webp`,
-        title: 'Dev Clash',
-        subtitle: 'Product Development',
+        title: 'DevClash',
+        subtitle: 'AI Hackathon & Pitching',
         location: 'Design Studio',
         handle: 'Dev-Striker',
-        description: 'Face off in a sprint to build the most efficient and scalable prototypes.',
+        description: 'An innovation-based technical event where teams develop AI solutions for real-world problems, focusing on creativity, feasibility, and practical implementation.',
         borderColor: '#5227FF',
         gradient: 'linear-gradient(145deg, #5227FF, #000)',
         url: '#',
         slug: 'dev-clash',
         department: 'Computer Engineering',
-        entryFee: 199,
+        entryFee: 250,
         coordinator: 'Om Kute',
         contactNumber: '7709056730',
-        minTeamSize: 2,
-        maxTeamSize: 3,
-        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/DevClash%20RuleBook%20.pdf`
+        minTeamSize: 3,
+        maxTeamSize: 5,
+        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/DevClash%20RuleBook.pdf`
     },
     {
         id: 'comp_vibesprint',
@@ -209,7 +215,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         url: '#',
         slug: 'vibe-sprint',
         department: 'General',
-        entryFee: 99,
+        entryFee: 100,
         coordinator: 'Parth Shinde',
         contactNumber: '9168906630',
         minTeamSize: 1,
@@ -217,42 +223,44 @@ export const COMPETITIONS_DATA: Competition[] = [
         rulebook: `${import.meta.env.BASE_URL}assets/rule-books/Vibe%20Coding%20RuleBook.pdf`
     },
     {
-        id: 'comp_coderun',
+        id: 'comp_coderelay',
         image: `${import.meta.env.BASE_URL}assets/competitions/coderun.webp`,
-        title: 'Code Run',
-        subtitle: 'Competitive Programming',
+        title: 'Code Relay Race',
+        subtitle: 'Relay. Code. Conquer.',
         location: 'Coding Den',
-        handle: 'Runner-Code',
-        description: 'Fast-paced coding challenges where every millisecond counts.',
+        handle: 'Relay-Coder',
+        description: 'A team-based relay coding challenge where each member writes a part of the code within a limited time, and the next continues from where they left off.',
         borderColor: '#5227FF',
         gradient: 'linear-gradient(145deg, #5227FF, #000)',
         url: '#',
-        slug: 'code-run',
+        slug: 'code-relay',
         department: 'Information Technology',
-        entryFee: 199,
+        entryFee: 250,
         coordinator: 'Vaidehi Singh',
         contactNumber: '8766690242',
-        minTeamSize: 1,
-        maxTeamSize: 1
+        minTeamSize: 5,
+        maxTeamSize: 5,
+        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/Code%20Relay%20RuleBook.pdf`
     },
     {
         id: 'comp_bridgenova',
         image: `${import.meta.env.BASE_URL}assets/competitions/bridgenova.webp`,
         title: 'Bridge Nova',
-        subtitle: 'Structural Engineering',
+        subtitle: 'Engineer. Construct. Endure.',
         location: 'Design Lab',
         handle: 'Arch-Nova',
-        description: 'Build robust bridges with limited resources and test their structural limits.',
+        description: 'A technical and creative event where participants design and construct bridge models. Tests structural strength, design efficiency, and innovation.',
         borderColor: '#5227FF',
         gradient: 'linear-gradient(145deg, #5227FF, #000)',
         url: '#',
         slug: 'bridge-nova',
         department: 'Civil Engineering',
-        entryFee: 150,
+        entryFee: 200,
         coordinator: 'Ashish Shinde',
         contactNumber: '9373113736',
         minTeamSize: 2,
-        maxTeamSize: 4
+        maxTeamSize: 4,
+        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/BRIDGE%20NOVA.pdf`
     },
     {
         id: 'comp_poster',
@@ -278,7 +286,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         id: 'comp_sparktank',
         image: `${import.meta.env.BASE_URL}assets/competitions/sparktank.webp`,
         title: 'Spark Tank',
-        subtitle: 'Electro-Innovation Pitch',
+        subtitle: 'Pitch Your Innovation',
         location: 'Tech Hub',
         handle: 'Spark-Lead',
         description: 'Pitch your innovative electronics-based products to a panel of expert "sharks".',
@@ -291,7 +299,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         coordinator: 'Harshita Jadhav',
         contactNumber: '9356766305',
         minTeamSize: 1,
-        maxTeamSize: 3,
+        maxTeamSize: 4,
         rulebook: `${import.meta.env.BASE_URL}assets/rule-books/Spark%20Tank.pdf`
     },
     {
@@ -311,7 +319,8 @@ export const COMPETITIONS_DATA: Competition[] = [
         coordinator: 'Aadesh Bartakke',
         contactNumber: '8888487529',
         minTeamSize: 1,
-        maxTeamSize: 2
+        maxTeamSize: 2,
+        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/MATLAB%20Madness.pdf`
     },
     {
         id: 'comp_circuitsim',
@@ -336,10 +345,10 @@ export const COMPETITIONS_DATA: Competition[] = [
         id: 'comp_contraption',
         image: `${import.meta.env.BASE_URL}assets/competitions/contraption.webp`,
         title: 'Contraptions Challenge',
-        subtitle: 'Energy Conversion - Hit & Drop',
+        subtitle: 'Energy Conversion – Hit & Drop',
         location: 'Assembly Hall',
         handle: 'Master-Builder',
-        description: 'Design and build intricate systems of energy conversion. Create complex chain reactions to perform simple tasks with maximum precision, innovation, and robustness.',
+        description: 'Design and build intricate chain-reaction systems of energy conversion. Create complex sequences to hit and drop a bottle with maximum precision, innovation, and robustness.',
         borderColor: '#ff9800',
         gradient: 'linear-gradient(135deg, #ff9800, #000)',
         url: '#',
@@ -348,9 +357,9 @@ export const COMPETITIONS_DATA: Competition[] = [
         entryFee: 150,
         coordinator: 'Deepak Patil',
         contactNumber: '9158306630',
-        minTeamSize: 2,
+        minTeamSize: 4,
         maxTeamSize: 4,
-        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/Contraptions.pdf`
+        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/CONTRAPTIONS.pdf`
     },
 ];
 

@@ -35,7 +35,7 @@
     border: 1px solid #333;
     transition: border-color 0.3s ease, transform 0.3s ease;
     will-change: border-color, transform;
-    background: var(--card-gradient);
+    background: rgba(0, 0, 0, 0.65);
 
     --mouse-x: 50%;
     --mouse-y: 50%;

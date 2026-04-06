@@ -158,6 +158,7 @@ const HackathonRegistration: React.FC = () => {
     const [lookupFailed, setLookupFailed] = useState<Record<string, boolean>>({});
     const [transactionId, setTransactionId] = useState("");
     const [teamId, setTeamId] = useState("");
+    const callbackFiredRef = React.useRef(false);
 
 
     const [formData, setFormData] = useState({
@@ -354,7 +355,7 @@ const HackathonRegistration: React.FC = () => {
         }
     };
 
-    const handleSubmitRegistration = async (paymentId: string) => {
+    const handleSubmitRegistration = async (paymentId: string, paymentMeta?: { easepayId?: string; bankRef?: string; paymentMode?: string }) => {
         setSubmitting(true);
         try {
             let generatedTeamId = "";
@@ -386,6 +387,9 @@ const HackathonRegistration: React.FC = () => {
                     teamId: generatedTeamId,
                     status: 'confirmed',
                     paymentId,
+                    easepayId: paymentMeta?.easepayId || null,
+                    bankRefNum: paymentMeta?.bankRef || null,
+                    paymentMode: paymentMeta?.paymentMode || null,
                     amountPaid: 500,
                     allEmails: [
                         formData.leaderEmail.toLowerCase(), 
@@ -418,6 +422,7 @@ const HackathonRegistration: React.FC = () => {
 
     const handlePayment = async () => {
         setSubmitting(true);
+        callbackFiredRef.current = false; // Reset guard for each attempt
 
         try {
             // 1. Generate Transaction Details
@@ -447,9 +452,20 @@ const HackathonRegistration: React.FC = () => {
                 const merchantKey = import.meta.env.VITE_EASEBUZZ_KEY;
                 
                 initiateEasebuzzCheckout(merchantKey, result.access_key, async (ebResponse: any) => {
+                    // Guard: prevent duplicate callbacks from Easebuzz SDK
+                    if (callbackFiredRef.current) return;
+                    callbackFiredRef.current = true;
+
                     if (ebResponse.status === "success") {
-                        await handleSubmitRegistration(txnid);
+                        // Use real Easebuzz txnid from response, fallback to generated one
+                        const realTxnId = ebResponse.txnid || txnid;
+                        await handleSubmitRegistration(realTxnId, {
+                            easepayId: ebResponse.easepayid || null,
+                            bankRef: ebResponse.bank_ref_num || null,
+                            paymentMode: ebResponse.mode || null,
+                        });
                     } else {
+                        callbackFiredRef.current = false; // Allow retry on failure
                         toast.error("Payment was not successful.");
                     }
                 }, 'prod');

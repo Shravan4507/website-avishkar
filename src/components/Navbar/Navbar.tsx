@@ -4,13 +4,13 @@ import { auth, db } from '../../firebase/firebase'
 import { onAuthStateChanged } from 'firebase/auth'
 import { doc, getDoc } from 'firebase/firestore'
 import { X } from 'lucide-react'
-const logo = `${import.meta.env.BASE_URL}assets/logos/avishkar-icon.webp?v=1`
+const logo = `${import.meta.env.BASE_URL}assets/logos/avishkar-icon.webp?v=2`
 import './Navbar.css'
 
 const TABS = [
   { label: 'Home', path: '/' },
   { label: 'Workshops', path: '/workshops' },
-  { label: 'Schedule', path: '/schedule' },
+  { label: 'Rules', path: '/rules' },
   { label: 'Competitions', path: '/competitions' },
   { label: 'Sponsors', path: '/sponsors' },
 ] as const
@@ -18,8 +18,8 @@ const TABS = [
 const PRELOAD_MAP: Record<string, () => Promise<any>> = {
   '/': () => import('../../pages/home/Home'),
   '/workshops': () => import('../../pages/workshops/Workshops'),
-  '/schedule': () => import('../../pages/schedule/Schedule'),
   '/competitions': () => import('../../pages/competitions/Competitions'),
+  '/rules': () => import('../../pages/rules/Rules'),
   '/sponsors': () => import('../../pages/sponsors/Sponsors'),
   '/login': () => import('../../components/Login/Login'),
   '/user/dashboard': () => import('../../pages/user/user-dashboard'),

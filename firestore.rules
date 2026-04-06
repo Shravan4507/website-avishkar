@@ -169,10 +169,10 @@ service cloud.firestore {
       // Any authenticated user can read counters (needed for signup flow)
       allow read: if isAuth();
 
-      // Write: only allow incrementing the 'currentId' field (used in AVR ID generation transactions)
-      // Block arbitrary overwrites — only the single 'currentId' key can change
+      // Write: only allow incrementing counter fields (used in AVR ID generation & team counter transactions)
+      // Block arbitrary overwrites — only 'count' or 'currentId' keys can change
       allow update: if isAuth() &&
-                       request.resource.data.diff(resource.data).affectedKeys().hasOnly(['currentId']);
+                       request.resource.data.diff(resource.data).affectedKeys().hasOnly(['count', 'currentId']);
 
       // No creates or deletes from client — these are seeded by admins
       allow create, delete: if isAuth() && isCoreAdmin();

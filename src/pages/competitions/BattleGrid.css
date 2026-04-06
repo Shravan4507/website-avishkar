@@ -323,15 +323,17 @@
 @media (max-width: 900px) {
     .bg-hero { margin-bottom: 4rem; }
     .hero-stats { flex-direction: column; gap: 2rem; }
-    .hero-ctas { flex-direction: column; width: 100%; }
-    .primary-cta, .secondary-cta { justify-content: center; }
+    .hero-ctas { flex-direction: column; width: 100%; align-items: center; }
+    .rk-rulebook-dropdown-container { width: 100%; }
+    .primary-cta, .secondary-cta { justify-content: center; width: 100% !important; }
     .judging-preview { padding: 3rem 1.5rem; border-radius: 2rem; }
     .portal-header { padding: 3rem 1.5rem; border-radius: 2rem; }
 
     .rk-rulebook-menu {
-        right: 50%;
-        transform: translateX(50%);
-        transform-origin: top center;
+        right: 0;
+        left: 0;
+        min-width: unset;
+        transform: none;
     }
     
     .rk-rb-item:hover {

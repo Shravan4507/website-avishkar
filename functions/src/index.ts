@@ -1,8 +1,11 @@
 import * as functions from "firebase-functions/v2";
 import * as admin from "firebase-admin";
 import { defineSecret } from "firebase-functions/params";
+import { onDocumentCreated } from "firebase-functions/v2/firestore";
 import crypto from "crypto";
 import axios from "axios";
+import * as fs from "fs";
+import * as path from "path";
 
 // Initialize admin SDK
 admin.initializeApp();
@@ -11,6 +14,90 @@ admin.initializeApp();
 const MERCH_KEY = defineSecret("EASEBUZZ_MERCHANT_KEY");
 const MERCH_SALT = defineSecret("EASEBUZZ_SALT");
 const SUB_ID = defineSecret("EASEBUZZ_SUBMERCHANT_ID");
+
+/**
+ * Helper to process email template with data
+ */
+function processTemplate(html: string, data: Record<string, string>): string {
+  let processed = html;
+  Object.keys(data).forEach(key => {
+    const regex = new RegExp(`{{${key}}}`, 'g');
+    processed = processed.replace(regex, data[key] || '');
+  });
+  return processed;
+}
+
+/**
+ * Cloud Function to trigger email on registration
+ */
+export const onRegistrationCreated = onDocumentCreated("registrations/{regId}", async (event) => {
+  const snapshot = event.data;
+  if (!snapshot) return;
+
+  const regData = snapshot.data();
+  const regId = event.params.regId;
+
+  console.log(`Processing registration for ${regId}`);
+
+  try {
+    // 1. Read Template
+    const templatePath = path.join(__dirname, "templates", "confirmation.html");
+    const htmlTemplate = fs.readFileSync(templatePath, "utf8");
+
+    // 2. Prepare Data for Template
+    const templateData = {
+      name: regData.leaderName || "Participant",
+      competitionName: regData.eventTitle || "Avishkar Competition",
+      registrationId: regData.registrationId || regId,
+      teamName: regData.teamName || "Solo Entry",
+      eventDate: "March 2026",
+      paymentId: regData.transactionId || "N/A",
+      amount: regData.amountPaid || "0.00"
+    };
+
+    // 3. Generate Welcome Email
+    const welcomeHtml = processTemplate(htmlTemplate, templateData);
+
+    await admin.firestore().collection("mail").add({
+      to: regData.leaderEmail || regData.email,
+      message: {
+        subject: `Success! Welcome to the Grid, ${templateData.name} 🚀`,
+        html: welcomeHtml,
+      },
+      metadata: {
+        registrationId: regId,
+        type: "welcome-confirmation"
+      }
+    });
+
+    // 4. Generate Invoice Email
+    try {
+      const invoiceTemplatePath = path.join(__dirname, "templates", "invoice.html");
+      const invoiceTemplate = fs.readFileSync(invoiceTemplatePath, "utf8");
+      const invoiceHtml = processTemplate(invoiceTemplate, templateData);
+
+      await admin.firestore().collection("mail").add({
+        to: regData.leaderEmail || regData.email,
+        message: {
+          subject: `Invoice for ${templateData.competitionName} - ${templateData.registrationId}`,
+          html: invoiceHtml,
+        },
+        metadata: {
+          registrationId: regId,
+          type: "tax-invoice"
+        }
+      });
+      console.log(`Invoice trigger document created for ${regId}`);
+    } catch (err) {
+      console.error("Error generating second invoice email:", err);
+    }
+
+    console.log(`Email trigger document created for ${regId}`);
+
+  } catch (error) {
+    console.error("Error triggering confirmation email:", error);
+  }
+});
 
 // Easebuzz API endpoints
 const EASEBUZZ_TEST_URL = "https://testpay.easebuzz.in/payment/initiateLink";

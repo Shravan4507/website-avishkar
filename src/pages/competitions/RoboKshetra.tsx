@@ -60,10 +60,9 @@ const ROBO_EVENTS = [
             "Size Limit: 20 x 20 × 20 cm",
             "Max Voltage: 16.8V",
             "Track: Turns, intersections, crossovers, color change",
-            "Requirement: Auto speed modes + fail-safe system",
-            "Team Size: Max 4 members",
             "Rounds: Preliminary + Finals"
-        ]
+        ],
+        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/AlignX.pdf`
     },
     { 
         id: 'robomaze', 
@@ -128,6 +127,7 @@ const RoboKshetra: React.FC = () => {
     const [accountabilityAccepted, setAccountabilityAccepted] = useState(false);
     const [showPreview, setShowPreview] = useState(false);
     const [showRulebookDropdown, setShowRulebookDropdown] = useState(false);
+    const callbackFiredRef = React.useRef(false);
 
     const { isRegistered, eventName: registeredEventName } = useRegistrationGuard();
 
@@ -266,13 +266,28 @@ const RoboKshetra: React.FC = () => {
         }
     };
 
-    const handleRegistrationSubmit = async (txnId: string) => {
+    const handleRegistrationSubmit = async (txnId: string, paymentMeta?: { easepayId?: string; bankRef?: string; paymentMode?: string }) => {
         if (!activeEvent || !user) return;
         setLoading(true);
 
         try {
             const memberKeys = ['leader', 'member2', 'member3', 'member4'];
             let generatedTeamId = "";
+
+            // Server-side duplicate check
+            const dupeQuery = query(
+                collection(db, 'registrations'),
+                where('userId', '==', user.uid),
+                where('competitionId', '==', `robokshetra_${activeEvent.id}`)
+            );
+            const dupeSnap = await getDocs(dupeQuery);
+            if (!dupeSnap.empty) {
+                const existingData = dupeSnap.docs[0].data();
+                setTicketId(existingData.registrationId || existingData.teamId || 'REGISTERED');
+                setSuccess(true);
+                toast.success('You are already registered for this arena!');
+                return;
+            }
 
             await runTransaction(db, async (transaction) => {
                 // Generate Unique Team ID
@@ -291,13 +306,25 @@ const RoboKshetra: React.FC = () => {
                 transaction.set(regRef, {
                     ...formData,
                     teamId: generatedTeamId, // Sequential ID
+                    // Normalized field names for RegistrationManager compatibility
+                    userName: formData.leaderName,
+                    userEmail: formData.leaderEmail,
+                    avrId: formData.leaderAvrId,
+                    userPhone: formData.leaderPhone,
+                    userCollege: formData.leaderCollege,
+                    eventName: activeEvent.label,
                     eventTitle: activeEvent.label,
                     eventSubtitle: activeEvent.tagline,
                     competitionId: `robokshetra_${activeEvent.id}`,
                     competitionHandle: 'Robo-Kshetra',
+                    department: 'Robotics',
+                    category: 'Robo-Kshetra',
                     userId: user.uid,
                     registrationId: generatedTeamId,
                     transactionId: txnId,
+                    easepayId: paymentMeta?.easepayId || null,
+                    bankRefNum: paymentMeta?.bankRef || null,
+                    paymentMode: paymentMeta?.paymentMode || null,
                     allAvrIds: memberKeys
                         .map(k => formData[`${k}AvrId`])
                         .filter(id => !!id),
@@ -377,6 +404,7 @@ const RoboKshetra: React.FC = () => {
     const handlePayNow = async () => {
         if (!user || !activeEvent) return;
         setLoading(true);
+        callbackFiredRef.current = false; // Reset guard for each attempt
 
         try {
             const txnid = generateTxnId("ROBO");
@@ -400,9 +428,19 @@ const RoboKshetra: React.FC = () => {
             if (result.success && result.access_key) {
                 const merchantKey = import.meta.env.VITE_EASEBUZZ_KEY;
                 initiateEasebuzzCheckout(merchantKey, result.access_key, async (ebResponse: any) => {
+                    // Guard: prevent duplicate callbacks from Easebuzz SDK
+                    if (callbackFiredRef.current) return;
+                    callbackFiredRef.current = true;
+
                     if (ebResponse.status === "success") {
-                        await handleRegistrationSubmit(txnid);
+                        const realTxnId = ebResponse.txnid || txnid;
+                        await handleRegistrationSubmit(realTxnId, {
+                            easepayId: ebResponse.easepayid || null,
+                            bankRef: ebResponse.bank_ref_num || null,
+                            paymentMode: ebResponse.mode || null,
+                        });
                     } else {
+                        callbackFiredRef.current = false; // Allow retry on failure
                         toast.error("Payment aborted by gateway.");
                     }
                 }, 'prod');
@@ -574,7 +612,8 @@ const RoboKshetra: React.FC = () => {
                                             </div>
                                         </div>
                                     </div>
-                                )
+                                ),
+                                rulebook: (event as any).rulebook
                             }))}
                             radius={400}
                             damping={0.5}

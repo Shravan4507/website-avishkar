@@ -94,11 +94,43 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({ forcedHandle,
           getDocs(query(collection(db, 'hackathon_registrations'), orderBy('createdAt', 'desc')))
         ]);
 
-        const standardRegs = regSnap.docs.map(d => ({ 
-          id: d.id, 
-          ...d.data(),
-          _collection: 'registrations'
-        } as Registration));
+        const standardRegs = regSnap.docs.map(d => {
+          const data = d.data();
+          // Normalize: fallback to leader* fields for esports/robokshetra registrations
+          const normalized: Registration = {
+            id: d.id,
+            ...data,
+            userName: data.userName || data.leaderName || '—',
+            userEmail: data.userEmail || data.leaderEmail || '—',
+            avrId: data.avrId || data.leaderAvrId || data.userAVR || '—',
+            userPhone: data.userPhone || data.leaderPhone || '',
+            userCollege: data.userCollege || data.leaderCollege || '',
+            eventName: data.eventName || data.eventTitle || '—',
+            department: data.department || data.competitionHandle || '',
+            category: data.category || data.competitionHandle || '',
+            teamName: data.teamName || '',
+            _collection: 'registrations',
+          } as Registration;
+
+          // Build team members for esports/robokshetra detail view
+          const memberKeys = ['member2', 'member3', 'member4', 'member5'];
+          const members = [
+            { name: normalized.userName, email: normalized.userEmail, phone: normalized.userPhone, college: normalized.userCollege },
+            ...memberKeys
+              .filter(k => data[`${k}Name`] || data[`${k}AvrId`])
+              .map(k => ({
+                name: data[`${k}Name`] || '—',
+                email: data[`${k}Email`] || '',
+                phone: data[`${k}Phone`] || '',
+                college: data[`${k}College`] || '',
+              }))
+          ];
+          if (members.length > 1) {
+            normalized.members = members;
+            normalized.memberCount = members.length;
+          }
+          return normalized;
+        });
 
         const hackathonRegs = hackSnap.docs.map(d => {
           const data = d.data();

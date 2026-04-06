@@ -217,7 +217,7 @@ const Registration: React.FC = () => {
 
 
   /** Write registration to Firestore */
-  const submitRegistration = async (paymentTxnId?: string) => {
+  const submitRegistration = async (paymentTxnId?: string, paymentMeta?: { easepayId?: string; bankRef?: string; paymentMode?: string }) => {
     const regId = `${competition!.id}_${userData.avrId}`;
     const regRef = doc(db, 'registrations', regId);
 
@@ -274,6 +274,9 @@ const Registration: React.FC = () => {
       amountPaid: fee,
       moonObservation: moonObservation,
       transactionId: paymentTxnId || null,
+      easepayId: paymentMeta?.easepayId || null,
+      bankRefNum: paymentMeta?.bankRef || null,
+      paymentMode: paymentMeta?.paymentMode || null,
       // Metadata
       status: 'confirmed',
       registeredAt: serverTimestamp(),
@@ -313,9 +316,20 @@ const Registration: React.FC = () => {
       if (result.success && result.access_key) {
         const merchantKey = import.meta.env.VITE_EASEBUZZ_KEY;
         initiateEasebuzzCheckout(merchantKey, result.access_key, async (ebResponse: any) => {
+          // Guard: prevent duplicate callbacks from Easebuzz SDK
+          if (isSubmittingRef.current === false) return;
+          isSubmittingRef.current = false;
+
           if (ebResponse.status === "success") {
-            await submitRegistration(txnid);
+            // Use real Easebuzz txnid from response, fallback to generated one
+            const realTxnId = ebResponse.txnid || txnid;
+            await submitRegistration(realTxnId, {
+              easepayId: ebResponse.easepayid || null,
+              bankRef: ebResponse.bank_ref_num || null,
+              paymentMode: ebResponse.mode || null,
+            });
           } else {
+            isSubmittingRef.current = true; // Allow retry on failure
             toast.error("Payment was not successful. Please try again.");
           }
         }, 'prod');

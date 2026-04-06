@@ -36,16 +36,84 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.verifyPayment = exports.initiatePayment = void 0;
+exports.verifyPayment = exports.initiatePayment = exports.onRegistrationCreated = void 0;
 const functions = __importStar(require("firebase-functions/v2"));
 const admin = __importStar(require("firebase-admin"));
 const params_1 = require("firebase-functions/params");
+const firestore_1 = require("firebase-functions/v2/firestore");
 const crypto_1 = __importDefault(require("crypto"));
 const axios_1 = __importDefault(require("axios"));
+const fs = __importStar(require("fs"));
+const path = __importStar(require("path"));
 admin.initializeApp();
 const MERCH_KEY = (0, params_1.defineSecret)("EASEBUZZ_MERCHANT_KEY");
 const MERCH_SALT = (0, params_1.defineSecret)("EASEBUZZ_SALT");
 const SUB_ID = (0, params_1.defineSecret)("EASEBUZZ_SUBMERCHANT_ID");
+function processTemplate(html, data) {
+    let processed = html;
+    Object.keys(data).forEach(key => {
+        const regex = new RegExp(`{{${key}}}`, 'g');
+        processed = processed.replace(regex, data[key] || '');
+    });
+    return processed;
+}
+exports.onRegistrationCreated = (0, firestore_1.onDocumentCreated)("registrations/{regId}", async (event) => {
+    const snapshot = event.data;
+    if (!snapshot)
+        return;
+    const regData = snapshot.data();
+    const regId = event.params.regId;
+    console.log(`Processing registration for ${regId}`);
+    try {
+        const templatePath = path.join(__dirname, "templates", "confirmation.html");
+        const htmlTemplate = fs.readFileSync(templatePath, "utf8");
+        const templateData = {
+            name: regData.leaderName || "Participant",
+            competitionName: regData.eventTitle || "Avishkar Competition",
+            registrationId: regData.registrationId || regId,
+            teamName: regData.teamName || "Solo Entry",
+            eventDate: "March 2026",
+            paymentId: regData.transactionId || "N/A",
+            amount: regData.amountPaid || "0.00"
+        };
+        const welcomeHtml = processTemplate(htmlTemplate, templateData);
+        await admin.firestore().collection("mail").add({
+            to: regData.leaderEmail || regData.email,
+            message: {
+                subject: `Success! Welcome to the Grid, ${templateData.name} 🚀`,
+                html: welcomeHtml,
+            },
+            metadata: {
+                registrationId: regId,
+                type: "welcome-confirmation"
+            }
+        });
+        try {
+            const invoiceTemplatePath = path.join(__dirname, "templates", "invoice.html");
+            const invoiceTemplate = fs.readFileSync(invoiceTemplatePath, "utf8");
+            const invoiceHtml = processTemplate(invoiceTemplate, templateData);
+            await admin.firestore().collection("mail").add({
+                to: regData.leaderEmail || regData.email,
+                message: {
+                    subject: `Invoice for ${templateData.competitionName} - ${templateData.registrationId}`,
+                    html: invoiceHtml,
+                },
+                metadata: {
+                    registrationId: regId,
+                    type: "tax-invoice"
+                }
+            });
+            console.log(`Invoice trigger document created for ${regId}`);
+        }
+        catch (err) {
+            console.error("Error generating second invoice email:", err);
+        }
+        console.log(`Email trigger document created for ${regId}`);
+    }
+    catch (error) {
+        console.error("Error triggering confirmation email:", error);
+    }
+});
 const EASEBUZZ_TEST_URL = "https://testpay.easebuzz.in/payment/initiateLink";
 const EASEBUZZ_PROD_URL = "https://pay.easebuzz.in/payment/initiateLink";
 exports.initiatePayment = functions.https.onRequest({

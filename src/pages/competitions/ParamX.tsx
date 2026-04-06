@@ -266,9 +266,15 @@ const ParamX: React.FC = () => {
                         </button>
                     )}
 
-                    <button className="secondary-cta disabled" onClick={() => toast.info("Rulebook is being finalized and will be available soon.")}>
-                        Rulebook (Soon) <FileText size={18} />
-                    </button>
+                    <a 
+                        href={`${import.meta.env.BASE_URL}assets/rule-books/Param-X.pdf`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="secondary-cta"
+                        style={{ textDecoration: 'none' }}
+                    >
+                        Rulebook <FileText size={18} />
+                    </a>
                     <button 
                         className={`glass-cta ${isDownloading ? 'loading' : ''}`} 
                         onClick={handleDownload}

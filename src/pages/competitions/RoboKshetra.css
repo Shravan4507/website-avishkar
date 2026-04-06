@@ -41,7 +41,7 @@
 
 .hero-subtitle {
     font-size: 1.5rem;
-    color: rgba(255, 255, 255, 0.6);
+    color: rgba(255, 255, 255, 0.8);
     margin-bottom: 3.5rem;
     max-width: 800px;
 }
@@ -82,7 +82,7 @@
 
 .stat-label {
     font-size: 0.85rem;
-    color: rgba(255, 255, 255, 0.4);
+    color: rgba(255, 255, 255, 0.8);
     text-transform: uppercase;
     letter-spacing: 1px;
 }
@@ -107,13 +107,12 @@
     transition: all 0.3s ease;
 }
 
-.primary-cta:hover {
-    background: rgba(217, 255, 0, 0.1);
-    color: #d9ff00;
+.primary-cta:active {
+    transform: scale(0.98);
 }
 
 .secondary-cta {
-    background: rgba(0, 0, 0, 0);
+    background: rgba(0, 0, 0, 0.65);
     color: #fff;
     padding: 1.2rem 2.5rem;
     border-radius: 3.5rem;
@@ -138,10 +137,6 @@
     display: inline-block;
 }
 
-.secondary-cta.active {
-    background: rgba(217, 255, 0, 0.1);
-    color: #d9ff00;
-}
 
 .rk-rulebook-menu {
     position: absolute;
@@ -172,14 +167,13 @@
     text-decoration: none;
     font-size: 0.95rem;
     font-weight: 600;
-    border-radius: 1rem;
+    border-radius: 3rem;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .rk-rb-item:hover {
     background: rgba(217, 255, 0, 0.1);
     color: #d9ff00;
-    transform: translateX(8px);
 }
 
 .rk-rb-item svg {
@@ -220,7 +214,7 @@
 .judging-preview {
     margin-bottom: 6rem;
     text-align: center;
-    background: rgba(0, 0, 0, 0.45);
+    background: rgba(0, 0, 0, 0.65);
     backdrop-filter: blur(20px);
     padding: 3rem 1.5rem;
     border-radius: 2.5rem;
@@ -303,7 +297,7 @@
     text-align: center;
     max-width: 800px;
     margin: 0 auto 4rem;
-    background: rgba(0, 0, 0, 0.45);
+    background: rgba(0, 0, 0, 0.65);
     padding: 4rem;
     border-radius: 4rem;
     backdrop-filter: blur(15px);
@@ -351,7 +345,7 @@
 }
 
 .rk-back-btn {
-    background: rgba(0, 0, 0, 0);
+    background: rgba(0, 0, 0, 0.65);
     color: #fff;
     border: none;
     padding: 0.8rem 1.5rem;

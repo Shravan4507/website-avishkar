@@ -20,6 +20,7 @@ const OrbitXRegistrationModal: React.FC<OrbitXRegistrationModalProps> = ({ onClo
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [txnId, setTxnId] = useState<string | null>(null);
   const [activeStep, setActiveStep] = useState<'details' | 'summary' | 'success'>('details');
+  const callbackFiredRef = React.useRef(false);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -47,6 +48,7 @@ const OrbitXRegistrationModal: React.FC<OrbitXRegistrationModalProps> = ({ onClo
     }
     
     setIsSubmitting(true);
+    callbackFiredRef.current = false; // Reset guard for each attempt
     try {
       const generatedTxnId = generateTxnId("ORBX");
       const amount = totalPrice.toFixed(2);
@@ -72,9 +74,19 @@ const OrbitXRegistrationModal: React.FC<OrbitXRegistrationModalProps> = ({ onClo
       if (result.success && result.access_key) {
         const merchantKey = import.meta.env.VITE_EASEBUZZ_KEY;
         initiateEasebuzzCheckout(merchantKey, result.access_key, async (ebResponse: any) => {
+          // Guard: prevent duplicate callbacks from Easebuzz SDK
+          if (callbackFiredRef.current) return;
+          callbackFiredRef.current = true;
+
           if (ebResponse.status === "success") {
-            await finalizeRegistration(generatedTxnId);
+            const realTxnId = ebResponse.txnid || generatedTxnId;
+            await finalizeRegistration(realTxnId, {
+              easepayId: ebResponse.easepayid || null,
+              bankRef: ebResponse.bank_ref_num || null,
+              paymentMode: ebResponse.mode || null,
+            });
           } else {
+            callbackFiredRef.current = false; // Allow retry on failure
             toast.error("Payment failed. Please try again.");
             setIsSubmitting(false);
           }
@@ -88,7 +100,7 @@ const OrbitXRegistrationModal: React.FC<OrbitXRegistrationModalProps> = ({ onClo
     }
   };
 
-  const finalizeRegistration = async (paymentTxnId: string) => {
+  const finalizeRegistration = async (paymentTxnId: string, paymentMeta?: { easepayId?: string; bankRef?: string; paymentMode?: string }) => {
     try {
       const regId = `orbitx_solar_${userData.avrId}`;
       const regRef = doc(db, 'registrations', regId);
@@ -108,6 +120,9 @@ const OrbitXRegistrationModal: React.FC<OrbitXRegistrationModalProps> = ({ onClo
         amountPaid: totalPrice,
         moonAddon: isMoonAddon,
         transactionId: paymentTxnId,
+        easepayId: paymentMeta?.easepayId || null,
+        bankRefNum: paymentMeta?.bankRef || null,
+        paymentMode: paymentMeta?.paymentMode || null,
         paymentStatus: 'paid',
         status: 'confirmed',
         registeredAt: serverTimestamp(),

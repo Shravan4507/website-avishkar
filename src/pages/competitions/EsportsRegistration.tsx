@@ -54,6 +54,7 @@ const EsportsRegistration: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [success, setSuccess] = useState(false);
+    const callbackFiredRef = React.useRef(false);
     const [ticketId, setTicketId] = useState('');
     const [showPreview, setShowPreview] = useState(false);
     const [accountabilityAccepted, setAccountabilityAccepted] = useState(false);
@@ -197,13 +198,29 @@ const EsportsRegistration: React.FC = () => {
     };
 
     // --- Registration ---
-    const handleRegistrationSubmit = async (txnId: string) => {
+    const handleRegistrationSubmit = async (txnId: string, paymentMeta?: { easepayId?: string; bankRef?: string; paymentMode?: string }) => {
         if (!activeGame || !user) return;
         setSubmitting(true);
 
         try {
             const memberKeys = getMemberKeys();
             let generatedTeamId = "";
+
+            // Server-side duplicate check: query existing registrations for this user+game
+            const dupeQuery = query(
+                collection(db, 'registrations'),
+                where('userId', '==', user.uid),
+                where('competitionId', '==', `battlegrid_${activeGame.id}`)
+            );
+            const dupeSnap = await getDocs(dupeQuery);
+            if (!dupeSnap.empty) {
+                // Already registered — show success with the existing ticket ID
+                const existingData = dupeSnap.docs[0].data();
+                setTicketId(existingData.registrationId || existingData.teamId || 'REGISTERED');
+                setSuccess(true);
+                toast.success('You are already registered for this arena!');
+                return;
+            }
 
             await runTransaction(db, async (transaction) => {
                 // Generate Unique Team ID
@@ -222,13 +239,25 @@ const EsportsRegistration: React.FC = () => {
                 transaction.set(regRef, {
                     ...formData,
                     teamId: generatedTeamId, // Sequential ID
+                    // Normalized field names for RegistrationManager compatibility
+                    userName: formData.leaderName,
+                    userEmail: formData.leaderEmail,
+                    avrId: formData.leaderAvrId,
+                    userPhone: formData.leaderPhone,
+                    userCollege: formData.leaderCollege,
+                    eventName: activeGame.label,
                     eventTitle: activeGame.label,
                     eventSubtitle: activeGame.tagline,
                     competitionId: `battlegrid_${activeGame.id}`,
                     competitionHandle: 'Battle-Grid',
+                    department: 'Esports',
+                    category: 'Battle-Grid',
                     userId: user.uid,
                     registrationId: generatedTeamId,
                     transactionId: txnId,
+                    easepayId: paymentMeta?.easepayId || null,
+                    bankRefNum: paymentMeta?.bankRef || null,
+                    paymentMode: paymentMeta?.paymentMode || null,
                     allAvrIds: memberKeys
                         .map(k => formData[`${k}AvrId`])
                         .filter(id => !!id),
@@ -359,6 +388,7 @@ const EsportsRegistration: React.FC = () => {
     const handlePayNow = async () => {
         if (!user || !activeGame) return;
         setSubmitting(true);
+        callbackFiredRef.current = false; // Reset callback guard for each attempt
 
         try {
             const txnid = generateTxnId(activeGame.id.toUpperCase());
@@ -389,9 +419,20 @@ const EsportsRegistration: React.FC = () => {
             if (result.success && result.access_key) {
                 const merchantKey = import.meta.env.VITE_EASEBUZZ_KEY;
                 initiateEasebuzzCheckout(merchantKey, result.access_key, async (ebResponse: any) => {
+                    // Guard: prevent duplicate callbacks from Easebuzz SDK
+                    if (callbackFiredRef.current) return;
+                    callbackFiredRef.current = true;
+
                     if (ebResponse.status === "success") {
-                        await handleRegistrationSubmit(txnid);
+                        // Use real Easebuzz txnid from response, fallback to our generated one
+                        const realTxnId = ebResponse.txnid || txnid;
+                        await handleRegistrationSubmit(realTxnId, {
+                            easepayId: ebResponse.easepayid || null,
+                            bankRef: ebResponse.bank_ref_num || null,
+                            paymentMode: ebResponse.mode || null,
+                        });
                     } else {
+                        callbackFiredRef.current = false; // Allow retry on failure
                         toast.error("Payment aborted by gateway.");
                     }
                 }, 'prod');
