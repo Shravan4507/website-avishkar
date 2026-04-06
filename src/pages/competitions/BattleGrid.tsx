@@ -26,7 +26,7 @@ const GAMES = [
     { id: 'codm', label: 'CALL OF DUTY (MOBILE)', tagline: 'Tactical 5v5 Combat', prize: '₹16,000', fee: 400, type: 'TEAM', members: 5, platform: 'Mobile', color: '#4caf50', image: `${import.meta.env.BASE_URL}assets/esports/codm.webp`, rulebook: `${import.meta.env.BASE_URL}assets/rule-books/CALL%20OF%20DUTY.pdf` },
 
     { id: 'sf4', label: 'SHADOW-FIGHT 4', tagline: 'Arena 1v1 Combat', prize: '₹8,000', fee: 150, type: 'SOLO', members: 1, platform: 'Mobile', color: '#ffeb3b', image: `${import.meta.env.BASE_URL}assets/esports/sf4.webp`, rulebook: `${import.meta.env.BASE_URL}assets/rule-books/SHADOW%20FIGHT%204.pdf` },
-    { id: 'amongus', label: 'AMONG US', tagline: 'Social Deduction', prize: 'TBD', fee: 0, type: 'SOLO', members: 1, platform: 'Mobile', color: '#00bcd4', image: `${import.meta.env.BASE_URL}assets/esports/amongus.webp` },
+    { id: 'amongus', label: 'AMONG US', tagline: 'Social Deduction', prize: 'TBD', fee: 200, type: 'SOLO', members: 1, platform: 'Mobile', color: '#00bcd4', image: `${import.meta.env.BASE_URL}assets/esports/amongus.webp` },
 ] as const;
 
 const BattleGrid: React.FC = () => {
