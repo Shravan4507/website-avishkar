@@ -32,7 +32,7 @@ export const RULES_DATA: Record<string, CompetitionRules> = {
         tagline: 'The Premier Hackathon',
         description:
             'Param-X is a 10-hour hackathon where participants work on given problem statements or themes. Teams develop solutions end-to-end — from ideation to final presentation — with periodic mentor and judge reviews throughout.',
-        teamSize: '2–4 members',
+        teamSize: '4 members',
         fee: '₹500 per team',
         duration: '10 hours',
         category: 'flagship',
@@ -722,11 +722,11 @@ export const RULES_DATA: Record<string, CompetitionRules> = {
         tagline: 'Tactical Squad Combat',
         description:
             `A team-based E-Sports event designed to evaluate players' coordination, strategy, and combat execution in a competitive CODM multiplayer environment.`,
-        teamSize: '4 members per team',
+        teamSize: '5 members per team',
         fee: '₹400 per team',
         category: 'flagship',
         rules: [
-            'Each team must consist of exactly 4 members.',
+            'Each team must consist of exactly 5 members.',
             'Original AVR-IDs are mandatory for match entry validation.',
             'No change in team members after registration.',
             'Strict Zero-Tolerance policy for third-party hacks or scripts.',
