@@ -21,6 +21,7 @@ export interface Competition {
     minTeamSize?: number;
     maxTeamSize?: number;
     rulebook?: string;
+    rulebookComingSoon?: boolean;
 }
 
 export const COMPETITIONS_DATA: Competition[] = [
@@ -37,11 +38,12 @@ export const COMPETITIONS_DATA: Competition[] = [
         url: '#',
         isFlagship: true,
         prizePool: '₹1,00,000+',
-        slug: 'codex-26',
+        slug: 'param-x-26',
         department: 'Computer Engineering',
         minTeamSize: 2,
         maxTeamSize: 4,
-        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/param-x.pdf`
+        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/param-x.pdf`,
+        rulebookComingSoon: true
     },
     {
         id: 'robotron--26',
@@ -264,7 +266,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         department: 'General',
         entryFee: 100,
         coordinator: 'Pranav Katu',
-        contactNumber: '9503231138',
+        contactNumber: '9503261138',
         minTeamSize: 1,
         maxTeamSize: 2,
         rulebook: `${import.meta.env.BASE_URL}assets/rule-books/poster-presentation.pdf`

@@ -13,8 +13,6 @@ const CATEGORY_META: Record<string, { label: string; accent: string }> = {
     flagship: { label: 'Flagship', accent: '#a78bfa' },
     standard: { label: 'Competition', accent: '#5227ff' },
     general: { label: 'General', accent: '#10b981' },
-    esports: { label: 'E-Sports', accent: '#f43f5e' },
-    robotics: { label: 'Robotics', accent: '#f97316' },
 };
 
 /* ── Section icon mapping ── */
@@ -162,31 +160,7 @@ const Rules: React.FC = () => {
                             </ul>
                         </div>
 
-                        {/* Prizes */}
-                        <div className="rules-section-card rules-prizes-card">
-                            <div className="rules-section-icon">{sectionIcon('prizes')}</div>
-                            <h2>Prizes</h2>
-                            <div className="rules-prize-stack">
-                                {activeComp.prizes.first && (
-                                    <div className="rules-prize-row rules-prize--gold">
-                                        <span className="rules-prize-label">🥇 1st Place</span>
-                                        <span className="rules-prize-value">{activeComp.prizes.first}</span>
-                                    </div>
-                                )}
-                                {activeComp.prizes.second && (
-                                    <div className="rules-prize-row rules-prize--silver">
-                                        <span className="rules-prize-label">🥈 2nd Place</span>
-                                        <span className="rules-prize-value">{activeComp.prizes.second}</span>
-                                    </div>
-                                )}
-                                {activeComp.prizes.third && (
-                                    <div className="rules-prize-row rules-prize--bronze">
-                                        <span className="rules-prize-label">🥉 3rd Place</span>
-                                        <span className="rules-prize-value">{activeComp.prizes.third}</span>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
+
 
                         {/* Coordinators */}
                         {activeComp.coordinators && (
@@ -218,16 +192,23 @@ const Rules: React.FC = () => {
                     </div>
 
                     {/* Download rulebook CTA */}
-                    {activeComp.rulebookPath && (
+                    {(activeComp.rulebookPath || activeComp.rulebookComingSoon) && (
                         <div className="rules-download-bar">
-                            <a
-                                href={activeComp.rulebookPath}
-                                download
-                                className="rules-download-btn"
-                            >
-                                <Download size={18} />
-                                Download Full Rulebook (PDF)
-                            </a>
+                            {activeComp.rulebookComingSoon ? (
+                                <button className="rules-download-btn rules-download-btn--coming-soon" disabled>
+                                    <Download size={18} />
+                                    Rulebook Coming Soon
+                                </button>
+                            ) : (
+                                <a
+                                    href={activeComp.rulebookPath}
+                                    download
+                                    className="rules-download-btn"
+                                >
+                                    <Download size={18} />
+                                    Download Full Rulebook (PDF)
+                                </a>
+                            )}
                         </div>
                     )}
                 </div>

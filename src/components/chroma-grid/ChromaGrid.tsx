@@ -29,6 +29,7 @@ export interface ChromaItem {
         twitter?: string;
     };
     rulebook?: string;
+    rulebookComingSoon?: boolean;
 }
 
 export interface ChromaGridProps {
@@ -318,7 +319,7 @@ export const ChromaGrid: React.FC<ChromaGridProps> = ({
                                         ) : (
                                             <Link 
                                                 to={
-                                                    selectedMember.slug === 'codex-26' ? '/hackathon-register' : 
+                                                    selectedMember.slug === 'param-x-26' ? '/hackathon-register' : 
                                                     selectedMember.slug === 'robotron-26' ? '/robotron-register' :
                                                     selectedMember.slug === 'battle-grid-26' ? '/esports-register' :
                                                     `/register/${selectedMember.slug || encodeURIComponent(selectedMember.title)}`
@@ -331,15 +332,22 @@ export const ChromaGrid: React.FC<ChromaGridProps> = ({
                                     )}
 
                                     {selectedMember.rulebook && (
-                                        <a 
-                                            href={selectedMember.rulebook} 
-                                            className="rulebook-download-btn"
-                                            title="Download Rulebook"
-                                            download
-                                        >
-                                            <SocialIcon type="rulebook" />
-                                            <span>Rulebook</span>
-                                        </a>
+                                        selectedMember.rulebookComingSoon ? (
+                                            <div className="rulebook-download-btn rulebook-download-btn--coming-soon">
+                                                <SocialIcon type="rulebook" />
+                                                <span>Rulebook Coming Soon</span>
+                                            </div>
+                                        ) : (
+                                            <a 
+                                                href={selectedMember.rulebook} 
+                                                className="rulebook-download-btn"
+                                                title="Download Rulebook"
+                                                download
+                                            >
+                                                <SocialIcon type="rulebook" />
+                                                <span>Rulebook</span>
+                                            </a>
+                                        )
                                     )}
 
                                     <div className="modal-socials">

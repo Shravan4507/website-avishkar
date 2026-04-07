@@ -6,7 +6,7 @@ export interface CompetitionRules {
     teamSize: string;
     fee: string;
     duration?: string;
-    category: 'flagship' | 'standard' | 'esports' | 'robotics' | 'general';
+    category: 'flagship' | 'standard' | 'general';
     rules: string[];
     procedure: string[];
     judgingCriteria: string[];
@@ -20,13 +20,14 @@ export interface CompetitionRules {
         faculty?: string[];
     };
     rulebookPath?: string;
+    rulebookComingSoon?: boolean;
 }
 
 export const RULES_DATA: Record<string, CompetitionRules> = {
     // ── Flagships ──
 
-    'codex-26': {
-        slug: 'codex-26',
+    'param-x-26': {
+        slug: 'param-x-26',
         name: "Param-X '26",
         tagline: 'The Premier Hackathon',
         description:
@@ -73,6 +74,7 @@ export const RULES_DATA: Record<string, CompetitionRules> = {
             faculty: ['Wrushabh Sirsat – 9325792405'],
         },
         rulebookPath: `${import.meta.env.BASE_URL}assets/rule-books/param-x.pdf`,
+        rulebookComingSoon: true
     },
 
     // ── Standard Competitions ──
@@ -680,21 +682,25 @@ export const RULES_DATA: Record<string, CompetitionRules> = {
             'A team-based Free Fire mobile tournament where squads compete across multiple maps in a battle royale format.',
         teamSize: '4 members per team',
         fee: '₹250 per group',
-        category: 'esports',
+        category: 'flagship',
         rules: [
             'All group members must be present at or before the given time slot.',
-            'Points calculation follows the standard point system.',
-            'Only registered teams will be allowed & given a slot.',
-            'Each group will play three matches on three maps: Bermuda, Purgatory, Kalahari.',
+            'BGMI: 4 Active Players + 1 Mandatory Substitute (4+1).',
+            'SQUAD ONLY: 4 Member Squads required for Free Fire.',
+            'Original AVR-IDs are mandatory for match entry validation.',
+            'One leader can register only one squadron per game portal.',
+            'Strict Zero-Tolerance policy for third-party hacks or scripts.',
+            'No Emulators/PC players. Pure Mobile/Tablet gameplay only.',
+            'Illegal teaming results in immediate squad ban.',
             'College ID card is compulsory during the tournament.',
-            'Carry your own charger and extension if needed.',
             'Respectful coordination towards management and coordinators.',
         ],
         procedure: [
-            'Each group will play three matches.',
-            'Maps: Bermuda, Purgatory, and Kalahari.',
-            'Points are calculated using the standard point system.',
-            'Team with the highest combined points wins.',
+            'Lobby IDs shared via Discord 15 minutes before the drop-time.',
+            'Match timing is absolute; laggards will not be waited for.',
+            'Each group will play three matches on three maps: Bermuda, Purgatory, Kalahari.',
+            'Points calculation follows the standard point system (Combat Kills + Tactical Placement).',
+            'Lobbies will NOT be restarted for individual disconnects.',
         ],
         judgingCriteria: [
             'Standard point system scoring across all three matches.',
@@ -718,22 +724,23 @@ export const RULES_DATA: Record<string, CompetitionRules> = {
             `A team-based E-Sports event designed to evaluate players' coordination, strategy, and combat execution in a competitive CODM multiplayer environment.`,
         teamSize: '4 members per team',
         fee: '₹400 per team',
-        category: 'esports',
+        category: 'flagship',
         rules: [
             'Each team must consist of exactly 4 members.',
+            'Original AVR-IDs are mandatory for match entry validation.',
             'No change in team members after registration.',
-            'One player cannot be part of multiple teams.',
-            'Use of hacks, cheats, emulators, or unfair tools is strictly prohibited.',
-            'Teams must join the lobby on time — late entry may result in match forfeiture.',
+            'Strict Zero-Tolerance policy for third-party hacks or scripts.',
+            'No Emulators/PC players. Pure Mobile/Tablet gameplay only.',
+            'Admins may request screen-sharing or live POV during matches.',
             'Maintain discipline and sportsmanship throughout.',
             'No abusive language, cheating, or unsportsmanlike behavior.',
-            `Organizers are not responsible for technical failures on the participant's side.`,
         ],
         procedure: [
+            'Lobby IDs shared via Discord 15 minutes before the drop-time.',
             'Matches are conducted in a knockout/elimination format.',
-            'Teams compete in squad-based matches.',
             'Winning teams advance until finals.',
-            'Match format (Team Deathmatch / Search & Destroy) will be declared before matches.',
+            'Match format follows standard competitive squad rules.',
+            'Grid Marshall (Admin) decision is final.',
         ],
         judgingCriteria: [
             'Winning is based on match results and elimination progression.',
@@ -756,22 +763,21 @@ export const RULES_DATA: Record<string, CompetitionRules> = {
             `An E-Sports mobile gaming event testing players' combat skills, strategy, and reflexes in competitive 1v1 Shadow Fight 4 matches.`,
         teamSize: 'Individual (1 player)',
         fee: '₹150 per participant',
-        category: 'esports',
+        category: 'flagship',
         rules: [
+            'Strictly Solo entry format.',
+            'Original AVR-IDs are mandatory for match entry validation.',
             'Each participant must have their own mobile device.',
             'Game must be updated to the latest version.',
-            'Default in-game settings will be used.',
-            'Use of external tools, hacks, or mods is strictly prohibited.',
+            'Strict Zero-Tolerance policy for third-party hacks or mods.',
             'Players must join the match on time — delays may result in forfeiture.',
-            'Players must follow instructions from coordinators during matches.',
             'Fair play and sportsmanship are mandatory.',
-            'Any abusive language or misconduct will not be tolerated.',
         ],
         procedure: [
-            'Solo mode only.',
+            'Brackets/Group progression layout.',
             'Knockout/elimination format.',
-            'Match format decided by organizers (e.g., best of 3 rounds).',
             'Winners advance to next round until the final match.',
+            'Grid Marshall\'s (Admin) decision is final and binding.',
         ],
         judgingCriteria: [
             'Winning based on match progression and elimination results.',
@@ -796,23 +802,22 @@ export const RULES_DATA: Record<string, CompetitionRules> = {
             'A line follower challenge involving autonomous robots navigating complex tracks with hairpin bends, acute angles, and potential color inversions. Robots must support precision and turbo speed modes.',
         teamSize: '4 members per team',
         fee: 'TBD',
-        category: 'robotics',
+        category: 'flagship',
         rules: [
-            'Robots must be completely autonomous and wireless (no Bluetooth, RF, or WiFi).',
-            'Maximum weight of 3kg (5% tolerance).',
-            'Robot must fit within 20cm × 20cm × 20cm.',
-            'Maximum voltage must not exceed 16.8V DC.',
-            'Must include fail-safe mechanism.',
+            'Robots must be completely autonomous and wireless.',
+            'Bot must fit within 20cm × 20cm × 20cm (Weight < 3kg).',
+            'Original AVR-IDs are mandatory for all members.',
             'Must support at least two speed modes: "Precision" and "Turbo".',
-            'Shortcuts or skipping sections are strictly prohibited.',
+            'Unauthorized remote assistance leads to immediate disqualification.',
             'No flammable, hazardous, or high-voltage materials allowed.',
-            'All components must be securely assembled.',
+            'Safety protocols must be followed strictly in the arena.',
         ],
         procedure: [
-            'Round 1: Preliminary — timed runs on standard track (3 hours).',
-            'Round 2: Finals — top 10 teams compete (2 hours).',
-            'Final evaluation: judging & prize distribution (1 hour).',
+            'Round 1: Mechanical Scrutiny & Tech-Check.',
+            'Round 2: Qualification Heats (Speed & Accuracy).',
+            'Round 3: The Grand Arena - Head-to-Head / Timed Labyrinth.',
             '15 minutes calibration time before each round.',
+            'Arena Marshal\'s decision is final and binding.',
         ],
         judgingCriteria: [
             'Accuracy & Precision – 25%',
@@ -836,21 +841,22 @@ export const RULES_DATA: Record<string, CompetitionRules> = {
             'A robotics competition focused on obstacle navigation, path planning, and speed optimization. Navigate from start to end with the fastest and cleanest run.',
         teamSize: '2–4 members per team',
         fee: 'TBD',
-        category: 'robotics',
+        category: 'flagship',
         rules: [
-            'Only one robot per team.',
-            'Robot must not exceed 30cm × 30cm.',
-            'Maximum weight: 1–1.5 kg.',
+            'Each squad must consist of 2 to 4 members.',
+            'Bot must not exceed 30cm × 30cm (Weight < 1.5kg).',
+            'Original AVR-IDs are mandatory for all members.',
             'Robot must not jump, fly, climb, or damage the arena.',
             'No marking the arena or leaving parts behind.',
             'No touching robot after track reveal.',
-            'No pre-fed maps allowed.',
+            'Unauthorized remote assistance leads to disqualification.',
         ],
         procedure: [
-            'Round 1: Basic Level — simple track with 4 checkpoints, 3 runs, best run considered.',
-            'Round 2: Advanced Level — complex track with obstacles, 3 runs, up to 5 checkpoints.',
-            'Maximum 3 restarts allowed.',
+            'Round 1: Preliminary Scrutiny.',
+            'Round 2: Obstacle Navigation & Path Planning.',
+            'Round 3: Velocity Optimization Run.',
             'Mandatory technical inspection before the event.',
+            'Arena Marshal\'s decision is final and binding.',
         ],
         judgingCriteria: [
             'Checkpoint scoring: +10 each',
@@ -875,8 +881,6 @@ export const getAllRules = (): CompetitionRules[] => {
         flagship: 0,
         standard: 1,
         general: 2,
-        esports: 3,
-        robotics: 4,
     };
     return Object.values(RULES_DATA).sort(
         (a, b) => (order[a.category] ?? 99) - (order[b.category] ?? 99)

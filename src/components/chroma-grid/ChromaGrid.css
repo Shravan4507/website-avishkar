@@ -546,6 +546,19 @@
 .rulebook-download-btn:hover svg {
     transform: scale(1.1);
 }
+ 
+.rulebook-download-btn--coming-soon {
+    opacity: 0.6;
+    cursor: not-allowed;
+    filter: grayscale(1);
+    pointer-events: none;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.rulebook-download-btn--coming-soon:hover {
+    transform: none;
+    box-shadow: none;
+}
 
 .modal-socials {
     display: flex;

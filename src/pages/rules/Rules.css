@@ -203,7 +203,6 @@
 }
 
 /* ── Prizes ── */
-.rules-prizes-card { }
 
 .rules-prize-stack {
     display: flex;
@@ -262,6 +261,18 @@
 .rules-download-btn:hover {
     transform: scale(1.04);
     box-shadow: 0 8px 30px rgba(82, 39, 255, 0.35);
+}
+
+.rules-download-btn--coming-soon {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: rgba(255, 255, 255, 0.4) !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+}
+.rules-download-btn--coming-soon:hover {
+    transform: none !important;
+    box-shadow: none !important;
 }
 
 /* ═══════════════════════════════════

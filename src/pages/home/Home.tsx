@@ -149,7 +149,7 @@ function Home() {
                 registeredEventName={eventName}
                 disableModal={true}
                 onItemClick={(item) => {
-                  if (item.slug === 'codex-26') {
+                  if (item.slug === 'param-x-26') {
                     navigate('/param-x');
                   } else if (item.slug === 'battle-grid-26') {
                     navigate('/battle-grid');

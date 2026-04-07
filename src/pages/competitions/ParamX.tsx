@@ -15,6 +15,7 @@ import {
     Users, Rocket, ArrowLeft, ShieldAlert, CreditCard, CloudUpload
 } from 'lucide-react';
 import { useRegistrationGuard } from '../../hooks/useRegistrationGuard';
+import { COMPETITIONS_DATA } from '../../data/competitions';
 
 
 import { motion } from 'framer-motion';
@@ -33,6 +34,7 @@ const ParamX: React.FC = () => {
     const [selectedDomain, setSelectedDomain] = useState('All');
     const [isDownloading, setIsDownloading] = useState(false);
     const { isRegistered, eventName } = useRegistrationGuard();
+    const compData = COMPETITIONS_DATA.find(c => c.slug === 'param-x-26');
 
     const handleDownload = async () => {
         if (isDownloading) return;
@@ -266,14 +268,20 @@ const ParamX: React.FC = () => {
                         </button>
                     )}
 
-                    <a 
-                        href={`${import.meta.env.BASE_URL}assets/rule-books/param-x.pdf`}
-                        download="Param-X_Rulebook.pdf"
-                        className="secondary-cta"
-                        style={{ textDecoration: 'none' }}
-                    >
-                        Rulebook <FileText size={18} />
-                    </a>
+                    {compData?.rulebookComingSoon ? (
+                        <button className="secondary-cta rules-download-btn--coming-soon" disabled>
+                            Rulebook Coming Soon <FileText size={18} />
+                        </button>
+                    ) : (
+                        <a 
+                            href={compData?.rulebook || `${import.meta.env.BASE_URL}assets/rule-books/param-x.pdf`}
+                            download="Param-X_Rulebook.pdf"
+                            className="secondary-cta"
+                            style={{ textDecoration: 'none' }}
+                        >
+                            Rulebook <FileText size={18} />
+                        </a>
+                    )}
                     <button 
                         className={`glass-cta ${isDownloading ? 'loading' : ''}`} 
                         onClick={handleDownload}
