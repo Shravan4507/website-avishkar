@@ -525,14 +525,12 @@ const RoboKshetra: React.FC = () => {
                                             { label: 'AlignX (Line Follower)', file: 'alignx.pdf' },
                                             { label: 'RoboRush (Obstacle)', file: 'roborush.pdf' }
                                         ].map((rb, idx) => (
-                                            <a 
-                                                key={idx}
-                                                href={`${import.meta.env.BASE_URL}assets/rule-books/${rb.file}`}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="rk-rb-item"
-                                                download
-                                            >
+                                                <a 
+                                                    key={idx}
+                                                    href={`${import.meta.env.BASE_URL}assets/rule-books/${rb.file}`}
+                                                    className="rk-rb-item"
+                                                    download
+                                                >
                                                 <FileText size={14} />
                                                 <span>{rb.label}</span>
                                             </a>

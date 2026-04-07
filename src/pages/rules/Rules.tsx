@@ -222,8 +222,7 @@ const Rules: React.FC = () => {
                         <div className="rules-download-bar">
                             <a
                                 href={activeComp.rulebookPath}
-                                target="_blank"
-                                rel="noopener noreferrer"
+                                download
                                 className="rules-download-btn"
                             >
                                 <Download size={18} />

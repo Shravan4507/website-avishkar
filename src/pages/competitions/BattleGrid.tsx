@@ -97,8 +97,6 @@ const BattleGrid: React.FC = () => {
                                     <a 
                                         key={idx}
                                         href={`${import.meta.env.BASE_URL}assets/rule-books/${rb.file}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
                                         className="rk-rb-item"
                                         download
                                     >

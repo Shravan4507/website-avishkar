@@ -333,8 +333,6 @@ export const ChromaGrid: React.FC<ChromaGridProps> = ({
                                     {selectedMember.rulebook && (
                                         <a 
                                             href={selectedMember.rulebook} 
-                                            target="_blank" 
-                                            rel="noopener noreferrer" 
                                             className="rulebook-download-btn"
                                             title="Download Rulebook"
                                             download
