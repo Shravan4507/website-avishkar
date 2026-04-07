@@ -145,12 +145,23 @@ export const initiatePayment = functions.https.onRequest({
       .trim()
       .slice(0, 100) || "Avishkar26 Registration";
 
+    // Sanitization: Easebuzz is strict about special characters in UDF fields and names
+    const safeUdf1 = (udf1 || "N/A")
+      .replace(/[^a-zA-Z0-9 _-]/g, "")
+      .trim()
+      .slice(0, 100);
+
+    const safeFirstname = (firstname || "Participant")
+      .replace(/[^a-zA-Z0-9 _-]/g, "")
+      .trim()
+      .slice(0, 100);
+
     const key = MERCH_KEY.value();
     const salt = MERCH_SALT.value();
     const submerchant_id = SUB_ID.value();
 
     // 1. Generate hash: key|txnid|amount|productinfo|firstname|email|udf1-udf10|salt
-    const hashString = `${key}|${txnid}|${amount}|${safeProductinfo}|${firstname}|${email}|${udf1 || ''}||||||||||${salt}`;
+    const hashString = `${key}|${txnid}|${amount}|${safeProductinfo}|${safeFirstname}|${email}|${safeUdf1}||||||||||${salt}`;
     const hash = crypto.createHash("sha512").update(hashString).digest("hex");
 
     // 2. POST to Easebuzz API (form-urlencoded)
@@ -159,13 +170,13 @@ export const initiatePayment = functions.https.onRequest({
     formData.append("txnid", txnid);
     formData.append("amount", amount);
     formData.append("productinfo", safeProductinfo);
-    formData.append("firstname", firstname);
+    formData.append("firstname", safeFirstname);
     formData.append("email", email);
     formData.append("phone", phone);
     formData.append("surl", surl);
     formData.append("furl", furl);
     formData.append("hash", hash);
-    formData.append("udf1", udf1 || '');
+    formData.append("udf1", safeUdf1);
     formData.append("sub_merchant_id", submerchant_id);
 
     const easebuzzResponse = await axios.post(EASEBUZZ_PROD_URL, formData.toString(), {

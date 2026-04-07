@@ -135,23 +135,31 @@ exports.initiatePayment = functions.https.onRequest({
             .replace(/[^a-zA-Z0-9 _-]/g, "")
             .trim()
             .slice(0, 100) || "Avishkar26 Registration";
+        const safeUdf1 = (udf1 || "N/A")
+            .replace(/[^a-zA-Z0-9 _-]/g, "")
+            .trim()
+            .slice(0, 100);
+        const safeFirstname = (firstname || "Participant")
+            .replace(/[^a-zA-Z0-9 _-]/g, "")
+            .trim()
+            .slice(0, 100);
         const key = MERCH_KEY.value();
         const salt = MERCH_SALT.value();
         const submerchant_id = SUB_ID.value();
-        const hashString = `${key}|${txnid}|${amount}|${safeProductinfo}|${firstname}|${email}|${udf1 || ''}||||||||||${salt}`;
+        const hashString = `${key}|${txnid}|${amount}|${safeProductinfo}|${safeFirstname}|${email}|${safeUdf1}||||||||||${salt}`;
         const hash = crypto_1.default.createHash("sha512").update(hashString).digest("hex");
         const formData = new URLSearchParams();
         formData.append("key", key);
         formData.append("txnid", txnid);
         formData.append("amount", amount);
         formData.append("productinfo", safeProductinfo);
-        formData.append("firstname", firstname);
+        formData.append("firstname", safeFirstname);
         formData.append("email", email);
         formData.append("phone", phone);
         formData.append("surl", surl);
         formData.append("furl", furl);
         formData.append("hash", hash);
-        formData.append("udf1", udf1 || '');
+        formData.append("udf1", safeUdf1);
         formData.append("sub_merchant_id", submerchant_id);
         const easebuzzResponse = await axios_1.default.post(EASEBUZZ_PROD_URL, formData.toString(), {
             headers: { "Content-Type": "application/x-www-form-urlencoded" }
