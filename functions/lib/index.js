@@ -63,55 +63,60 @@ exports.onRegistrationCreated = (0, firestore_1.onDocumentCreated)("registration
         return;
     const regData = snapshot.data();
     const regId = event.params.regId;
-    console.log(`Processing registration for ${regId}`);
+    console.log(`[Email] Processing registration: ${regId}`);
     try {
         const templatePath = path.join(__dirname, "templates", "confirmation.html");
         const htmlTemplate = fs.readFileSync(templatePath, "utf8");
+        const avrId = regData.registrationId || regId;
+        const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(avrId)}&bgcolor=ffffff&color=0f172a`;
         const templateData = {
-            name: regData.leaderName || "Participant",
-            competitionName: regData.eventTitle || "Avishkar Competition",
-            registrationId: regData.registrationId || regId,
-            teamName: regData.teamName || "Solo Entry",
-            eventDate: "March 2026",
-            paymentId: regData.transactionId || "N/A",
-            amount: regData.amountPaid || "0.00"
+            EVENT_NAME: regData.eventTitle || "Avishkar Competition",
+            AVR_ID: avrId,
+            LEADER_NAME: regData.leaderName || regData.userName || "Participant",
+            REG_DATE: new Date().toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" }),
+            QR_CODE_URL: qrCodeUrl,
+            DASHBOARD_URL: "https://avishkar.zcoer.in/user/dashboard",
+            AMOUNT: `₹${regData.amountPaid || "0.00"}`,
+            SUPPORT_URL: "mailto:support.avishkarr@zealeducation.com",
+            RETRY_URL: "https://avishkar.zcoer.in/user/dashboard",
         };
-        const welcomeHtml = processTemplate(htmlTemplate, templateData);
+        const confirmHtml = processTemplate(htmlTemplate, templateData);
+        const recipientEmail = regData.leaderEmail || regData.email;
         await admin.firestore().collection("mail").add({
-            to: regData.leaderEmail || regData.email,
+            to: recipientEmail,
             message: {
-                subject: `Success! Welcome to the Grid, ${templateData.name} 🚀`,
-                html: welcomeHtml,
+                subject: `Registration Confirmed — ${templateData.EVENT_NAME} | Avishkar '26`,
+                html: confirmHtml,
             },
             metadata: {
                 registrationId: regId,
-                type: "welcome-confirmation"
-            }
+                type: "registration-confirmation",
+            },
         });
         try {
             const invoiceTemplatePath = path.join(__dirname, "templates", "invoice.html");
             const invoiceTemplate = fs.readFileSync(invoiceTemplatePath, "utf8");
             const invoiceHtml = processTemplate(invoiceTemplate, templateData);
             await admin.firestore().collection("mail").add({
-                to: regData.leaderEmail || regData.email,
+                to: recipientEmail,
                 message: {
-                    subject: `Invoice for ${templateData.competitionName} - ${templateData.registrationId}`,
+                    subject: `Invoice — ${templateData.EVENT_NAME} (${templateData.AVR_ID}) | Avishkar '26`,
                     html: invoiceHtml,
                 },
                 metadata: {
                     registrationId: regId,
-                    type: "tax-invoice"
-                }
+                    type: "tax-invoice",
+                },
             });
-            console.log(`Invoice trigger document created for ${regId}`);
+            console.log(`[Email] Invoice queued for ${regId}`);
         }
         catch (err) {
-            console.error("Error generating second invoice email:", err);
+            console.error("[Email] Invoice generation failed:", err);
         }
-        console.log(`Email trigger document created for ${regId}`);
+        console.log(`[Email] Confirmation queued for ${regId}`);
     }
     catch (error) {
-        console.error("Error triggering confirmation email:", error);
+        console.error("[Email] Critical failure:", error);
     }
 });
 const EASEBUZZ_TEST_URL = "https://testpay.easebuzz.in/payment/initiateLink";
