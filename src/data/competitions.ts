@@ -41,7 +41,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         department: 'Computer Engineering',
         minTeamSize: 2,
         maxTeamSize: 4,
-        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/Param-X.pdf`
+        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/param-x.pdf`
     },
     {
         id: 'robotron--26',
@@ -96,7 +96,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         contactNumber: "9140411132",
         minTeamSize: 1,
         maxTeamSize: 2,
-        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/FORGEX.pdf`
+        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/forgex.pdf`
     },
     {
         id: 'comp_algobid',
@@ -115,7 +115,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         contactNumber: '7378965050',
         minTeamSize: 3,
         maxTeamSize: 4,
-        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/ALGOBID.pdf`
+        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/algobid.pdf`
     },
     {
         id: 'comp_codeladder',
@@ -134,7 +134,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         contactNumber: '7517021872',
         minTeamSize: 4,
         maxTeamSize: 4,
-        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/CODE%20LADDER.pdf`
+        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/code-ladder.pdf`
     },
     {
         id: 'comp_iplauction',
@@ -153,7 +153,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         contactNumber: "9236113425",
         minTeamSize: 1,
         maxTeamSize: 5,
-        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/IPL%20Auction.pdf`
+        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/ipl-auction.pdf`
     },
     {
         id: 'comp_blindcode',
@@ -172,7 +172,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         contactNumber: '8668383832',
         minTeamSize: 1,
         maxTeamSize: 1,
-        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/Blind%20Coding.pdf`
+        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/blind-coding.pdf`
     },
     {
         id: 'comp_devclash',
@@ -191,7 +191,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         contactNumber: '7709056730',
         minTeamSize: 3,
         maxTeamSize: 5,
-        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/DevClash%20RuleBook.pdf`
+        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/devclash.pdf`
     },
     {
         id: 'comp_vibesprint',
@@ -210,7 +210,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         contactNumber: '9168906630',
         minTeamSize: 1,
         maxTeamSize: 1,
-        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/Vibe%20Coding%20RuleBook.pdf`
+        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/vibe-coding.pdf`
     },
     {
         id: 'comp_coderelay',
@@ -229,7 +229,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         contactNumber: '8766690242',
         minTeamSize: 5,
         maxTeamSize: 5,
-        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/Code%20Relay%20RuleBook.pdf`
+        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/code-relay.pdf`
     },
     {
         id: 'comp_bridgenova',
@@ -248,7 +248,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         contactNumber: '9373113736',
         minTeamSize: 2,
         maxTeamSize: 4,
-        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/BRIDGE%20NOVA.pdf`
+        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/bridge-nova.pdf`
     },
     {
         id: 'comp_poster',
@@ -267,7 +267,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         contactNumber: '9503231138',
         minTeamSize: 1,
         maxTeamSize: 2,
-        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/Poster%20Presentation.pdf`
+        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/poster-presentation.pdf`
     },
     {
         id: 'comp_sparktank',
@@ -286,7 +286,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         contactNumber: '9356766305',
         minTeamSize: 1,
         maxTeamSize: 4,
-        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/Spark%20Tank.pdf`
+        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/spark-tank.pdf`
     },
     {
         id: 'comp_matlab',
@@ -305,7 +305,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         contactNumber: '8888487529',
         minTeamSize: 1,
         maxTeamSize: 2,
-        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/MATLAB%20Madness.pdf`
+        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/matlab-madness.pdf`
     },
     {
         id: 'comp_circuitsim',
@@ -342,7 +342,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         contactNumber: '9158306630',
         minTeamSize: 4,
         maxTeamSize: 4,
-        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/CONTRAPTIONS.pdf`
+        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/contraptions.pdf`
     },
     {
         id: 'comp_circlecricket',
@@ -360,7 +360,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         coordinator: 'Event Coordinator',
         minTeamSize: 4,
         maxTeamSize: 4,
-        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/Circle%20Cricket.pdf`
+        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/circle-cricket.pdf`
     },
 ];
 

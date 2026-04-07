@@ -267,7 +267,7 @@ const ParamX: React.FC = () => {
                     )}
 
                     <a 
-                        href={`${import.meta.env.BASE_URL}assets/rule-books/Param-X.pdf`}
+                        href={`${import.meta.env.BASE_URL}assets/rule-books/param-x.pdf`}
                         download="Param-X_Rulebook.pdf"
                         className="secondary-cta"
                         style={{ textDecoration: 'none' }}

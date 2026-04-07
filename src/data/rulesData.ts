@@ -72,7 +72,7 @@ export const RULES_DATA: Record<string, CompetitionRules> = {
             student: ['Sujal Jaju – 8010127828', 'Arya Dandnaik – 7058308428'],
             faculty: ['Wrushabh Sirsat – 9325792405'],
         },
-        rulebookPath: `${import.meta.env.BASE_URL}assets/rule-books/Param-X.pdf`,
+        rulebookPath: `${import.meta.env.BASE_URL}assets/rule-books/param-x.pdf`,
     },
 
     // ── Standard Competitions ──
@@ -120,7 +120,7 @@ export const RULES_DATA: Record<string, CompetitionRules> = {
             second: '₹7,000',
             third: '₹3,000',
         },
-        rulebookPath: `${import.meta.env.BASE_URL}assets/rule-books/IPL%20Auction.pdf`,
+        rulebookPath: `${import.meta.env.BASE_URL}assets/rule-books/ipl-auction.pdf`,
     },
 
     'algo-bid': {
@@ -168,7 +168,7 @@ export const RULES_DATA: Record<string, CompetitionRules> = {
             second: '₹3,000',
             third: '₹2,000',
         },
-        rulebookPath: `${import.meta.env.BASE_URL}assets/rule-books/ALGOBID.pdf`,
+        rulebookPath: `${import.meta.env.BASE_URL}assets/rule-books/algobid.pdf`,
     },
 
     'code-ladder': {
@@ -215,7 +215,7 @@ export const RULES_DATA: Record<string, CompetitionRules> = {
             student: ['Shreya Kad – 7517021872'],
             faculty: ['Wrushabh Sirsat – 9325792405'],
         },
-        rulebookPath: `${import.meta.env.BASE_URL}assets/rule-books/CODE%20LADDER.pdf`,
+        rulebookPath: `${import.meta.env.BASE_URL}assets/rule-books/code-ladder.pdf`,
     },
 
     'blind-code': {
@@ -255,7 +255,7 @@ export const RULES_DATA: Record<string, CompetitionRules> = {
             second: '₹2,000',
             third: '₹1,000',
         },
-        rulebookPath: `${import.meta.env.BASE_URL}assets/rule-books/Blind%20Coding.pdf`,
+        rulebookPath: `${import.meta.env.BASE_URL}assets/rule-books/blind-coding.pdf`,
     },
 
     'dev-clash': {
@@ -305,7 +305,7 @@ export const RULES_DATA: Record<string, CompetitionRules> = {
             second: '₹15,000',
             third: '₹10,000',
         },
-        rulebookPath: `${import.meta.env.BASE_URL}assets/rule-books/DevClash%20RuleBook.pdf`,
+        rulebookPath: `${import.meta.env.BASE_URL}assets/rule-books/devclash.pdf`,
     },
 
     'vibe-sprint': {
@@ -340,7 +340,7 @@ export const RULES_DATA: Record<string, CompetitionRules> = {
             second: '₹2,000',
             third: '₹1,000',
         },
-        rulebookPath: `${import.meta.env.BASE_URL}assets/rule-books/Vibe%20Coding%20RuleBook.pdf`,
+        rulebookPath: `${import.meta.env.BASE_URL}assets/rule-books/vibe-coding.pdf`,
     },
 
     'forge-x': {
@@ -381,7 +381,7 @@ export const RULES_DATA: Record<string, CompetitionRules> = {
             second: '₹3,000',
             third: '₹2,000',
         },
-        rulebookPath: `${import.meta.env.BASE_URL}assets/rule-books/FORGEX.pdf`,
+        rulebookPath: `${import.meta.env.BASE_URL}assets/rule-books/forgex.pdf`,
     },
 
     'bridge-nova': {
@@ -426,7 +426,7 @@ export const RULES_DATA: Record<string, CompetitionRules> = {
             second: '₹8,000',
             third: '₹5,000',
         },
-        rulebookPath: `${import.meta.env.BASE_URL}assets/rule-books/BRIDGE%20NOVA.pdf`,
+        rulebookPath: `${import.meta.env.BASE_URL}assets/rule-books/bridge-nova.pdf`,
     },
 
     'code-relay': {
@@ -463,7 +463,7 @@ export const RULES_DATA: Record<string, CompetitionRules> = {
             second: '₹10,000',
             third: '₹8,000',
         },
-        rulebookPath: `${import.meta.env.BASE_URL}assets/rule-books/Code%20Relay%20RuleBook.pdf`,
+        rulebookPath: `${import.meta.env.BASE_URL}assets/rule-books/code-relay.pdf`,
     },
 
     'poster-presentation': {
@@ -504,7 +504,7 @@ export const RULES_DATA: Record<string, CompetitionRules> = {
             student: ['Pranav Katu – 9503261138', 'Prajakta Bhosale – 8668904681', 'Manaswi Awate – 8149496332'],
             faculty: ['Prof. Jay Gurav – 9420696534', 'Prof. Snehal Dharme – 8390736438'],
         },
-        rulebookPath: `${import.meta.env.BASE_URL}assets/rule-books/Poster%20Presentation.pdf`,
+        rulebookPath: `${import.meta.env.BASE_URL}assets/rule-books/poster-presentation.pdf`,
     },
 
     'spark-tank': {
@@ -547,7 +547,7 @@ export const RULES_DATA: Record<string, CompetitionRules> = {
             student: ['Radhika Ghodake – 9921546187', 'Harshita Jadhav – 9356766305', 'Abhyudaya Jadhav – 7088677452'],
             faculty: ['Prof. D.N Deode – 8770423757', 'Prof. Narendra Neginhal – 9970006341'],
         },
-        rulebookPath: `${import.meta.env.BASE_URL}assets/rule-books/Spark%20Tank.pdf`,
+        rulebookPath: `${import.meta.env.BASE_URL}assets/rule-books/spark-tank.pdf`,
     },
 
     'matlab-madness': {
@@ -586,7 +586,7 @@ export const RULES_DATA: Record<string, CompetitionRules> = {
             second: '₹3,000',
             third: '₹2,000',
         },
-        rulebookPath: `${import.meta.env.BASE_URL}assets/rule-books/MATLAB%20Madness.pdf`,
+        rulebookPath: `${import.meta.env.BASE_URL}assets/rule-books/matlab-madness.pdf`,
     },
 
     'contraptions-challenge': {
@@ -629,7 +629,7 @@ export const RULES_DATA: Record<string, CompetitionRules> = {
             second: '₹3,000',
             third: '₹2,000',
         },
-        rulebookPath: `${import.meta.env.BASE_URL}assets/rule-books/CONTRAPTIONS.pdf`,
+        rulebookPath: `${import.meta.env.BASE_URL}assets/rule-books/contraptions.pdf`,
     },
 
     // ── Circle Cricket (Ghost — no card yet) ──

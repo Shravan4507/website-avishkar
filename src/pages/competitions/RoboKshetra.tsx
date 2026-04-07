@@ -62,7 +62,7 @@ const ROBO_EVENTS = [
             "Track: Turns, intersections, crossovers, color change",
             "Rounds: Preliminary + Finals"
         ],
-        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/AlignX.pdf`
+        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/alignx.pdf`
     },
     { 
         id: 'robomaze', 
@@ -522,12 +522,12 @@ const RoboKshetra: React.FC = () => {
                                 {showRulebookDropdown && (
                                     <div className="rk-rulebook-menu animate-slide-up">
                                         {[
-                                            { label: 'AlignX (Line Follower)', file: 'AlignX.pdf' },
-                                            { label: 'RoboRush (Obstacle)', file: 'RoboRush.pdf' }
+                                            { label: 'AlignX (Line Follower)', file: 'alignx.pdf' },
+                                            { label: 'RoboRush (Obstacle)', file: 'roborush.pdf' }
                                         ].map((rb, idx) => (
                                             <a 
                                                 key={idx}
-                                                href={`${import.meta.env.BASE_URL}assets/rule-books/${encodeURIComponent(rb.file)}`}
+                                                href={`${import.meta.env.BASE_URL}assets/rule-books/${rb.file}`}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                                 className="rk-rb-item"
