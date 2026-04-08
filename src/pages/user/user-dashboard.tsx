@@ -383,7 +383,7 @@ const UserDashboard: React.FC = () => {
 
             {/* Follow Us Panel */}
             <aside className="user-dashboard-section" style={{ textAlign: 'center' }}>
-              <h3 style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1.2rem', marginBottom: '1rem', fontFamily: "'Iceland', sans-serif", letterSpacing: '1.5px' }}>Follow Us</h3>
+              <h3 style={{ color: '#e2e8f0', fontSize: '1.2rem', marginBottom: '1rem', fontFamily: "'Iceland', sans-serif", letterSpacing: '1.5px' }}>Follow Us</h3>
               <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem' }}>
                 <a href="https://www.instagram.com/zeal_avishkar/" target="_blank" rel="noreferrer" className="social-icon-btn">
                   <Instagram size={24} />

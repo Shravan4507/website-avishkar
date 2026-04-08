@@ -848,7 +848,7 @@ const AdminDashboard: React.FC = () => {
                   <h3 style={{ color: '#fff', marginBottom: '16px', fontSize: '1.2rem' }}>Role Assignment (Volunteers)</h3>
                   <form onSubmit={handleAssignVolunteer} className="whitelist-form">
                     <div className="form-group">
-                      <label style={{ color: 'rgba(255,255,255,0.7)', marginBottom: '8px', display: 'block', fontSize: '0.9rem', fontWeight: 600 }}>Assign Scanner Role by AVR-ID</label>
+                      <label style={{ color: '#e2e8f0', marginBottom: '8px', display: 'block', fontSize: '0.9rem', fontWeight: 600 }}>Assign Scanner Role by AVR-ID</label>
                       <div className="input-with-btn" style={{ display: 'flex', gap: '12px', marginBottom: '1rem' }}>
                         <input 
                           type="text" 
@@ -876,7 +876,7 @@ const AdminDashboard: React.FC = () => {
                   <h3 style={{ color: '#a78bfa', marginBottom: '16px', fontSize: '1.2rem' }}>Core Team Promotion (Superadmin Only)</h3>
                   <form onSubmit={handlePromoteAdmin} className="whitelist-form">
                     <div className="form-group" style={{ marginBottom: '1rem' }}>
-                      <label style={{ color: 'rgba(255,255,255,0.7)', marginBottom: '8px', display: 'block', fontSize: '0.9rem', fontWeight: 600 }}>Target AVR-ID</label>
+                      <label style={{ color: '#e2e8f0', marginBottom: '8px', display: 'block', fontSize: '0.9rem', fontWeight: 600 }}>Target AVR-ID</label>
                       <input 
                         type="text" 
                         placeholder="e.g. AVR-SHR-0001" 
@@ -887,7 +887,7 @@ const AdminDashboard: React.FC = () => {
                     </div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
                     <div className="form-group" style={{ marginBottom: 0 }}>
-                      <label style={{ color: 'rgba(255,255,255,0.7)', marginBottom: '8px', display: 'block', fontSize: '0.9rem', fontWeight: 600 }}>Role Type</label>
+                      <label style={{ color: '#e2e8f0', marginBottom: '8px', display: 'block', fontSize: '0.9rem', fontWeight: 600 }}>Role Type</label>
                       <GlassSelect 
                         value={adminRoleType} 
                         onChange={(val: string) => setAdminRoleType(val)}
@@ -901,7 +901,7 @@ const AdminDashboard: React.FC = () => {
                       />
                     </div>
                     <div className="form-group" style={{ marginBottom: 0 }}>
-                      <label style={{ color: 'rgba(255,255,255,0.7)', marginBottom: '8px', display: 'block', fontSize: '0.9rem', fontWeight: 600 }}>
+                      <label style={{ color: '#e2e8f0', marginBottom: '8px', display: 'block', fontSize: '0.9rem', fontWeight: 600 }}>
                         {adminRoleType === 'department_admin' ? 'Department' : adminRoleType === 'core_team' ? 'Team' : adminRoleType === 'competition_admin' ? 'Competition' : 'Scope'}
                       </label>
                       {adminRoleType === 'department_admin' && (
@@ -1396,7 +1396,7 @@ const AdminDashboard: React.FC = () => {
                 </div>
 
                 <div style={{ marginBottom: '20px' }}>
-                  <label style={{ color: 'rgba(255,255,255,0.6)', marginBottom: '8px', display: 'block', fontSize: '0.85rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Target AVR-ID</label>
+                  <label style={{ color: '#cbd5e1', marginBottom: '8px', display: 'block', fontSize: '0.85rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Target AVR-ID</label>
                   <input
                     type="text"
                     placeholder="e.g. AVR-SHR-0001"
@@ -1407,7 +1407,7 @@ const AdminDashboard: React.FC = () => {
                 </div>
 
                 <div style={{ marginBottom: '24px' }}>
-                  <label style={{ color: 'rgba(255,255,255,0.6)', marginBottom: '8px', display: 'block', fontSize: '0.85rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Email Type</label>
+                  <label style={{ color: '#cbd5e1', marginBottom: '8px', display: 'block', fontSize: '0.85rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Email Type</label>
                   <GlassSelect
                     value={emailTestType}
                     onChange={(val: string) => setEmailTestType(val)}
@@ -1536,7 +1536,7 @@ const AdminDashboard: React.FC = () => {
 
                 {/* Info Box */}
                 <div style={{ marginTop: '24px', padding: '16px 20px', background: 'rgba(167, 139, 250, 0.06)', borderRadius: '16px', border: '1px solid rgba(167, 139, 250, 0.15)' }}>
-                  <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.8rem', margin: 0, lineHeight: 1.5 }}>
+                  <p style={{ color: '#94a3b8', fontSize: '0.8rem', margin: 0, lineHeight: 1.5 }}>
                     Test emails are sent with a <span style={{ color: '#a78bfa', fontWeight: 700 }}>[TEST]</span> prefix in the subject and event name. The user's real email and name are used for delivery. Data like amounts and dates are placeholder values.
                   </p>
                 </div>
@@ -1548,7 +1548,7 @@ const AdminDashboard: React.FC = () => {
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <Eye size={18} color="#a78bfa" />
-                      <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', fontWeight: 600 }}>Email Preview</span>
+                      <span style={{ color: '#e2e8f0', fontSize: '0.9rem', fontWeight: 600 }}>Email Preview</span>
                     </div>
                     <button
                       onClick={() => setEmailPreviewHtml(null)}
@@ -1784,19 +1784,19 @@ const GlobalSearchView: React.FC = () => {
               </div>
               
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#e2e8f0', fontSize: '0.9rem' }}>
                   <Mail size={16} /> {userData.email}
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#e2e8f0', fontSize: '0.9rem' }}>
                   <Phone size={16} /> {userData.phone || 'No Phone'}
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#e2e8f0', fontSize: '0.9rem' }}>
                   <Fingerprint size={16} /> Age: {userData.dob ? (new Date().getFullYear() - new Date(userData.dob).getFullYear()) : 'N/A'}
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#e2e8f0', fontSize: '0.9rem' }}>
                   <School size={16} /> {userData.college || 'N/A'}
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#e2e8f0', fontSize: '0.9rem' }}>
                   <BookOpen size={16} /> {userData.major || 'N/A'}
                 </div>
               </div>
