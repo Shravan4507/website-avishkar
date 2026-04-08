@@ -72,7 +72,7 @@ import UserProtectedRoutes from './routes/UserProtectedRoutes';
 import AdminProtectedRoutes from './routes/AdminProtectedRoutes';
 import PublicRoutes from './routes/PublicRoutes';
 
-import SplashCursor from './components/splash-cursor/SplashCursor';
+
 
 // Wrap element with PageTransition for every route
 const T = ({ el }: { el: React.ReactNode }) => (
@@ -110,14 +110,7 @@ const LayoutManager = () => {
 
   return (
     <>
-      {!lowSpec && (
-        <SplashCursor 
-          SPLASH_COLORS={[isParamX ? '#110057' : '#5227ff', '#000000', '#201d20']} 
-          DENSITY_DISSIPATION={4.5}
-          SPLAT_RADIUS={0.15}
-          SPLAT_FORCE={3000}
-        />
-      )}
+
       <div className="background-fixed">
         <Grainient
           color1="#000000"

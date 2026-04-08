@@ -503,7 +503,7 @@ export const RULES_DATA: Record<string, CompetitionRules> = {
             third: '₹1,000',
         },
         coordinators: {
-            student: ['Pranav Katu – 9503261138', 'Prajakta Bhosale – 8668904681', 'Manaswi Awate – 8149496332'],
+            student: ['Ashish Shinde – 9373113736'],
             faculty: ['Prof. Jay Gurav – 9420696534', 'Prof. Snehal Dharme – 8390736438'],
         },
         rulebookPath: `${import.meta.env.BASE_URL}assets/rule-books/poster-presentation.pdf`,
@@ -546,7 +546,7 @@ export const RULES_DATA: Record<string, CompetitionRules> = {
             third: '₹1,000',
         },
         coordinators: {
-            student: ['Radhika Ghodake – 9921546187', 'Harshita Jadhav – 9356766305', 'Abhyudaya Jadhav – 7088677452'],
+            student: ['Shubham Jagtap – 9172125455'],
             faculty: ['Prof. D.N Deode – 8770423757', 'Prof. Narendra Neginhal – 9970006341'],
         },
         rulebookPath: `${import.meta.env.BASE_URL}assets/rule-books/spark-tank.pdf`,
@@ -712,7 +712,7 @@ export const RULES_DATA: Record<string, CompetitionRules> = {
             third: '₹2,000',
         },
         coordinators: {
-            student: ['Rohit Chavan – 7823056055', 'Shubham Dawre – 7276347743'],
+            student: ['Shubham Jagtap – 9172125455'],
             faculty: ['Prof. R. N. Khandebharad – 8767493661'],
         },
         rulebookPath: `${import.meta.env.BASE_URL}assets/rule-books/free-fire.pdf`,
@@ -753,7 +753,7 @@ export const RULES_DATA: Record<string, CompetitionRules> = {
             second: '₹6,000',
         },
         coordinators: {
-            student: ['Vaibhav Bandgar – 9730906103'],
+            student: ['Sujal Jaju – 8010127828'],
             faculty: ['Amol Jadhav – 7020736028'],
         },
         rulebookPath: `${import.meta.env.BASE_URL}assets/rule-books/call-of-duty.pdf`,
@@ -792,7 +792,7 @@ export const RULES_DATA: Record<string, CompetitionRules> = {
             second: '₹3,000',
         },
         coordinators: {
-            student: ['Pranav Kulkarni – 9423162724'],
+            student: ['Sujal Jaju – 8010127828'],
             faculty: ['Amol Jadhav – 7020736028'],
         },
         rulebookPath: `${import.meta.env.BASE_URL}assets/rule-books/shadow-fight-4.pdf`,

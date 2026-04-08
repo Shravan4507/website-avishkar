@@ -70,7 +70,7 @@ function Footer() {
                                 <Link to="/" className="footer__link">Home</Link>
                                 <Link to="/workshops" className="footer__link">Workshops</Link>
                                 <Link to="/competitions" className="footer__link">Competitions</Link>
-                                <Link to="/sponsors" className="footer__link">Sponsors</Link>
+                                
                                 <Link to="/team" className="footer__link">Team</Link>
                                 <Link to="/contact" className="footer__link">Contact</Link>
                             </nav>

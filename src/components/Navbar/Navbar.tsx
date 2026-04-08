@@ -12,7 +12,6 @@ const TABS = [
   { label: 'Workshops', path: '/workshops' },
   { label: 'Rules', path: '/rules' },
   { label: 'Competitions', path: '/competitions' },
-  { label: 'Sponsors', path: '/sponsors' },
 ] as const
 
 const PRELOAD_MAP: Record<string, () => Promise<any>> = {
@@ -20,7 +19,7 @@ const PRELOAD_MAP: Record<string, () => Promise<any>> = {
   '/workshops': () => import('../../pages/workshops/Workshops'),
   '/competitions': () => import('../../pages/competitions/Competitions'),
   '/rules': () => import('../../pages/rules/Rules'),
-  '/sponsors': () => import('../../pages/sponsors/Sponsors'),
+
   '/login': () => import('../../components/Login/Login'),
   '/user/dashboard': () => import('../../pages/user/user-dashboard'),
   '/admin/dashboard': () => import('../../pages/admin/admindashboard'),
