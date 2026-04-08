@@ -82,8 +82,8 @@ function Navbar() {
     setIsMobileMenuOpen(false)
   }, [location.pathname])
 
-  const leftTabs = TABS.slice(0, 3)
-  const rightTabs = TABS.slice(3)
+  const leftTabs = TABS.slice(0, 2)
+  const rightTabs = TABS.slice(2)
 
   return (
     <div className={`navbar ${isScrolled ? 'navbar--scrolled' : ''} ${isMobileMenuOpen ? 'navbar--open' : ''}`}>

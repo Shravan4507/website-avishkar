@@ -46,7 +46,7 @@
   display: flex;
   align-items: center;
   gap: 1rem;
-  flex: 0 1 auto;
+  flex: 1;
 }
 
 .navbar__left {
