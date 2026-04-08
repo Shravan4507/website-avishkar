@@ -495,7 +495,7 @@ const RoboKshetra: React.FC = () => {
                         <div className="hero-badge">Avishkar '26 <br/>Robotics</div>
                         <img src={`${import.meta.env.BASE_URL}assets/logos/Robokshetra.webp`} alt="Robo-Kshetra" className="hero-logo" />
                         <p className="hero-subtitle">Forge, Optimize, Combat. High-octane robotics competition where logic meets heavy metal.</p>
-                        
+
                         <div className="hero-stats">
                             <div className="stat-item">
                                 <Target className="stat-icon" />
@@ -537,6 +537,21 @@ const RoboKshetra: React.FC = () => {
                                         ))}
                                     </div>
                                 )}
+                            </div>
+                        </div>
+
+                        <div className="hero-coordinators rk-coordinators">
+                            <div className="coord-pill">
+                                <span className="coord-role">Student Coordinator</span>
+                                <User size={14} className="coord-icon" />
+                                <span className="coord-name">Suyash Devtarse</span>
+                                <a href="tel:9370608603" className="coord-phone"><Phone size={12} /> 9370608603</a>
+                            </div>
+                            <div className="coord-pill">
+                                <span className="coord-role">Student Coordinator</span>
+                                <User size={14} className="coord-icon" />
+                                <span className="coord-name">Vedant Hiwarde</span>
+                                <a href="tel:8329610340" className="coord-phone"><Phone size={12} /> 8329610340</a>
                             </div>
                         </div>
                     </section>

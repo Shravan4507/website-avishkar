@@ -13,7 +13,8 @@ import {
     Sword,
     FileText,
     HelpCircle,
-    Rocket
+    Rocket,
+    User
 } from 'lucide-react';
 import { useRegistrationGuard } from '../../hooks/useRegistrationGuard';
 
@@ -106,6 +107,14 @@ const BattleGrid: React.FC = () => {
                                 ))}
                             </div>
                         )}
+                    </div>
+                </div>
+
+                <div className="hero-coordinators rk-coordinators">
+                    <div className="coord-pill">
+                        <span className="coord-role">Student Coordinator</span>
+                        <User size={14} className="coord-icon" />
+                        <span className="coord-name">TBD</span>
                     </div>
                 </div>
             </section>

@@ -39,7 +39,64 @@
 .hero-subtitle {
     font-size: 1.5rem;
     color: rgba(255, 255, 255, 0.6);
-    margin-bottom: 3.5rem;
+    margin-bottom: 2rem;
+}
+
+.rk-coordinators {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-top: 2.5rem;
+}
+
+.coord-pill {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 0.6rem 1.25rem;
+    border-radius: 2rem;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+}
+
+.coord-role {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #ff4655;
+    margin-right: 0.25rem;
+    font-weight: 700;
+}
+
+.coord-icon {
+    color: #ff4655;
+}
+
+.coord-name {
+    color: #fff;
+    font-weight: 600;
+}
+
+.coord-phone {
+    color: #fff;
+    text-decoration: none;
+    font-weight: 700;
+    transition: background 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: rgba(255, 70, 85, 0.2);
+    padding: 0.2rem 0.6rem;
+    border-radius: 100px;
+    margin-left: 0.5rem;
+}
+
+.coord-phone:hover {
+    background: rgba(255, 70, 85, 0.4);
 }
 
 .hero-stats {

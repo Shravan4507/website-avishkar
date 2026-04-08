@@ -515,6 +515,28 @@
     transform: scale(0.95);
 }
 
+.register-btn.disabled {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #aaa;
+    cursor: not-allowed;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    padding: 8px 16px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    text-transform: none;
+    line-height: 1.4;
+    text-align: center;
+}
+
+.register-btn.disabled:active {
+    transform: none;
+}
+
 .rulebook-download-btn {
     display: flex;
     align-items: center;

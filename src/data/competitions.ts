@@ -132,8 +132,8 @@ export const COMPETITIONS_DATA: Competition[] = [
         slug: 'code-ladder',
         department: 'Computer Engineering',
         entryFee: 250,
-        coordinator: 'Vedanshu Kshirsagar',
-        contactNumber: '9822239552',
+        coordinator: 'Shreya Kad',
+        contactNumber: '7517021872',
         minTeamSize: 4,
         maxTeamSize: 4,
         rulebook: `${import.meta.env.BASE_URL}assets/rule-books/code-ladder.pdf`

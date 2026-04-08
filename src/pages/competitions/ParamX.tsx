@@ -12,7 +12,7 @@ import problemsData from '../../data/problems.json';
 import { 
     Search, Filter, ArrowRight, Info, Loader2,
     FileText, Download, Target, Trophy, HelpCircle,
-    Users, Rocket, ArrowLeft, ShieldAlert, CreditCard, CloudUpload
+    Users, Rocket, ArrowLeft, ShieldAlert, CreditCard, CloudUpload, Phone, User as UserIcon
 } from 'lucide-react';
 import { useRegistrationGuard } from '../../hooks/useRegistrationGuard';
 import { COMPETITIONS_DATA } from '../../data/competitions';
@@ -258,7 +258,7 @@ const ParamX: React.FC = () => {
                 {/* <h1>Param-X '26</h1> */}
 
                 <p className="hero-subtitle">The Ultimate 10-Hour Innovation Marathon</p>
-                
+
                 <div className="hero-stats">
                     <div className="stat-item">
                         <Target className="stat-icon" />
@@ -321,6 +321,21 @@ const ParamX: React.FC = () => {
                     <button className="glass-cta" onClick={() => navigate('/param-x/upload')}>
                         Upload Submission <CloudUpload size={18} />
                     </button>
+                </div>
+
+                <div className="hero-coordinators">
+                    <div className="coord-pill">
+                        <span className="coord-role">Student Coordinator</span>
+                        <UserIcon size={14} className="coord-icon" />
+                        <span className="coord-name">Sujal Jaju</span>
+                        <a href="tel:8010127828" className="coord-phone"><Phone size={12} /> 8010127828</a>
+                    </div>
+                    <div className="coord-pill">
+                        <span className="coord-role">Student Coordinator</span>
+                        <UserIcon size={14} className="coord-icon" />
+                        <span className="coord-name">Arya Dandnaik</span>
+                        <a href="tel:7058308428" className="coord-phone"><Phone size={12} /> 7058308428</a>
+                    </div>
                 </div>
             </section>
 
