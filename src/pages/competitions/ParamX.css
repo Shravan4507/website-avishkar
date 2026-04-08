@@ -47,7 +47,7 @@
 
 .hero-subtitle {
     font-size: 1.5rem;
-    color: rgba(255, 255, 255, 0.6);
+    color: rgba(255, 255, 255, 0.9);
     margin-bottom: 3.5rem;
 }
 
@@ -87,7 +87,7 @@
 
 .stat-label {
     font-size: 0.85rem;
-    color: rgba(255, 255, 255, 0.4);
+    color: rgba(255, 255, 255, 0.75);
     text-transform: uppercase;
     letter-spacing: 1px;
 }
@@ -221,7 +221,7 @@
 
 .judging-card p {
     font-size: 1rem;
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(255, 255, 255, 0.9);
     line-height: 1.6;
     margin-bottom: 2rem;
 }
@@ -329,7 +329,7 @@
 .ps-id { font-family: 'Iceland', sans-serif; font-size: 1.25rem; color: #a78bfa; white-space: nowrap; }
 
 .ps-title { font-weight: 700; color: #fff; margin-bottom: 0.4rem; font-size: 1.15rem; }
-.ps-objective-preview { font-size: 0.9rem; color: rgba(255, 255, 255, 0.9); }
+.ps-objective-preview { font-size: 0.9rem; color: #fff; }
 
 .center { text-align: center; }
 
@@ -352,7 +352,7 @@
     margin-bottom: 0.5rem; 
 }
 .slot-fill { height: 100%; background: linear-gradient(90deg, #5227ff, #10b981); transition: width 1s ease; }
-.slot-text { font-size: 0.8rem; color: rgba(255, 255, 255, 0.5); font-weight: 700; }
+.slot-text { font-size: 0.8rem; color: rgba(255, 255, 255, 0.85); font-weight: 700; }
 
 .register-cta {
     background: #5227ff;
@@ -428,12 +428,12 @@
     color: #fff;
     margin-bottom: 1.25rem;
 }
-.modal-section p { color: rgba(255, 255, 255, 0.6); line-height: 1.8; font-size: 1.1rem; }
+.modal-section p { color: rgba(255, 255, 255, 0.9); line-height: 1.8; font-size: 1.1rem; }
 
 .modal-section ul {
     list-style: none; padding: 0; display: flex; flex-direction: column; gap: 1rem;
 }
-.modal-section li { color: rgba(255, 255, 255, 0.6); display: flex; gap: 1rem; }
+.modal-section li { color: rgba(255, 255, 255, 0.9); display: flex; gap: 1rem; }
 .modal-section li::before { content: '•'; color: #a78bfa; font-weight: 800; }
 
 .modal-footer {
@@ -581,7 +581,7 @@
     border-bottom: 1px solid rgba(255,255,255,0.05);
     padding-bottom: 0.75rem;
 }
-.detail-section p { font-size: 1.15rem; color: rgba(255,255,255,0.9); line-height: 1.8; }
+.detail-section p { font-size: 1.15rem; color: #fff; line-height: 1.8; }
 
 .artifact-grid {
     display: grid;
@@ -644,9 +644,9 @@
 
 .slot-info { display: flex; flex-direction: column; align-items: center; }
 .slots-taken { font-size: 3.5rem; font-weight: 800; color: #fff; line-height: 1; }
-.slots-total { font-size: 1.1rem; color: rgba(255,255,255,0.9); }
+.slots-total { font-size: 1.1rem; color: #fff; }
 
-.slot-hint { font-size: 0.85rem; color: rgba(255,255,255,0.9); font-style: italic; text-align: center; }
+.slot-hint { font-size: 0.85rem; color: #fff; font-style: italic; text-align: center; }
 
 @media (max-width: 1000px) {
     .detail-container {

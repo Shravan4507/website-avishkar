@@ -18,9 +18,10 @@ import { useRegistrationGuard } from '../../hooks/useRegistrationGuard';
 import { COMPETITIONS_DATA } from '../../data/competitions';
 
 
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 import './ParamX.css';
+import ParamXGlassOpening from './ParamXGlassOpening';
 
 const ParamX: React.FC = () => {
     const navigate = useNavigate();
@@ -35,6 +36,18 @@ const ParamX: React.FC = () => {
     const [isDownloading, setIsDownloading] = useState(false);
     const { isRegistered, eventName } = useRegistrationGuard();
     const compData = COMPETITIONS_DATA.find(c => c.slug === 'param-x-26');
+
+    // Iris State
+    const [irisOpen, setIrisOpen] = useState(false);
+    const [isIrisDestroyed, setIsIrisDestroyed] = useState(false);
+
+    useEffect(() => {
+        // Initial delay before iris starts opening
+        const timer = setTimeout(() => {
+            setIrisOpen(true);
+        }, 2000);
+        return () => clearTimeout(timer);
+    }, []);
 
     const handleDownload = async () => {
         if (isDownloading) return;
@@ -95,7 +108,7 @@ const ParamX: React.FC = () => {
     // --- DETAIL VIEW ---
     if (selectedPS) {
         return (
-            <div className="paramx-page detailed-view">
+            <div className="detailed-view">
                 <SEO 
                     title={`${selectedPS.id} | ${selectedPS.title}`} 
                     description={`Detailed view of problem statement ${selectedPS.id} for Param-X '26 hackathon.`}
@@ -218,10 +231,24 @@ const ParamX: React.FC = () => {
     // --- LIST VIEW ---
     return (
         <div className="paramx-page">
-            <SEO 
-                title="Param-X '26 | Problem Statements" 
-                description="Explore technical challenges for Param-X '26 hackathon. Solve real-world issues across domains like AI, Robotics, and IT."
-            />
+            {!isIrisDestroyed && (
+                <ParamXGlassOpening 
+                    isOpen={irisOpen} 
+                    onComplete={() => setIsIrisDestroyed(true)} 
+                />
+            )}
+            
+            <AnimatePresence>
+                {irisOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, filter: 'blur(20px)' }}
+                        animate={{ opacity: 1, filter: 'blur(0px)' }}
+                        transition={{ duration: 1.5, delay: 0.5 }}
+                    >
+                        <SEO 
+                            title="Param-X '26 | Problem Statements" 
+                            description="Explore technical challenges for Param-X '26 hackathon. Solve real-world issues across domains like AI, Robotics, and IT."
+                        />
             
             {/* --- HERO SECTION --- */}
             <section className="paramx-hero">
@@ -469,12 +496,15 @@ const ParamX: React.FC = () => {
                 })}
             </div>
 
-            {filteredProblems.length === 0 && (
-                <div className="empty-state">
-                    <Info size={48} />
-                    <h3>No problem statements found matching your criteria.</h3>
-                </div>
+                {filteredProblems.length === 0 && (
+                    <div className="empty-state">
+                        <Info size={48} />
+                        <h3>No problem statements found matching your criteria.</h3>
+                    </div>
+                )}
+            </motion.div>
             )}
+            </AnimatePresence>
         </div>
     );
 };

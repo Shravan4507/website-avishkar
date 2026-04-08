@@ -31,7 +31,7 @@ export const RULES_DATA: Record<string, CompetitionRules> = {
         name: "Param-X '26",
         tagline: 'The Premier Hackathon',
         description:
-            'Param-X is a 10-hour hackathon where participants work on given problem statements or themes. Teams develop solutions end-to-end — from ideation to final presentation — with periodic mentor and judge reviews throughout.',
+            'Param-X is a 10-hour hackathon where participants can choose any topic from any domain for their innovation. Teams develop solutions end-to-end — from ideation to final presentation — with periodic mentor and judge reviews throughout.',
         teamSize: '4 members',
         fee: '₹500 per team',
         duration: '10 hours',
@@ -49,10 +49,10 @@ export const RULES_DATA: Record<string, CompetitionRules> = {
         ],
         procedure: [
             'The hackathon will run continuously for 10 hours.',
-            'Participants will work on given problem statements/themes.',
+            'Participants can choose any topic from any domain.',
             'Periodic mentor/judge reviews may be conducted.',
             'Final evaluation will be based on submitted projects and presentations.',
-            'Problem statements will be provided at the start of the event.',
+            'Any participant can choose any topic from any domain. It is not necessary that students must select topics only from their own domain—for example, IT students are not restricted to choosing only IT-related topics.',
             'Teams must submit their final project before the deadline.',
             'Submission includes: Source code, Project report/description, Presentation or demo.',
             'Late submissions will not be accepted.',
@@ -74,7 +74,7 @@ export const RULES_DATA: Record<string, CompetitionRules> = {
             faculty: ['Wrushabh Sirsat – 9325792405'],
         },
         rulebookPath: `${import.meta.env.BASE_URL}assets/rule-books/param-x.pdf`,
-        rulebookComingSoon: true
+        rulebookComingSoon: false
     },
 
     // ── Standard Competitions ──
@@ -95,7 +95,7 @@ export const RULES_DATA: Record<string, CompetitionRules> = {
             'Internal discussion is allowed, but members are not allowed to interrupt other bidders or the auctioneer.',
             'Each franchise must include exactly 12 players.',
             'Two Wicketkeepers (WK) are compulsory; failure to include them will result in disqualification.',
-            'There is no restriction on the number of overseas players.',
+            'Each franchise can include a maximum of 8 overseas players.',
             'Each franchise begins with a game purse of ₹100 crore (not a real amount).',
             'Budgets cannot be exceeded under any circumstances.',
             'Loans, trades, or refunds are strictly prohibited.',
@@ -670,6 +670,7 @@ export const RULES_DATA: Record<string, CompetitionRules> = {
             second: '₹2,000',
             third: '₹1,000',
         },
+        rulebookPath: `${import.meta.env.BASE_URL}assets/rule-books/circle-cricket.pdf`,
     },
 
     // ── Esports (Battle Grid sub-events) ──
@@ -714,6 +715,8 @@ export const RULES_DATA: Record<string, CompetitionRules> = {
             student: ['Rohit Chavan – 7823056055', 'Shubham Dawre – 7276347743'],
             faculty: ['Prof. R. N. Khandebharad – 8767493661'],
         },
+        rulebookPath: `${import.meta.env.BASE_URL}assets/rule-books/free-fire.pdf`,
+        rulebookComingSoon: false
     },
 
     'codm': {
@@ -753,6 +756,8 @@ export const RULES_DATA: Record<string, CompetitionRules> = {
             student: ['Vaibhav Bandgar – 9730906103'],
             faculty: ['Amol Jadhav – 7020736028'],
         },
+        rulebookPath: `${import.meta.env.BASE_URL}assets/rule-books/call-of-duty.pdf`,
+        rulebookComingSoon: false
     },
 
     'sf4': {
@@ -790,6 +795,8 @@ export const RULES_DATA: Record<string, CompetitionRules> = {
             student: ['Pranav Kulkarni – 9423162724'],
             faculty: ['Amol Jadhav – 7020736028'],
         },
+        rulebookPath: `${import.meta.env.BASE_URL}assets/rule-books/shadow-fight-4.pdf`,
+        rulebookComingSoon: false
     },
 
     // ── Robotics (Robo-Kshetra sub-events) ──
@@ -831,6 +838,8 @@ export const RULES_DATA: Record<string, CompetitionRules> = {
             second: '₹6,000',
             third: '₹3,000',
         },
+        rulebookPath: `${import.meta.env.BASE_URL}assets/rule-books/alignx.pdf`,
+        rulebookComingSoon: false
     },
 
     'roborush': {
@@ -872,6 +881,103 @@ export const RULES_DATA: Record<string, CompetitionRules> = {
             second: '₹6,000',
             third: '₹3,000',
         },
+        rulebookPath: `${import.meta.env.BASE_URL}assets/rule-books/roborush.pdf`,
+        rulebookComingSoon: false
+    },
+
+    'circuit-simulation': {
+        slug: 'circuit-simulation',
+        name: 'Circuit Simulation',
+        tagline: 'Virtual Electronics',
+        description: 'Design and simulate intricate electronic circuits flawlessly. Test your understanding of circuit theory, component behavior, and virtual prototyping.',
+        teamSize: '1–2 members',
+        fee: '₹300',
+        category: 'standard',
+        rules: [
+            'Participants must use only official simulation software provided.',
+            'No external storage devices or pre-written circuits allowed.',
+            'Internet access is strictly prohibited during the simulation.',
+            'All designs must be original and built from scratch.',
+        ],
+        procedure: [
+            'Round 1: Theoretical MCQ on Circuit Identification.',
+            'Round 2: Practical Circuit Building and Troubleshooting.',
+        ],
+        judgingCriteria: [
+            'Circuit accuracy and functionality',
+            'Time taken for simulation',
+            'Optimal component usage',
+        ],
+        prizes: {
+            first: '₹5,000',
+            second: '₹3,000',
+        },
+    },
+
+    'paper-presentation': {
+        slug: 'paper-presentation',
+        name: 'Paper Presentation',
+        tagline: 'Technical Research Showcase',
+        description: 'Showcase your groundbreaking research and technical insights to a panel of expert judges. A premier platform for academic excellence and innovation.',
+        teamSize: '1–2 members',
+        fee: '₹200',
+        category: 'general',
+        rules: [
+            'Papers must be original and not published elsewhere.',
+            'Presentation duration is limited to 10 minutes (8 min talk + 2 min Q&A).',
+            'Soft copy must be submitted in PDF format before the deadline.',
+            'College ID is mandatory for participation.',
+        ],
+        procedure: [
+            'Submission of full paper/abstract.',
+            'Shortlisting of papers for final presentation.',
+            'Live presentation before the judging panel.',
+        ],
+        judgingCriteria: [
+            'Technical depth and research quality',
+            'Clarity and structure of presentation',
+            'Ability to answer Q&A',
+            'Innovation and impact',
+        ],
+        prizes: {
+            first: '₹5,000',
+            second: '₹3,000',
+        },
+        rulebookPath: `${import.meta.env.BASE_URL}assets/rule-books/paper-presentation.pdf`,
+        rulebookComingSoon: false
+    },
+
+    'project-competition': {
+        slug: 'project-competition',
+        name: 'Project Competition',
+        tagline: 'Innovation & Prototype Exhibition',
+        description: 'Demonstrate your engineering prowess by exhibiting your innovative hardware or software prototypes. From concept to reality, show us the future.',
+        teamSize: '1–4 members',
+        fee: '₹200',
+        category: 'general',
+        rules: [
+            'Prototypes must be functional and demonstratable.',
+            'All materials and components must be arranged by the team.',
+            'Safety protocols must be followed for hardware displays.',
+            'Projects must be the original work of the participants.',
+        ],
+        procedure: [
+            'Setup of project stall/booth.',
+            'Demonstration to visitors and judges.',
+            'Final evaluation by the technical committee.',
+        ],
+        judgingCriteria: [
+            'Working prototype efficiency',
+            'Social or technical impact',
+            'Innovation and scalability',
+            'Cost-effectiveness',
+        ],
+        prizes: {
+            first: '₹6,000',
+            second: '₹4,000',
+        },
+        rulebookPath: `${import.meta.env.BASE_URL}assets/rule-books/project-presentation.pdf`,
+        rulebookComingSoon: false
     },
 };
 

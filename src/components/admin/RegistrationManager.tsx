@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import {
-  collection, query, getDocs, orderBy, doc, updateDoc, deleteDoc
+  collection, query, getDocs, orderBy, doc, updateDoc, deleteDoc, where
 } from 'firebase/firestore';
 import { db } from '../../firebase/firebase';
 import { useToast } from '../../components/toast/Toast';
@@ -9,10 +9,12 @@ import * as XLSX from 'xlsx';
 
 import {
   Search, Download, Edit2, Trash2, X, Eye,
-  ChevronUp, ChevronDown, Users, Ticket,
+  ChevronUp, ChevronDown, Users, 
   Copy, Calendar, CreditCard, RotateCcw, 
-  IndianRupee, UserCheck, UserX, User, Mail, Phone
+  UserCheck, UserX, User, Mail, Phone
 } from 'lucide-react';
+
+
 
 import './RegistrationManager.css';
 
@@ -56,12 +58,15 @@ interface Registration {
 
 interface RegistrationManagerProps {
   forcedHandle?: string;
+  eventTitleFilter?: string; // Filter by specific event title (e.g. 'BGMI')
   title?: string;
   subtitle?: string;
+  isSuper?: boolean;
+  collectionScope?: 'registrations' | 'hackathon' | 'both';
 }
 
 /* ─── Component ─── */
-const RegistrationManager: React.FC<RegistrationManagerProps> = ({ forcedHandle, title, subtitle }) => {
+const RegistrationManager: React.FC<RegistrationManagerProps> = ({ forcedHandle, eventTitleFilter, title, subtitle, isSuper, collectionScope = 'both' }) => {
   const toast = useToast();
 
   // Data
@@ -89,9 +94,23 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({ forcedHandle,
     const fetch = async () => {
       setLoading(true);
       try {
+        let regsQuery = query(collection(db, 'registrations'), orderBy('registeredAt', 'desc'));
+        let hackQuery = query(collection(db, 'hackathon_registrations'), orderBy('createdAt', 'desc'));
+
+        if (forcedHandle) {
+          regsQuery = query(regsQuery, where('competitionHandle', '==', forcedHandle));
+          hackQuery = query(hackQuery, where('competitionHandle', '==', forcedHandle));
+        }
+
+        // NOTE: eventTitleFilter is applied CLIENT-SIDE after fetch (see filteredRegistrations)
+        // to avoid needing a 3-field composite index (competitionHandle + eventTitle + registeredAt)
+
+        const shouldFetchRegs = collectionScope === 'both' || collectionScope === 'registrations';
+        const shouldFetchHack = collectionScope === 'both' || collectionScope === 'hackathon';
+
         const [regSnap, hackSnap] = await Promise.all([
-          getDocs(query(collection(db, 'registrations'), orderBy('registeredAt', 'desc'))),
-          getDocs(query(collection(db, 'hackathon_registrations'), orderBy('createdAt', 'desc')))
+          shouldFetchRegs ? getDocs(regsQuery) : Promise.resolve({ docs: [] }),
+          shouldFetchHack ? getDocs(hackQuery) : Promise.resolve({ docs: [] })
         ]);
 
         const standardRegs = regSnap.docs.map(d => {
@@ -185,6 +204,13 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({ forcedHandle,
       result = result.filter(r => r.competitionHandle === forcedHandle);
     }
 
+    if (eventTitleFilter) {
+      result = result.filter(r => {
+        const title = r.eventName || '';
+        return title === eventTitleFilter;
+      });
+    }
+
     if (searchTerm.trim()) {
       const term = searchTerm.toLowerCase();
       result = result.filter(r =>
@@ -218,15 +244,7 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({ forcedHandle,
     return result;
   }, [registrations, searchTerm, filterEvent, filterDept, filterCollege, filterPayment, filterAttendance, sortConfig]);
 
-  /* ────────────────── Revenue Stats ────────────────── */
-  const stats = useMemo(() => {
-    const total = registrations.length;
-    const paid = registrations.filter(r => r.paymentStatus === 'paid' || r.paymentStatus === 'success');
-    const free = registrations.filter(r => r.paymentStatus === 'free' || !r.paymentStatus);
-    const revenue = registrations.reduce((sum, r) => sum + (r.amountPaid || 0), 0);
-    const attended = registrations.filter(r => r.isAttended);
-    return { total, paidCount: paid.length, freeCount: free.length, revenue, attendedCount: attended.length };
-  }, [registrations]);
+
 
   /* ────────────────── Handlers ────────────────── */
   const toggleSort = (key: string) => {
@@ -350,44 +368,7 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({ forcedHandle,
   return (
     <div className="reg-manager">
 
-      {/* ── Revenue Stats ── */}
-      <div className="reg-stats-grid">
-        <div className="reg-stat-card">
-          <div className="reg-stat-icon"><Ticket size={20} /></div>
-          <div className="reg-stat-info">
-            <span className="reg-stat-label">Total Registrations</span>
-            <span className="reg-stat-value">{stats.total}</span>
-          </div>
-        </div>
-        <div className="reg-stat-card revenue">
-          <div className="reg-stat-icon"><IndianRupee size={20} /></div>
-          <div className="reg-stat-info">
-            <span className="reg-stat-label">Total Revenue</span>
-            <span className="reg-stat-value">₹{stats.revenue.toLocaleString('en-IN')}</span>
-          </div>
-        </div>
-        <div className="reg-stat-card paid">
-          <div className="reg-stat-icon"><CreditCard size={20} /></div>
-          <div className="reg-stat-info">
-            <span className="reg-stat-label">Paid</span>
-            <span className="reg-stat-value">{stats.paidCount}</span>
-          </div>
-        </div>
-        <div className="reg-stat-card free">
-          <div className="reg-stat-icon"><Users size={20} /></div>
-          <div className="reg-stat-info">
-            <span className="reg-stat-label">Free</span>
-            <span className="reg-stat-value">{stats.freeCount}</span>
-          </div>
-        </div>
-        <div className="reg-stat-card attendance">
-          <div className="reg-stat-icon"><UserCheck size={20} /></div>
-          <div className="reg-stat-info">
-            <span className="reg-stat-label">Attended</span>
-            <span className="reg-stat-value">{stats.attendedCount}</span>
-          </div>
-        </div>
-      </div>
+
 
       {/* ── Header ── */}
       <div className="registration-manager-header">
@@ -395,12 +376,16 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({ forcedHandle,
           <h1 className="reg-title">{title || 'Registration Manager'}</h1>
           <p className="reg-subtitle">
             {subtitle || (forcedHandle ? `Managing ${forcedHandle} registrations` : 'Consolidated view of all event registrations')}
-            {' • '}
-            {loading ? 'Scanning...' : 
-              filtered.length !== registrations.length 
-              ? <><span className="highlight-count">{filtered.length}</span> of {registrations.length} records</>
-              : <>{registrations.length} total records</>
-            }
+            {isSuper && (
+              <>
+                {' • '}
+                {loading ? 'Scanning...' : 
+                  filtered.length !== registrations.length 
+                  ? <><span className="highlight-count">{filtered.length}</span> of {registrations.length} records</>
+                  : <>{registrations.length} total records</>
+                }
+              </>
+            )}
           </p>
         </div>
         <div className="reg-actions">

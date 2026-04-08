@@ -16,10 +16,10 @@
   min-width: 300px;
   max-width: 420px;
   padding: 14px 18px;
-  border-radius: 12px;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid transparent;
+  border-radius: 7rem;
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border: none !important;
   font-family: 'Ubuntu', sans-serif;
   font-size: 0.9rem;
   color: #fff;
@@ -91,7 +91,7 @@
 .toast-close {
   background: none;
   border: none;
-  color: rgba(255,255,255,0.35);
+  color: rgba(255,255,255,0.85);
   font-size: 0.7rem;
   cursor: pointer;
   padding: 2px 4px;

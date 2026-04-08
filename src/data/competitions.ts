@@ -43,7 +43,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         minTeamSize: 2,
         maxTeamSize: 4,
         rulebook: `${import.meta.env.BASE_URL}assets/rule-books/param-x.pdf`,
-        rulebookComingSoon: true
+        rulebookComingSoon: false
     },
     {
         id: 'robotron--26',
@@ -245,7 +245,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         url: '#',
         slug: 'bridge-nova',
         department: 'Civil Engineering',
-        entryFee: 200,
+        entryFee: 150,
         coordinator: 'Ashish Shinde',
         contactNumber: '9373113736',
         minTeamSize: 2,
@@ -380,6 +380,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         coordinator: 'TBA',
         minTeamSize: 1,
         maxTeamSize: 1,
+        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/paper-presentation.pdf`
     },
     {
         id: 'comp_projectcompetition',
@@ -397,6 +398,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         coordinator: 'TBA',
         minTeamSize: 1,
         maxTeamSize: 1,
+        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/project-presentation.pdf`
     },
 ];
 

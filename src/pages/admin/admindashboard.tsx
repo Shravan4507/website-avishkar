@@ -13,7 +13,8 @@ import NotificationBell from '../../components/notifications/NotificationBell';
 
 import { 
   Users, Ticket, Download, Wrench, Shield,
-  Trash2, Search, Phone, Mail, School, BookOpen, Fingerprint, RefreshCw, IndianRupee, Send, Eye, CheckCircle2, AlertCircle
+  Trash2, Search, Phone, Mail, School, BookOpen, Fingerprint, RefreshCw, IndianRupee, Send, Eye, CheckCircle2, AlertCircle,
+  CreditCard, Gift, UserCheck
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import GlassSelect from '../../components/dropdown/GlassSelect';
@@ -98,9 +99,12 @@ export interface AdminProfile {
 }
 
 interface AdminStats {
-  totalParticipants: number | null;
+  totalUsers: number | null;
   totalRegistrations: number | null;
   totalRevenue: number | null;
+  paidCount: number | null;
+  freeCount: number | null;
+  attendedCount: number | null;
 }
 
 const AdminDashboard: React.FC = () => {
@@ -110,10 +114,13 @@ const AdminDashboard: React.FC = () => {
   const [isSuper, setIsSuper] = useState(false);
   const [adminProfile, setAdminProfile] = useState<AdminProfile | null>(null);
   
-  const [stats, setStats] = useState<AdminStats>({ 
-    totalParticipants: null,
+  const [stats, setStats] = useState<AdminStats>({
+    totalUsers: null,
     totalRegistrations: null,
-    totalRevenue: null
+    totalRevenue: null,
+    paidCount: null,
+    freeCount: null,
+    attendedCount: null
   });
 
 
@@ -236,35 +243,139 @@ const AdminDashboard: React.FC = () => {
     };
     fetchAdminType();
 
-    const fetchStats = async () => {
+    const fetchStats = async (profile?: AdminProfile) => {
       try {
-        const [usersSnap, regsSnap, hackSnap] = await Promise.all([
-          getCountFromServer(collection(db, "user")),
-          getCountFromServer(collection(db, "registrations")),
-          getCountFromServer(collection(db, "hackathon_registrations"))
-        ]);
+        const currentProfile = profile || adminProfile;
+        const isSuperUser = profile ? (profile.type === 'superadmin' || profile.roleLevel.includes('superadmin')) : isSuper;
+        
+        if (isSuperUser) {
+          // Superadmin sees everything
+          const [userSnap, regSnapCount, hackSnapCount] = await Promise.all([
+            getCountFromServer(collection(db, "user")),
+            getCountFromServer(collection(db, "registrations")),
+            getCountFromServer(collection(db, "hackathon_registrations"))
+          ]);
 
-        let revenue = 0;
-        const [regsDocs, hackDocs] = await Promise.all([
-          getDocs(query(collection(db, "registrations"), where("paymentStatus", "in", ["success", "paid"]))),
-          getDocs(query(collection(db, "hackathon_registrations"), where("status", "==", "confirmed")))
-        ]);
-        
-        regsDocs.forEach(d => revenue += (d.data().amountPaid || 0));
-        hackDocs.forEach(d => revenue += (d.data().amountPaid || d.data().amount || 0));
-        
-        setStats({ 
-          totalParticipants: usersSnap.data().count,
-          totalRegistrations: regsSnap.data().count + hackSnap.data().count,
-          totalRevenue: revenue
-        });
+          // Fetch docs for detailed metrics
+          const [regsDocs, hackDocs] = await Promise.all([
+            getDocs(collection(db, "registrations")),
+            getDocs(collection(db, "hackathon_registrations"))
+          ]);
+
+          let revenue = 0;
+          let paid = 0;
+          let free = 0;
+          let attended = 0;
+
+          regsDocs.forEach(d => {
+            const data = d.data();
+            if (data.paymentStatus === 'success' || data.paymentStatus === 'paid') {
+              revenue += (data.amountPaid || 0);
+              paid++;
+            } else if (data.paymentStatus === 'free') {
+              free++;
+            }
+            if (data.isAttended) attended++;
+          });
+
+          hackDocs.forEach(d => {
+            const data = d.data();
+            if (data.status === 'confirmed') {
+              revenue += (data.amountPaid || data.amount || 0);
+              paid++;
+            } else {
+              free++;
+            }
+            if (data.isAttended) attended++;
+          });
+
+          setStats({
+            totalUsers: userSnap.data().count,
+            totalRegistrations: regSnapCount.data().count + hackSnapCount.data().count,
+            totalRevenue: revenue,
+            paidCount: paid,
+            freeCount: free,
+            attendedCount: attended
+          });
+        } else if (currentProfile) {
+          // Regular admin sees restricted stats
+          const roles = currentProfile.roleLevel || [];
+          
+          const roleMapping: Record<string, { handle: string, collection: string, eventTitle?: string }> = {
+            // Flagship — ParamX
+            'admin-param-x': { handle: 'ParamX-Hack', collection: 'hackathon_registrations' },
+            // Flagship — Battle Grid (parent + granular)
+            'admin-battle-grid': { handle: 'Battle-Grid', collection: 'registrations' },
+            'admin-bgmi': { handle: 'Battle-Grid', collection: 'registrations', eventTitle: 'BGMI' },
+            'admin-freefire': { handle: 'Battle-Grid', collection: 'registrations', eventTitle: 'FREE FIRE' },
+            'admin-codm': { handle: 'Battle-Grid', collection: 'registrations', eventTitle: 'CALL OF DUTY (MOBILE)' },
+            'admin-sf4': { handle: 'Battle-Grid', collection: 'registrations', eventTitle: 'SHADOW-FIGHT 4' },
+            'admin-amongus': { handle: 'Battle-Grid', collection: 'registrations', eventTitle: 'AMONG US' },
+            // Flagship — Robo-Kshetra (parent + granular)
+            'admin-robo-kshetra': { handle: 'Robo-Kshetra', collection: 'registrations' },
+            'admin-align-x': { handle: 'Robo-Kshetra', collection: 'registrations', eventTitle: 'ALIGNX' },
+            'admin-robo-maze': { handle: 'Robo-Kshetra', collection: 'registrations', eventTitle: 'ROBOMAZE' },
+            'admin-robo-rush': { handle: 'Robo-Kshetra', collection: 'registrations', eventTitle: 'ROBORUSH' },
+            // Standard Competitions (handles match competitions.ts data file)
+            'admin-forge-x': { handle: 'Forge-Lead', collection: 'registrations' },
+            'admin-algo-bid': { handle: 'Algo-Master', collection: 'registrations' },
+            'admin-code-ladder': { handle: 'Code-Climber', collection: 'registrations' },
+            'admin-ipl-auction': { handle: 'IPL-Auctioneer', collection: 'registrations' },
+            'admin-blind-code': { handle: 'Blind-Coder', collection: 'registrations' },
+            'admin-dev-clash': { handle: 'Dev-Striker', collection: 'registrations' },
+            'admin-vibe-sprint': { handle: 'Vibe-Lead', collection: 'registrations' },
+            'admin-code-relay': { handle: 'Relay-Coder', collection: 'registrations' },
+            'admin-bridge-nova': { handle: 'Arch-Nova', collection: 'registrations' },
+            'admin-poster': { handle: 'Paper-Lead', collection: 'registrations' },
+            'admin-spark-tank': { handle: 'Spark-Lead', collection: 'registrations' },
+            'admin-matlab': { handle: 'Mat-Master', collection: 'registrations' },
+            'admin-circuit-sim': { handle: 'Circuit-Ninja', collection: 'registrations' },
+            'admin-contraptions': { handle: 'Master-Builder', collection: 'registrations' },
+            'admin-circle-cricket': { handle: 'Cricket-Lead', collection: 'registrations' },
+            'admin-paper-pres': { handle: 'Research-Lead', collection: 'registrations' },
+            'admin-project-comp': { handle: 'Project-Master', collection: 'registrations' },
+            // Workshop
+            'workshop-solar-spot': { handle: 'OrbitX-Solar', collection: 'registrations' },
+          };
+
+          let totalRegsCount = 0;
+          const countedHandles = new Set<string>(); // Avoid double-counting same handle
+          for (const role of roles) {
+            const mapping = roleMapping[role];
+            if (mapping && !countedHandles.has(`${mapping.collection}:${mapping.handle}`)) {
+              countedHandles.add(`${mapping.collection}:${mapping.handle}`);
+              // Only filter by competitionHandle — uses existing 2-field index
+              // eventTitle filtering is done client-side in RegistrationManager
+              const q = query(
+                collection(db, mapping.collection), 
+                where('competitionHandle', '==', mapping.handle)
+              );
+
+              const snap = await getCountFromServer(q);
+              totalRegsCount += snap.data().count;
+            }
+          }
+
+          setStats({
+            totalUsers: null,
+            totalRegistrations: totalRegsCount,
+            totalRevenue: null,
+            paidCount: null,
+            freeCount: null,
+            attendedCount: null
+          });
+        }
       } catch (err) {
         console.error("Error fetching stats:", err);
-        setStats({ totalParticipants: 0, totalRegistrations: 0, totalRevenue: 0 });
       }
     };
-    fetchStats();
-  }, [user]);
+
+    if (adminProfile) {
+      fetchStats(adminProfile);
+    } else {
+      fetchStats();
+    }
+  }, [user, adminProfile, isSuper]);
 
 
 
@@ -303,7 +414,7 @@ const AdminDashboard: React.FC = () => {
       if (activeTab === 'support' && supportSubTab === 'bugs' && isSuper) {
         setLoadingBugs(true);
         try {
-          const q = query(collection(db, "bug_reports"), orderBy("timestamp", "desc"));
+          const q = query(collection(db, "bug_reports"), orderBy("createdAt", "desc"));
           const snap = await getDocs(q);
           setBugReports(snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as BugReport)));
         } catch (err) {
@@ -623,41 +734,83 @@ const AdminDashboard: React.FC = () => {
             </div>
 
             <div className="admin-stats-container">
-              <div className="admin-stat-premium">
-                <div className="stat-label-row">
-                  <Users size={20} color="#a78bfa" />
-                  <span>Total Participants</span>
+              {isSuper && (
+                <div className="admin-stat-premium">
+                  <div className="stat-label-row">
+                    <Users size={20} color="#a78bfa" />
+                    <span>Total Users</span>
+                  </div>
+                  {stats.totalUsers === null ? (
+                    <div className="stat-value-big">...</div>
+                  ) : (
+                    <div className="stat-value-big">{stats.totalUsers}</div>
+                  )}
                 </div>
-                {stats.totalParticipants === null ? (
-                  <div className="stat-value-big">...</div>
-                ) : (
-                  <div className="stat-value-big">{stats.totalParticipants}</div>
-                )}
-              </div>
+              )}
 
-              <div className="admin-stat-premium">
-                <div className="stat-label-row">
-                  <Ticket size={20} color="#a78bfa" />
-                  <span>Total Registrations</span>
+                <div className="admin-stat-premium">
+                  <div className="stat-label-row">
+                    <Ticket size={20} color="#a78bfa" />
+                    <span>{isSuper ? 'Total Registrations' : 'Event Registrations'}</span>
+                  </div>
+                  {stats.totalRegistrations === null ? (
+                    <div className="stat-value-big">...</div>
+                  ) : (
+                    <div className="stat-value-big">{stats.totalRegistrations}</div>
+                  )}
                 </div>
-                {stats.totalRegistrations === null ? (
-                  <div className="stat-value-big">...</div>
-                ) : (
-                  <div className="stat-value-big">{stats.totalRegistrations}</div>
-                )}
-              </div>
 
-              <div className="admin-stat-premium">
-                <div className="stat-label-row">
-                  <IndianRupee size={20} color="#a78bfa" />
-                  <span>Total Revenue</span>
-                </div>
-                {stats.totalRevenue === null ? (
-                  <div className="stat-value-big">...</div>
-                ) : (
-                  <div className="stat-value-big">₹{stats.totalRevenue.toLocaleString()}</div>
-                )}
-              </div>
+              {isSuper && (
+                <>
+                  <div className="admin-stat-premium">
+                    <div className="stat-label-row">
+                      <IndianRupee size={20} color="#a78bfa" />
+                      <span>Total Revenue</span>
+                    </div>
+                    {stats.totalRevenue === null ? (
+                      <div className="stat-value-big">...</div>
+                    ) : (
+                      <div className="stat-value-big">₹ {stats.totalRevenue.toLocaleString()}</div>
+                    )}
+                  </div>
+                  
+                  <div className="admin-stat-premium">
+                    <div className="stat-label-row">
+                      <CreditCard size={20} color="#10b981" />
+                      <span>Paid</span>
+                    </div>
+                    {stats.paidCount === null ? (
+                      <div className="stat-value-big">...</div>
+                    ) : (
+                      <div className="stat-value-big">{stats.paidCount}</div>
+                    )}
+                  </div>
+
+                  <div className="admin-stat-premium">
+                    <div className="stat-label-row">
+                      <Gift size={20} color="#3b82f6" />
+                      <span>Free</span>
+                    </div>
+                    {stats.freeCount === null ? (
+                      <div className="stat-value-big">...</div>
+                    ) : (
+                      <div className="stat-value-big">{stats.freeCount}</div>
+                    )}
+                  </div>
+
+                  <div className="admin-stat-premium">
+                    <div className="stat-label-row">
+                      <UserCheck size={20} color="#8b5cf6" />
+                      <span>Attended</span>
+                    </div>
+                    {stats.attendedCount === null ? (
+                      <div className="stat-value-big">...</div>
+                    ) : (
+                      <div className="stat-value-big">{stats.attendedCount}</div>
+                    )}
+                  </div>
+                </>
+              )}
             </div>
             
             {isSuper && (
@@ -1027,7 +1180,7 @@ const AdminDashboard: React.FC = () => {
           </div>
         );
       case 'registrations':
-        return <RegistrationManager />;
+        return <RegistrationManager key="all-registrations" isSuper={isSuper} />;
       case 'search':
         return isSuper ? <GlobalSearchView /> : <div>Access Denied</div>;
       case 'admins':
@@ -1035,55 +1188,190 @@ const AdminDashboard: React.FC = () => {
       case 'hackathon_regs':
         return (isSuper || adminProfile?.roleLevel.includes('admin-param-x') || adminProfile?.roleLevel.includes('flagship_admin-paramx--26')) 
           ? <RegistrationManager 
+              key="paramx-hack"
+              isSuper={isSuper}
               forcedHandle="ParamX-Hack" 
+              collectionScope="hackathon"
               title="Param-X '26 Registrations" 
               subtitle="Managing all hackathon team registrations" 
             /> 
           : <div>Access Denied</div>;
-      case 'battlegrid_regs':
-        return (isSuper || adminProfile?.roleLevel.includes('admin-battle-grid'))
+      case 'bgmi_regs':
+        return (isSuper || adminProfile?.roleLevel.some(r => ['admin-battle-grid', 'admin-bgmi'].includes(r)))
           ? <RegistrationManager 
+              key="bgmi"
+              isSuper={isSuper}
               forcedHandle="Battle-Grid" 
-              title="Battle Grid '26 Registrations" 
-              subtitle="Managing all E-sports arena registrations" 
+              collectionScope="registrations"
+              eventTitleFilter="BGMI"
+              title="BGMI Registrations" 
+              subtitle="Managing BGMI arena entries" 
             />
           : <div>Access Denied</div>;
-      case 'robokshetra_regs':
-        return (isSuper || adminProfile?.roleLevel.includes('admin-robo-kshetra'))
+      case 'freefire_regs':
+        return (isSuper || adminProfile?.roleLevel.some(r => ['admin-battle-grid', 'admin-freefire', 'admin-free-fire'].includes(r)))
           ? <RegistrationManager 
-              forcedHandle="Robo-Kshetra" 
-              title="Robo-Kshetra '26 Registrations" 
-              subtitle="Managing all flagship robo-war registrations" 
+              key="freefire"
+              isSuper={isSuper}
+              forcedHandle="Battle-Grid" 
+              collectionScope="registrations"
+              eventTitleFilter="FREE FIRE"
+              title="Free Fire Registrations" 
+              subtitle="Managing Free Fire arena entries" 
             />
           : <div>Access Denied</div>;
+      case 'codm_regs':
+        return (isSuper || adminProfile?.roleLevel.some(r => ['admin-battle-grid', 'admin-codm'].includes(r)))
+          ? <RegistrationManager 
+              key="codm"
+              isSuper={isSuper}
+              forcedHandle="Battle-Grid" 
+              collectionScope="registrations"
+              eventTitleFilter="CALL OF DUTY (MOBILE)"
+              title="COD Mobile Registrations" 
+              subtitle="Managing Call of Duty Mobile arena entries" 
+            />
+          : <div>Access Denied</div>;
+      case 'sf4_regs':
+        return (isSuper || adminProfile?.roleLevel.some(r => ['admin-battle-grid', 'admin-sf4', 'admin-shadow-fight-4'].includes(r)))
+          ? <RegistrationManager 
+              key="sf4"
+              isSuper={isSuper}
+              forcedHandle="Battle-Grid" 
+              collectionScope="registrations"
+              eventTitleFilter="SHADOW-FIGHT 4"
+              title="Shadow Fight 4 Registrations" 
+              subtitle="Managing Shadow Fight 4 arena entries" 
+            />
+          : <div>Access Denied</div>;
+      case 'amongus_regs':
+        return (isSuper || adminProfile?.roleLevel.some(r => ['admin-battle-grid', 'admin-amongus'].includes(r)))
+          ? <RegistrationManager 
+              key="amongus"
+              isSuper={isSuper}
+              forcedHandle="Battle-Grid" 
+              collectionScope="registrations"
+              eventTitleFilter="AMONG US"
+              title="Among Us Registrations" 
+              subtitle="Managing Among Us arena entries" 
+            />
+          : <div>Access Denied</div>;
+      // Robo-Kshetra individual events
+      case 'alignx_regs':
+        return (isSuper || adminProfile?.roleLevel.some(r => ['admin-robo-kshetra', 'admin-align-x'].includes(r)))
+          ? <RegistrationManager 
+              key="alignx"
+              isSuper={isSuper}
+              forcedHandle="Robo-Kshetra" 
+              collectionScope="registrations"
+              eventTitleFilter="ALIGNX"
+              title="AlignX Registrations" 
+              subtitle="Managing line-following robot competition entries" 
+            />
+          : <div>Access Denied</div>;
+      case 'robomaze_regs':
+        return (isSuper || adminProfile?.roleLevel.some(r => ['admin-robo-kshetra', 'admin-robo-maze'].includes(r)))
+          ? <RegistrationManager 
+              key="robomaze"
+              isSuper={isSuper}
+              forcedHandle="Robo-Kshetra" 
+              collectionScope="registrations"
+              eventTitleFilter="ROBOMAZE"
+              title="RoboMaze Registrations" 
+              subtitle="Managing maze solver robot competition entries" 
+            />
+          : <div>Access Denied</div>;
+      case 'roborush_regs':
+        return (isSuper || adminProfile?.roleLevel.some(r => ['admin-robo-kshetra', 'admin-robo-rush'].includes(r)))
+          ? <RegistrationManager 
+              key="roborush"
+              isSuper={isSuper}
+              forcedHandle="Robo-Kshetra" 
+              collectionScope="registrations"
+              eventTitleFilter="ROBORUSH"
+              title="RoboRush Registrations" 
+              subtitle="Managing obstacle course robot competition entries" 
+            />
+          : <div>Access Denied</div>;
+
+      // Standard Competitions (handles from competitions.ts data file)
       case 'forgex_regs':
         return (isSuper || adminProfile?.roleLevel.includes('admin-forge-x'))
-          ? <RegistrationManager 
-              forcedHandle="Forge-X" 
-              title="Forge-X '26 Registrations" 
-              subtitle="Managing all product design competition registrations" 
-            />
+          ? <RegistrationManager key="forge-x" isSuper={isSuper} forcedHandle="Forge-Lead" collectionScope="registrations" title="Forge-X Registrations" subtitle="Managing build competition registrations" />
           : <div>Access Denied</div>;
       case 'algobid_regs':
         return (isSuper || adminProfile?.roleLevel.includes('admin-algo-bid'))
-          ? <RegistrationManager 
-              forcedHandle="Algo-Bid" 
-              title="Algo-Bid '26 Registrations" 
-              subtitle="Managing all algorithm optimization registrations" 
-            />
+          ? <RegistrationManager key="algo-bid" isSuper={isSuper} forcedHandle="Algo-Master" collectionScope="registrations" title="AlgoBid Registrations" subtitle="Managing algorithm auction registrations" />
           : <div>Access Denied</div>;
       case 'codeladder_regs':
         return (isSuper || adminProfile?.roleLevel.includes('admin-code-ladder'))
-          ? <RegistrationManager 
-              forcedHandle="Code-Ladder" 
-              title="Code-Ladder '26 Registrations" 
-              subtitle="Managing all competitive programming registrations" 
-            />
+          ? <RegistrationManager key="code-ladder" isSuper={isSuper} forcedHandle="Code-Climber" collectionScope="registrations" title="Code Ladder Registrations" subtitle="Managing coding ladder registrations" />
           : <div>Access Denied</div>;
+      case 'iplauction_regs':
+        return (isSuper || adminProfile?.roleLevel.includes('admin-ipl-auction'))
+          ? <RegistrationManager key="ipl-auction" isSuper={isSuper} forcedHandle="IPL-Auctioneer" collectionScope="registrations" title="IPL Auction Registrations" subtitle="Managing IPL auction registrations" />
+          : <div>Access Denied</div>;
+      case 'blindcode_regs':
+        return (isSuper || adminProfile?.roleLevel.includes('admin-blind-code'))
+          ? <RegistrationManager key="blind-code" isSuper={isSuper} forcedHandle="Blind-Coder" collectionScope="registrations" title="Blind Code Registrations" subtitle="Managing blind coding registrations" />
+          : <div>Access Denied</div>;
+      case 'devclash_regs':
+        return (isSuper || adminProfile?.roleLevel.includes('admin-dev-clash'))
+          ? <RegistrationManager key="dev-clash" isSuper={isSuper} forcedHandle="Dev-Striker" collectionScope="registrations" title="DevClash Registrations" subtitle="Managing AI hackathon registrations" />
+          : <div>Access Denied</div>;
+      case 'vibesprint_regs':
+        return (isSuper || adminProfile?.roleLevel.includes('admin-vibe-sprint'))
+          ? <RegistrationManager key="vibe-sprint" isSuper={isSuper} forcedHandle="Vibe-Lead" collectionScope="registrations" title="Vibe Sprint Registrations" subtitle="Managing vibe coding registrations" />
+          : <div>Access Denied</div>;
+      case 'coderelay_regs':
+        return (isSuper || adminProfile?.roleLevel.includes('admin-code-relay'))
+          ? <RegistrationManager key="code-relay" isSuper={isSuper} forcedHandle="Relay-Coder" collectionScope="registrations" title="Code Relay Registrations" subtitle="Managing relay coding registrations" />
+          : <div>Access Denied</div>;
+      case 'bridgenova_regs':
+        return (isSuper || adminProfile?.roleLevel.includes('admin-bridge-nova'))
+          ? <RegistrationManager key="bridge-nova" isSuper={isSuper} forcedHandle="Arch-Nova" collectionScope="registrations" title="Bridge Nova Registrations" subtitle="Managing bridge building registrations" />
+          : <div>Access Denied</div>;
+      case 'poster_regs':
+        return (isSuper || adminProfile?.roleLevel.includes('admin-poster'))
+          ? <RegistrationManager key="poster" isSuper={isSuper} forcedHandle="Paper-Lead" collectionScope="registrations" title="Poster Presentation Registrations" subtitle="Managing poster presentation registrations" />
+          : <div>Access Denied</div>;
+      case 'sparktank_regs':
+        return (isSuper || adminProfile?.roleLevel.includes('admin-spark-tank'))
+          ? <RegistrationManager key="spark-tank" isSuper={isSuper} forcedHandle="Spark-Lead" collectionScope="registrations" title="Spark Tank Registrations" subtitle="Managing Spark Tank registrations" />
+          : <div>Access Denied</div>;
+      case 'matlab_regs':
+        return (isSuper || adminProfile?.roleLevel.includes('admin-matlab'))
+          ? <RegistrationManager key="matlab" isSuper={isSuper} forcedHandle="Mat-Master" collectionScope="registrations" title="Matlab Madness Registrations" subtitle="Managing Matlab competition registrations" />
+          : <div>Access Denied</div>;
+      case 'circuitsim_regs':
+        return (isSuper || adminProfile?.roleLevel.includes('admin-circuit-sim'))
+          ? <RegistrationManager key="circuit-sim" isSuper={isSuper} forcedHandle="Circuit-Ninja" collectionScope="registrations" title="Circuit Simulation Registrations" subtitle="Managing circuit simulation registrations" />
+          : <div>Access Denied</div>;
+      case 'contraption_regs':
+        return (isSuper || adminProfile?.roleLevel.includes('admin-contraptions'))
+          ? <RegistrationManager key="contraptions" isSuper={isSuper} forcedHandle="Master-Builder" collectionScope="registrations" title="Contraptions Registrations" subtitle="Managing contraptions challenge registrations" />
+          : <div>Access Denied</div>;
+      case 'cricket_regs':
+        return (isSuper || adminProfile?.roleLevel.includes('admin-circle-cricket'))
+          ? <RegistrationManager key="circle-cricket" isSuper={isSuper} forcedHandle="Cricket-Lead" collectionScope="registrations" title="Circle Cricket Registrations" subtitle="Managing circle cricket registrations" />
+          : <div>Access Denied</div>;
+      case 'paper_regs':
+        return (isSuper || adminProfile?.roleLevel.includes('admin-paper-pres'))
+          ? <RegistrationManager key="paper-pres" isSuper={isSuper} forcedHandle="Research-Lead" collectionScope="registrations" title="Paper Presentation Registrations" subtitle="Managing paper presentation registrations" />
+          : <div>Access Denied</div>;
+      case 'project_regs':
+        return (isSuper || adminProfile?.roleLevel.includes('admin-project-comp'))
+          ? <RegistrationManager key="project-comp" isSuper={isSuper} forcedHandle="Project-Master" collectionScope="registrations" title="Project Competition Registrations" subtitle="Managing project competition registrations" />
+          : <div>Access Denied</div>;
+
+      // Workshop
       case 'orbitx_regs':
         return (isSuper || adminProfile?.roleLevel.includes('workshop-solar-spot'))
           ? <RegistrationManager 
+              key="orbitx-solar"
+              isSuper={isSuper}
               forcedHandle="OrbitX-Solar" 
+              collectionScope="registrations"
               title="Solar Spot Observation Registrations" 
               subtitle="Managing OrbitX club workshop and observation slots" 
             />

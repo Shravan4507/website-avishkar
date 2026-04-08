@@ -45,7 +45,7 @@
 .hero__title {
   display: block;
   width: 100%;
-  max-width: 75rem;
+  max-width: 65rem;
   height: auto;
   object-fit: contain;
   filter: drop-shadow(0 15px 45px rgba(0, 0, 0, 0.5));

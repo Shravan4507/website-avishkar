@@ -1,0 +1,104 @@
+.glass-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 99999;
+    background: #000;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.glass-panel {
+    position: relative;
+    flex: 1;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.panel-blur {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    z-index: 1;
+}
+
+.panel-content {
+    position: relative;
+    z-index: 2;
+    color: #fff;
+    text-align: center;
+}
+
+.top-panel {
+    align-items: flex-end;
+    padding-bottom: 20px;
+}
+
+.bottom-panel {
+    align-items: flex-start;
+    padding-top: 20px;
+}
+
+.top-panel h2 {
+    font-family: 'Iceland', sans-serif;
+    font-size: 5rem;
+    letter-spacing: 20px;
+    margin: 0;
+    font-weight: 400;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+}
+
+.horizontal-divider {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+    z-index: 10;
+    transform: translateY(-50%);
+}
+
+.status-indicator {
+    font-family: 'Iceland', sans-serif;
+    font-size: 0.9rem;
+    letter-spacing: 5px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    opacity: 0.6;
+}
+
+.pulse-dot {
+    width: 8px;
+    height: 8px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #fff;
+    animation: simple-pulse 2s infinite;
+}
+
+@keyframes simple-pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.5); opacity: 0.4; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+@media (max-width: 768px) {
+    .top-panel h2 {
+        font-size: 3rem;
+        letter-spacing: 10px;
+    }
+}

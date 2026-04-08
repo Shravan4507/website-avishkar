@@ -105,11 +105,14 @@ const LayoutManager = () => {
     return <PageSkeleton />;
   };
 
+  const isParamX = location.pathname.startsWith('/param-x');
+  const grainientColor2 = isParamX ? "#110057" : "#5227ff";
+
   return (
     <>
       {!lowSpec && (
         <SplashCursor 
-          SPLASH_COLORS={['#5227ff', '#000000', '#201d20']} 
+          SPLASH_COLORS={[isParamX ? '#110057' : '#5227ff', '#000000', '#201d20']} 
           DENSITY_DISSIPATION={4.5}
           SPLAT_RADIUS={0.15}
           SPLAT_FORCE={3000}
@@ -118,7 +121,7 @@ const LayoutManager = () => {
       <div className="background-fixed">
         <Grainient
           color1="#000000"
-          color2="#5227ff"
+          color2={grainientColor2}
           color3="#201d20"
           timeSpeed={0.25}
           colorBalance={0}

@@ -3,69 +3,7 @@
    Dark glassmorphism aesthetic
    ═══════════════════════════════════════════════ */
 
-/* ── Stats Grid ── */
-.reg-stats-grid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 12px;
-  margin-bottom: 24px;
-}
 
-.reg-stat-card {
-  background: rgba(0, 0, 0, 0.65);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
-  padding: 16px 18px;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  transition: all 0.25s ease;
-}
-
-.reg-stat-card:hover {
-  background: rgba(0, 0, 0, 0.85);
-  border-color: rgba(167, 139, 250, 0.25);
-}
-
-.reg-stat-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(167, 139, 250, 0.1);
-  color: #a78bfa;
-  flex-shrink: 0;
-}
-
-.reg-stat-card.revenue .reg-stat-icon { background: rgba(16, 185, 129, 0.1); color: #10b981; }
-.reg-stat-card.paid .reg-stat-icon { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
-.reg-stat-card.free .reg-stat-icon { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
-.reg-stat-card.attendance .reg-stat-icon { background: rgba(236, 72, 153, 0.1); color: #ec4899; }
-
-.reg-stat-info {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
-.reg-stat-label {
-  font-size: 0.7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  color: rgba(255, 255, 255, 0.4);
-  white-space: nowrap;
-}
-
-.reg-stat-value {
-  font-size: 1.5rem;
-  font-family: 'Iceland', sans-serif;
-  color: #fff;
-  line-height: 1.1;
-}
 
 /* ── Header ── */
 .registration-manager-header {

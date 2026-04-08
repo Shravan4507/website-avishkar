@@ -27,28 +27,62 @@ service cloud.firestore {
     }
 
     // Check for Superadmin or Core Registration Team
+    function isSuper() {
+      return isAdmin() && (
+        getAdminData().get('type', '') == 'superadmin' || 
+        getAdminData().get('roleLevel', []) == 'superadmin' || 
+        (getAdminData().get('roleLevel', []) is list && getAdminData().get('roleLevel', []).hasAny(['superadmin']))
+      );
+    }
+
     function isCoreAdmin() {
-      let admin = getAdminData();
-      let roles = admin.get('roleLevel', []);
-      return roles == 'superadmin' || 
-             (roles is list && roles.hasAny(['superadmin'])) || 
-             admin.get('type', '') == 'superadmin' ||
-             admin.get('assignment', '') == 'Registration Team';
+      return isSuper() || (isAdmin() && getAdminData().get('assignment', '') == 'Registration Team');
     }
 
-    // Check if user is a department admin for a specific department
-    function isDeptAdmin(dept) {
-      let admin = getAdminData();
-      let roles = admin.get('roleLevel', []);
-      return (roles == 'department_admin' || (roles is list && roles.hasAny(['department_admin']))) && 
-             admin.get('assignment', '') == dept;
+    function hasRole(role) {
+      return isAdmin() && (
+        getAdminData().get('roleLevel', []) == role || 
+        (getAdminData().get('roleLevel', []) is list && getAdminData().get('roleLevel', []).hasAny([role]))
+      );
     }
 
-    function isCompAdmin(eventName) {
-      let admin = getAdminData();
-      let roles = admin.get('roleLevel', []);
-      return (roles == 'competition_admin' || (roles is list && roles.hasAny(['competition_admin']))) && 
-             admin.get('assignment', '') == eventName;
+    // Check if an admin is authorized for a specific registration document
+    function isAuthorizedFor(data) {
+      return isSuper() || 
+             // Flagship — ParamX
+             (hasRole('admin-param-x') && data.get('competitionHandle', '') == 'ParamX-Hack') ||
+             // Flagship — Battle Grid (parent + granular)
+             (hasRole('admin-battle-grid') && data.get('competitionHandle', '') == 'Battle-Grid') ||
+             (hasRole('admin-bgmi') && data.get('eventTitle', '') == 'BGMI') ||
+             (hasRole('admin-freefire') && data.get('eventTitle', '') == 'FREE FIRE') ||
+             (hasRole('admin-codm') && data.get('eventTitle', '') == 'CALL OF DUTY (MOBILE)') ||
+             (hasRole('admin-sf4') && data.get('eventTitle', '') == 'SHADOW-FIGHT 4') ||
+             (hasRole('admin-amongus') && data.get('eventTitle', '') == 'AMONG US') ||
+             // Flagship — Robo-Kshetra (parent + granular)
+             (hasRole('admin-robo-kshetra') && data.get('competitionHandle', '') == 'Robo-Kshetra') ||
+             (hasRole('admin-align-x') && data.get('eventTitle', '') == 'ALIGNX') ||
+             (hasRole('admin-robo-maze') && data.get('eventTitle', '') == 'ROBOMAZE') ||
+             (hasRole('admin-robo-rush') && data.get('eventTitle', '') == 'ROBORUSH') ||
+             // Standard Competitions (handles match competitions.ts)
+             (hasRole('admin-forge-x') && data.get('competitionHandle', '') == 'Forge-Lead') ||
+             (hasRole('admin-algo-bid') && data.get('competitionHandle', '') == 'Algo-Master') ||
+             (hasRole('admin-code-ladder') && data.get('competitionHandle', '') == 'Code-Climber') ||
+             (hasRole('admin-ipl-auction') && data.get('competitionHandle', '') == 'IPL-Auctioneer') ||
+             (hasRole('admin-blind-code') && data.get('competitionHandle', '') == 'Blind-Coder') ||
+             (hasRole('admin-dev-clash') && data.get('competitionHandle', '') == 'Dev-Striker') ||
+             (hasRole('admin-vibe-sprint') && data.get('competitionHandle', '') == 'Vibe-Lead') ||
+             (hasRole('admin-code-relay') && data.get('competitionHandle', '') == 'Relay-Coder') ||
+             (hasRole('admin-bridge-nova') && data.get('competitionHandle', '') == 'Arch-Nova') ||
+             (hasRole('admin-poster') && data.get('competitionHandle', '') == 'Paper-Lead') ||
+             (hasRole('admin-spark-tank') && data.get('competitionHandle', '') == 'Spark-Lead') ||
+             (hasRole('admin-matlab') && data.get('competitionHandle', '') == 'Mat-Master') ||
+             (hasRole('admin-circuit-sim') && data.get('competitionHandle', '') == 'Circuit-Ninja') ||
+             (hasRole('admin-contraptions') && data.get('competitionHandle', '') == 'Master-Builder') ||
+             (hasRole('admin-circle-cricket') && data.get('competitionHandle', '') == 'Cricket-Lead') ||
+             (hasRole('admin-paper-pres') && data.get('competitionHandle', '') == 'Research-Lead') ||
+             (hasRole('admin-project-comp') && data.get('competitionHandle', '') == 'Project-Master') ||
+             // Workshop
+             (hasRole('workshop-solar-spot') && (data.get('competitionHandle', '') == 'OrbitX-Solar' || data.get('eventTitle', '') == 'Solar Spot Observation'));
     }
 
     // Check if user is a volunteer with a scanner role
@@ -110,22 +144,20 @@ service cloud.firestore {
       // Any authenticated user can create a registration (for themselves)
       allow create: if isAuth();
 
-      // Get access: any authenticated user can read a specific registration doc
-      // (needed for existence checks during registration flow — non-existent docs
-      //  cause permission errors when rules reference resource.data)
-      allow get: if isAuth();
+      // Read access: owner or authorized admin (per-document check)
+      allow get: if isAuth() && (request.auth.uid == resource.data.userId || (isAdmin() && isAuthorizedFor(resource.data)));
 
-      // List access for admin dashboards and registration guard queries
+      // List access: authenticated users can list (needed for registration guard checks);
+      // Admins use client-side WHERE clauses to scope data for their dashboard
       allow list: if isAuth();
 
-      // Update: any admin can update registrations (attendance, status, edits)
-      // Volunteers can only mark attendance
-      allow update: if (isAuth() && isAdmin()) ||
+      // Update: authorized admins or superadmins. Volunteers only attendance.
+      allow update: if (isAuth() && isAdmin() && isAuthorizedFor(resource.data)) ||
                        (isVolunteer() && 
                         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isAttended', 'scannedAt']));
 
-      // Delete: only core admins (superadmin / registration team) can delete
-      allow delete: if isAuth() && isAdmin();
+      // Delete: only superadmins
+      allow delete: if isSuper();
     }
 
     // =============================================
@@ -135,20 +167,19 @@ service cloud.firestore {
       // Any authenticated user can create a hackathon registration
       allow create: if isAuth();
 
-      // Get: any authenticated user can read a specific hackathon registration doc
-      allow get: if isAuth();
+      // Get: per-document authorization check
+      allow get: if isAuth() && (isSuper() || (isAdmin() && isAuthorizedFor(resource.data)));
 
-      // List: auth users can query (needed for registration guard & dashboard lookups)
+      // List: authenticated users can list (needed for registration guard checks)
       allow list: if isAuth();
 
-      // Update: any admin can update hackathon registrations
-      // Volunteers can only mark attendance
-      allow update: if (isAuth() && isAdmin()) ||
+      // Update: authorized admins or superadmins. Volunteers only attendance.
+      allow update: if (isAuth() && isAdmin() && isAuthorizedFor(resource.data)) ||
                        (isVolunteer() && 
                         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isAttended', 'scannedAt']));
 
-      // Delete: admins can delete hackathon registrations
-      allow delete: if isAuth() && isAdmin();
+      // Delete: only superadmins
+      allow delete: if isSuper();
     }
 
     // =============================================
@@ -213,6 +244,17 @@ service cloud.firestore {
 
       // Only core admins can create/manage notifications
       allow write: if isAuth() && isCoreAdmin();
+    }
+
+    // =============================================
+    // CONTACT QUERIES
+    // =============================================
+    match /contact_queries/{queryId} {
+      // Anyone can submit a contact form (public form, no auth required)
+      allow create: if true;
+
+      // Only core admins can read/manage contact queries
+      allow read, update, delete: if isAuth() && isCoreAdmin();
     }
 
     // Bug Reports
