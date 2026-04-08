@@ -116,8 +116,8 @@
 /* --- Stats Grid --- */
 .admin-stats-container {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1rem;
 }
 
 .admin-stat-premium {
@@ -428,18 +428,21 @@
         height: auto !important;
         flex-direction: row !important;
         position: sticky !important;
-        top: 80px !important;
-        padding: 0.75rem !important;
-        border-radius: 1.5rem !important;
+        top: 70px !important;
+        padding: 0.5rem 0.75rem !important;
+        border-radius: 1.25rem !important;
         overflow-x: auto !important;
         overflow-y: hidden !important;
         z-index: 100 !important;
-        margin-bottom: 0.5rem;
-        background: rgba(10, 10, 15, 0.8) !important;
+        margin-bottom: 1rem;
+        background: rgba(10, 10, 15, 0.95) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+        align-items: center !important;
+        gap: 0.5rem !important;
     }
 
     .admin-sidebar .sidebar-header, 
-    .admin-sidebar .sidebar-footer, 
     .admin-sidebar .sidebar-divider, 
     .admin-sidebar .sidebar-btn span {
         display: none !important;
@@ -447,18 +450,27 @@
 
     .admin-sidebar .sidebar-nav {
         flex-direction: row !important;
-        gap: 0.5rem !important;
-        padding: 0 !important;
+        gap: 0.4rem !important;
+        overflow-x: visible !important; /* Let parent handle scroll */
+        display: flex !important;
         flex: 0 0 auto !important;
     }
 
     .admin-sidebar .sidebar-btn {
-        width: 44px !important;
-        height: 44px !important;
-        padding: 0 !important;
+        padding: 0.6rem !important;
+        width: 42px !important;
+        height: 42px !important;
         justify-content: center !important;
-        margin-bottom: 0 !important;
         flex-shrink: 0 !important;
+        margin-bottom: 0 !important;
+    }
+
+    .admin-sidebar .sidebar-footer {
+        margin-left: auto;
+        padding: 0 !important;
+        border-top: none !important;
+        display: flex !important;
+        align-items: center;
     }
 
     .admin-sidebar .logout-btn {
@@ -466,16 +478,21 @@
         height: 44px !important;
         padding: 0 !important;
         justify-content: center !important;
-        margin-left: auto;
         border-radius: 12px !important;
+        background: rgba(255, 68, 68, 0.1) !important;
+        color: #ff4444 !important;
+    }
+
+    .admin-sidebar .logout-btn span {
+        display: none !important;
     }
 
     .admin-header-card {
         flex-direction: column;
         text-align: center;
-        gap: 2rem;
-        padding: 2.5rem 1.5rem;
-        border-radius: 2.5rem;
+        gap: 1.5rem;
+        padding: 1.5rem;
+        border-radius: 1.5rem;
     }
 
     .admin-profile-flex {
@@ -484,12 +501,12 @@
     }
 
     .admin-welcome-text {
-        font-size: 2.5rem;
+        font-size: 2rem;
     }
 
     .admin-tab-section {
-        padding: 2rem 1.5rem !important;
-        border-radius: 2.5rem !important;
+        padding: 1.25rem !important;
+        border-radius: 1.5rem !important;
     }
 }
 
@@ -526,8 +543,19 @@
     }
 
     .admin-data-table th, .admin-data-table td {
-        padding: 1rem;
-        font-size: 0.85rem;
+        padding: 0.75rem 0.5rem;
+        font-size: 0.8rem;
+    }
+
+    .admin-search-container input {
+        padding: 0.75rem 1rem 0.75rem 2.75rem !important;
+        font-size: 0.9rem !important;
+    }
+
+    .admin-filter-select {
+        padding: 0.75rem 1rem !important;
+        font-size: 0.9rem !important;
+        width: 100% !important;
     }
 
     .filter-bar {

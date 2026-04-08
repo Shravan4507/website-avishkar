@@ -1,5 +1,5 @@
 import React from 'react';
-import { BarChart2, Users, LogOut, Ticket, Shield, Search, Sparkles, Mail } from 'lucide-react';
+import { BarChart2, Users, LogOut, Ticket, Shield, Search, Sparkles, Mail, Gamepad2, Cpu, Code, FileText } from 'lucide-react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from '../../../firebase/firebase';
 import type { AdminProfile } from '../../../pages/admin/admindashboard';
@@ -39,35 +39,35 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, setActiveTab, is
     { id: 'hackathon_regs', label: 'ParamX Registrations', Icon: Users, visible: isSuper || hasRole('admin-param-x') },
 
     // Flagship — Battle Grid (individual games)
-    { id: 'bgmi_regs',     label: 'BGMI Registrations',          Icon: Ticket, visible: isSuper || hasRole('admin-battle-grid') || hasRole('admin-bgmi') },
-    { id: 'freefire_regs', label: 'Free Fire Registrations',     Icon: Ticket, visible: isSuper || hasRole('admin-battle-grid') || hasRole('admin-freefire') },
-    { id: 'codm_regs',     label: 'COD Mobile Registrations',    Icon: Ticket, visible: isSuper || hasRole('admin-battle-grid') || hasRole('admin-codm') },
-    { id: 'sf4_regs',      label: 'Shadow Fight 4 Registrations', Icon: Ticket, visible: isSuper || hasRole('admin-battle-grid') || hasRole('admin-sf4') },
-    { id: 'amongus_regs',  label: 'Among Us Registrations',      Icon: Ticket, visible: isSuper || hasRole('admin-battle-grid') || hasRole('admin-amongus') },
+    { id: 'bgmi_regs',     label: 'BGMI Registrations',          Icon: Gamepad2, visible: isSuper || hasRole('admin-battle-grid') || hasRole('admin-bgmi') },
+    { id: 'freefire_regs', label: 'Free Fire Registrations',     Icon: Gamepad2, visible: isSuper || hasRole('admin-battle-grid') || hasRole('admin-freefire') },
+    { id: 'codm_regs',     label: 'COD Mobile Registrations',    Icon: Gamepad2, visible: isSuper || hasRole('admin-battle-grid') || hasRole('admin-codm') },
+    { id: 'sf4_regs',      label: 'Shadow Fight 4 Registrations', Icon: Gamepad2, visible: isSuper || hasRole('admin-battle-grid') || hasRole('admin-sf4') },
+    { id: 'amongus_regs',  label: 'Among Us Registrations',      Icon: Gamepad2, visible: isSuper || hasRole('admin-battle-grid') || hasRole('admin-amongus') },
 
     // Flagship — Robo-Kshetra (individual events)
-    { id: 'alignx_regs',    label: 'AlignX Registrations',    Icon: Ticket, visible: isSuper || hasRole('admin-robo-kshetra') || hasRole('admin-align-x') },
-    { id: 'robomaze_regs',  label: 'RoboMaze Registrations',  Icon: Ticket, visible: isSuper || hasRole('admin-robo-kshetra') || hasRole('admin-robo-maze') },
-    { id: 'roborush_regs',  label: 'RoboRush Registrations',  Icon: Ticket, visible: isSuper || hasRole('admin-robo-kshetra') || hasRole('admin-robo-rush') },
+    { id: 'alignx_regs',    label: 'AlignX Registrations',    Icon: Cpu, visible: isSuper || hasRole('admin-robo-kshetra') || hasRole('admin-align-x') },
+    { id: 'robomaze_regs',  label: 'RoboMaze Registrations',  Icon: Cpu, visible: isSuper || hasRole('admin-robo-kshetra') || hasRole('admin-robo-maze') },
+    { id: 'roborush_regs',  label: 'RoboRush Registrations',  Icon: Cpu, visible: isSuper || hasRole('admin-robo-kshetra') || hasRole('admin-robo-rush') },
 
     // Standard Competitions
-    { id: 'forgex_regs',        label: 'Forge-X Registrations',       Icon: Ticket, visible: isSuper || hasRole('admin-forge-x') },
-    { id: 'algobid_regs',       label: 'AlgoBid Registrations',       Icon: Ticket, visible: isSuper || hasRole('admin-algo-bid') },
-    { id: 'codeladder_regs',    label: 'Code Ladder Registrations',   Icon: Ticket, visible: isSuper || hasRole('admin-code-ladder') },
-    { id: 'iplauction_regs',    label: 'IPL Auction Registrations',   Icon: Ticket, visible: isSuper || hasRole('admin-ipl-auction') },
-    { id: 'blindcode_regs',     label: 'Blind Code Registrations',    Icon: Ticket, visible: isSuper || hasRole('admin-blind-code') },
-    { id: 'devclash_regs',      label: 'DevClash Registrations',      Icon: Ticket, visible: isSuper || hasRole('admin-dev-clash') },
-    { id: 'vibesprint_regs',    label: 'Vibe Sprint Registrations',   Icon: Ticket, visible: isSuper || hasRole('admin-vibe-sprint') },
-    { id: 'coderelay_regs',     label: 'Code Relay Registrations',    Icon: Ticket, visible: isSuper || hasRole('admin-code-relay') },
-    { id: 'bridgenova_regs',    label: 'Bridge Nova Registrations',   Icon: Ticket, visible: isSuper || hasRole('admin-bridge-nova') },
-    { id: 'poster_regs',        label: 'Poster Presentation Regs',    Icon: Ticket, visible: isSuper || hasRole('admin-poster') },
-    { id: 'sparktank_regs',     label: 'Spark Tank Registrations',    Icon: Ticket, visible: isSuper || hasRole('admin-spark-tank') },
-    { id: 'matlab_regs',        label: 'Matlab Madness Registrations', Icon: Ticket, visible: isSuper || hasRole('admin-matlab') },
-    { id: 'circuitsim_regs',    label: 'Circuit Sim Registrations',   Icon: Ticket, visible: isSuper || hasRole('admin-circuit-sim') },
-    { id: 'contraption_regs',   label: 'Contraptions Registrations',  Icon: Ticket, visible: isSuper || hasRole('admin-contraptions') },
-    { id: 'cricket_regs',       label: 'Circle Cricket Registrations', Icon: Ticket, visible: isSuper || hasRole('admin-circle-cricket') },
-    { id: 'paper_regs',         label: 'Paper Presentation Regs',     Icon: Ticket, visible: isSuper || hasRole('admin-paper-pres') },
-    { id: 'project_regs',       label: 'Project Competition Regs',    Icon: Ticket, visible: isSuper || hasRole('admin-project-comp') },
+    { id: 'forgex_regs',        label: 'Forge-X Registrations',       Icon: Code, visible: isSuper || hasRole('admin-forge-x') },
+    { id: 'algobid_regs',       label: 'AlgoBid Registrations',       Icon: Code, visible: isSuper || hasRole('admin-algo-bid') },
+    { id: 'codeladder_regs',    label: 'Code Ladder Registrations',   Icon: Code, visible: isSuper || hasRole('admin-code-ladder') },
+    { id: 'iplauction_regs',    label: 'IPL Auction Registrations',   Icon: Users, visible: isSuper || hasRole('admin-ipl-auction') },
+    { id: 'blindcode_regs',     label: 'Blind Code Registrations',    Icon: Code, visible: isSuper || hasRole('admin-blind-code') },
+    { id: 'devclash_regs',      label: 'DevClash Registrations',      Icon: Code, visible: isSuper || hasRole('admin-dev-clash') },
+    { id: 'vibesprint_regs',    label: 'Vibe Sprint Registrations',   Icon: Sparkles, visible: isSuper || hasRole('admin-vibe-sprint') },
+    { id: 'coderelay_regs',     label: 'Code Relay Registrations',    Icon: Code, visible: isSuper || hasRole('admin-code-relay') },
+    { id: 'bridgenova_regs',    label: 'Bridge Nova Registrations',   Icon: Shield, visible: isSuper || hasRole('admin-bridge-nova') },
+    { id: 'poster_regs',        label: 'Poster Presentation Regs',    Icon: FileText, visible: isSuper || hasRole('admin-poster') },
+    { id: 'sparktank_regs',     label: 'Spark Tank Registrations',    Icon: Sparkles, visible: isSuper || hasRole('admin-spark-tank') },
+    { id: 'matlab_regs',        label: 'Matlab Madness Registrations', Icon: Cpu, visible: isSuper || hasRole('admin-matlab') },
+    { id: 'circuitsim_regs',    label: 'Circuit Sim Registrations',   Icon: Cpu, visible: isSuper || hasRole('admin-circuit-sim') },
+    { id: 'contraption_regs',   label: 'Contraptions Registrations',  Icon: Cpu, visible: isSuper || hasRole('admin-contraptions') },
+    { id: 'cricket_regs',       label: 'Circle Cricket Registrations', Icon: Users, visible: isSuper || hasRole('admin-circle-cricket') },
+    { id: 'paper_regs',         label: 'Paper Presentation Regs',     Icon: FileText, visible: isSuper || hasRole('admin-paper-pres') },
+    { id: 'project_regs',       label: 'Project Competition Regs',    Icon: FileText, visible: isSuper || hasRole('admin-project-comp') },
 
     // Workshop
     { id: 'orbitx_regs',   label: 'Solar Spot Registrations', Icon: Sparkles, visible: isSuper || hasRole('workshop-solar-spot') },
