@@ -22,6 +22,8 @@ export interface ChromaItem {
     coordinator?: string;
     contactNumber?: string;
     isFlagship?: boolean;
+    date?: string;
+    ctaText?: string;
     socials?: {
         github?: string;
         linkedin?: string;
@@ -235,6 +237,7 @@ export const ChromaGrid: React.FC<ChromaGridProps> = ({
                     <div className="chroma-img-wrapper">
                         {c.isFlagship && <div className="flagship-badge">Flagship</div>}
                         <img src={c.image} alt={c.title} loading="lazy" />
+                        {c.date && <div className="date-badge">{c.date}</div>}
                         {c.prizePool && <div className="prize-tag">Prize: {c.prizePool}</div>}
                         {c.entryFee && <div className="fee-tag">Fee: ₹{c.entryFee}</div>}
                         {c.comingSoon && <div className="coming-soon-badge">COMING SOON</div>}
@@ -245,6 +248,7 @@ export const ChromaGrid: React.FC<ChromaGridProps> = ({
                         <p className="role">{c.subtitle}</p>
                         {c.description && <div className="desc">{c.description}</div>}
                         {c.location && <span className="location">{c.location}</span>}
+                        {c.ctaText && <span className="card-cta">{c.ctaText} →</span>}
                     </footer>
                 </article>
             ))}

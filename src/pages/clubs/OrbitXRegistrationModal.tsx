@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle, X, ArrowRight, ShieldCheck, CreditCard, Sparkles, Check } from 'lucide-react';
+import { CheckCircle, X, ArrowRight, ShieldCheck, Sparkles, Check } from 'lucide-react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '../../firebase/firebase';
@@ -260,7 +260,7 @@ const OrbitXRegistrationModal: React.FC<OrbitXRegistrationModalProps> = ({ onClo
         {activeStep !== 'success' && (
           <div className="modal-actions">
             <button className="pay-btn" onClick={handlePayNow} disabled={isSubmitting}>
-              PAY ₹{totalPrice} & SECURE SPOT <CreditCard size={20} />
+              PAY ₹{totalPrice} & SECURE SPOT
             </button>
           </div>
         )}

@@ -145,6 +145,24 @@
     white-space: nowrap;
 }
 
+.date-badge {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(217, 255, 0, 0.3);
+    color: #d9ff00;
+    padding: 6px 14px;
+    border-radius: 100px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    z-index: 5;
+}
+
 .modal-coming-soon {
     position: absolute;
     top: 50%;
@@ -188,7 +206,7 @@
 }
 
 .chroma-info .desc {
-    color: rgba(255, 255, 255, 0.45);
+    color: rgba(255, 255, 255, 0.75);
     font-size: 0.8rem;
     line-height: 1.4;
     margin: 8px 0 4px;
@@ -207,6 +225,21 @@
     font-weight: 700;
     margin-top: 4px;
     opacity: 0.8;
+}
+
+.chroma-info .card-cta {
+    color: #d9ff00;
+    font-size: 0.8rem;
+    font-weight: 700;
+    margin-top: 10px;
+    letter-spacing: 1px;
+    opacity: 0.6;
+    transition: opacity 0.3s ease;
+    align-self: flex-end;
+}
+
+.chroma-card:hover .card-cta {
+    opacity: 1;
 }
 
 .chroma-overlay {
@@ -672,6 +705,12 @@
 
     .chroma-info .role {
         font-size: 1rem;
+    }
+
+    .chroma-info .desc {
+        -webkit-line-clamp: unset;
+        line-clamp: unset;
+        display: block;
     }
 
     /* Modal Mobile Fixes */

@@ -208,7 +208,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         slug: 'vibe-sprint',
         department: 'General',
         entryFee: 100,
-        coordinator: 'Chandu',
+        coordinator: 'M Venkat Chandrakat Babu',
         contactNumber: '8788675249',
         minTeamSize: 1,
         maxTeamSize: 1,
@@ -340,8 +340,8 @@ export const COMPETITIONS_DATA: Competition[] = [
         slug: 'contraptions-challenge',
         department: 'General',
         entryFee: 150,
-        coordinator: 'Swapnil Gole & Trupti Doiphode',
-        contactNumber: '7058855414 / 9309206369',
+        coordinator: 'Swapnil Gole',
+        contactNumber: '7058855414',
         minTeamSize: 4,
         maxTeamSize: 4,
         rulebook: `${import.meta.env.BASE_URL}assets/rule-books/contraptions.pdf`
@@ -389,7 +389,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         title: 'Project Competition',
         subtitle: 'Innovation & Prototype Exhibition',
         handle: 'Project-Master',
-        description: 'Demonstrate your engineering prowess by exhibiting your innovative hardware or software prototypes. From concept to reality, show us the future.',
+        description: 'Showcase your practical skills, creativity, and real-world solutions. Present working or conceptual projects — software, hardware, or hybrid. Live demos encouraged, followed by a Q&A round.',
         borderColor: '#10b981',
         gradient: 'linear-gradient(145deg, #10b981, #000)',
         url: '#',
@@ -398,7 +398,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         entryFee: 200,
         coordinator: 'TBA',
         minTeamSize: 1,
-        maxTeamSize: 1,
+        maxTeamSize: 4,
         rulebook: `${import.meta.env.BASE_URL}assets/rule-books/project-presentation.pdf`
     },
 ];

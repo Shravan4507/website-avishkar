@@ -22,7 +22,7 @@ import './BattleGrid.css';
 
 // Game Configurations
 const GAMES = [
-    { id: 'bgmi', label: 'BGMI', tagline: 'Grid-Warrior Mobile (4+1 Squad)', prize: '₹50,000', fee: 500, type: 'TEAM', members: 5, platform: 'Mobile', color: '#ff9800', image: `${import.meta.env.BASE_URL}assets/esports/bgmi.webp` },
+    { id: 'bgmi', label: 'BGMI', tagline: 'Grid-Warrior Mobile (4+1 Squad)', prize: '₹50,000', fee: 500, type: 'TEAM', members: 5, platform: 'Mobile', color: '#ff9800', image: `${import.meta.env.BASE_URL}assets/esports/bgmi.webp`, rulebook: `${import.meta.env.BASE_URL}assets/rule-books/bgmi.pdf`, coordinator: 'Rohit Bayas', contactNumber: '9322708124', coordinator2: 'Omkar Wadekar', contactNumber2: '7378503893' },
     { id: 'freefire', label: 'FREE FIRE', tagline: 'Garena Battle-Royale (4-Player Squad)', prize: '₹6,000', fee: 250, type: 'TEAM', members: 4, platform: 'Mobile', color: '#e91e63', image: `${import.meta.env.BASE_URL}assets/esports/freefire.webp`, rulebook: `${import.meta.env.BASE_URL}assets/rule-books/free-fire.pdf`, coordinator: 'Rohit Chavan', contactNumber: '7823056055' },
     { id: 'codm', label: 'CALL OF DUTY (MOBILE)', tagline: 'Tactical 5v5 Combat', prize: '₹16,000', fee: 400, type: 'TEAM', members: 5, platform: 'Mobile', color: '#4caf50', image: `${import.meta.env.BASE_URL}assets/esports/codm.webp`, rulebook: `${import.meta.env.BASE_URL}assets/rule-books/call-of-duty.pdf`, coordinator: 'Vaibhav Bandgar', contactNumber: '9730906103' },
 
@@ -91,6 +91,7 @@ const BattleGrid: React.FC = () => {
                         {showRulebookDropdown && (
                             <div className="rk-rulebook-menu animate-slide-up">
                                 {[
+                                    { label: 'BGMI', file: 'bgmi.pdf' },
                                     { label: 'Free Fire Tactical', file: 'free-fire.pdf' },
                                     { label: 'Call of Duty (M)', file: 'call-of-duty.pdf' },
                                     { label: 'Shadow Fight 4', file: 'shadow-fight-4.pdf' }

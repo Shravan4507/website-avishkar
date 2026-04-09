@@ -531,7 +531,8 @@ const RoboKshetra: React.FC = () => {
                                     <div className="rk-rulebook-menu animate-slide-up">
                                         {[
                                             { label: 'AlignX (Line Follower)', file: 'alignx.pdf' },
-                                            { label: 'RoboRush (Obstacle)', file: 'roborush.pdf' }
+                                            { label: 'RoboRush (Obstacle)', file: 'roborush.pdf' },
+                                            { label: 'RoboMaze (Maze)', file: 'robomaze.pdf' }
                                         ].map((rb, idx) => (
                                                 <a 
                                                     key={idx}

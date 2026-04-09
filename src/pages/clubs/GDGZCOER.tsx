@@ -12,6 +12,7 @@ interface Session {
     description: string;
     link: string;
     color: string;
+    speakers: { name: string; designation: string }[];
 }
 
 const gdgSessions: Session[] = [
@@ -22,7 +23,8 @@ const gdgSessions: Session[] = [
         time: '9:00 AM - 10:30 AM',
         description: 'Master the fundamentals of version control. Learn branching, merging, and collaboration workflows.',
         link: 'https://gdg.community.dev/e/mgp9yk/',
-        color: '#4285F4' // Google Blue
+        color: '#4285F4',
+        speakers: [{ name: 'Mr. Chaitanya Sawant', designation: 'Cloud Member' }]
     },
     {
         id: 'docker',
@@ -31,16 +33,21 @@ const gdgSessions: Session[] = [
         time: '10:45 AM - 12:15 PM',
         description: 'Dive into containerization. Build, ship, and run applications anywhere with Docker containers.',
         link: 'https://gdg.community.dev/e/mz3vfm/',
-        color: '#EA4335' // Google Red
+        color: '#EA4335',
+        speakers: [{ name: 'Ms. Rhiya Buranpur', designation: 'Administration Lead' }]
     },
     {
         id: 'kubernetes',
         title: 'Kubernetes Workshop',
         date: '22 April',
-        time: '1:00 PM - 4:15 PM',
+        time: '1:00 PM - 2:30 PM',
         description: 'Orchestration at scale. Learn to manage containerized workloads and services with Kubernetes.',
         link: 'https://gdg.community.dev/e/m8r362/',
-        color: '#FBBC05' // Google Yellow
+        color: '#FBBC05',
+        speakers: [
+            { name: 'Ms. Rhiya Buranpur', designation: 'Administration Lead' },
+            { name: 'Mr. Atharva Makwan', designation: 'Cloud Lead' }
+        ]
     },
     {
         id: 'ml-pipelines',
@@ -49,7 +56,8 @@ const gdgSessions: Session[] = [
         time: '9:00 AM - 12:15 PM',
         description: 'End-to-end Machine Learning. Understand data pipelines and fundamental algorithms for real-world AI.',
         link: 'https://gdg.community.dev/e/mgtd7v/',
-        color: '#34A853' // Google Green
+        color: '#34A853',
+        speakers: [{ name: 'Ms. Kiran Ingale', designation: 'AI-ML Member' }]
     },
     {
         id: 'ai-agents',
@@ -58,7 +66,12 @@ const gdgSessions: Session[] = [
         time: '1:00 PM - 4:15 PM',
         description: 'The future of automation. Build intelligent agents that can reason and execute tasks autonomously.',
         link: 'https://gdg.community.dev/e/mp58b4/',
-        color: '#4285F4' // Google Blue
+        color: '#4285F4',
+        speakers: [
+            { name: 'Mr. Manthan Raut', designation: 'Web Dev Lead' },
+            { name: 'Mr. Siddesh Nagmote', designation: 'AI-ML Member' },
+            { name: 'Mr. Om Kute', designation: 'AI-ML Lead' }
+        ]
     },
     {
         id: 'system-design',
@@ -67,7 +80,11 @@ const gdgSessions: Session[] = [
         time: '9:00 AM - 12:15 PM',
         description: 'Architecting for scale. Master high-level system design patterns and tackle advanced DSA challenges.',
         link: 'https://gdg.community.dev/e/m566ub/',
-        color: '#EA4335' // Google Red
+        color: '#EA4335',
+        speakers: [
+            { name: 'Mr. Rohan Patil', designation: 'CP-DSA Lead' },
+            { name: 'Mr. Vinayak Gawade', designation: 'CP-DSA Member' }
+        ]
     }
 ];
 
@@ -145,6 +162,14 @@ const GDGZCOER: React.FC = () => {
                                         <p>{session.description}</p>
                                     </div>
 
+                                    <div className="card-speakers">
+                                        {session.speakers.map((s, i) => (
+                                            <span key={i} className="speaker-chip">
+                                                — {s.name}, <em>{s.designation}</em>
+                                            </span>
+                                        ))}
+                                    </div>
+
                                     <div className="card-footer">
                                         <span className="cta-text">Register Now</span>
                                         <div className="arrow-box">
@@ -161,7 +186,7 @@ const GDGZCOER: React.FC = () => {
 
                 <section className="guidelines-footer">
                     <div className="neo-note">
-                        <p>Note: Official Google Developer Group On Campus events. Adhere to GDGOC Community Guidelines.</p>
+                        <p>Note: These are official Google Developer Group On Campus events. Please adhere to GDGOC community guidelines.</p>
                     </div>
                 </section>
             </main>

@@ -64,6 +64,7 @@ body.orbitx-layout-active .background-fixed {
     position: relative;
     z-index: 10;
     font-family: 'Iceland', sans-serif;
+    margin-top: 2rem;
 }
 
 /* Base side containers */
@@ -82,7 +83,6 @@ body.orbitx-layout-active .background-fixed {
 
 .hero-right {
     max-width: 450px;
-    margin-top: 60px;
     display: flex;
     flex-direction: column;
     gap: 35px;
@@ -623,6 +623,7 @@ body.orbitx-layout-active .background-fixed {
         gap: 30px;
         padding-bottom: 40px;
         min-height: auto;
+        margin-top: 0;
     }
 
     .hero-left,
@@ -635,6 +636,8 @@ body.orbitx-layout-active .background-fixed {
         transform: none !important;
         opacity: 1 !important;
         animation: none !important;
+        position: relative;
+        z-index: 12;
     }
 
     .hero-title .bold {
@@ -647,6 +650,7 @@ body.orbitx-layout-active .background-fixed {
         font-size: 1.1rem;
         max-width: 500px;
         margin: 0 auto;
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
     }
 
     .detail-item {
@@ -669,8 +673,7 @@ body.orbitx-layout-active .background-fixed {
     }
 
     .orbitx-orb-bg {
-        top: 25%;
-        transform: translate(-50%, -50%) scale(1);
+        display: none;
     }
 
     .hero-details-vertical {
@@ -728,7 +731,7 @@ body.orbitx-layout-active .background-fixed {
 
     .countdown-container {
         padding: 0.8rem;
-        border-radius: 50px; /* More compact pill on mobile */
+        border-radius: 50px;
     }
 
     .time-val {
@@ -738,11 +741,6 @@ body.orbitx-layout-active .background-fixed {
     .time-label {
         font-size: 0.6rem;
         letter-spacing: 0.1rem;
-    }
-
-    .orbitx-orb-bg {
-        top: 22%;
-        transform: translate(-50%, -50%) scale(0.9);
     }
 
     .hero-details-vertical {

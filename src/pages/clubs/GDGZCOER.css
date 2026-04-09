@@ -190,7 +190,25 @@
     line-height: 1.5;
     font-weight: 500;
     color: #333;
-    margin-bottom: 3rem;
+    margin-bottom: 1.5rem;
+}
+
+.card-speakers {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 2rem;
+}
+
+.speaker-chip {
+    font-size: 0.9rem;
+    color: #555;
+    font-weight: 600;
+}
+
+.speaker-chip em {
+    font-weight: 500;
+    color: #777;
 }
 
 .card-footer {
@@ -245,7 +263,7 @@
 
 .neo-note p {
     font-weight: 700;
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(255, 255, 255, 0.9);
     text-transform: uppercase;
     font-size: 0.9rem;
     letter-spacing: 1px;

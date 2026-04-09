@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuthState } from 'react-firebase-hooks/auth';
-import { doc, getDoc, setDoc, serverTimestamp, collection, query, where, getDocs } from 'firebase/firestore';
+import { doc, getDoc, setDoc, serverTimestamp, collection, query, where, getDocs, limit } from 'firebase/firestore';
 import { auth, db } from '../../firebase/firebase';
 import { useToast } from '../../components/toast/Toast';
 import { COMPETITIONS_DATA } from '../../data/competitions';
@@ -109,10 +109,15 @@ const Registration: React.FC = () => {
             setSquadMembers(initialSquad);
           }
 
-          // 4. Check if already registered using deterministic doc ID
-          const regId = `${foundComp.id}_${uData.avrId}`;
-          const regSnap = await getDoc(doc(db, 'registrations', regId));
-          if (regSnap.exists()) {
+          // 4. Check if already registered using query (list rule is isAuth)
+          const regCheckQuery = query(
+            collection(db, 'registrations'),
+            where('userId', '==', user.uid),
+            where('competitionId', '==', foundComp.id),
+            limit(1)
+          );
+          const regCheckSnap = await getDocs(regCheckQuery);
+          if (!regCheckSnap.empty) {
             setAlreadyRegistered(true);
           } else if (isRegistered && registeredEventName !== foundComp.title) {
             toast.error(`Access Denied: Already registered for ${registeredEventName}`);
@@ -221,9 +226,15 @@ const Registration: React.FC = () => {
     const regId = `${competition!.id}_${userData.avrId}`;
     const regRef = doc(db, 'registrations', regId);
 
-    // Double check using deterministic ID
-    const existingSnap = await getDoc(regRef);
-    if (existingSnap.exists()) {
+    // Double check using query (avoids permission error on non-existent docs)
+    const existCheckQuery = query(
+      collection(db, 'registrations'),
+      where('userId', '==', user!.uid),
+      where('competitionId', '==', competition!.id),
+      limit(1)
+    );
+    const existCheckSnap = await getDocs(existCheckQuery);
+    if (!existCheckSnap.empty) {
       setAlreadyRegistered(true);
       setIsSuccess(true);
       return;

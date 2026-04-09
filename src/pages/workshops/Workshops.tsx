@@ -11,6 +11,8 @@ const technicalClubs: ChromaItem[] = [
         description: 'The premier developer community at ZCOER, powered by Google Developer Groups on Campus. Join us for hands-on tech stacks, cloud computing, and industry-grade workshops.',
         image: '/assets/logos/LOGO GDG Bandung/Horizontal/_GDG Bandung - Logo Only.webp',
         location: 'ZCOER Campus',
+        date: '22–24 April',
+        ctaText: 'Tap to Explore',
         borderColor: '#4285F4',
         gradient: 'linear-gradient(135deg, rgba(66, 133, 244, 0.05), rgba(0, 0, 0, 0.95))',
         socials: {
@@ -25,6 +27,8 @@ const technicalClubs: ChromaItem[] = [
         description: "ZCOER's premier Astronomy and Space Exploration club. Discover the cosmos, participate in stargazing sessions, and dive into the future of aerospace technology.",
         image: '/assets/logos/OrbitX/Logo-OrbitX.webp',
         location: 'ZCOER Campus',
+        date: '23–25 April',
+        ctaText: 'Tap to Explore',
         borderColor: '#d9ff00',
         gradient: 'linear-gradient(135deg, rgba(217, 255, 0, 0.05), rgba(0, 0, 0, 0.95))',
         socials: {
@@ -46,7 +50,7 @@ function Workshops() {
                 <header className="workshops-header">
                     <div className="header-glow"></div>
                     <span className="section-label">The Innovators</span>
-                    <h1>Technical Communities</h1>
+                    <h1>Workshops by Communities</h1>
                     <div className="section-line"></div>
                     <p>Experience the multi-day technical odyssey with ZCOER's elite clubs. Join the circle of innovation and exploration.</p>
                 </header>
