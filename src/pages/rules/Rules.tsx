@@ -2,7 +2,7 @@ import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
     ArrowLeft, Book, Users, Award, Zap, CheckCircle2,
-    Trophy, FileText, ChevronDown, Phone, Download, Search, X
+    Trophy, FileText, ChevronDown, Phone, Download, Search, X, CreditCard
 } from 'lucide-react';
 import SEO from '../../components/seo/SEO';
 import { RULES_DATA, getAllRules, type CompetitionRules } from '../../data/rulesData';
@@ -108,7 +108,7 @@ const Rules: React.FC = () => {
                             <span>{activeComp.teamSize}</span>
                         </div>
                         <div className="rules-info-chip">
-                            <Trophy size={16} />
+                            <CreditCard size={16} />
                             <span>{activeComp.fee}</span>
                         </div>
                         {activeComp.duration && (
@@ -260,7 +260,7 @@ const Rules: React.FC = () => {
                                             {c.tagline && <p className="rules-comp-tagline">{c.tagline}</p>}
                                             <div className="rules-comp-meta">
                                                 <span><Users size={13} /> {c.teamSize}</span>
-                                                <span><Trophy size={13} /> {c.fee}</span>
+                                                <span><CreditCard size={13} /> {c.fee}</span>
                                             </div>
                                         </div>
                                         <ChevronDown size={18} className="rules-comp-arrow" />

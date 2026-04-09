@@ -15,6 +15,7 @@ import {
 import { useRegistrationGuard } from '../../hooks/useRegistrationGuard';
 import { initiateEasebuzzCheckout, generateTxnId } from '../../utils/easebuzz';
 import './Registration.css';
+import { reportError, withRetry } from '../../utils/errorReport';
 
 
 const Registration: React.FC = () => {
@@ -128,8 +129,11 @@ const Registration: React.FC = () => {
 
 
       } catch (err) {
-        console.error("Registration Init Error:", err);
-        toast.error("Failed to load competition details.");
+        reportError(err, { 
+          component: 'RegistrationInit', 
+          action: 'loading_competition_data',
+          severity: 'high' 
+        });
       } finally {
         setIsLoading(false);
       }
@@ -219,7 +223,11 @@ const Registration: React.FC = () => {
             setLookupFailed(prev => ({ ...prev, [index]: true }));
         }
     } catch (err) {
-        console.error("Member lookup error:", err);
+        reportError(err, { 
+            component: 'RegistrationLookup', 
+            action: 'member_id_verification',
+            severity: 'low' 
+        });
     } finally {
         setLookupLoading(prev => ({ ...prev, [index]: false }));
     }
@@ -257,47 +265,50 @@ const Registration: React.FC = () => {
         .map(m => m.avrId)
     ];
 
-    await setDoc(regRef, {
-      // User Info (Leader)
-      userId: user!.uid,
-      userName: `${userData.firstName} ${userData.lastName}`,
-      userEmail: userData.email || user!.email,
-      userAVR: userData.avrId,
-      allAvrIds: allMembersAvr,
-      userPhone: userData.phone || '',
-      userCollege: userData.college || '',
-      userMajor: userData.major || '',
-      userAge: userAge,
-      userSex: userData.sex || '',
-      // Team Info
-      teamName: teamName || null,
-      squad: squadMembers.filter(m => !!m.avrId && m.avrId.length >= 9).map(m => ({
-        avrId: m.avrId,
-        name: m.name,
-        email: m.email,
-        phone: m.phone,
-        college: m.college
-      })),
-      // Competition Info
-      competitionId: competition!.id,
-      eventName: competition!.title,
-      competitionHandle: competition!.handle || '',
-      category: competition!.subtitle || 'General Event',
-      department: competition!.department,
-      isFlagship: competition!.isFlagship || false,
-      // Payment
-      paymentStatus: fee > 0 ? 'paid' : 'free',
-      amountPaid: fee,
-      moonObservation: moonObservation,
-      transactionId: paymentTxnId || null,
-      easepayId: paymentMeta?.easepayId || null,
-      bankRefNum: paymentMeta?.bankRef || null,
-      paymentMode: paymentMeta?.paymentMode || null,
-      // Metadata
-      status: 'confirmed',
-      registeredAt: serverTimestamp(),
-      isAttended: false
-    });
+    // WRAP FIREBASE WRITE IN SELF-HEALING RETRY
+    await withRetry(async () => {
+      await setDoc(regRef, {
+        // User Info (Leader)
+        userId: user!.uid,
+        userName: `${userData.firstName} ${userData.lastName}`,
+        userEmail: userData.email || user!.email,
+        userAVR: userData.avrId,
+        allAvrIds: allMembersAvr,
+        userPhone: userData.phone || '',
+        userCollege: userData.college || '',
+        userMajor: userData.major || '',
+        userAge: userAge,
+        userSex: userData.sex || '',
+        // Team Info
+        teamName: teamName || null,
+        squad: squadMembers.filter(m => !!m.avrId && m.avrId.length >= 9).map(m => ({
+          avrId: m.avrId,
+          name: m.name,
+          email: m.email,
+          phone: m.phone,
+          college: m.college
+        })),
+        // Competition Info
+        competitionId: competition!.id,
+        eventName: competition!.title,
+        competitionHandle: competition!.handle || '',
+        category: competition!.subtitle || 'General Event',
+        department: competition!.department,
+        isFlagship: competition!.isFlagship || false,
+        // Payment
+        paymentStatus: fee > 0 ? 'paid' : 'free',
+        amountPaid: fee,
+        moonObservation: moonObservation,
+        transactionId: paymentTxnId || null,
+        easepayId: paymentMeta?.easepayId || null,
+        bankRefNum: paymentMeta?.bankRef || null,
+        paymentMode: paymentMeta?.paymentMode || null,
+        // Metadata
+        status: 'confirmed',
+        registeredAt: serverTimestamp(),
+        isAttended: false
+      });
+    }, 3, 1500);
 
     if (paymentTxnId) setTransactionId(paymentTxnId);
     setAlreadyRegistered(true);
@@ -422,8 +433,11 @@ const Registration: React.FC = () => {
       try {
         await submitRegistration();
       } catch (err) {
-        console.error("Registration Error:", err);
-        toast.error("Failed to register. Please try again.");
+        reportError(err, { 
+          component: 'FreeRegistration', 
+          action: 'submitting_registration',
+          severity: 'high' 
+        });
       } finally {
         setIsSubmitting(false);
         isSubmittingRef.current = false;

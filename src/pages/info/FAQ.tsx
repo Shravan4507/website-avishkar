@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, HelpCircle, CreditCard, Wrench, Coffee } from 'lucide-react';
+import { useBugReport } from '../../components/BugReport/BugReport';
 import './FAQ.css';
 
 interface FAQItemProps {
@@ -44,6 +45,7 @@ const FAQItem: React.FC<FAQItemProps> = ({ question, answer, isOpen, onClick }) 
 
 const FAQ: React.FC = () => {
     const [openIndex, setOpenIndex] = useState<number | null>(0);
+    const { openBugReport } = useBugReport();
 
     const faqData = [
         {
@@ -169,7 +171,7 @@ const FAQ: React.FC = () => {
                     <p>Still have questions?</p>
                     <div className="faq-cta-btns">
                         <a href="/contact" className="faq-cta-btn primary">Contact Support</a>
-                        <button onClick={() => window.scrollTo(0, document.body.scrollHeight)} className="faq-cta-btn secondary">Report an Issue</button>
+                        <button onClick={openBugReport} className="faq-cta-btn secondary">Report an Issue</button>
                     </div>
                 </footer>
             </div>

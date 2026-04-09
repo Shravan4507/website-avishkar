@@ -38,7 +38,7 @@
 
 .hero-subtitle {
     font-size: 1.5rem;
-    color: rgba(255, 255, 255, 0.6);
+    color: rgba(255, 255, 255, 0.85);
     margin-bottom: 2rem;
 }
 
@@ -54,12 +54,13 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: #000;
+    border: none;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.3);
     padding: 0.6rem 1.25rem;
     border-radius: 2rem;
     font-size: 0.9rem;
-    color: rgba(255, 255, 255, 0.9);
+    color: #d9ff00;
     backdrop-filter: blur(10px);
 }
 
@@ -67,13 +68,15 @@
     font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 1px;
-    color: #ff4655;
+    color: #d9ff00;
     margin-right: 0.25rem;
-    font-weight: 700;
+    font-weight: 800;
+    opacity: 0.8;
 }
 
 .coord-icon {
-    color: #ff4655;
+    color: #d9ff00;
+    opacity: 0.9;
 }
 
 .coord-name {
@@ -96,7 +99,7 @@
 }
 
 .coord-phone:hover {
-    background: rgba(255, 70, 85, 0.4);
+    background: #eaff4d;
 }
 
 .hero-stats {
@@ -114,8 +117,8 @@
 .battle-grid-page .stat-icon {
     width: 48px;
     height: 48px;
-    color: #ff4655;
-    background: rgba(255, 70, 85, 0.05);
+    color: #d9ff00;
+    background: rgba(217, 255, 0, 0.05);
     border-radius: 1rem;
     padding: 10px;
 }
@@ -135,7 +138,7 @@
 
 .stat-label {
     font-size: 0.85rem;
-    color: rgba(255, 255, 255, 0.4);
+    color: rgba(255, 255, 255, 0.75);
     text-transform: uppercase;
     letter-spacing: 1px;
 }
@@ -146,8 +149,8 @@
 }
 
 .battle-grid-page .primary-cta {
-    background: rgba(0, 0, 0, 0.65);
-    color: #fff;
+    background: #000;
+    color: #d9ff00;
     padding: 1.2rem 3rem;
     border-radius: 3.5rem;
     font-weight: 700;
@@ -156,13 +159,20 @@
     align-items: center;
     gap: 0.75rem;
     cursor: pointer;
-    border: 1px solid rgba(255, 70, 85, 0.3);
+    border: none;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.3);
     transition: all 0.3s ease;
 }
 
-.primary-cta:hover {
-    background: rgba(255, 70, 85, 0.1);
-    box-shadow: 0 0 30px rgba(255, 70, 85, 0.2);
+.battle-grid-page .primary-cta:hover {
+    background: #111;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(217, 255, 0, 0.15);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.primary-cta:active {
+    transform: scale(0.98);
 }
 
 .primary-cta.disabled {
@@ -171,8 +181,8 @@
 }
 
 .secondary-cta {
-    background: rgba(255, 255, 255, 0);
-    color: #fff;
+    background: #000;
+    color: #d9ff00;
     padding: 1.2rem 2.5rem;
     border-radius: 3.5rem;
     font-weight: 600;
@@ -182,11 +192,21 @@
     gap: 0.75rem;
     cursor: pointer;
     text-decoration: none;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: none;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.3);
     transition: all 0.3s ease;
 }
 
+.secondary-cta:hover {
+    background: #111;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(217, 255, 0, 0.05);
+    border-color: rgba(255, 255, 255, 0.5);
+}
 
+.secondary-cta:active {
+    transform: scale(0.98);
+}
 /* Removed hover effect to keep rulebook clean */
 
 /* --- JUDGING SECTION --- */
@@ -202,7 +222,7 @@
 }
 
 .battle-grid-page .section-label {
-    color: #ff4655;
+    color: #d9ff00;
     font-size: 0.8rem;
     font-weight: 700;
     letter-spacing: 3px;
@@ -233,19 +253,20 @@
 }
 
 .judging-card:hover {
-    background: rgba(255, 255, 255, 0);
-    border-color: rgba(255, 70, 85, 0.3);
+    background: rgba(255, 255, 255, 0.02);
+    border-color: rgba(217, 255, 0, 0.3);
+    transform: translateY(-5px);
 }
 
 .j-icon {
     width: 45px;
     height: 45px;
-    background: rgba(255, 70, 85, 0.1);
+    background: rgba(217, 255, 0, 0.1);
     border-radius: 0.8rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #ff4655;
+    color: #d9ff00;
     margin-bottom: 1.5rem;
 }
 
@@ -263,8 +284,8 @@
 }
 
 .weightage {
-    background: rgba(255, 70, 85, 0.15);
-    color: #ff4655;
+    background: rgba(217, 255, 0, 0.15);
+    color: #d9ff00;
     padding: 0.4rem 1rem;
     border-radius: 2rem;
     font-size: 0.85rem;
@@ -307,9 +328,9 @@
 }
 
 .secondary-cta.active {
-    background: rgba(255, 70, 85, 0.1);
-    color: #ff4655;
-    border-color: rgba(255, 70, 85, 0.4);
+    background: #111;
+    color: #d9ff00;
+    border-color: rgba(255, 255, 255, 0.4);
 }
 
 .rk-rulebook-menu {
@@ -319,13 +340,14 @@
     min-width: 280px;
     background: rgba(0, 0, 0, 0.95);
     backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 70, 85, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 2px solid rgba(255, 255, 255, 0.3);
     border-radius: 1.5rem;
     padding: 1rem;
     z-index: 1000;
     box-shadow: 
         0 20px 40px rgba(0, 0, 0, 0.8),
-        0 0 20px rgba(255, 70, 85, 0.05);
+        0 0 20px rgba(217, 255, 0, 0.05);
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
@@ -337,7 +359,7 @@
     align-items: center;
     gap: 1rem;
     padding: 1rem 1.25rem;
-    color: rgba(255, 255, 255, 0.8);
+    color: #d9ff00;
     text-decoration: none;
     font-size: 0.95rem;
     font-weight: 600;
@@ -346,13 +368,13 @@
 }
 
 .rk-rb-item:hover {
-    background: rgba(255, 70, 85, 0.1);
-    color: #ff4655;
+    background: rgba(217, 255, 0, 0.1);
+    color: #fff;
     transform: translateX(8px);
 }
 
 .rk-rb-item svg {
-    color: #ff4655;
+    color: #d9ff00;
     flex-shrink: 0;
 }
 

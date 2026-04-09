@@ -91,8 +91,9 @@
 }
 
 .scratch-container.revealed {
-  border-color: #d9ff00;
-  background: rgba(217, 255, 0, 0.05);
+  border: none;
+  border-bottom: 3px solid rgba(255, 255, 255, 0.3);
+  background: rgb(255, 255, 255);
   animation: scratchGlow 2s infinite alternate;
 }
 
@@ -182,6 +183,8 @@
   height: 56px;
   min-width: 200px;
   padding: 0 2.5rem;
+  border: none;
+  border-bottom: 3px solid rgba(255, 255, 255, 0.3);
   border-radius: 3rem;
   font-family: 'Iceland', sans-serif;
   font-size: 1.5rem;
@@ -198,8 +201,10 @@
 }
 
 .arena-cta.primary {
-  background: #fff;
-  color: #000;
+  background: #000000;
+  color: #ffffff;
+  border: none;
+  border-bottom: 3px solid rgba(255, 255, 255, 0.3);
 }
 
 .arena-cta.primary .cta-content {
@@ -213,11 +218,10 @@
 }
 
 .arena-cta.secondary {
-  background: rgba(255, 255, 255, 0.05);
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: #ffffff;
+  color: #000000;
+  border: none;
+  border-bottom: 3px solid rgba(0, 0, 0, 1);
 }
 
 .arena-cta.secondary:active {

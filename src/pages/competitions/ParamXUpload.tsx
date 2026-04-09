@@ -23,6 +23,7 @@ import {
 import { motion } from 'framer-motion';
 
 import './ParamXUpload.css';
+import { reportError, withRetry } from '../../utils/errorReport';
 
 const ParamXUpload: React.FC = () => {
     const navigate = useNavigate();
@@ -95,7 +96,11 @@ const ParamXUpload: React.FC = () => {
                 const isUserLeader = data.leaderAvrId === currentUserAvrId || data.leaderEmail === user.email;
                 setIsLeader(isUserLeader);
             } catch (err) {
-                console.error("Leader Verification Error:", err);
+                reportError(err, { 
+                    component: 'ParamXVerifyLeader', 
+                    action: 'permission_handshake',
+                    severity: 'medium' 
+                });
                 setIsLeader(false);
             } finally {
                 setCheckingLeader(false);
@@ -167,7 +172,11 @@ const ParamXUpload: React.FC = () => {
                 }
             }, 
             (error) => {
-                console.error("Upload Error:", error);
+                reportError(error, { 
+                    component: 'ParamXFirebaseUpload', 
+                    action: 'uploading_file_blob',
+                    severity: 'high' 
+                });
                 setUploading(false);
                 toast.error("Upload Failed: Connection lost or restricted access.");
             }, 
@@ -182,21 +191,26 @@ const ParamXUpload: React.FC = () => {
                         return;
                     }
 
-                    // Atomic Firestore Update
-                    const regDocRef = doc(db, "hackathon_registrations", data.id);
-                    await updateDoc(regDocRef, {
-                        pptUrl: downloadURL,
-                        lastUpdated: serverTimestamp(),
-                        status: 'submitted'
-                    });
+                    // Atomic Firestore Update with Self-Healing Retry
+                    await withRetry(async () => {
+                        const regDocRef = doc(db, "hackathon_registrations", data.id);
+                        await updateDoc(regDocRef, {
+                            pptUrl: downloadURL,
+                            lastUpdated: serverTimestamp(),
+                            status: 'submitted'
+                        });
+                    }, 3, 2000);
 
                     setUploadSuccess(true);
                     setUploading(false);
                     toast.success("Submission Successful! Your project has been logged.");
                 } catch (err) {
-                    console.error("Firestore Update Error:", err);
+                    reportError(err, { 
+                        component: 'ParamXFirestoreUpdate', 
+                        action: 'finalizing_submission_metadata',
+                        severity: 'high' 
+                    });
                     setUploading(false);
-                    toast.error("Server Error: Metadata update failed.");
                 }
             }
         );

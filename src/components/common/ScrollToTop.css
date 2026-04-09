@@ -1,6 +1,6 @@
 .scroll-to-top {
     position: fixed;
-    bottom: 40px;
+    bottom: 100px;
     right: 40px;
     width: 60px;
     height: 60px;
@@ -27,7 +27,7 @@
 
 @media (max-width: 768px) {
     .scroll-to-top {
-        bottom: 25px;
+        bottom: 90px;
         right: 25px;
         width: 55px;
         height: 55px;

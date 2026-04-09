@@ -712,8 +712,7 @@ export const RULES_DATA: Record<string, CompetitionRules> = {
             third: '₹2,000',
         },
         coordinators: {
-            student: ['Shubham Jagtap – 9172125455'],
-            faculty: ['Prof. R. N. Khandebharad – 8767493661'],
+            student: ['Rohit Chavan – 7823056055'],
         },
         rulebookPath: `${import.meta.env.BASE_URL}assets/rule-books/free-fire.pdf`,
         rulebookComingSoon: false
@@ -753,8 +752,7 @@ export const RULES_DATA: Record<string, CompetitionRules> = {
             second: '₹6,000',
         },
         coordinators: {
-            student: ['Sujal Jaju – 8010127828'],
-            faculty: ['Amol Jadhav – 7020736028'],
+            student: ['Vaibhav Bandgar – 9730906103'],
         },
         rulebookPath: `${import.meta.env.BASE_URL}assets/rule-books/call-of-duty.pdf`,
         rulebookComingSoon: false
@@ -792,8 +790,7 @@ export const RULES_DATA: Record<string, CompetitionRules> = {
             second: '₹3,000',
         },
         coordinators: {
-            student: ['Sujal Jaju – 8010127828'],
-            faculty: ['Amol Jadhav – 7020736028'],
+            student: ['Pranav Kulkarni – 9423162724'],
         },
         rulebookPath: `${import.meta.env.BASE_URL}assets/rule-books/shadow-fight-4.pdf`,
         rulebookComingSoon: false

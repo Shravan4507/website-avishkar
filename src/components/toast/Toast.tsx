@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useRef } from 'react';
+import React, { createContext, useContext, useState, useCallback, useRef, useEffect } from 'react';
 import './Toast.css';
 
 // ── Types ──────────────────────────────────────────────────────────────────────
@@ -47,6 +47,16 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const timer = setTimeout(() => dismiss(id), 4000);
     timers.current.set(id, timer);
   }, [dismiss]);
+
+  // Listen for global glitch errors from non-react contexts (Self-Healing Reporting)
+  useEffect(() => {
+    const handler = (e: any) => {
+      const message = e.detail?.message || 'GLOBAL SYSTEM UNSTABLE';
+      toast(message, 'error');
+    };
+    window.addEventListener('app-error-glitch', handler);
+    return () => window.removeEventListener('app-error-glitch', handler);
+  }, [toast]);
 
   const value: ToastContextValue = {
     toast,

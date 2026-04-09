@@ -16,6 +16,7 @@ import PWAReloadPrompt from './components/pwa/PWAReloadPrompt';
 import ScrollToTop from './components/common/ScrollToTop';
 import { BugReportProvider } from './components/BugReport/BugReport';
 import { isLowSpecDevice } from './utils/performance';
+import { reportError } from './utils/errorReport';
 
 
 // Lazy Loaded Public Pages
@@ -97,6 +98,43 @@ const LayoutManager = () => {
   useEffect(() => {
     document.documentElement.setAttribute('data-perf', lowSpec ? 'low' : 'high');
   }, [lowSpec]);
+
+  // SELF-HEALING: Global Immune System & State Sanitization
+  useEffect(() => {
+    // 1. Catch unhandled promise rejections (Async failures)
+    const handleRejection = (event: PromiseRejectionEvent) => {
+      reportError(event.reason, { 
+        severity: 'high', 
+        action: 'background_process', 
+        component: 'GlobalAsync' 
+      });
+    };
+
+    // 2. Sanitize Local Storage (Faulty State Recovery)
+    const sanitizeState = () => {
+      try {
+        const criticalKeys = ['user_session', 'last_date_scratch', 'pwa-settings'];
+        criticalKeys.forEach(key => {
+          const item = localStorage.getItem(key);
+          if (item) {
+            try {
+              JSON.parse(item); 
+            } catch (e) {
+              console.warn(`[Self-Healing] Corrupted state found in ${key}. Resetting...`);
+              localStorage.removeItem(key); // Autonomous repair
+            }
+          }
+        });
+      } catch (err) {
+        reportError(err, { severity: 'low', component: 'StorageSanitizer' });
+      }
+    };
+
+    window.addEventListener('unhandledrejection', handleRejection);
+    sanitizeState();
+
+    return () => window.removeEventListener('unhandledrejection', handleRejection);
+  }, []);
 
   const SuspenseFallback = () => {
     if (location.pathname.includes('dashboard')) {
@@ -183,17 +221,17 @@ const LayoutManager = () => {
                   {/* ── Student Protected ── */}
                   <Route element={<UserProtectedRoutes />}>
                     <Route path="/signup"         element={<T el={<Signup />} />} />
-                    <Route path="/user/dashboard" element={<T el={<UserDashboard />} />} />
+                    <Route path="/user/dashboard" element={<T el={<ErrorBoundary name="Dashboard"><UserDashboard /></ErrorBoundary>} />} />
                     <Route path="/user/scanner"   element={<T el={<VolunteerScanner />} />} />
-                    <Route path="/register/:slug" element={<T el={<Registration />} />} />
-                    <Route path="/hackathon-register" element={<T el={<HackathonRegistration />} />} />
-                    <Route path="/esports-register" element={<T el={<EsportsRegistration />} />} />
+                    <Route path="/register/:slug" element={<T el={<ErrorBoundary name="Registration"><Registration /></ErrorBoundary>} />} />
+                    <Route path="/hackathon-register" element={<T el={<ErrorBoundary name="HackathonReg"><HackathonRegistration /></ErrorBoundary>} />} />
+                    <Route path="/esports-register" element={<T el={<ErrorBoundary name="EsportsReg"><EsportsRegistration /></ErrorBoundary>} />} />
                   </Route>
 
                   {/* ── Admin Protected ── */}
                   <Route element={<AdminProtectedRoutes />}>
                     <Route path="/admin/setup"     element={<T el={<AdminSetup />} />} />
-                    <Route path="/admin/dashboard" element={<T el={<AdminDashboard />} />} />
+                    <Route path="/admin/dashboard" element={<T el={<ErrorBoundary name="AdminPanel"><AdminDashboard /></ErrorBoundary>} />} />
                   </Route>
 
                   {/* ── 404 ── */}

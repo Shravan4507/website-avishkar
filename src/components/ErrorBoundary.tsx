@@ -1,8 +1,11 @@
 import React from 'react';
 import './ErrorBoundary.css';
+import { reportError } from '../utils/errorReport';
 
 interface Props {
   children: React.ReactNode;
+  variant?: 'full' | 'embedded';
+  name?: string;
 }
 
 interface State {
@@ -11,8 +14,9 @@ interface State {
 }
 
 /**
- * Wraps any subtree and catches runtime errors before they crash the whole app.
- * Usage: <ErrorBoundary><SomeComponent /></ErrorBoundary>
+ * Self-Healing ErrorBoundary
+ * Now supports "Embedded" mode so minor widgets can crash/glitch 
+ * without taking down the entire page.
  */
 class ErrorBoundary extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -25,56 +29,74 @@ class ErrorBoundary extends React.Component<Props, State> {
   }
 
   componentDidCatch(error: Error, info: React.ErrorInfo) {
-    console.error('[ErrorBoundary caught an error]', error, info.componentStack);
+    reportError(error, { 
+      component: this.props.name || 'UnknownComponent',
+      severity: this.props.variant === 'embedded' ? 'medium' : 'high',
+      stack: info.componentStack
+    });
   }
 
   handleReset = () => {
     this.setState({ hasError: false, errorMessage: '' });
-    window.location.href = '/';
+    if (this.props.variant === 'full') {
+      window.location.href = '/';
+    }
   };
 
   render() {
     if (this.state.hasError) {
+      const { variant = 'full', name = 'Sub-System' } = this.props;
+
+      // MISSION CRITICAL: Embedded Glitch UI (Self-Healing)
+      if (variant === 'embedded') {
+        return (
+          <div className="glitch-alert glitch-shake" data-text={`FAULT IN ${name.toUpperCase()}`}>
+            <div style={{ position: 'relative', zIndex: 1 }}>
+              <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>// {name.toUpperCase()} STABILITY LOSS</h3>
+              <p style={{ fontSize: '0.8rem', opacity: 0.8 }}>Automatic containment active. Click to attempt re-init.</p>
+              <button 
+                onClick={this.handleReset}
+                style={{ 
+                  marginTop: '1rem', 
+                  background: 'transparent', 
+                  border: '1px solid #ff0055',
+                  color: '#ff0055',
+                  padding: '4px 12px',
+                  cursor: 'pointer',
+                  fontSize: '0.7rem'
+                }}
+              >
+                RE-INITIALIZE
+              </button>
+            </div>
+          </div>
+        );
+      }
+
+      // FULL PAGE GLITCH UI
       const isConfigError = this.state.errorMessage.includes("FIREBASE_CONFIG_ERROR");
 
       return (
         <div className="error-boundary">
-          <div className="eb-content">
+          <div className="eb-content glitch-alert glitch-critical" data-text="SYSTEM CRITICAL FAILURE">
             <div className="eb-icon">{isConfigError ? "⚙️" : "⚡"}</div>
-            <h2 className="eb-title">
-              {isConfigError ? "Configuration Required" : "Something went wrong"}
+            <h2 className="eb-title" style={{ color: '#00ffff' }}>
+              {isConfigError ? "CONFIG_MISMATCH" : "CORE_DUMP_DETECTED"}
             </h2>
             <p className="eb-subtitle">
               {isConfigError 
-                ? "The application is missing essential environment variables. This usually happens on Vercel when keys are not added to the Dashboard."
-                : "An unexpected error crashed this section. Don't worry — your data is safe."}
+                ? "ENVIRONMENT KEYS MISSING. CHECK VERCEL DASHBOARD."
+                : "A CRITICAL SUBSYSTEM HAS CRASHED. THE PORTAL IS ATTEMPTING TO STABILIZE."}
             </p>
-            {this.state.errorMessage && (
-              <div className="eb-details-container">
-                <span className="eb-details-label">Error Details:</span>
-                <pre className="eb-details">{this.state.errorMessage}</pre>
-              </div>
-            )}
-            <div className="eb-actions">
-              {isConfigError ? (
-                <a 
-                  href="https://vercel.com/dashboard" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="eb-btn eb-btn--primary"
-                >
-                  Open Vercel Dashboard
-                </a>
-              ) : (
-                <button className="eb-btn eb-btn--primary" onClick={this.handleReset}>
-                  ← Return Home
-                </button>
-              )}
+            <div className="eb-actions" style={{ marginTop: '2rem' }}>
+              <button className="eb-btn eb-btn--primary" onClick={this.handleReset} style={{ background: '#00ffff', color: '#000' }}>
+                RESET_PORTAL
+              </button>
               <button
                 className="eb-btn eb-btn--ghost"
                 onClick={() => window.location.reload()}
               >
-                Reload Page
+                RELOAD_STREAM
               </button>
             </div>
           </div>

@@ -690,9 +690,26 @@ const RoboKshetra: React.FC = () => {
                             </div>
                         </div>
 
-                        <div className="rk-security-warning">
-                            <Shield size={18} />
-                            <p>All bots must undergo pre-battle scanning and verification.</p>
+                        <div className="rk-intel-panel animate-slide-up">
+                            <div className="rk-intel-header">
+                                <Zap size={18} />
+                                <h3>ARENA_INTEL</h3>
+                            </div>
+                            <div className="rk-intel-body">
+                                <p className="rk-intel-desc">{activeEvent?.description}</p>
+                                <div className="rk-intel-highlights">
+                                    {activeEvent?.highlights.map((h, i) => (
+                                        <div key={i} className="rk-intel-item">
+                                            <CheckCircle2 size={14} className="rk-intel-icon" />
+                                            <span>{h}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                            <div className="rk-intel-footer">
+                                <Shield size={14} />
+                                <span>ALL BOTS MUST UNDERGO SCANNING</span>
+                            </div>
                         </div>
                     </div>
 
@@ -841,7 +858,7 @@ const RoboKshetra: React.FC = () => {
                                 <div className="scheduling-notice-card" style={{ 
                                     background: 'rgba(217, 255, 0, 0.05)', 
                                     border: '1px solid rgba(217, 255, 0, 0.2)',
-                                    borderRadius: '12px',
+                                    borderRadius: '2rem',
                                     padding: '1rem',
                                     marginBottom: '1.5rem',
                                     display: 'flex',

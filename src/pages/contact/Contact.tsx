@@ -101,7 +101,6 @@ function Contact() {
                         <h3>Follow Us</h3>
                         <div className="social-links">
                             <a href="https://instagram.com/zeal_avishkar/" target="_blank" rel="noopener noreferrer">Instagram</a>
-                            <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer">LinkedIn</a>
                         </div>
                     </div>
                 </div>
