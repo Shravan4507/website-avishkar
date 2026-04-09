@@ -49,7 +49,8 @@ const ROBO_EVENTS = [
         prize: '₹15,000+', 
         fee: 499,
         type: 'TEAM', 
-        members: 4, 
+        members: 4,
+        minMembers: 2, 
         mode: 'Offline',
         color: '#d9ff00', 
         description: 'Forge a bot capable of extreme precision. Navigate high-speed tracks and complex intersections with autonomous perfection. Engineering focus: PID control, sensor calibration, and mechanical stability.',
@@ -71,7 +72,8 @@ const ROBO_EVENTS = [
         prize: '₹15,000+', 
         fee: 499,
         type: 'TEAM', 
-        members: 4, 
+        members: 4,
+        minMembers: 2, 
         mode: 'Offline',
         color: '#d9ff00', 
         description: 'Think, adapt, escape. Engineer a machine that can solve complex labyrinths in record time using advanced sensor fusion and pathfinding algorithms. Engineering focus: Maze mapping, wall following, and fast turns.',
@@ -95,7 +97,8 @@ const ROBO_EVENTS = [
         prize: '₹20,000+', 
         fee: 499,
         type: 'TEAM', 
-        members: 4, 
+        members: 4,
+        minMembers: 2, 
         mode: 'Offline',
         color: '#d9ff00', 
         description: 'A grueling all-terrain challenge course designed to test mechanical resilience and obstacle evasion logic. Navigate ramps, pits, and moving obstacles in a race against time. Engineering focus: All-terrain chassis, torque management, and real-time obstacle avoidance.',
@@ -362,21 +365,26 @@ const RoboKshetra: React.FC = () => {
             return;
         }
 
-        // Validate all members
+        // Validate all members (leader + member2 required, member3/member4 optional)
         const memberKeys = ['leader', 'member2', 'member3', 'member4'];
+        const requiredKeys = ['leader', 'member2']; // min team size = 2
         memberKeys.forEach(m => {
             const avr = formData[`${m}AvrId`];
             const name = formData[`${m}Name`];
             const phone = formData[`${m}Phone`];
+            const isRequired = requiredKeys.includes(m);
+            const hasData = !!(avr && avr.length >= 5); // optional member has data entered
 
-            if (!avr || avr.length < 9) newErrors[`${m}AvrId`] = "Enter AVR ID";
-            else if (!name) newErrors[`${m}AvrId`] = "Lookup Failed";
+            if (isRequired || hasData) {
+                if (!avr || avr.length < 9) newErrors[`${m}AvrId`] = "Enter AVR ID";
+                else if (!name) newErrors[`${m}AvrId`] = "Lookup Failed";
 
-            if (!phone) {
-                newErrors[`${m}Phone`] = "Required";
-            } else {
-                const cleanPhone = phone.replace(/\D/g, '');
-                if (cleanPhone.length < 10) newErrors[`${m}Phone`] = "Min 10 digits";
+                if (!phone) {
+                    newErrors[`${m}Phone`] = "Required";
+                } else {
+                    const cleanPhone = phone.replace(/\D/g, '');
+                    if (cleanPhone.length < 10) newErrors[`${m}Phone`] = "Min 10 digits";
+                }
             }
         });
 
