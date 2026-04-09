@@ -124,3 +124,24 @@ header, footer, nav {
 button, nav, aside, .sidebar-btn, .nav-link {
   user-select: none;
 }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.badge-logo {
+    height: 4rem; /* Slightly larger for better visibility */
+    width: auto;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto;
+}
+
+/* Adjust line-height for badges with logos */
+.hero-badge {
+    line-height: 0.4 !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}

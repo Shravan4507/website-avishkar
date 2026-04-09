@@ -46,7 +46,10 @@ const BattleGrid: React.FC = () => {
 
             {/* --- HERO SECTION --- (Derived from ParamX Hero) */}
             <section className="bg-hero">
-                <div className="hero-badge">AVISHKAR '26 <br/>E-SPORTS</div>
+                <div className="hero-badge">
+                    <img src="/assets/logos/Avishkar '26 White.webp" alt="Avishkar '26" className="badge-logo" />
+                    <br/>E-SPORTS
+                </div>
                 <img src="/assets/logos/Battle-Grid.webp" alt="Battle Grid '26" className="hero-logo" />
 
                 <p className="hero-subtitle">The Ultimate Tactical Arena Championship</p>

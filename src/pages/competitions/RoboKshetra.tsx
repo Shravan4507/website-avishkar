@@ -500,7 +500,10 @@ const RoboKshetra: React.FC = () => {
                 <div className="rk-selection-screen animate-in">
                     {/* --- HERO SECTION --- */}
                     <section className="rk-hero">
-                        <div className="hero-badge">Avishkar '26 <br/>Robotics</div>
+                        <div className="hero-badge">
+                            <img src="/assets/logos/Avishkar '26 White.webp" alt="Avishkar '26" className="badge-logo" />
+                            <br/>Robotics
+                        </div>
                         <img src={`${import.meta.env.BASE_URL}assets/logos/Robokshetra.webp`} alt="Robo-Kshetra" className="hero-logo" />
                         <p className="hero-subtitle">Forge, Optimize, Combat. High-octane robotics competition where logic meets heavy metal.</p>
 
