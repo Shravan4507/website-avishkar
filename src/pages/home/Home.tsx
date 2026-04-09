@@ -11,6 +11,11 @@ const zcoerLogo = `${import.meta.env.BASE_URL}assets/logos/ZCOER-Logo-White.webp
 const avishkarTitle = `${import.meta.env.BASE_URL}assets/logos/avishkar-white.webp`
 const avishkarHeader = `${import.meta.env.BASE_URL}assets/logos/Avishkar '26 White.webp`
 
+import { useAuthState } from 'react-firebase-hooks/auth'
+import { auth, db } from '../../firebase/firebase'
+import { doc, updateDoc, getDoc } from 'firebase/firestore'
+import GlitchText from '../../components/GlitchText/GlitchText'
+import { useToast } from '../../components/toast/Toast'
 import './Home.css'
 
 const CountUp = ({ end, duration = 2000, suffix = "" }: { end: number, duration?: number, suffix?: string }) => {
@@ -175,7 +180,103 @@ const ScratchDate = () => {
 
 function Home() {
   const navigate = useNavigate();
+  const [user] = useAuthState(auth);
+  const toast = useToast();
   const { isRegistered, eventName } = useRegistrationGuard();
+  
+  // --- Void Walker Logic ---
+  const [glitchActive, setGlitchActive] = useState(false);
+  const [showVoidMsg, setShowVoidMsg] = useState(false);
+  const [showHint, setShowHint] = useState(false);
+  const [eggFound, setEggFound] = useState(false);
+  const [alreadyHasBadge, setAlreadyHasBadge] = useState(false);
+  const [engagementScore, setEngagementScore] = useState(0); 
+  const holdTimerRef = useRef<any>(null);
+  const hintTimeoutRef = useRef<any>(null);
+
+  // --- Persistent Check ---
+  useEffect(() => {
+    if (user) {
+      const checkBadgeStatus = async () => {
+        try {
+          const uSnap = await getDoc(doc(db, "user", user.uid));
+          if (uSnap.exists() && uSnap.data()?.badges?.voidWalker?.unlocked) {
+            setAlreadyHasBadge(true);
+          }
+        } catch (e) { console.error("Badge sync error", e); }
+      };
+      checkBadgeStatus();
+    }
+  }, [user]);
+  // -------------------------
+
+  const startGlitchTimer = () => {
+    if (holdTimerRef.current) return;
+    
+    // Increment engagement on interact
+    setEngagementScore(prev => prev + 1);
+
+    holdTimerRef.current = setTimeout(() => {
+      setGlitchActive(true);
+      setShowHint(false); // Hide hint once glitch starts
+      setEggFound(true);  // Permanently silence hint for session
+      
+      setTimeout(() => {
+        setGlitchActive(false);
+        unlockBadge();
+        toast.success("Hey Pal, Go Check your Dashboard! 🚀");
+      }, 2000);
+    }, 3000);
+  };
+
+  const handleMouseEnter = () => {
+    if (eggFound || alreadyHasBadge) return;
+    // Start tracking for hint after 5 seconds of hovering
+    hintTimeoutRef.current = setTimeout(() => {
+      setShowHint(true);
+    }, 5000);
+  };
+
+  const handleMouseLeave = () => {
+    clearGlitchTimer();
+    if (hintTimeoutRef.current) {
+      clearTimeout(hintTimeoutRef.current);
+    }
+  };
+
+  // Trigger hint after 3 interactions too
+  useEffect(() => {
+    if (engagementScore >= 3 && !glitchActive && !eggFound && !alreadyHasBadge) {
+      setShowHint(true);
+    }
+  }, [engagementScore, glitchActive, eggFound, alreadyHasBadge]);
+
+  const clearGlitchTimer = () => {
+    if (holdTimerRef.current) {
+      clearTimeout(holdTimerRef.current);
+      holdTimerRef.current = null;
+    }
+  };
+
+  const unlockBadge = async () => {
+    if (user) {
+      try {
+        const userRef = doc(db, 'user', user.uid);
+        await updateDoc(userRef, {
+          "badges.voidWalker": {
+            unlocked: true,
+            unlockedAt: new Date().toISOString()
+          }
+        });
+        setShowVoidMsg(true);
+        setTimeout(() => setShowVoidMsg(false), 6000);
+      } catch (err) {
+        console.error("Error bypassing protocol:", err);
+      }
+    }
+  };
+  // -------------------------
+
   const flagshipCompetitions = COMPETITIONS_DATA.filter((item: any) => item.isFlagship);
 
   const [timeLeft, setTimeLeft] = useState({
@@ -220,7 +321,39 @@ function Home() {
           <button className="hero__logo-btn" onClick={() => window.open('https://zcoer.in/', '_blank')}>
             <img src={zcoerLogo} alt="ZCOER" className="hero__zcoer-logo" />
           </button>
-          <img src={avishkarTitle} alt="AVISHKAR '26" className="hero__title" />
+          
+          <div 
+            className="glitch-logo-container"
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            onPointerDown={startGlitchTimer} 
+            onPointerUp={clearGlitchTimer}
+            style={{ position: 'relative', height: 'fit-content' }}
+          >
+            {showHint && !glitchActive && (
+              <div className="logo-hint-bubble">
+                Wanna see something useless? <br/>
+                <span>{('ontouchstart' in window) ? 'Tap' : 'Click'} and hold this for few seconds</span>
+              </div>
+            )}
+            
+            {!glitchActive ? (
+              <img 
+                src={avishkarTitle} 
+                alt="AVISHKAR '26" 
+                className="hero__title" 
+                style={{ opacity: 1, transition: 'opacity 0.3s ease' }}
+              />
+            ) : (
+              <GlitchText
+                speed={0.3}
+                enableShadows
+                className="hero__glitch-title"
+              >
+                AVISHKAR '26
+              </GlitchText>
+            )}
+          </div>
           
           <div className="hero__countdown">
             {/* ... countdown items ... */}
@@ -378,6 +511,14 @@ function Home() {
           <Link to="/login" className="final-cta-btn">Join the Ecosystem</Link>
         </div>
       </section>
+
+      {/* --- VOID WALKER NOTIFICATION --- */}
+      {showVoidMsg && (
+        <div className="void-walker-msg">
+          <h4>[PROTOCOL BYPASSED]</h4>
+          <p>VOID WALKER BADGE UNLOCKED</p>
+        </div>
+      )}
     </>
   )
 }

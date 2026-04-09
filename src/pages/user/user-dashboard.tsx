@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import DashboardSkeleton from '../../components/common/DashboardSkeleton';
 import NotificationBell from '../../components/notifications/NotificationBell';
 import { useToast } from '../../components/toast/Toast';
-import { Award, FileText, Instagram, Youtube, BookOpen, Download, Camera, Loader2, CloudUpload } from 'lucide-react';
+import { Award, FileText, Instagram, Youtube, BookOpen, Download, Camera, Loader2, CloudUpload, Zap } from 'lucide-react';
 import VirtualPass from '../../components/VirtualPass/VirtualPass';
 import { generateInvoice } from '../../utils/InvoiceGenerator';
 import { useCache } from '../../hooks/useCache';
@@ -33,6 +33,12 @@ interface UserProfile {
   referrals?: number;
   role?: string;
   designation?: string;
+  badges?: {
+    voidWalker?: {
+      unlocked: boolean;
+      unlockedAt: string;
+    }
+  };
 }
 
 const UserDashboard: React.FC = () => {
@@ -339,6 +345,11 @@ const UserDashboard: React.FC = () => {
               <h1 className="user-dashboard-name">Welcome, {userData.firstName}</h1>
               <div className="user-dashboard-badges">
                 <div className="user-dashboard-id">AVR-ID: <span>{userData.avrId}</span></div>
+                {userData.badges?.voidWalker?.unlocked && (
+                  <div className="badge-pill void-walker-badge" title="Unlocked by bypassing the main protocol">
+                    <Zap size={14} fill="currentColor" /> Void Walker
+                  </div>
+                )}
               </div>
             </div>
           </div>

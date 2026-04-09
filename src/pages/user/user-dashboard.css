@@ -908,3 +908,52 @@
     text-shadow: 0 0 10px rgba(82, 39, 255, 0.5);
 }
 
+
+
+/* --- BADGES --- */
+.user-dashboard-badges {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: 0.5rem;
+}
+
+.badge-pill {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.8rem;
+    border-radius: 2rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: 'Iceland', sans-serif;
+    cursor: help;
+}
+
+.void-walker-badge {
+    background: rgba(82, 39, 255, 0.15);
+    color: #a78bfa;
+    border: 1px solid rgba(167, 139, 250, 0.4);
+    box-shadow: 0 0 15px rgba(82, 39, 255, 0.1);
+    animation: badgeGlow 3s infinite alternate;
+}
+
+@keyframes badgeGlow {
+    from { 
+        box-shadow: 0 0 10px rgba(82, 39, 255, 0.15); 
+        border-color: rgba(167, 139, 250, 0.4);
+    }
+    to { 
+        box-shadow: 0 0 20px rgba(82, 39, 255, 0.3); 
+        border-color: rgba(167, 139, 250, 0.7);
+    }
+}
+
+@media (max-width: 480px) {
+    .user-dashboard-badges {
+        justify-content: center;
+    }
+}
