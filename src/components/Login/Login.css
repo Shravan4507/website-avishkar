@@ -10,7 +10,7 @@
 .login-card {
   width: 100%;
   max-width: 400px;
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(0, 0, 0, 0.65);
   backdrop-filter: blur(25px);
   -webkit-backdrop-filter: blur(25px);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -26,6 +26,13 @@
   letter-spacing: 2px;
   margin-bottom: 12px;
   color: #fff;
+}
+
+.login-logo {
+  height: 60px;
+  width: auto;
+  margin-bottom: 24px;
+  filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.3));
 }
 
 .login-subtitle {

@@ -389,6 +389,25 @@
 
 /* Responsive */
 @media (max-width: 900px) {
+    .rk-coordinators {
+        flex-direction: column;
+        align-items: stretch;
+        max-width: 350px;
+        margin: 2.5rem auto 0;
+        gap: 0.8rem;
+    }
+
+    .coord-pill {
+        font-size: 0.85rem;
+        padding: 0.7rem 1.25rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .coord-phone {
+        margin-left: 0.2rem;
+    }
+
     .bg-hero { margin-bottom: 4rem; }
     .hero-stats { flex-direction: column; gap: 2rem; }
     .hero-ctas { flex-direction: column; width: 100%; align-items: center; }

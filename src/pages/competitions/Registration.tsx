@@ -200,15 +200,20 @@ const Registration: React.FC = () => {
             const data = querySnapshot.docs[0].data();
             const fullName = `${data.firstName || ''} ${data.lastName || ''}`.trim() || data.name || data.displayName || '';
             
-            const newSquad = [...squadMembers];
-            newSquad[index] = {
-                ...newSquad[index],
-                name: fullName,
-                email: data.email || '',
-                phone: data.whatsappNumber || data.whatsapp || data.phone || '',
-                college: data.college || '',
-            };
-            setSquadMembers(newSquad);
+            setSquadMembers(prev => {
+                const updated = [...prev];
+                // Only update if the user hasn't already changed the ID to something else
+                if (updated[index].avrId === avrId) {
+                    updated[index] = {
+                        ...updated[index],
+                        name: fullName,
+                        email: data.email || '',
+                        phone: data.whatsappNumber || data.whatsapp || data.phone || '',
+                        college: data.college || '',
+                    };
+                }
+                return updated;
+            });
             setLookupFailed(prev => ({ ...prev, [index]: false }));
         } else {
             setLookupFailed(prev => ({ ...prev, [index]: true }));
@@ -486,24 +491,16 @@ const Registration: React.FC = () => {
           <h2 className="registration-title">Official Registration</h2>
           <p className="registration-subtitle">Verify your identity profile below to secure your spot.</p>
 
-          <div className="scheduling-notice-box" style={{ 
-            background: 'rgba(217, 255, 0, 0.05)', 
-            border: '1px solid rgba(217, 255, 0, 0.2)',
-            borderRadius: '12px',
-            padding: '1.25rem',
-            marginBottom: '1.5rem',
-            display: 'flex',
-            gap: '1rem'
-          }}>
-            <div className="notice-icon" style={{ color: '#d9ff00' }}>
+          <div className="scheduling-notice-box">
+            <div className="notice-icon">
               <AlertTriangle size={24} />
             </div>
             <div className="notice-text">
-              <h4 style={{ color: '#d9ff00', margin: '0 0 0.5rem 0', fontSize: '0.95rem', letterSpacing: '1px' }}>SCHEDULING ACCOUNTABILITY</h4>
-              <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem', lineHeight: '1.5', margin: 0 }}>
+              <h4>SCHEDULING ACCOUNTABILITY</h4>
+              <p>
                 By registering, you acknowledge that Avishkar '26 follows a <strong>One User, One Event</strong> policy. If you register for overlapping events, the responsibility for scheduling conflicts rests solely with you. The organizing committee is not liable for participation overlaps.
               </p>
-              <div className="notice-check" style={{ marginTop: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <div className="notice-check">
                 <input 
                   type="checkbox" 
                   id="acc-check"

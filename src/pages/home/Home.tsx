@@ -61,6 +61,118 @@ const CountUp = ({ end, duration = 2000, suffix = "" }: { end: number, duration?
   return <span ref={elementRef}>{count.toLocaleString()}{suffix}</span>
 }
 
+const ScratchDate = () => {
+  const [isRevealed, setIsRevealed] = useState(false);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const isDrawing = useRef(false);
+
+  useEffect(() => {
+    const lastScratched = localStorage.getItem('last_date_scratch');
+    if (lastScratched) {
+      const now = new Date().getTime();
+      const timePassed = now - parseInt(lastScratched);
+      if (timePassed < 24 * 60 * 60 * 1000) {
+        setIsRevealed(true);
+        return;
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isRevealed || !canvasRef.current || !containerRef.current) return;
+
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    if (!ctx) return;
+
+    // Match container size
+    const resize = () => {
+      const rect = containerRef.current!.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+      
+      // Fill with scratch surface
+      ctx.fillStyle = '#1a1a1a';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Add some "noise/texture" to make it look premium
+      ctx.fillStyle = '#222';
+      for(let i=0; i<1000; i++) {
+        ctx.fillRect(Math.random()*canvas.width, Math.random()*canvas.height, 2, 2);
+      }
+      
+      ctx.font = '700 1.2rem Iceland';
+      ctx.fillStyle = '#333';
+      ctx.textAlign = 'center';
+      ctx.fillText('SCRATCH TO REVEAL', canvas.width/2, canvas.height/2 + 7);
+    };
+
+    resize();
+    window.addEventListener('resize', resize);
+
+    const getPos = (e: any) => {
+      const rect = canvas.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      return { x: clientX - rect.left, y: clientY - rect.top };
+    };
+
+    const scratch = (e: any) => {
+      if (!isDrawing.current) return;
+      const pos = getPos(e);
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.beginPath();
+      ctx.arc(pos.x, pos.y, 25, 0, Math.PI * 2);
+      ctx.fill();
+      checkReveal();
+    };
+
+    const checkReveal = () => {
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const pixels = imageData.data;
+      let transparent = 0;
+      for (let i = 0; i < pixels.length; i += 4) {
+        if (pixels[i + 3] === 0) transparent++;
+      }
+      const percentage = (transparent / (pixels.length / 4)) * 100;
+      if (percentage > 45) {
+        handleReveal();
+      }
+    };
+
+    const handleReveal = () => {
+      setIsRevealed(true);
+      localStorage.setItem('last_date_scratch', new Date().getTime().toString());
+    };
+
+    const start = (e: any) => { isDrawing.current = true; scratch(e); };
+    const end = () => isDrawing.current = false;
+
+    canvas.addEventListener('mousedown', start);
+    canvas.addEventListener('mousemove', scratch);
+    canvas.addEventListener('mouseup', end);
+    canvas.addEventListener('touchstart', start);
+    canvas.addEventListener('touchmove', scratch);
+    canvas.addEventListener('touchend', end);
+
+    return () => {
+      window.removeEventListener('resize', resize);
+      canvas.removeEventListener('mousedown', start);
+      canvas.removeEventListener('mousemove', scratch);
+    };
+  }, [isRevealed]);
+
+  return (
+    <div className={`scratch-container ${isRevealed ? 'revealed' : ''}`} ref={containerRef}>
+      <div className="scratch-content">
+        <span className="event-date-text">23<sup>rd</sup> - 25<sup>th</sup> APRIL 2026</span>
+      </div>
+      {!isRevealed && <canvas ref={canvasRef} className="scratch-canvas" />}
+    </div>
+  );
+};
+
 function Home() {
   const navigate = useNavigate();
   const { isRegistered, eventName } = useRegistrationGuard();
@@ -111,6 +223,7 @@ function Home() {
           <img src={avishkarTitle} alt="AVISHKAR '26" className="hero__title" />
           
           <div className="hero__countdown">
+            {/* ... countdown items ... */}
             <div className="countdown-item">
               <span className="countdown-value">{timeLeft.days.toString().padStart(2, '0')}</span>
               <span className="countdown-label">Days</span>
@@ -131,6 +244,8 @@ function Home() {
               <span className="countdown-label">Secs</span>
             </div>
           </div>
+
+          <ScratchDate />
 
           <div className="home-arenas">
             <div className="arena-header">

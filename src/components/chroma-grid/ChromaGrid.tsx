@@ -100,6 +100,11 @@ export const ChromaGrid: React.FC<ChromaGridProps> = ({
     const setY = useRef<SetterFn | null>(null);
     const pos = useRef({ x: 0, y: 0 });
     const [selectedMember, setSelectedMember] = useState<ChromaItem | null>(null);
+    const [clickCount, setClickCount] = useState(0);
+    const [tooltipMsg, setTooltipMsg] = useState("");
+    const [showTooltip, setShowTooltip] = useState(false);
+    const tooltipTimer = useRef<any>(null);
+    const hasSnapped = useRef(false);
 
     const data = items || [];
 
@@ -148,7 +153,54 @@ export const ChromaGrid: React.FC<ChromaGridProps> = ({
         onItemClick?.(member);
         if (!disableModal) {
             setSelectedMember(member);
+            setClickCount(0); // Reset count for new member
+            setShowTooltip(false);
         }
+    };
+
+    const handleCheekyClick = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const phrases = [
+            "Hey! That tickles! 🤖",
+            "Whoa there, let's keep it professional. 💼",
+            "Buy me a coffee before you start poking. ☕",
+            "Error: User is being too handsy. 🛑",
+            "I'm telling the System Admin! 📢",
+            "LAST WARNING. ⚠️",
+            "FINE! You want a link? HERE! 🖕"
+        ];
+
+        const nextCount = clickCount + 1;
+        setClickCount(nextCount);
+        
+        const phraseIndex = Math.min(nextCount - 1, phrases.length - 1);
+        setTooltipMsg(phrases[phraseIndex]);
+        setShowTooltip(true);
+
+        // Shake animation gets more violent as count increases
+        if (e.currentTarget) {
+            const intensity = nextCount * 2;
+            gsap.fromTo(e.currentTarget, 
+                { x: 0 }, 
+                { x: intensity, duration: 0.05, repeat: 5, yoyo: true, ease: "none" }
+            );
+        }
+
+        // The "Fake Rickroll" snap - Only trigger exactly at 7 and only once
+        if (nextCount === 7 && !hasSnapped.current) {
+            hasSnapped.current = true;
+            setTimeout(() => {
+                window.open("https://www.google.com/search?q=how+to+be+a+decent+human+being+online", "_blank");
+                closePortal();
+                // Reset for next time modal opens
+                setTimeout(() => { hasSnapped.current = false; }, 1000);
+            }, 800);
+        }
+
+        if (tooltipTimer.current) clearTimeout(tooltipTimer.current);
+        tooltipTimer.current = setTimeout(() => setShowTooltip(false), 3000);
     };
 
     const closePortal = () => {
@@ -274,13 +326,21 @@ export const ChromaGrid: React.FC<ChromaGridProps> = ({
                                 <div className="modal-meta">
                                     <span className="modal-role">{selectedMember.subtitle}</span>
                                     <span className="dot"></span>
-                                    {selectedMember.url ? (
-                                        <a href={selectedMember.url} target="_blank" rel="noopener noreferrer" className="modal-handle link">
+                                    <div className="modal-handle-container">
+                                        <a 
+                                            href={selectedMember.url} 
+                                            className="modal-handle link"
+                                            onClick={handleCheekyClick}
+                                        >
                                             {selectedMember.handle}
                                         </a>
-                                    ) : (
-                                        <span className="modal-handle">{selectedMember.handle}</span>
-                                    )}
+                                        {showTooltip && (
+                                            <div className="cheeky-tooltip">
+                                                {tooltipMsg}
+                                                <div className="tooltip-arrow"></div>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                                 <p className="modal-desc">
                                     {selectedMember.description}

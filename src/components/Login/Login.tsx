@@ -7,6 +7,8 @@ import { useToast } from '../toast/Toast';
 import Loader from '../loader/Loader';
 import './Login.css';
 
+const avishkarLogo = `${import.meta.env.BASE_URL}assets/logos/avishkar-white.webp`;
+
 /**
  * Student Login (Google Only)
  * Rules:
@@ -54,6 +56,7 @@ const Login: React.FC = () => {
   return (
     <div className="login-container">
       <div className="login-card animate-in">
+        <img src={avishkarLogo} alt="Avishkar '26" className="login-logo" />
         <h2 className="login-title">Join Avishkar '26</h2>
         <p className="login-subtitle">Student Portal • Exclusive Google Sign-in</p>
         

@@ -23,11 +23,11 @@
 .bug-report-modal {
   width: 100%;
   max-width: 480px;
-  background: rgba(20, 15, 40, 0.9);
+  background: rgba(0, 0, 0, 0.65);
   backdrop-filter: blur(30px);
   -webkit-backdrop-filter: blur(30px);
   border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 24px;
+  border-radius: 3rem;
   padding: 2.5rem 2rem 2rem;
   position: relative;
   animation: bugSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -40,10 +40,10 @@
 
 .bug-report-close {
   position: absolute;
-  top: 16px;
-  right: 16px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  top: 20px;
+  right: 20px;
+  background: rgba(0, 0, 0, 0);
+  border: none;
   color: rgba(255, 255, 255, 0.7);
   border-radius: 50%;
   width: 36px;
@@ -55,9 +55,8 @@
   transition: all 0.2s ease;
 }
 
-.bug-report-close:hover {
-  background: rgba(255, 255, 255, 0.15);
-  color: #fff;
+.bug-report-close:active {
+  transform: scale(0.98);
 }
 
 .bug-report-header {
@@ -76,7 +75,7 @@
 
 .bug-report-subtitle {
   font-size: 0.95rem;
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.75);
   margin: 0;
 }
 
@@ -95,7 +94,7 @@
 .bug-field label {
   font-size: 0.85rem;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.75);
   text-transform: uppercase;
   letter-spacing: 1px;
 }
@@ -103,9 +102,10 @@
 .bug-field select,
 .bug-field textarea {
   width: 100%;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.75);
+  border: none;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 2rem;
   color: #fff;
   font-family: 'Montserrat', sans-serif;
   font-size: 1rem;
@@ -141,10 +141,11 @@
 .bug-submit-btn {
   width: 100%;
   padding: 1rem;
-  background: linear-gradient(135deg, #5227ff 0%, #7c3aed 100%);
-  color: #fff;
   border: none;
-  border-radius: 14px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+  background: #000;
+  color: #fff;
+  border-radius: 7rem;
   font-size: 1.05rem;
   font-weight: 700;
   font-family: 'Montserrat', sans-serif;
@@ -155,7 +156,6 @@
 }
 
 .bug-submit-btn:hover:not(:disabled) {
-  transform: translateY(-1px);
   box-shadow: 0 8px 25px rgba(82, 39, 255, 0.35);
 }
 
@@ -184,8 +184,8 @@
 
   .bug-report-modal {
     max-width: 100%;
-    border-radius: 24px 24px 0 0;
-    padding: 2rem 1.5rem 2.5rem;
+    border-radius: 2rem 2rem 0 0;
+    padding: 2rem 1.5rem calc(2rem + env(safe-area-inset-bottom, 0px));
     max-height: 90vh;
     overflow-y: auto;
   }

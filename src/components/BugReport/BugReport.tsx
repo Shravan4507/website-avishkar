@@ -117,7 +117,7 @@ export const BugReportProvider: React.FC<{ children: React.ReactNode }> = ({ chi
                   id="bug-description"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Describe the bug you encountered..."
+                  placeholder="Describe the bug you encountered (min. 10 characters)..."
                   maxLength={1000}
                 />
               </div>
