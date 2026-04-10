@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import DashboardSkeleton from '../../components/common/DashboardSkeleton';
 import NotificationBell from '../../components/notifications/NotificationBell';
 import { useToast } from '../../components/toast/Toast';
-import { Award, FileText, Instagram, Youtube, BookOpen, Download, Camera, Loader2, CloudUpload, Zap } from 'lucide-react';
+import { Award, FileText, BookOpen, Download, Camera, Video, Loader2, CloudUpload, Zap } from 'lucide-react';
 import VirtualPass from '../../components/VirtualPass/VirtualPass';
 import { generateInvoice } from '../../utils/InvoiceGenerator';
 import { useCache } from '../../hooks/useCache';
@@ -397,10 +397,10 @@ const UserDashboard: React.FC = () => {
               <h3 style={{ color: '#e2e8f0', fontSize: '1.2rem', marginBottom: '1rem', fontFamily: "'Iceland', sans-serif", letterSpacing: '1.5px' }}>Follow Us</h3>
               <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem' }}>
                 <a href="https://www.instagram.com/zeal_avishkar/" target="_blank" rel="noreferrer" className="social-icon-btn">
-                  <Instagram size={24} />
+                  <Camera size={24} />
                 </a>
                 <a href="https://www.youtube.com/@zeal_avishkar" target="_blank" rel="noreferrer" className="social-icon-btn">
-                  <Youtube size={24} />
+                  <Video size={24} />
                 </a>
               </div>
             </aside>
@@ -501,7 +501,7 @@ const UserDashboard: React.FC = () => {
                   </div>
                 </button>
                 <button className="download-card disabled-card" onClick={() => toast.info("Workshop content will be uploaded soon.")}>
-                  <div className="dl-icon"><Youtube size={24} /></div>
+                  <div className="dl-icon"><Video size={24} /></div>
                   <div className="dl-info">
                     <h3>Workshop Content</h3>
                     <p>Coming soon</p>

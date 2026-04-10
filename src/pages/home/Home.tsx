@@ -319,7 +319,14 @@ function Home() {
       <section className="hero" id="home">
         <div className="hero__content">
           <button className="hero__logo-btn" onClick={() => window.open('https://zcoer.in/', '_blank')}>
-            <img src={zcoerLogo} alt="ZCOER" className="hero__zcoer-logo" />
+            <img 
+              src={zcoerLogo} 
+              alt="ZCOER" 
+              className="hero__zcoer-logo" 
+              width="200"
+              height="200"
+              fetchPriority="high"
+            />
           </button>
           
           <div 
@@ -342,6 +349,9 @@ function Home() {
                 src={avishkarTitle} 
                 alt="AVISHKAR '26" 
                 className="hero__title" 
+                width="1040"
+                height="260"
+                fetchPriority="high"
                 style={{ opacity: 1, transition: 'opacity 0.3s ease' }}
               />
             ) : (
@@ -431,12 +441,19 @@ function Home() {
             <div className="hero__about-content">
               <h2 className="hero__about-title">
                 <span className="hero__about-prefix">What is</span>
-                <img src={avishkarHeader} alt="AVISHKAR '26" className="hero__about-logo" />
+                <img 
+                  src={avishkarHeader} 
+                  alt="AVISHKAR '26" 
+                  className="hero__about-logo" 
+                  width="500"
+                  height="128"
+                  loading="lazy"
+                />
               </h2>
             </div>
             
             <div className="hero__about-video-placeholder">
-              <StarBorder as="div" color="#5227FF" speed="6s" thickness={2} borderRadius={32}>
+              <StarBorder as="div" color="#7C5CFF" speed="6s" thickness={2} borderRadius={32}>
                 <div className="video-teaser">
                   <div className="teaser-content">
                     <div className="teaser-icon">

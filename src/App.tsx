@@ -4,7 +4,6 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import { HelmetProvider } from 'react-helmet-async';
 import { AnimatePresence } from 'framer-motion';
 
-import Grainient from './components/background/Grainient';
 import PageTransition from './components/PageTransition';
 import Navbar from './components/Navbar/Navbar';
 import Footer from './components/Footer/Footer';
@@ -18,6 +17,8 @@ import { BugReportProvider } from './components/BugReport/BugReport';
 import { isLowSpecDevice } from './utils/performance';
 import { reportError } from './utils/errorReport';
 
+
+const Grainient = lazy(() => import('./components/background/Grainient'));
 
 // Lazy Loaded Public Pages
 const Home = lazy(() => import('./pages/home/Home'));
@@ -46,6 +47,8 @@ const Privacy = lazy(() => import('./pages/legal/Privacy'));
 const Terms = lazy(() => import('./pages/legal/Terms'));
 const Cookies = lazy(() => import('./pages/legal/Cookies'));
 const FAQ = lazy(() => import('./pages/info/FAQ'));
+const ReachUs = lazy(() => import('./pages/info/ReachUs'));
+
 
 
 import { PAGE_VISIBILITY } from './config/pageVisibility';
@@ -144,36 +147,38 @@ const LayoutManager = () => {
   };
 
   const isParamX = location.pathname.startsWith('/param-x');
-  const grainientColor2 = isParamX ? "#110057" : "#5227ff";
+  const grainientColor2 = isParamX ? "#110057" : "#5227FF";
 
   return (
     <>
 
       <div className="background-fixed">
-        <Grainient
-          color1="#000000"
-          color2={grainientColor2}
-          color3="#201d20"
-          timeSpeed={0.25}
-          colorBalance={0}
-          warpStrength={1}
-          warpFrequency={5}
-          warpSpeed={2}
-          warpAmplitude={50}
-          blendAngle={0}
-          blendSoftness={0.05}
-          rotationAmount={500}
-          noiseScale={2}
-          grainAmount={0.1}
-          grainScale={2}
-          grainAnimated={false}
-          contrast={1.5}
-          gamma={1}
-          saturation={1}
-          centerX={0}
-          centerY={0}
-          zoom={0.9}
-        />
+        <Suspense fallback={null}>
+          <Grainient
+            color1="#000000"
+            color2={grainientColor2}
+            color3="#201d20"
+            timeSpeed={0.25}
+            colorBalance={0}
+            warpStrength={1}
+            warpFrequency={5}
+            warpSpeed={2}
+            warpAmplitude={50}
+            blendAngle={0}
+            blendSoftness={0.05}
+            rotationAmount={500}
+            noiseScale={2}
+            grainAmount={0.1}
+            grainScale={2}
+            grainAnimated={false}
+            contrast={1.5}
+            gamma={1}
+            saturation={1}
+            centerX={0}
+            centerY={0}
+            zoom={0.9}
+          />
+        </Suspense>
       </div>
 
       <div className="app-container">
@@ -196,6 +201,7 @@ const LayoutManager = () => {
                   <Route path="/cookies"     element={<T el={<Cookies />} />} />
                   <Route path="/faq"         element={<T el={<FAQ />} />} />
                   <Route path="/contact"     element={<T el={settings.contact ? <Contact /> : <ComingSoon pageName="Contact" />} />} />
+                  <Route path="/reach-us"    element={<T el={<ReachUs />} />} />
                   <Route path="/book-a-stall" element={<T el={<BookStall />} />} />
                   <Route path="/robo-kshetra" element={<T el={settings.competitions ? <RobotronRegistration /> : <ComingSoon pageName="RoboKshetra" />} />} />
                   <Route path="/robo-kshetra/rules" element={<T el={<RoboKshetraRules />} />} />

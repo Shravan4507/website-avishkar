@@ -67,6 +67,7 @@ function Footer() {
                                 
                                 <Link to="/team" className="footer__link">Team</Link>
                                 <Link to="/contact" className="footer__link">Contact</Link>
+                                <Link to="/reach-us" className="footer__link">Reach Us</Link>
                             </nav>
                         </div>
 
