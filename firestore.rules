@@ -264,6 +264,29 @@ service cloud.firestore {
     }
 
     // =============================================
+    // PENDING REGISTRATIONS (Payment Safety Net)
+    // Captures registration intent BEFORE the payment gateway opens.
+    // If payment succeeds but callback fails, admin can manually verify & approve.
+    // =============================================
+    match /pending_registrations/{txnId} {
+      // Any authenticated user can create a pending record (before paying)
+      allow create: if isAuth();
+
+      // Users can update their own pending record (to mark confirmed/failed after callback)
+      allow update: if isAuth() && request.auth.uid == resource.data.userId;
+
+      // Users can read their own pending records
+      allow get: if isAuth() && request.auth.uid == resource.data.userId;
+
+      // Admins can list and read all pending records
+      allow list: if isAuth() && isAdmin();
+      allow get: if isAuth() && isAdmin();
+
+      // Admins can update (approve/reject) and delete pending records
+      allow update, delete: if isAuth() && isCoreAdmin();
+    }
+
+    // =============================================
     // MAIL (Firebase Trigger Email Extension)
     // =============================================
     match /mail/{mailId} {

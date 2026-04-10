@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import {
-  collection, query, getDocs, orderBy, doc, updateDoc, deleteDoc, where
+  collection, query, getDocs, orderBy, doc, updateDoc, deleteDoc, where,
+  setDoc, serverTimestamp, runTransaction
 } from 'firebase/firestore';
 import { db } from '../../firebase/firebase';
 import { useToast } from '../../components/toast/Toast';
@@ -9,9 +10,10 @@ import * as XLSX from 'xlsx';
 
 import {
   Search, Download, Edit2, Trash2, X, Eye,
-  ChevronUp, ChevronDown, Users, 
-  Copy, Calendar, CreditCard, RotateCcw, 
-  UserCheck, UserX, User, Mail, Phone
+  ChevronUp, ChevronDown, Users,
+  Copy, Calendar, CreditCard, RotateCcw,
+  UserCheck, UserX, User, Mail, Phone,
+  ShieldCheck, XCircle, Clock
 } from 'lucide-react';
 
 
@@ -53,7 +55,12 @@ interface Registration {
     college?: string;
   }>;
   moonAddon?: boolean;
-  _collection: 'registrations' | 'hackathon_registrations';
+  _collection: 'registrations' | 'hackathon_registrations' | 'pending_registrations';
+  // Pending-specific fields
+  _isPending?: boolean;
+  pendingTxnId?: string;
+  pendingType?: string;
+  pendingFormData?: any;
 }
 
 interface RegistrationManagerProps {
@@ -99,7 +106,11 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({ forcedHandle,
 
         if (forcedHandle) {
           regsQuery = query(regsQuery, where('competitionHandle', '==', forcedHandle));
-          hackQuery = query(hackQuery, where('competitionHandle', '==', forcedHandle));
+          // Only filter hackathon by handle if NOT hackathon-only scope
+          // (existing public hackathon registrations don't have competitionHandle field)
+          if (collectionScope !== 'hackathon') {
+            hackQuery = query(hackQuery, where('competitionHandle', '==', forcedHandle));
+          }
         }
 
         // NOTE: eventTitleFilter is applied CLIENT-SIDE after fetch (see filteredRegistrations)
@@ -108,9 +119,16 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({ forcedHandle,
         const shouldFetchRegs = collectionScope === 'both' || collectionScope === 'registrations';
         const shouldFetchHack = collectionScope === 'both' || collectionScope === 'hackathon';
 
-        const [regSnap, hackSnap] = await Promise.all([
+        // Also fetch pending registrations for admin visibility
+        let pendingQuery = query(collection(db, 'pending_registrations'), orderBy('createdAt', 'desc'));
+        if (forcedHandle) {
+          pendingQuery = query(pendingQuery, where('competitionHandle', '==', forcedHandle));
+        }
+
+        const [regSnap, hackSnap, pendingSnap] = await Promise.all([
           shouldFetchRegs ? getDocs(regsQuery) : Promise.resolve({ docs: [] }),
-          shouldFetchHack ? getDocs(hackQuery) : Promise.resolve({ docs: [] })
+          shouldFetchHack ? getDocs(hackQuery) : Promise.resolve({ docs: [] }),
+          getDocs(pendingQuery).catch(() => ({ docs: [] })) // Graceful fallback if no pending collection
         ]);
 
         const standardRegs = regSnap.docs.map(d => {
@@ -181,7 +199,44 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({ forcedHandle,
           } as Registration;
         });
 
-        setRegistrations([...standardRegs, ...hackathonRegs]);
+        // Map pending registrations (payment_pending only — skip confirmed/failed)
+        const pendingRegs = pendingSnap.docs
+          .filter(d => d.data().status === 'payment_pending')
+          .map(d => {
+            const data = d.data();
+            return {
+              id: d.id,
+              userName: data.userName || '—',
+              userEmail: data.userEmail || '—',
+              avrId: data.userAVR || data.formData?.leaderAvrId || '—',
+              userPhone: data.userPhone || '',
+              userCollege: '',
+              userMajor: '',
+              userAge: 0,
+              userSex: '',
+              userId: data.userId || '',
+              eventName: data.eventName || '—',
+              competitionId: data.competitionId || '',
+              category: 'Pending Payment',
+              department: data.type === 'hackathon' ? 'Hackathon' : 'Competition',
+              registeredAt: data.createdAt,
+              isAttended: false,
+              paymentStatus: 'pending',
+              amountPaid: data.amount || 0,
+              transactionId: data.txnId || null,
+              status: 'payment_pending',
+              teamName: data.teamName || data.formData?.teamName || '',
+              competitionHandle: data.competitionHandle || '',
+              _collection: 'pending_registrations' as const,
+              _isPending: true,
+              pendingTxnId: data.txnId,
+              pendingType: data.type,
+              pendingFormData: data.formData,
+              allAvrIds: data.allAvrIds || [],
+            } as Registration;
+          });
+
+        setRegistrations([...standardRegs, ...hackathonRegs, ...pendingRegs]);
       } catch (err) {
         console.error(err);
         toast.error('Failed to load registrations.');
@@ -274,6 +329,139 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({ forcedHandle,
     } catch (err) {
       console.error(err);
       toast.error('Failed to delete registration.');
+    }
+  };
+
+  /* ── Approve Pending Registration ── */
+  const handleApprovePending = async (reg: Registration) => {
+    if (!reg._isPending || !reg.pendingFormData) return;
+    if (!window.confirm(`Verify & Approve this pending ${reg.pendingType} registration for ${reg.userName}?\n\nThis will create the official registration record.`)) return;
+
+    setSaving(true);
+    try {
+      if (reg.pendingType === 'hackathon') {
+        // Create hackathon registration from pending formData
+        const formData = reg.pendingFormData;
+        
+        // Generate Team ID via counter transaction
+        let generatedTeamId = '';
+        await runTransaction(db, async (transaction) => {
+          const teamCounterRef = doc(db, 'counters', 'hackathon_team_counter');
+          const teamCounterDoc = await transaction.get(teamCounterRef);
+          let nextTeamCount = 1;
+          if (teamCounterDoc.exists()) {
+            nextTeamCount = (teamCounterDoc.data().count || 0) + 1;
+          }
+          transaction.update(teamCounterRef, { count: nextTeamCount });
+          generatedTeamId = `AVR-PRM-${nextTeamCount.toString().padStart(4, '0')}`;
+
+          // Update PS metadata count
+          const psMetadataRef = doc(db, 'ps_metadata', formData.psId);
+          const psMetadataDoc = await transaction.get(psMetadataRef);
+          let currentCount = 0;
+          if (psMetadataDoc.exists()) currentCount = psMetadataDoc.data().count || 0;
+          transaction.set(psMetadataRef, { count: currentCount + 1 }, { merge: true });
+
+          // Create the actual registration
+          const registrationRef = doc(collection(db, 'hackathon_registrations'));
+          transaction.set(registrationRef, {
+            ...formData,
+            teamId: generatedTeamId,
+            status: 'confirmed',
+            paymentId: reg.transactionId || reg.pendingTxnId,
+            easepayId: null,
+            bankRefNum: null,
+            paymentMode: null,
+            amountPaid: reg.amountPaid || 500,
+            allEmails: [
+              formData.leaderEmail?.toLowerCase(),
+              formData.member2Email?.toLowerCase(),
+              formData.member3Email?.toLowerCase(),
+              formData.member4Email?.toLowerCase()
+            ].filter(Boolean),
+            allAvrIds: [
+              formData.leaderAvrId,
+              formData.member2AvrId,
+              formData.member3AvrId,
+              formData.member4AvrId
+            ].filter(Boolean),
+            createdAt: serverTimestamp(),
+            uid: reg.userId,
+            _approvedByAdmin: true,
+            _approvedAt: new Date().toISOString()
+          });
+        });
+
+        toast.success(`Hackathon registration approved! Team ID: ${generatedTeamId}`);
+      } else {
+        // Create standard competition registration from pending data
+        const regId = `${reg.competitionId}_${reg.avrId || reg.userId}`;
+        const regRef = doc(db, 'registrations', regId);
+
+        const formData = reg.pendingFormData;
+        await setDoc(regRef, {
+          userId: reg.userId,
+          userName: reg.userName,
+          userEmail: reg.userEmail,
+          userAVR: reg.avrId,
+          allAvrIds: reg.allAvrIds || [],
+          userPhone: reg.userPhone,
+          userCollege: reg.userCollege || '',
+          teamName: formData?.teamName || null,
+          squad: formData?.squad || [],
+          competitionId: reg.competitionId,
+          eventName: reg.eventName,
+          competitionHandle: reg.competitionHandle || '',
+          category: 'Manually Verified',
+          department: reg.department || '',
+          paymentStatus: 'paid',
+          amountPaid: reg.amountPaid || 0,
+          moonObservation: formData?.moonObservation || false,
+          transactionId: reg.transactionId || reg.pendingTxnId,
+          status: 'confirmed',
+          registeredAt: serverTimestamp(),
+          isAttended: false,
+          _approvedByAdmin: true,
+          _approvedAt: new Date().toISOString()
+        });
+
+        toast.success(`Competition registration approved for ${reg.userName}!`);
+      }
+
+      // Update pending doc status
+      await updateDoc(doc(db, 'pending_registrations', reg.id), {
+        status: 'manually_verified',
+        resolvedAt: serverTimestamp(),
+        adminNote: 'Approved via Admin Dashboard'
+      });
+
+      // Remove from local state
+      setRegistrations(prev => prev.filter(r => r.id !== reg.id));
+    } catch (err) {
+      console.error('Approval failed:', err);
+      toast.error('Failed to approve registration. Check console for details.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  /* ── Reject Pending Registration ── */
+  const handleRejectPending = async (reg: Registration) => {
+    if (!reg._isPending) return;
+    const reason = window.prompt('Reason for rejecting this pending registration (optional):');
+    if (reason === null) return; // User cancelled the prompt
+
+    try {
+      await updateDoc(doc(db, 'pending_registrations', reg.id), {
+        status: 'rejected',
+        resolvedAt: serverTimestamp(),
+        adminNote: reason || 'Rejected via Admin Dashboard'
+      });
+      setRegistrations(prev => prev.filter(r => r.id !== reg.id));
+      toast.success('Pending registration rejected.');
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to reject pending registration.');
     }
   };
 
@@ -450,6 +638,7 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({ forcedHandle,
             options={[
               { label: 'All', value: 'All' }, 
               { label: 'Paid', value: 'Paid' }, 
+              { label: 'Pending', value: 'Pending' },
               { label: 'Free', value: 'Free' }
             ]} 
           />
@@ -505,7 +694,7 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({ forcedHandle,
               filtered.map((reg, i) => (
                 <tr 
                   key={reg.id} 
-                  className="reg-row"
+                  className={`reg-row ${reg._isPending ? 'reg-row-pending' : ''}`}
                   onClick={() => setDetailReg(reg)}
                 >
                   <td className="td-num">{i + 1}</td>
@@ -513,7 +702,8 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({ forcedHandle,
                     <div className="user-info">
                       <div className="name-row">
                         <span className="user-name">{reg.userName}</span>
-                        {reg.teamName && <span className="reg-team-badge">Team: {reg.teamName}</span>}
+                        {reg._isPending && <span className="reg-pending-badge"><Clock size={11} /> Pending Payment</span>}
+                        {reg.teamName && !reg._isPending && <span className="reg-team-badge">Team: {reg.teamName}</span>}
                       </div>
                       <span className="user-email">{reg.userEmail}</span>
                     </div>
@@ -525,30 +715,50 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({ forcedHandle,
                     {reg.amountPaid > 0 ? `₹${reg.amountPaid}` : '—'}
                   </td>
                   <td>
-                    <span className={`reg-pill ${reg.paymentStatus === 'paid' || reg.paymentStatus === 'success' ? 'pill-paid' : 'pill-free'}`}>
-                      {reg.paymentStatus === 'paid' || reg.paymentStatus === 'success' ? 'Paid' : 'Free'}
+                    <span className={`reg-pill ${reg._isPending ? 'pill-pending' : reg.paymentStatus === 'paid' || reg.paymentStatus === 'success' ? 'pill-paid' : 'pill-free'}`}>
+                      {reg._isPending ? 'Pending' : reg.paymentStatus === 'paid' || reg.paymentStatus === 'success' ? 'Paid' : 'Free'}
                     </span>
                   </td>
                   <td>
-                    <button
-                      className={`reg-attendance-toggle ${reg.isAttended ? 'attended' : ''}`}
-                      onClick={() => handleToggleAttendance(reg)}
-                      title={reg.isAttended ? 'Mark as not attended' : 'Mark as attended'}
-                    >
-                      {reg.isAttended ? <UserCheck size={14} /> : <UserX size={14} />}
-                    </button>
+                    {!reg._isPending ? (
+                      <button
+                        className={`reg-attendance-toggle ${reg.isAttended ? 'attended' : ''}`}
+                        onClick={() => handleToggleAttendance(reg)}
+                        title={reg.isAttended ? 'Mark as not attended' : 'Mark as attended'}
+                      >
+                        {reg.isAttended ? <UserCheck size={14} /> : <UserX size={14} />}
+                      </button>
+                    ) : (
+                      <span className="td-na">—</span>
+                    )}
                   </td>
                   <td className="td-date">{formatDate(reg.registeredAt)}</td>
                   <td className="td-actions">
-                    <button className="reg-act-btn view" onClick={() => setDetailReg(reg)} title="View Details">
-                      <Eye size={14} />
-                    </button>
-                    <button className="reg-act-btn edit" onClick={() => setEditReg({ ...reg })} title="Edit">
-                      <Edit2 size={14} />
-                    </button>
-                    <button className="reg-act-btn delete" onClick={() => handleDelete(reg)} title="Delete">
-                      <Trash2 size={14} />
-                    </button>
+                    {reg._isPending ? (
+                      <>
+                        <button className="reg-act-btn approve" onClick={(e) => { e.stopPropagation(); handleApprovePending(reg); }} title="Verify & Approve">
+                          <ShieldCheck size={14} />
+                        </button>
+                        <button className="reg-act-btn reject" onClick={(e) => { e.stopPropagation(); handleRejectPending(reg); }} title="Reject">
+                          <XCircle size={14} />
+                        </button>
+                        <button className="reg-act-btn view" onClick={() => setDetailReg(reg)} title="View Details">
+                          <Eye size={14} />
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button className="reg-act-btn view" onClick={() => setDetailReg(reg)} title="View Details">
+                          <Eye size={14} />
+                        </button>
+                        <button className="reg-act-btn edit" onClick={() => setEditReg({ ...reg })} title="Edit">
+                          <Edit2 size={14} />
+                        </button>
+                        <button className="reg-act-btn delete" onClick={() => handleDelete(reg)} title="Delete">
+                          <Trash2 size={14} />
+                        </button>
+                      </>
+                    )}
                   </td>
                 </tr>
               ))

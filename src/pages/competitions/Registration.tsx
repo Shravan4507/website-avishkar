@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuthState } from 'react-firebase-hooks/auth';
-import { doc, getDoc, setDoc, serverTimestamp, collection, query, where, getDocs, limit } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, serverTimestamp, collection, query, where, getDocs, limit } from 'firebase/firestore';
 import { auth, db } from '../../firebase/firebase';
 import { useToast } from '../../components/toast/Toast';
 import { COMPETITIONS_DATA } from '../../data/competitions';
@@ -323,12 +323,58 @@ const Registration: React.FC = () => {
 
     try {
       const txnid = generateTxnId(competition.id.toUpperCase().replace(/[^A-Z0-9]/g, ''));
+      const baseFee = competition.entryFee || 0;
+      const addOnFee = (competition.slug === 'orbitx_solar' && moonObservation) ? 20 : 0;
+      const fee = baseFee + addOnFee;
+
+      // SAFETY NET: Create pending registration record BEFORE opening payment gateway.
+      //    If the callback fails (network drop, tab close, SDK bug), this record survives
+      //    and is visible to admins for manual verification.
+      const pendingRef = doc(db, 'pending_registrations', txnid);
+      await setDoc(pendingRef, {
+        txnId: txnid,
+        type: 'competition',
+        status: 'payment_pending',
+        formData: {
+          teamName: teamName || null,
+          squad: squadMembers.filter(m => !!m.avrId && m.avrId.length >= 9).map(m => ({
+            avrId: m.avrId,
+            name: m.name,
+            email: m.email,
+            phone: m.phone,
+            college: m.college
+          })),
+          moonObservation
+        },
+        competitionId: competition.id,
+        competitionHandle: competition.handle || '',
+        eventName: competition.title,
+        amount: fee,
+        userId: user.uid,
+        userEmail: userData.email || user.email || '',
+        userName: `${userData.firstName} ${userData.lastName}`,
+        userPhone: userData.phone || '',
+        userAVR: userData.avrId || '',
+        allAvrIds: [
+          userData.avrId,
+          ...squadMembers
+            .filter(m => !!m.avrId && m.avrId.length >= 9)
+            .map(m => m.avrId)
+        ],
+        createdAt: serverTimestamp(),
+        resolvedAt: null,
+        easepayId: null,
+        bankRefNum: null,
+        paymentMode: null,
+        adminNote: null
+      });
+
       const response = await fetch("https://initiatepayment-rgvkuxdaea-uc.a.run.app", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           txnid,
-          amount: ((competition.entryFee || 0) + (competition.slug === 'orbitx_solar' && moonObservation ? 20 : 0)).toFixed(2),
+          amount: fee.toFixed(2),
           productinfo: `${competition.title}${moonObservation ? ' + Moon Observation' : ''} Registration`,
           firstname: `${userData.firstName} ${userData.lastName}`,
           email: userData.email || user.email,
@@ -350,17 +396,49 @@ const Registration: React.FC = () => {
           if (ebResponse.status === "success") {
             // Use real Easebuzz txnid from response, fallback to generated one
             const realTxnId = ebResponse.txnid || txnid;
+
+            // Update pending record to confirmed
+            try {
+              await updateDoc(pendingRef, {
+                status: 'confirmed',
+                resolvedAt: serverTimestamp(),
+                easepayId: ebResponse.easepayid || null,
+                bankRefNum: ebResponse.bank_ref_num || null,
+                paymentMode: ebResponse.mode || null
+              });
+            } catch (e) {
+              console.warn('Failed to update pending record, continuing with registration:', e);
+            }
+
             await submitRegistration(realTxnId, {
               easepayId: ebResponse.easepayid || null,
               bankRef: ebResponse.bank_ref_num || null,
               paymentMode: ebResponse.mode || null,
             });
           } else {
+            // Update pending record to failed
+            try {
+              await updateDoc(pendingRef, {
+                status: 'failed',
+                resolvedAt: serverTimestamp()
+              });
+            } catch (e) {
+              console.warn('Failed to update pending record on failure:', e);
+            }
             isSubmittingRef.current = true; // Allow retry on failure
             toast.error("Payment was not successful. Please try again.");
           }
         }, 'prod');
       } else {
+        // Payment initiation failed, clean up pending record
+        try {
+          await updateDoc(pendingRef, {
+            status: 'initiation_failed',
+            resolvedAt: serverTimestamp()
+          });
+        } catch (e) {
+          console.warn('Failed to update pending record:', e);
+        }
         throw new Error(result.error || "Payment initiation failed.");
       }
     } catch (err: any) {

@@ -4,7 +4,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 
 import { 
     doc, collection, serverTimestamp, query, where, 
-    getDocs, runTransaction, getDoc 
+    getDocs, runTransaction, getDoc, setDoc, updateDoc 
 } from 'firebase/firestore';
 import { auth, db } from '../../firebase/firebase';
 import SEO from '../../components/seo/SEO';
@@ -428,8 +428,39 @@ const HackathonRegistration: React.FC = () => {
             // 1. Generate Transaction Details
             const txnid = generateTxnId("HACK");
             const amount = "500.00"; // Hackathon fee
+
+            // 2. SAFETY NET: Create pending registration record BEFORE opening payment gateway.
+            //    If the callback fails (network drop, tab close, SDK bug), this record survives
+            //    and is visible to admins for manual verification.
+            const pendingRef = doc(db, 'pending_registrations', txnid);
+            await setDoc(pendingRef, {
+                txnId: txnid,
+                type: 'hackathon',
+                status: 'payment_pending',
+                formData: { ...formData },
+                competitionId: formData.psId,
+                eventName: `Param-X '26 (PS: ${formData.psId})`,
+                amount: 500,
+                userId: user?.uid || '',
+                userEmail: formData.leaderEmail,
+                userName: formData.leaderName,
+                userPhone: formData.leaderPhone,
+                teamName: formData.teamName,
+                allAvrIds: [
+                    formData.leaderAvrId,
+                    formData.member2AvrId,
+                    formData.member3AvrId,
+                    formData.member4AvrId
+                ],
+                createdAt: serverTimestamp(),
+                resolvedAt: null,
+                easepayId: null,
+                bankRefNum: null,
+                paymentMode: null,
+                adminNote: null
+            });
             
-            // 2. Get access_key from Cloud Function (which calls Easebuzz API)
+            // 3. Get access_key from Cloud Function (which calls Easebuzz API)
             const response = await fetch("https://initiatepayment-rgvkuxdaea-uc.a.run.app", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -448,7 +479,7 @@ const HackathonRegistration: React.FC = () => {
             const result = await response.json();
 
             if (result.success && result.access_key) {
-                // 3. Open Easebuzz checkout overlay with callback
+                // 4. Open Easebuzz checkout overlay with callback
                 const merchantKey = import.meta.env.VITE_EASEBUZZ_KEY;
                 
                 initiateEasebuzzCheckout(merchantKey, result.access_key, async (ebResponse: any) => {
@@ -459,17 +490,49 @@ const HackathonRegistration: React.FC = () => {
                     if (ebResponse.status === "success") {
                         // Use real Easebuzz txnid from response, fallback to generated one
                         const realTxnId = ebResponse.txnid || txnid;
+                        
+                        // Update pending record to confirmed
+                        try {
+                            await updateDoc(pendingRef, {
+                                status: 'confirmed',
+                                resolvedAt: serverTimestamp(),
+                                easepayId: ebResponse.easepayid || null,
+                                bankRefNum: ebResponse.bank_ref_num || null,
+                                paymentMode: ebResponse.mode || null
+                            });
+                        } catch (e) {
+                            console.warn('Failed to update pending record, continuing with registration:', e);
+                        }
+
                         await handleSubmitRegistration(realTxnId, {
                             easepayId: ebResponse.easepayid || null,
                             bankRef: ebResponse.bank_ref_num || null,
                             paymentMode: ebResponse.mode || null,
                         });
                     } else {
+                        // Update pending record to failed
+                        try {
+                            await updateDoc(pendingRef, {
+                                status: 'failed',
+                                resolvedAt: serverTimestamp()
+                            });
+                        } catch (e) {
+                            console.warn('Failed to update pending record on failure:', e);
+                        }
                         callbackFiredRef.current = false; // Allow retry on failure
                         toast.error("Payment was not successful.");
                     }
                 }, 'prod');
             } else {
+                // Payment initiation failed, clean up pending record
+                try {
+                    await updateDoc(pendingRef, {
+                        status: 'initiation_failed',
+                        resolvedAt: serverTimestamp()
+                    });
+                } catch (e) {
+                    console.warn('Failed to update pending record:', e);
+                }
                 throw new Error(result.error || "Unable to reach payment gateway.");
             }
 

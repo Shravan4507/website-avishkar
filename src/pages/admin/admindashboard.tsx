@@ -9,6 +9,7 @@ import { auth, db } from '../../firebase/firebase';
 import { useToast } from '../../components/toast/Toast';
 import AdminSidebar from '../../components/dashboard/sidebar/AdminSidebar';
 import RegistrationManager from '../../components/admin/RegistrationManager';
+import ManualRegistration from '../../components/admin/ManualRegistration';
 import NotificationBell from '../../components/notifications/NotificationBell';
 
 import { 
@@ -1181,6 +1182,8 @@ const AdminDashboard: React.FC = () => {
         );
       case 'registrations':
         return <RegistrationManager key="all-registrations" isSuper={isSuper} />;
+      case 'manual_entry':
+        return isSuper ? <ManualRegistration /> : <div>Access Denied</div>;
       case 'search':
         return isSuper ? <GlobalSearchView /> : <div>Access Denied</div>;
       case 'admins':

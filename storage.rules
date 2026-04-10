@@ -38,6 +38,19 @@ service firebase.storage {
     }
 
     // =============================================
+    // PAYMENT PROOFS (Manual Registration)
+    // Only admins can upload; admins can read
+    // =============================================
+    match /payment_proofs/{allPaths=**} {
+      allow read: if request.auth != null
+                   && firestore.exists(/databases/(default)/documents/admins/$(request.auth.uid));
+      allow write: if request.auth != null
+                   && firestore.exists(/databases/(default)/documents/admins/$(request.auth.uid))
+                   && request.resource.size < 5 * 1024 * 1024  // Max 5MB
+                   && request.resource.contentType.matches('image/.*');
+    }
+
+    // =============================================
     // CATCH-ALL: Deny everything else
     // =============================================
     match /{allPaths=**} {

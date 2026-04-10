@@ -422,6 +422,89 @@
   color: #ef4444;
 }
 
+/* Approve / Reject buttons for pending records */
+.reg-act-btn.approve {
+  background: rgba(16, 185, 129, 0.1);
+  color: rgba(16, 185, 129, 0.8);
+}
+
+.reg-act-btn.approve:hover {
+  background: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+  transform: scale(1.1);
+}
+
+.reg-act-btn.reject {
+  background: rgba(239, 68, 68, 0.08);
+  color: rgba(239, 68, 68, 0.6);
+}
+
+.reg-act-btn.reject:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  transform: scale(1.1);
+}
+
+/* Pending row highlight */
+.reg-row-pending {
+  background: rgba(245, 158, 11, 0.04) !important;
+  border-left: 3px solid rgba(245, 158, 11, 0.5);
+  animation: pendingPulse 3s ease-in-out infinite;
+}
+
+.reg-row-pending:hover {
+  background: rgba(245, 158, 11, 0.08) !important;
+}
+
+@keyframes pendingPulse {
+  0%, 100% { border-left-color: rgba(245, 158, 11, 0.3); }
+  50% { border-left-color: rgba(245, 158, 11, 0.8); }
+}
+
+/* Pending pill */
+.pill-pending {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+  animation: pendingBlink 2s ease-in-out infinite;
+}
+
+@keyframes pendingBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* Pending badge inline */
+.reg-pending-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.12);
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+/* Team badge */
+.reg-team-badge {
+  font-size: 0.65rem;
+  color: rgba(167, 139, 250, 0.7);
+  background: rgba(167, 139, 250, 0.08);
+  padding: 2px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+/* N/A placeholder */
+.td-na {
+  color: rgba(255, 255, 255, 0.2);
+  font-size: 0.8rem;
+}
+
 /* Empty State */
 .reg-empty {
   text-align: center;
