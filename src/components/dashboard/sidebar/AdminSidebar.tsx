@@ -31,7 +31,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, setActiveTab, is
     // Core
     { id: 'overview',       label: 'Command Center',    Icon: BarChart2, visible: true },
     { id: 'registrations',  label: 'Registrations',     Icon: Ticket, visible: isSuper },
-    { id: 'manual_entry',   label: 'Manual Registration', Icon: UserPlus, visible: isSuper },
+    { id: 'manual_entry',   label: 'Manual Registration', Icon: UserPlus, visible: isSuper || adminProfile?.roleLevel?.some((r: string) => r.startsWith('admin-') || r.startsWith('workshop-')) },
     { id: 'search',         label: 'Global Search',     Icon: Search, visible: isSuper },
     { id: 'sponsors',       label: 'Sponsors & Partners', Icon: Shield, visible: isSuper || adminProfile?.assignment === 'Sponsorship Team' },
     { id: 'stall_bookings', label: 'Marketplace Bookings', Icon: Ticket, visible: isSuper },

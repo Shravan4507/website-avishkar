@@ -206,10 +206,10 @@ export const initiatePayment = functions.https.onRequest({
 });
 
 /**
- * Cloud Function to verify user payment after completion.
- * Easebuzz will redirect the user back with transaction data.
+ * Cloud Function Webhook to verify user payment after completion.
+ * Easebuzz will POST here via S2S Webhook OR Browser Redirect (surl/furl).
  */
-export const verifyPayment = functions.https.onRequest({
+export const paymentWebhook = functions.https.onRequest({
   secrets: [MERCH_KEY, MERCH_SALT],
   cors: true
 }, async (req, res): Promise<void> => {
@@ -217,19 +217,167 @@ export const verifyPayment = functions.https.onRequest({
     const data = req.body;
     const salt = MERCH_SALT.value();
 
-    // Reverse Hash Formula for verification:
-    // sha512(salt|status|udf10-udf1|email|firstname|productinfo|amount|txnid|key)
-    const hashString = `${salt}|${data.status}|||||||||${data.udf1 || ''}|${data.email}|${data.firstname}|${data.productinfo}|${data.amount}|${data.txnid}|${data.key}`;
-    const expectedHash = crypto.createHash("sha512").update(hashString).digest("hex");
-
-    if (data.hash === expectedHash) {
-      res.json({ success: true, status: data.status });
-    } else {
-      res.status(400).json({ success: false, error: "Hash mismatch" });
+    if (!data || !data.txnid) {
+       res.status(400).send("No txnid provided");
+       return;
     }
 
+    const FRONTEND_URL = "https://avishkar.zcoer.in";
+
+    // Reverse Hash Formula for verification:
+    // sha512(salt|status|udf10|udf9|udf8|udf7|udf6|udf5|udf4|udf3|udf2|udf1|email|firstname|productinfo|amount|txnid|key)
+    const hashString = `${salt}|${data.status}||||||||||${data.udf1 || ''}|${data.email}|${data.firstname}|${data.productinfo}|${data.amount}|${data.txnid}|${data.key}`;
+    const expectedHash = crypto.createHash("sha512").update(hashString).digest("hex");
+
+    if (data.hash !== expectedHash) {
+      console.error(`Hash mismatch for ${data.txnid}`);
+      res.redirect(302, `${FRONTEND_URL}/user/dashboard?status=failed&reason=hash_mismatch`);
+      return;
+    }
+
+    if (data.status !== "success") {
+       console.log(`Payment failed for ${data.txnid}`);
+       await admin.firestore().doc(`pending_registrations/${data.txnid}`).update({
+         status: 'failed',
+         resolvedAt: admin.firestore.FieldValue.serverTimestamp()
+       }).catch(() => {});
+       res.redirect(302, `${FRONTEND_URL}/user/dashboard?status=failed&reason=payment_failed`);
+       return;
+    }
+
+    const pendingRef = admin.firestore().doc(`pending_registrations/${data.txnid}`);
+    
+    // Use transaction to guarantee idempotent processing
+    await admin.firestore().runTransaction(async (t) => {
+       const pendingSnap = await t.get(pendingRef);
+       if (!pendingSnap.exists) {
+         console.warn(`Pending registration not found for ${data.txnid}`);
+         return;
+       }
+
+       const pendingData = pendingSnap.data()!;
+       if (pendingData.status === 'confirmed') {
+         console.log(`Registration already confirmed for ${data.txnid}, skipping.`);
+         return;
+       }
+
+       // Mark as confirmed
+       t.update(pendingRef, {
+         status: 'confirmed',
+         resolvedAt: admin.firestore.FieldValue.serverTimestamp(),
+         easepayId: data.easepayid || null,
+         bankRefNum: data.bank_ref_num || null,
+         paymentMode: data.mode || null
+       });
+
+       const finalPayload = pendingData.finalPayload || {};
+
+       if (pendingData.type === 'hackathon') {
+          const psId = pendingData.competitionId; 
+          const psMetadataRef = admin.firestore().doc(`ps_metadata/${psId}`);
+          const psMetadataDoc = await t.get(psMetadataRef);
+
+          let currentCount = 0;
+          if (psMetadataDoc.exists) {
+             currentCount = psMetadataDoc.data()?.count || 0;
+          }
+
+          const teamCounterRef = admin.firestore().doc(`counters/hackathon_team_counter`);
+          const teamCounterDoc = await t.get(teamCounterRef);
+          let nextTeamCount = 1;
+          if (teamCounterDoc.exists) {
+             nextTeamCount = (teamCounterDoc.data()?.count || 0) + 1;
+          }
+
+          t.update(teamCounterRef, { count: nextTeamCount });
+          const generatedTeamId = `AVR-PRM-${nextTeamCount.toString().padStart(4, '0')}`;
+
+          t.set(psMetadataRef, { count: currentCount + 1 }, { merge: true });
+
+          const newRegRef = admin.firestore().collection("hackathon_registrations").doc();
+          t.set(newRegRef, {
+             ...finalPayload,
+             teamId: generatedTeamId,
+             status: 'confirmed',
+             paymentId: data.txnid,
+             easepayId: data.easepayid || null,
+             bankRefNum: data.bank_ref_num || null,
+             paymentMode: data.mode || null,
+             createdAt: admin.firestore.FieldValue.serverTimestamp()
+          });
+
+       } else if (pendingData.type === 'robokshetra') {
+          const teamCounterRef = admin.firestore().doc(`counters/robokshetra_team_counter`);
+          const teamCounterDoc = await t.get(teamCounterRef);
+          let nextTeamCount = 1;
+          if (teamCounterDoc.exists) {
+             nextTeamCount = (teamCounterDoc.data()?.count || 0) + 1;
+          }
+
+          t.update(teamCounterRef, { count: nextTeamCount });
+          const generatedTeamId = `AVR-ROB-${nextTeamCount.toString().padStart(4, '0')}`;
+
+          const newRegRef = admin.firestore().collection("registrations").doc();
+          t.set(newRegRef, {
+             ...finalPayload,
+             teamId: generatedTeamId,
+             registrationId: generatedTeamId,
+             transactionId: data.txnid,
+             easepayId: data.easepayid || null,
+             bankRefNum: data.bank_ref_num || null,
+             paymentMode: data.mode || null,
+             status: 'confirmed',
+             paymentStatus: 'success',
+             registeredAt: admin.firestore.FieldValue.serverTimestamp()
+          });
+
+       } else if (pendingData.type === 'esports') {
+          const teamCounterRef = admin.firestore().doc(`counters/esports_team_counter`);
+          const teamCounterDoc = await t.get(teamCounterRef);
+          let nextTeamCount = 1;
+          if (teamCounterDoc.exists) {
+             nextTeamCount = (teamCounterDoc.data()?.count || 0) + 1;
+          }
+
+          t.update(teamCounterRef, { count: nextTeamCount });
+          const prefix = pendingData.competitionId.includes('bgmi') || pendingData.competitionId.includes('freefire') ? 'AVR-BG' : 'AVR-ESP';
+          const generatedTeamId = `${prefix}-${nextTeamCount.toString().padStart(4, '0')}`;
+
+          const newRegRef = admin.firestore().collection("registrations").doc();
+          t.set(newRegRef, {
+             ...finalPayload,
+             teamId: generatedTeamId,
+             registrationId: generatedTeamId,
+             transactionId: data.txnid,
+             easepayId: data.easepayid || null,
+             bankRefNum: data.bank_ref_num || null,
+             paymentMode: data.mode || null,
+             status: 'confirmed',
+             paymentStatus: 'success',
+             registeredAt: admin.firestore.FieldValue.serverTimestamp()
+          });
+
+       } else {
+          // Standard Competition
+          const regId = `${pendingData.competitionId}_${pendingData.userAVR}`;
+          const regRef = admin.firestore().doc(`registrations/${regId}`);
+          t.set(regRef, {
+             ...finalPayload,
+             transactionId: data.txnid,
+             easepayId: data.easepayid || null,
+             bankRefNum: data.bank_ref_num || null,
+             paymentMode: data.mode || null,
+             status: 'confirmed',
+             registeredAt: admin.firestore.FieldValue.serverTimestamp(),
+             isAttended: false
+          });
+       }
+    });
+
+    res.redirect(302, `${FRONTEND_URL}/user/dashboard?status=success&txnid=${data.txnid}`);
+
   } catch (error) {
-    console.error("Verification error:", error);
-    res.status(500).send({ error: "Failed to verify transaction" });
+    console.error("Webhook verification error:", error);
+    res.redirect(302, `https://avishkar.zcoer.in/user/dashboard?status=failed&reason=server_error`);
   }
 });

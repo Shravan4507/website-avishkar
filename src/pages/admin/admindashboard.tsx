@@ -1182,8 +1182,10 @@ const AdminDashboard: React.FC = () => {
         );
       case 'registrations':
         return <RegistrationManager key="all-registrations" isSuper={isSuper} />;
-      case 'manual_entry':
-        return isSuper ? <ManualRegistration /> : <div>Access Denied</div>;
+      case 'manual_entry': {
+        const canManualRegister = isSuper || (adminProfile?.roleLevel && adminProfile.roleLevel.some((r: string) => r.startsWith('admin-') || r.startsWith('workshop-')));
+        return canManualRegister ? <ManualRegistration isSuper={isSuper} adminProfile={adminProfile} /> : <div>Access Denied</div>;
+      }
       case 'search':
         return isSuper ? <GlobalSearchView /> : <div>Access Denied</div>;
       case 'admins':

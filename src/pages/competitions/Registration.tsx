@@ -366,7 +366,41 @@ const Registration: React.FC = () => {
         easepayId: null,
         bankRefNum: null,
         paymentMode: null,
-        adminNote: null
+        adminNote: null,
+        finalPayload: {
+          userId: user.uid,
+          userName: `${userData.firstName} ${userData.lastName}`,
+          userEmail: userData.email || user.email,
+          userAVR: userData.avrId,
+          allAvrIds: [
+            userData.avrId,
+            ...squadMembers
+              .filter(m => !!m.avrId && m.avrId.length >= 9)
+              .map(m => m.avrId)
+          ],
+          userPhone: userData.phone || '',
+          userCollege: userData.college || '',
+          userMajor: userData.major || '',
+          userAge: calculateAge(userData.dob),
+          userSex: userData.sex || '',
+          teamName: teamName || null,
+          squad: squadMembers.filter(m => !!m.avrId && m.avrId.length >= 9).map(m => ({
+            avrId: m.avrId,
+            name: m.name,
+            email: m.email,
+            phone: m.phone,
+            college: m.college
+          })),
+          competitionId: competition.id,
+          eventName: competition.title,
+          competitionHandle: competition.handle || '',
+          category: competition.subtitle || 'General Event',
+          department: competition.department,
+          isFlagship: competition.isFlagship || false,
+          paymentStatus: fee > 0 ? 'paid' : 'free',
+          amountPaid: fee,
+          moonObservation: moonObservation
+        }
       });
 
       const response = await fetch("https://initiatepayment-rgvkuxdaea-uc.a.run.app", {
@@ -379,8 +413,8 @@ const Registration: React.FC = () => {
           firstname: `${userData.firstName} ${userData.lastName}`,
           email: userData.email || user.email,
           phone: userData.phone || '',
-          surl: `${window.location.origin}/user/dashboard?status=success`,
-          furl: `${window.location.origin}/competitions?status=failure`
+          surl: "https://us-central1-avishkar--26.cloudfunctions.net/paymentWebhook",
+          furl: "https://us-central1-avishkar--26.cloudfunctions.net/paymentWebhook"
         })
       });
 
@@ -415,6 +449,7 @@ const Registration: React.FC = () => {
               bankRef: ebResponse.bank_ref_num || null,
               paymentMode: ebResponse.mode || null,
             });
+            setIsSubmitting(false); // Done
           } else {
             // Update pending record to failed
             try {
@@ -425,8 +460,9 @@ const Registration: React.FC = () => {
             } catch (e) {
               console.warn('Failed to update pending record on failure:', e);
             }
-            isSubmittingRef.current = true; // Allow retry on failure
             toast.error("Payment was not successful. Please try again.");
+            setIsSubmitting(false); // Enable the button again
+            isSubmittingRef.current = false; // Allow retry on failure
           }
         }, 'prod');
       } else {
@@ -444,7 +480,6 @@ const Registration: React.FC = () => {
     } catch (err: any) {
       console.error("Payment Error:", err);
       toast.error("Payment system error. Please try again.");
-    } finally {
       setIsSubmitting(false);
       isSubmittingRef.current = false;
     }

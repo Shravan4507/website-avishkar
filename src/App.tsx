@@ -146,7 +146,8 @@ const LayoutManager = () => {
     return <PageSkeleton />;
   };
 
-  const isParamX = location.pathname.startsWith('/param-x');
+  // Match any Param-X feature including upload, rules, or hackathon registration
+  const isParamX = location.pathname.startsWith('/param-x') || location.pathname.startsWith('/hackathon-register');
   const grainientColor2 = isParamX ? "#110057" : "#5227FF";
 
   return (

@@ -8,7 +8,8 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth, db, storage } from '../../firebase/firebase';
 import { useToast } from '../../components/toast/Toast';
 import { COMPETITIONS_DATA, type Competition } from '../../data/competitions';
-import { fetchProblemStatements, type ProblemStatement } from '../../utils/storageUtils';
+import { type ProblemStatement } from '../../utils/storageUtils';
+import problemsData from '../../data/problems.json';
 import {
   Search, ArrowRight, ArrowLeft, Loader2, CheckCircle2,
   Upload, Banknote, CreditCard, ImageIcon, AlertTriangle,
@@ -70,7 +71,14 @@ const ALL_SUBEVENTS = [...BATTLE_GRID_SUBEVENTS, ...ROBO_KSHETRA_SUBEVENTS];
 /* ═══════════════════════════════════════
    Component
    ═══════════════════════════════════════ */
-const ManualRegistration: React.FC = () => {
+import type { AdminProfile } from '../../pages/admin/admindashboard';
+
+interface ManualRegistrationProps {
+  isSuper?: boolean;
+  adminProfile?: AdminProfile | null;
+}
+
+const ManualRegistration: React.FC<ManualRegistrationProps> = ({ isSuper = false, adminProfile = null }) => {
   const [user] = useAuthState(auth);
   const toast = useToast();
 
@@ -113,10 +121,65 @@ const ManualRegistration: React.FC = () => {
   // IDs of umbrella competitions that should be replaced by sub-events
   const UMBRELLA_IDS = ['robotron--26', 'battlegrid--26'];
 
+  const allowedHandles = new Set<string>();
+  const allowedEventTitles = new Set<string>();
+  
+  if (!isSuper && adminProfile?.roleLevel) {
+    const roleMapping: Record<string, { handle: string, eventTitle?: string }> = {
+      'admin-param-x': { handle: 'ParamX-Hack' },
+      'admin-battle-grid': { handle: 'Battle-Grid' },
+      'admin-bgmi': { handle: 'Battle-Grid', eventTitle: 'BGMI' },
+      'admin-freefire': { handle: 'Battle-Grid', eventTitle: 'Free Fire' },
+      'admin-codm': { handle: 'Battle-Grid', eventTitle: 'CODM' },
+      'admin-sf4': { handle: 'Battle-Grid', eventTitle: 'Shadow Fight 4' },
+      'admin-amongus': { handle: 'Battle-Grid', eventTitle: 'Among Us' },
+      'admin-robo-kshetra': { handle: 'Robo-Kshetra' },
+      'admin-align-x': { handle: 'Robo-Kshetra', eventTitle: 'AlignX' },
+      'admin-robo-maze': { handle: 'Robo-Kshetra', eventTitle: 'RoboMaze' },
+      'admin-robo-rush': { handle: 'Robo-Kshetra', eventTitle: 'RoboRush' },
+      'admin-forge-x': { handle: 'Forge-Lead' },
+      'admin-algo-bid': { handle: 'Algo-Master' },
+      'admin-code-ladder': { handle: 'Code-Climber' },
+      'admin-ipl-auction': { handle: 'IPL-Auctioneer' },
+      'admin-blind-code': { handle: 'Blind-Coder' },
+      'admin-dev-clash': { handle: 'Dev-Striker' },
+      'admin-vibe-sprint': { handle: 'Vibe-Lead' },
+      'admin-code-relay': { handle: 'Relay-Coder' },
+      'admin-bridge-nova': { handle: 'Arch-Nova' },
+      'admin-poster': { handle: 'Paper-Lead' },
+      'admin-spark-tank': { handle: 'Spark-Lead' },
+      'admin-matlab': { handle: 'Mat-Master' },
+      'admin-circuit-sim': { handle: 'Circuit-Ninja' },
+      'admin-contraptions': { handle: 'Master-Builder' },
+      'admin-circle-cricket': { handle: 'Cricket-Lead' },
+      'admin-paper-pres': { handle: 'Research-Lead' },
+      'admin-project-comp': { handle: 'Project-Master' },
+      'workshop-solar-spot': { handle: 'OrbitX-Solar' },
+    };
+
+    adminProfile.roleLevel.forEach((role: string) => {
+      const mapping = roleMapping[role];
+      if (mapping) {
+        if (!mapping.eventTitle) {
+          allowedHandles.add(mapping.handle);
+        } else {
+          allowedEventTitles.add(mapping.eventTitle.toUpperCase());
+        }
+      }
+    });
+  }
+
   /* ── Filtered competitions (excludes umbrella entries) ── */
   const filteredComps = COMPETITIONS_DATA.filter(c => {
     if (c.comingSoon) return false;
     if (UMBRELLA_IDS.includes(c.id)) return false; // replaced by sub-events
+    
+    if (!isSuper) {
+      if (!allowedHandles.has(c.handle) && !allowedEventTitles.has(c.title.toUpperCase())) {
+        return false;
+      }
+    }
+
     const q = searchTerm.toLowerCase();
     return c.title.toLowerCase().includes(q) ||
       c.department.toLowerCase().includes(q) ||
@@ -125,6 +188,12 @@ const ManualRegistration: React.FC = () => {
 
   /* ── Filtered sub-events ── */
   const filteredSubEvents = ALL_SUBEVENTS.filter(se => {
+    if (!isSuper) {
+      if (!allowedHandles.has(se.handle) && !allowedEventTitles.has(se.title.toUpperCase())) {
+        return false;
+      }
+    }
+
     const q = searchTerm.toLowerCase();
     return se.title.toLowerCase().includes(q) ||
       se.parentTitle.toLowerCase().includes(q) ||
@@ -135,10 +204,26 @@ const ManualRegistration: React.FC = () => {
   useEffect(() => {
     if (isHackathon && problems.length === 0) {
       setPsLoading(true);
-      fetchProblemStatements()
-        .then(ps => setProblems(ps))
-        .catch(() => toast.error('Failed to load problem statements'))
-        .finally(() => setPsLoading(false));
+      const loadProblems = async () => {
+        try {
+          const snap = await getDocs(collection(db, 'ps_metadata'));
+          const counts: Record<string, number> = {};
+          snap.forEach(d => {
+            counts[d.id] = d.data().count || 0;
+          });
+          const merged = (problemsData as ProblemStatement[]).map(ps => ({
+            ...ps,
+            count: counts[ps.id] || 0
+          }));
+          setProblems(merged);
+        } catch (err) {
+          toast.error('Failed to load problem statement live counts. Using offline data.');
+          setProblems(problemsData as ProblemStatement[]);
+        } finally {
+          setPsLoading(false);
+        }
+      };
+      loadProblems();
     }
   }, [isHackathon, problems.length, toast]);
 
@@ -694,24 +779,47 @@ const ManualRegistration: React.FC = () => {
 
           {/* Sub-event Details Preview */}
           {selectedSubEvent && (
-            <div className="comp-preview">
-              <div className="comp-preview-item">
-                <label>Event</label>
-                <span>{selectedSubEvent.title}</span>
+            <>
+              <div className="comp-preview">
+                <div className="comp-preview-item">
+                  <label>Event</label>
+                  <span>{selectedSubEvent.title}</span>
+                </div>
+                <div className="comp-preview-item">
+                  <label>Category</label>
+                  <span>{selectedSubEvent.parentTitle}</span>
+                </div>
+                <div className="comp-preview-item">
+                  <label>Entry Fee</label>
+                  <span>₹{selectedSubEvent.entryFee}</span>
+                </div>
+                <div className="comp-preview-item">
+                  <label>Team Size</label>
+                  <span>{selectedSubEvent.minTeamSize === selectedSubEvent.maxTeamSize ? selectedSubEvent.minTeamSize : `${selectedSubEvent.minTeamSize}–${selectedSubEvent.maxTeamSize}`}</span>
+                </div>
               </div>
-              <div className="comp-preview-item">
-                <label>Category</label>
-                <span>{selectedSubEvent.parentTitle}</span>
-              </div>
-              <div className="comp-preview-item">
-                <label>Entry Fee</label>
-                <span>₹{selectedSubEvent.entryFee}</span>
-              </div>
-              <div className="comp-preview-item">
-                <label>Team Size</label>
-                <span>{selectedSubEvent.minTeamSize === selectedSubEvent.maxTeamSize ? selectedSubEvent.minTeamSize : `${selectedSubEvent.minTeamSize}–${selectedSubEvent.maxTeamSize}`}</span>
-              </div>
-            </div>
+
+              {/* Team size selector for Sub-events */}
+              {selectedSubEvent.minTeamSize !== selectedSubEvent.maxTeamSize && (
+                <div className="team-size-selector">
+                  <label>Participants:</label>
+                  <div className="team-size-btns">
+                    {Array.from(
+                      { length: selectedSubEvent.maxTeamSize - selectedSubEvent.minTeamSize + 1 },
+                      (_, i) => selectedSubEvent.minTeamSize + i
+                    ).map(n => (
+                      <button
+                        key={n}
+                        className={`team-size-btn ${teamSize === n ? 'selected' : ''}`}
+                        onClick={() => setTeamSize(n)}
+                      >
+                        {n}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
           )}
 
           <div className="manual-nav-btns">
@@ -719,10 +827,11 @@ const ManualRegistration: React.FC = () => {
               className="manual-btn manual-btn-next"
               disabled={!canProceedStep1()}
               onClick={() => {
-                // Set initial team size
-                if (isHackathon) setTeamSize(4);
-                else if (isSubEvent && selectedSubEvent) {
-                  setTeamSize(selectedSubEvent.minTeamSize);
+                // Ensure teamSize is at least the minimum allowed
+                if (isHackathon) {
+                  setTeamSize(4);
+                } else if (isSubEvent && selectedSubEvent) {
+                  if (teamSize < selectedSubEvent.minTeamSize) setTeamSize(selectedSubEvent.minTeamSize);
                 } else if (selectedComp) {
                   const min = selectedComp.minTeamSize || 1;
                   if (teamSize < min) setTeamSize(min);
