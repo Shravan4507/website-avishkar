@@ -2,10 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircle, X, ArrowRight, ShieldCheck, Sparkles, Check } from 'lucide-react';
 import { useAuthState } from 'react-firebase-hooks/auth';
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../../firebase/firebase';
 import { useToast } from '../../components/toast/Toast';
-import { initiateEasebuzzCheckout, generateTxnId } from '../../utils/easebuzz';
+import { generateTxnId } from '../../utils/easebuzz';
+import { FUNCTIONS_CONFIG } from '../../config/functions';
+import PaymentOverlay from '../../components/payment/PaymentOverlay';
+import { usePaymentOverlay } from '../../hooks/usePaymentOverlay';
 import './OrbitXRegistrationModal.css';
 
 interface OrbitXRegistrationModalProps {
@@ -18,9 +21,14 @@ const OrbitXRegistrationModal: React.FC<OrbitXRegistrationModalProps> = ({ onClo
   const [userData, setUserData] = useState<any>(null);
   const [isMoonAddon, setIsMoonAddon] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [txnId, setTxnId] = useState<string | null>(null);
-  const [activeStep, setActiveStep] = useState<'details' | 'summary' | 'success'>('details');
-  const callbackFiredRef = React.useRef(false);
+  const paymentOverlay = usePaymentOverlay();
+  // NOTE: activeStep 'success' is unreachable after redirect-mode migration,
+  // but the JSX referencing it is harmless dead markup. Safe to remove in a future cleanup.
+  const [txnId] = useState<string | null>(null);
+  const [activeStep] = useState<'details' | 'summary' | 'success'>('details');
+  // NOTE (LOW-4): OrbitX intentionally skips useRegistrationGuard.
+  // It's a workshop, not a competition — users CAN register for OrbitX even if
+  // they're already registered for a competition. This is by design.
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -48,67 +56,16 @@ const OrbitXRegistrationModal: React.FC<OrbitXRegistrationModalProps> = ({ onClo
     }
     
     setIsSubmitting(true);
-    callbackFiredRef.current = false; // Reset guard for each attempt
+    paymentOverlay.startPayment();
     try {
       const generatedTxnId = generateTxnId("ORBX");
       const amount = totalPrice.toFixed(2);
       
-      const response = await fetch("https://initiatepayment-rgvkuxdaea-uc.a.run.app", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          txnid: generatedTxnId,
-          amount,
-          productinfo: `OrbitX Solar Observation ${isMoonAddon ? "+ Moon Addon" : ""}`,
-          firstname: `${userData.firstName} ${userData.lastName}`,
-          email: userData.email || user.email,
-          phone: userData.phone || '',
-          udf1: userData.college || 'N/A',
-          surl: `${window.location.origin}/orbitx-zcoer?status=success`,
-          furl: `${window.location.origin}/orbitx-zcoer?status=failure`
-        })
-      });
-
-      const result = await response.json();
-
-      if (result.success && result.access_key) {
-        const merchantKey = import.meta.env.VITE_EASEBUZZ_KEY;
-        initiateEasebuzzCheckout(merchantKey, result.access_key, async (ebResponse: any) => {
-          // Guard: prevent duplicate callbacks from Easebuzz SDK
-          if (callbackFiredRef.current) return;
-          callbackFiredRef.current = true;
-
-          if (ebResponse.status === "success") {
-            const realTxnId = ebResponse.txnid || generatedTxnId;
-            await finalizeRegistration(realTxnId, {
-              easepayId: ebResponse.easepayid || null,
-              bankRef: ebResponse.bank_ref_num || null,
-              paymentMode: ebResponse.mode || null,
-            });
-          } else {
-            callbackFiredRef.current = false; // Allow retry on failure
-            toast.error("Payment failed. Please try again.");
-            setIsSubmitting(false);
-          }
-        }, 'prod');
-      } else {
-        throw new Error(result.error || "Payment initiation failed.");
-      }
-    } catch (err: any) {
-      toast.error(err.message || "Something went wrong.");
-      setIsSubmitting(false);
-    }
-  };
-
-  const finalizeRegistration = async (paymentTxnId: string, paymentMeta?: { easepayId?: string; bankRef?: string; paymentMode?: string }) => {
-    try {
-      const regId = `orbitx_solar_${userData.avrId}`;
-      const regRef = doc(db, 'registrations', regId);
-      
-      await setDoc(regRef, {
-        userId: user!.uid,
+      const pendingPayload = {
+        txnId: generatedTxnId,
+        userId: user.uid,
         userName: `${userData.firstName} ${userData.lastName}`,
-        userEmail: userData.email || user!.email,
+        userEmail: userData.email || user.email,
         userAVR: userData.avrId,
         userCollege: userData.college || '',
         userPhone: userData.phone || '',
@@ -119,24 +76,59 @@ const OrbitXRegistrationModal: React.FC<OrbitXRegistrationModalProps> = ({ onClo
         department: 'OrbitX Club',
         amountPaid: totalPrice,
         moonAddon: isMoonAddon,
-        transactionId: paymentTxnId,
-        easepayId: paymentMeta?.easepayId || null,
-        bankRefNum: paymentMeta?.bankRef || null,
-        paymentMode: paymentMeta?.paymentMode || null,
-        paymentStatus: 'paid',
-        status: 'confirmed',
-        registeredAt: serverTimestamp(),
+        type: 'orbitx_registration',
+        status: 'pending',
+        finalPayload: {
+          userId: user.uid,
+          userName: `${userData.firstName} ${userData.lastName}`,
+          userEmail: userData.email || user.email,
+          userAVR: userData.avrId,
+          userCollege: userData.college || '',
+          userPhone: userData.phone || '',
+          competitionId: 'orbitx_solar',
+          eventName: 'Solar Spot Observation',
+          amountPaid: totalPrice,
+          moonAddon: isMoonAddon
+        }
+      };
+
+      const response = await fetch(FUNCTIONS_CONFIG.initiatePayment, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          txnid: generatedTxnId,
+          amount,
+          productinfo: `OrbitX Solar Observation ${isMoonAddon ? "+ Moon Addon" : ""}`,
+          firstname: `${userData.firstName} ${userData.lastName}`,
+          email: userData.email || user.email,
+          phone: userData.phone || '',
+          udf1: userData.college || 'N/A',
+          surl: FUNCTIONS_CONFIG.paymentSuccess,
+          furl: FUNCTIONS_CONFIG.paymentFailure,
+          pendingPayload
+        })
       });
 
-      setTxnId(paymentTxnId);
-      setActiveStep('success');
-    } catch (err) {
-      console.error("Firestore Error:", err);
-      toast.error("Cloud synchronisation failed.");
-    } finally {
+      paymentOverlay.setConnecting();
+
+      const result = await response.json();
+
+      if (result.success && result.access_key) {
+        paymentOverlay.setRedirecting();
+        const redirectUrl = `https://pay.easebuzz.in/pay/${result.access_key}`;
+        setTimeout(() => {
+            window.location.href = redirectUrl;
+        }, 1200);
+      } else {
+        throw new Error(result.error || "Payment initiation failed.");
+      }
+    } catch (err: any) {
+      paymentOverlay.dismiss();
+      toast.error(err.message || "Payment initiation failed. Please try again.");
       setIsSubmitting(false);
     }
   };
+
 
   if (authLoading || !userData) {
     return (
@@ -157,12 +149,7 @@ const OrbitXRegistrationModal: React.FC<OrbitXRegistrationModalProps> = ({ onClo
         exit={{ opacity: 0, scale: 0.9, y: 20 }}
         className="orbitx-modal-container"
       >
-        {isSubmitting && (
-          <div className="modal-loading">
-            <div className="spinner"></div>
-            <p style={{ marginTop: '20px', letterSpacing: '2px' }}>CONTACTING GATEWAY...</p>
-          </div>
-        )}
+        <PaymentOverlay isVisible={paymentOverlay.isVisible} stage={paymentOverlay.stage} />
 
         <div className="modal-header">
           <h2>RESERVATION</h2>

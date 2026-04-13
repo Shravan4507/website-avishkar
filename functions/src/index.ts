@@ -131,13 +131,54 @@ export const initiatePayment = functions.https.onRequest({
       phone,
       udf1,
       surl,
-      furl
+      furl,
+      pendingPayload
     } = req.body;
 
     if (!txnid || !amount || !firstname || !email || !phone || !surl || !furl) {
       res.status(400).send({ error: "Missing required fields" });
       return;
     }
+
+    // --- PRE-FLIGHT CHECKS & ATOMIC PENDING REGISTRATION CREATION ---
+    if (pendingPayload) {
+      try {
+        await admin.firestore().runTransaction(async (t) => {
+          // 1. Hackathon Capacity Limits Check
+          if (pendingPayload.type === 'hackathon' && pendingPayload.competitionId) {
+            const psId = pendingPayload.competitionId;
+            const psRef = admin.firestore().doc(`ps_metadata/${psId}`);
+            const psDoc = await t.get(psRef);
+            
+            const currentCount = psDoc.exists ? psDoc.data()?.count || 0 : 0;
+            const maxCount = psId === 'PS-14' ? 8 : 5; // PS-14 allows 8, rest allow 5
+            
+            if (currentCount >= maxCount) {
+              throw new Error(`Problem statement ${psId} has reached its maximum capacity of ${maxCount} teams.`);
+            }
+          }
+
+          // 2. Duplicate Check (Standard Competitions)
+          if (pendingPayload.type === 'competition' && pendingPayload.competitionId && pendingPayload.finalPayload?.userAVR) {
+             const standardRegId = `${pendingPayload.competitionId}_${pendingPayload.finalPayload.userAVR}`;
+             const regDoc = await t.get(admin.firestore().doc(`registrations/${standardRegId}`));
+             if (regDoc.exists) {
+               throw new Error(`Already registered for ${pendingPayload.eventName}.`);
+             }
+          }
+
+          // 3. Write pending_registration idempotently
+          const pendingRef = admin.firestore().doc(`pending_registrations/${txnid}`);
+          pendingPayload.createdAt = admin.firestore.FieldValue.serverTimestamp();
+          t.set(pendingRef, pendingPayload);
+        });
+      } catch (transactionError: any) {
+        console.warn(`Pre-flight check failed for ${txnid}:`, transactionError.message);
+        res.status(400).json({ success: false, error: transactionError.message });
+        return;
+      }
+    }
+    // ----------------------------------------------------------------
 
     // Sanitize productinfo: Easebuzz rejects special characters
     const safeProductinfo = (productinfo || "Avishkar26 Registration")
@@ -205,9 +246,35 @@ export const initiatePayment = functions.https.onRequest({
   }
 });
 
+const getFrontendUrl = () => process.env.FRONTEND_URL || "https://avishkar.zcoer.in";
+
+/**
+ * Cloud Function Webhook for Browser Redirects (Success)
+ * Easebuzz will POST back to this URL when a payment succeeds.
+ * We simply redirect the user to the frontend dashboard.
+ */
+export const paymentSuccess = functions.https.onRequest({
+  cors: true
+}, (req, res): void => {
+  const txnid = req.body?.txnid || req.query?.txnid || '';
+  res.redirect(`${getFrontendUrl()}/user/dashboard?txnid=${txnid}&status=verifying`);
+});
+
+/**
+ * Cloud Function Webhook for Browser Redirects (Failure)
+ * Easebuzz will POST back to this URL when a payment fails.
+ * We simply redirect the user to the frontend dashboard.
+ */
+export const paymentFailure = functions.https.onRequest({
+  cors: true
+}, (req, res): void => {
+  const txnid = req.body?.txnid || req.query?.txnid || '';
+  res.redirect(`${getFrontendUrl()}/user/dashboard?txnid=${txnid}&status=failed`);
+});
+
 /**
  * Cloud Function Webhook to verify user payment after completion.
- * Easebuzz will POST here via S2S Webhook OR Browser Redirect (surl/furl).
+ * Easebuzz will POST here via S2S Webhook.
  */
 export const paymentWebhook = functions.https.onRequest({
   secrets: [MERCH_KEY, MERCH_SALT],
@@ -231,7 +298,7 @@ export const paymentWebhook = functions.https.onRequest({
 
     if (data.hash !== expectedHash) {
       console.error(`Hash mismatch for ${data.txnid}`);
-      res.redirect(302, `${FRONTEND_URL}/user/dashboard?status=failed&reason=hash_mismatch`);
+      res.status(400).send("Hash mismatch");
       return;
     }
 
@@ -241,7 +308,7 @@ export const paymentWebhook = functions.https.onRequest({
          status: 'failed',
          resolvedAt: admin.firestore.FieldValue.serverTimestamp()
        }).catch(() => {});
-       res.redirect(302, `${FRONTEND_URL}/user/dashboard?status=failed&reason=payment_failed`);
+       res.status(200).send("OK"); // Acknowledge failed payment so webhook doesn't retry
        return;
     }
 
@@ -289,7 +356,7 @@ export const paymentWebhook = functions.https.onRequest({
              nextTeamCount = (teamCounterDoc.data()?.count || 0) + 1;
           }
 
-          t.update(teamCounterRef, { count: nextTeamCount });
+           t.set(teamCounterRef, { count: nextTeamCount }, { merge: true });
           const generatedTeamId = `AVR-PRM-${nextTeamCount.toString().padStart(4, '0')}`;
 
           t.set(psMetadataRef, { count: currentCount + 1 }, { merge: true });
@@ -314,7 +381,7 @@ export const paymentWebhook = functions.https.onRequest({
              nextTeamCount = (teamCounterDoc.data()?.count || 0) + 1;
           }
 
-          t.update(teamCounterRef, { count: nextTeamCount });
+          t.set(teamCounterRef, { count: nextTeamCount }, { merge: true });
           const generatedTeamId = `AVR-ROB-${nextTeamCount.toString().padStart(4, '0')}`;
 
           const newRegRef = admin.firestore().collection("registrations").doc();
@@ -339,7 +406,7 @@ export const paymentWebhook = functions.https.onRequest({
              nextTeamCount = (teamCounterDoc.data()?.count || 0) + 1;
           }
 
-          t.update(teamCounterRef, { count: nextTeamCount });
+          t.set(teamCounterRef, { count: nextTeamCount }, { merge: true });
           const prefix = pendingData.competitionId.includes('bgmi') || pendingData.competitionId.includes('freefire') ? 'AVR-BG' : 'AVR-ESP';
           const generatedTeamId = `${prefix}-${nextTeamCount.toString().padStart(4, '0')}`;
 
@@ -374,10 +441,12 @@ export const paymentWebhook = functions.https.onRequest({
        }
     });
 
-    res.redirect(302, `${FRONTEND_URL}/user/dashboard?status=success&txnid=${data.txnid}`);
+    res.status(200).send("OK");
 
   } catch (error) {
     console.error("Webhook verification error:", error);
-    res.redirect(302, `https://avishkar.zcoer.in/user/dashboard?status=failed&reason=server_error`);
+    // Return 200 to prevent Easebuzz retry storms — errors are logged for manual review.
+    // The webhook is idempotent, so retries wouldn't help for non-transient errors.
+    res.status(200).send("OK");
   }
 });

@@ -173,6 +173,58 @@ const UserDashboard: React.FC = () => {
     }
 
     if (user) {
+      // Handle Payment Redirect Status
+      const urlParams = new URLSearchParams(window.location.search);
+      const status = urlParams.get('status');
+      const reason = urlParams.get('reason');
+      const txnid = urlParams.get('txnid');
+
+      // Track polling timers for cleanup on unmount
+      let pollingIntervalId: ReturnType<typeof setInterval> | null = null;
+      let pollingTimeoutId: ReturnType<typeof setTimeout> | null = null;
+
+      if (status === 'success') {
+        toast.success("Registration Successful! Your payment was verified.");
+        window.history.replaceState({}, document.title, window.location.pathname);
+      } else if (status === 'failed') {
+        const errorMsg = reason === 'hash_mismatch' 
+          ? "Security verification failed. Please contact support." 
+          : "Payment was unsuccessful or rejected by the gateway.";
+        toast.error(errorMsg);
+        window.history.replaceState({}, document.title, window.location.pathname);
+      } else if (status === 'verifying' && txnid) {
+        toast.info("Verifying your payment with the gateway. Please do not close this window...");
+        pollingIntervalId = setInterval(async () => {
+          try {
+            const pendingDoc = await getDoc(doc(db, "pending_registrations", txnid));
+            if (pendingDoc.exists()) {
+              const pData = pendingDoc.data();
+              if (pData.status === 'confirmed') {
+                if (pollingIntervalId) clearInterval(pollingIntervalId);
+                if (pollingTimeoutId) clearTimeout(pollingTimeoutId);
+                toast.success("Payment Verified! Registration Confirmed.");
+                window.history.replaceState({}, document.title, window.location.pathname);
+                fetchMyRegistrations();
+              } else if (pData.status === 'failed') {
+                if (pollingIntervalId) clearInterval(pollingIntervalId);
+                if (pollingTimeoutId) clearTimeout(pollingTimeoutId);
+                toast.error("Payment was marked as failed by the gateway.");
+                window.history.replaceState({}, document.title, window.location.pathname);
+              }
+            }
+          } catch (e) {
+            console.error("Polling error", e);
+          }
+        }, 2000);
+
+        // Timeout polling after 30 seconds
+        pollingTimeoutId = setTimeout(() => {
+          if (pollingIntervalId) clearInterval(pollingIntervalId);
+          toast.info("Verification is taking longer than expected. Please check your email later for confirmation.");
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }, 30000);
+      }
+
       // REAL-TIME LISTENER FOR USER PROFILE
       const unsubscribe = onSnapshot(doc(db, "user", user.uid), (snapshot) => {
         if (snapshot.exists()) {
@@ -258,7 +310,11 @@ const UserDashboard: React.FC = () => {
         fetchMyRegistrations();
       }
 
-      return () => unsubscribe();
+      return () => {
+        unsubscribe();
+        if (pollingIntervalId) clearInterval(pollingIntervalId);
+        if (pollingTimeoutId) clearTimeout(pollingTimeoutId);
+      };
     }
   }, [user, authLoading, navigate]);
 

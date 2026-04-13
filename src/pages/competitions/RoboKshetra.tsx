@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../../components/toast/Toast';
-import { doc, collection, serverTimestamp, runTransaction, getDoc, query, where, getDocs, setDoc } from 'firebase/firestore';
+import { doc, collection, getDoc, query, where, getDocs } from 'firebase/firestore';
 import { auth, db } from '../../firebase/firebase';
 import SEO from '../../components/seo/SEO';
 import ChromaGrid, { type ChromaItem } from '../../components/chroma-grid/ChromaGrid';
@@ -34,7 +34,10 @@ import {
     ExternalLink,
 } from 'lucide-react';
 import { useRegistrationGuard } from '../../hooks/useRegistrationGuard';
-import { initiateEasebuzzCheckout, generateTxnId } from '../../utils/easebuzz';
+import { generateTxnId } from '../../utils/easebuzz';
+import { FUNCTIONS_CONFIG } from '../../config/functions';
+import PaymentOverlay from '../../components/payment/PaymentOverlay';
+import { usePaymentOverlay } from '../../hooks/usePaymentOverlay';
 import './RoboKshetra.css';
 
 // --- ROBO_EVENTS logic ---
@@ -130,7 +133,7 @@ const RoboKshetra: React.FC = () => {
     const [accountabilityAccepted, setAccountabilityAccepted] = useState(false);
     const [showPreview, setShowPreview] = useState(false);
     const [showRulebookDropdown, setShowRulebookDropdown] = useState(false);
-    const callbackFiredRef = React.useRef(false);
+    const paymentOverlay = usePaymentOverlay();
 
     const { isRegistered, eventName: registeredEventName } = useRegistrationGuard();
 
@@ -269,101 +272,7 @@ const RoboKshetra: React.FC = () => {
         }
     };
 
-    const handleRegistrationSubmit = async (txnId: string, paymentMeta?: { easepayId?: string; bankRef?: string; paymentMode?: string }) => {
-        if (!activeEvent || !user) return;
-        setLoading(true);
 
-        try {
-            const memberKeys = ['leader', 'member2', 'member3', 'member4'];
-            let generatedTeamId = "";
-            let alreadyConfirmed = false;
-
-            await runTransaction(db, async (transaction) => {
-                const pendingRef = doc(db, "pending_registrations", txnId);
-                const pendingDoc = await transaction.get(pendingRef);
-
-                if (pendingDoc.exists()) {
-                    const data = pendingDoc.data();
-                    if (data.status === 'confirmed') {
-                        alreadyConfirmed = true;
-                        return; // Exit early if already confirmed
-                    }
-                }
-
-                // Generate Unique Team ID
-                const teamCounterRef = doc(db, "counters", "robokshetra_team_counter");
-                const teamCounterDoc = await transaction.get(teamCounterRef);
-                
-                let nextTeamCount = 1;
-                if (teamCounterDoc.exists()) {
-                    nextTeamCount = (teamCounterDoc.data().count || 0) + 1;
-                }
-
-                transaction.set(teamCounterRef, { count: nextTeamCount }, { merge: true });
-                generatedTeamId = `AVR-ROB-${nextTeamCount.toString().padStart(4, '0')}`;
-
-                const regRef = doc(collection(db, 'registrations')); // Auto-ID for doc, use generatedTeamId inside
-                transaction.set(regRef, {
-                    ...formData,
-                    teamId: generatedTeamId, // Sequential ID
-                    // Normalized field names for RegistrationManager compatibility
-                    userName: formData.leaderName,
-                    userEmail: formData.leaderEmail,
-                    avrId: formData.leaderAvrId,
-                    userPhone: formData.leaderPhone,
-                    userCollege: formData.leaderCollege,
-                    eventName: activeEvent.label,
-                    eventTitle: activeEvent.label,
-                    eventSubtitle: activeEvent.tagline,
-                    competitionId: `robokshetra_${activeEvent.id}`,
-                    competitionHandle: 'Robo-Kshetra',
-                    department: 'Robotics',
-                    category: 'Robo-Kshetra',
-                    userId: user.uid,
-                    registrationId: generatedTeamId,
-                    transactionId: txnId,
-                    easepayId: paymentMeta?.easepayId || null,
-                    bankRefNum: paymentMeta?.bankRef || null,
-                    paymentMode: paymentMeta?.paymentMode || null,
-                    allAvrIds: memberKeys
-                        .map(k => formData[`${k}AvrId`])
-                        .filter(id => !!id),
-                    registeredAt: serverTimestamp(),
-                    status: 'confirmed',
-                    paymentStatus: 'success',
-                    amountPaid: activeEvent.fee,
-                });
-
-                transaction.update(pendingRef, {
-                    status: 'confirmed',
-                    resolvedAt: serverTimestamp(),
-                    easepayId: paymentMeta?.easepayId || null,
-                    bankRefNum: paymentMeta?.bankRef || null,
-                    paymentMode: paymentMeta?.paymentMode || null
-                });
-            });
-
-            if (alreadyConfirmed) {
-                // Fetch the ID generated by the webhook
-                const hQuery = query(collection(db, "registrations"), where("transactionId", "==", txnId));
-                const hSnap = await getDocs(hQuery);
-                if (!hSnap.empty) {
-                    generatedTeamId = hSnap.docs[0].data().teamId;
-                } else {
-                    generatedTeamId = "VERIFIED-BY-ADMIN";
-                }
-            }
-
-            setTicketId(generatedTeamId);
-            setSuccess(true);
-            toast.success(`Deployment Confirmed! Squad ID: ${generatedTeamId}`);
-        } catch (error) {
-            console.error("Registration failed:", error);
-            toast.error("Database sync failed. Contact support with your Txn ID.");
-        } finally {
-            setLoading(false);
-        }
-    };
 
     // Step 1: Validate and show preview
     const handleReview = () => {
@@ -444,26 +353,60 @@ const RoboKshetra: React.FC = () => {
         }
 
         setLoading(true);
-        callbackFiredRef.current = false; // Reset guard for each attempt
+        paymentOverlay.startPayment();
 
         try {
             const txnid = generateTxnId("ROBO");
 
-            const pendingRef = doc(db, "pending_registrations", txnid);
-            await setDoc(pendingRef, {
-                uid: user.uid,
+            // Build structured team roster for the final registration document
+            const memberKeys = ['leader', 'member2', 'member3', 'member4'];
+            const allAvrIds = memberKeys
+                .map(m => formData[`${m}AvrId`])
+                .filter(id => id && id.length >= 9);
+            const squad = memberKeys.map(m => ({
+                avrId: formData[`${m}AvrId`] || '',
+                name: formData[`${m}Name`] || '',
+                email: formData[`${m}Email`] || '',
+                phone: formData[`${m}Phone`] || '',
+                college: formData[`${m}College`] || '',
+            })).filter(m => m.avrId && m.avrId.length >= 9);
+
+            const pendingPayload = {
+                userId: user.uid,
                 email: user.email || formData.leaderEmail,
                 transactionId: txnid,
-                type: 'robokshetra_registration', // critical for webhook routing
+                type: 'robokshetra',
                 competitionId: `robokshetra_${activeEvent.id}`,
+                userAVR: formData.leaderAvrId || '',
+                allAvrIds,
                 amount: activeEvent.fee,
-                createdAt: serverTimestamp(),
                 status: 'pending',
-                formData: formData,
-                activeEvent: activeEvent
-            });
+                // Structured finalPayload for the webhook to spread into the registration doc
+                finalPayload: {
+                    userId: user.uid,
+                    userName: formData.leaderName || user.displayName || '',
+                    userEmail: formData.leaderEmail || user.email || '',
+                    userAVR: formData.leaderAvrId || '',
+                    allAvrIds,
+                    userPhone: formData.leaderPhone || '',
+                    userCollege: formData.leaderCollege || '',
+                    teamName: formData.teamName || null,
+                    squad,
+                    competitionId: `robokshetra_${activeEvent.id}`,
+                    competitionHandle: 'Robo-Kshetra',
+                    eventName: activeEvent.label,
+                    eventTitle: activeEvent.label,
+                    category: 'Robotics',
+                    department: 'Robo-Kshetra',
+                    isFlagship: true,
+                    paymentStatus: 'paid',
+                    amountPaid: activeEvent.fee,
+                }
+            };
 
-            const response = await fetch("https://initiatepayment-rgvkuxdaea-uc.a.run.app", {
+            paymentOverlay.setConnecting();
+
+            const response = await fetch(FUNCTIONS_CONFIG.initiatePayment, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -473,38 +416,27 @@ const RoboKshetra: React.FC = () => {
                     firstname: formData.leaderName || user.displayName || "Participant",
                     email: formData.leaderEmail || user.email,
                     phone: formData.leaderPhone,
-                    surl: `${window.location.origin}/robo-kshetra?status=success`,
-                    furl: `${window.location.origin}/robo-kshetra?status=failure`
+                    surl: FUNCTIONS_CONFIG.paymentSuccess,
+                    furl: FUNCTIONS_CONFIG.paymentFailure,
+                    pendingPayload
                 })
             });
 
             const result = await response.json();
 
             if (result.success && result.access_key) {
-                const merchantKey = import.meta.env.VITE_EASEBUZZ_KEY;
-                initiateEasebuzzCheckout(merchantKey, result.access_key, async (ebResponse: any) => {
-                    // Guard: prevent duplicate callbacks from Easebuzz SDK
-                    if (callbackFiredRef.current) return;
-                    callbackFiredRef.current = true;
-
-                    if (ebResponse.status === "success") {
-                        const realTxnId = ebResponse.txnid || txnid;
-                        await handleRegistrationSubmit(realTxnId, {
-                            easepayId: ebResponse.easepayid || null,
-                            bankRef: ebResponse.bank_ref_num || null,
-                            paymentMode: ebResponse.mode || null,
-                        });
-                    } else {
-                        callbackFiredRef.current = false; // Allow retry on failure
-                        toast.error("Payment aborted by gateway.");
-                    }
-                }, 'prod');
+                paymentOverlay.setRedirecting();
+                const redirectUrl = `https://pay.easebuzz.in/pay/${result.access_key}`;
+                setTimeout(() => {
+                    window.location.href = redirectUrl;
+                }, 1200);
             } else {
                 throw new Error(result.error || "Initiation failed.");
             }
         } catch (err: any) {
             console.error("Payment error:", err);
-            toast.error("System failure during payment. Try again.");
+            paymentOverlay.dismiss();
+            toast.error("Payment initiation failed. Please try again.");
         } finally {
             setLoading(false);
         }
@@ -538,6 +470,7 @@ const RoboKshetra: React.FC = () => {
 
     return (
         <div className="rk-page">
+            <PaymentOverlay isVisible={paymentOverlay.isVisible} stage={paymentOverlay.stage} />
             <SEO 
                 title={selectedEvent ? `Assemble: ${activeEvent?.label}` : "Robo-Kshetra Arena"} 
                 description="Join the ultimate battlefield of metal and electronics at Robo-Kshetra '26."

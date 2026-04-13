@@ -3,23 +3,23 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 
 import { 
-    doc, collection, serverTimestamp, query, where, 
-    getDocs, runTransaction, getDoc, setDoc, updateDoc 
+    doc, collection, query, where, 
+    getDocs, getDoc 
 } from 'firebase/firestore';
 import { auth, db } from '../../firebase/firebase';
 import SEO from '../../components/seo/SEO';
 import { useToast } from '../../components/toast/Toast';
 import GlassSelect from '../../components/dropdown/GlassSelect';
-import { initiateEasebuzzCheckout, generateTxnId } from '../../utils/easebuzz';
+import { generateTxnId } from '../../utils/easebuzz';
 import { fetchProblemStatements, type ProblemStatement } from '../../utils/storageUtils';
-import { generateInvoice } from '../../utils/InvoiceGenerator';
 import { 
     Check, Users, ArrowRight, ArrowLeft, Loader2, 
-    User, Mail, Phone, Building2, Fingerprint, Search, Download, ShieldAlert,
-    Copy 
+    User, Mail, Phone, Building2, Fingerprint, Search, ShieldAlert, Copy
 } from 'lucide-react';
 import { useRegistrationGuard } from '../../hooks/useRegistrationGuard';
-
+import { FUNCTIONS_CONFIG } from '../../config/functions';
+import PaymentOverlay from '../../components/payment/PaymentOverlay';
+import { usePaymentOverlay } from '../../hooks/usePaymentOverlay';
 
 import './HackathonRegistration.css';
 
@@ -152,13 +152,12 @@ const HackathonRegistration: React.FC = () => {
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
+    const paymentOverlay = usePaymentOverlay();
     const [problems, setProblems] = useState<ProblemStatement[]>([]);
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [lookupLoading, setLookupLoading] = useState<Record<string, boolean>>({});
     const [lookupFailed, setLookupFailed] = useState<Record<string, boolean>>({});
-    const [transactionId, setTransactionId] = useState("");
-    const [teamId, setTeamId] = useState("");
-    const callbackFiredRef = React.useRef(false);
+
 
 
     const [formData, setFormData] = useState({
@@ -355,114 +354,17 @@ const HackathonRegistration: React.FC = () => {
         }
     };
 
-    const handleSubmitRegistration = async (paymentId: string, paymentMeta?: { easepayId?: string; bankRef?: string; paymentMode?: string }) => {
-        setSubmitting(true);
-        try {
-            let generatedTeamId = "";
-            let alreadyConfirmed = false;
-
-            await runTransaction(db, async (transaction) => {
-                const pendingRef = doc(db, 'pending_registrations', paymentId);
-                const pendingSnap = await transaction.get(pendingRef);
-
-                if (pendingSnap.exists() && pendingSnap.data().status === 'confirmed') {
-                    alreadyConfirmed = true;
-                    return; // Webhook beat us to it, skip execution
-                }
-
-                const psMetadataRef = doc(db, "ps_metadata", formData.psId);
-                const psMetadataDoc = await transaction.get(psMetadataRef);
-
-                let currentCount = 0;
-                if (psMetadataDoc.exists()) currentCount = psMetadataDoc.data().count || 0;
-
-                if (currentCount >= 10) throw new Error("This problem statement has no more slots.");
-
-                // Generate Unique Team ID
-                const teamCounterRef = doc(db, "counters", "hackathon_team_counter");
-                const teamCounterDoc = await transaction.get(teamCounterRef);
-                let nextTeamCount = 1;
-                if (teamCounterDoc.exists()) {
-                    nextTeamCount = (teamCounterDoc.data().count || 0) + 1;
-                }
-
-                transaction.update(teamCounterRef, { count: nextTeamCount });
-                generatedTeamId = `AVR-PRM-${nextTeamCount.toString().padStart(4, '0')}`;
-
-                transaction.set(psMetadataRef, { count: currentCount + 1 }, { merge: true });
-
-                const registrationRef = doc(collection(db, "hackathon_registrations"));
-                transaction.set(registrationRef, {
-                    ...formData,
-                    teamId: generatedTeamId,
-                    status: 'confirmed',
-                    paymentId,
-                    easepayId: paymentMeta?.easepayId || null,
-                    bankRefNum: paymentMeta?.bankRef || null,
-                    paymentMode: paymentMeta?.paymentMode || null,
-                    amountPaid: 500,
-                    allEmails: [
-                        formData.leaderEmail.toLowerCase(), 
-                        formData.member2Email.toLowerCase(), 
-                        formData.member3Email.toLowerCase(), 
-                        formData.member4Email.toLowerCase()
-                    ],
-                    allAvrIds: [
-                        formData.leaderAvrId,
-                        formData.member2AvrId,
-                        formData.member3AvrId,
-                        formData.member4AvrId
-                    ],
-                    createdAt: serverTimestamp(),
-                    uid: user?.uid
-                });
-
-                transaction.update(pendingRef, {
-                    status: 'confirmed',
-                    resolvedAt: serverTimestamp(),
-                    easepayId: paymentMeta?.easepayId || null,
-                    bankRefNum: paymentMeta?.bankRef || null,
-                    paymentMode: paymentMeta?.paymentMode || null
-                });
-            });
-
-            if (alreadyConfirmed) {
-                // Fetch the ID generated by the webhook
-                const hQuery = query(collection(db, "hackathon_registrations"), where("paymentId", "==", paymentId));
-                const hSnap = await getDocs(hQuery);
-                if (!hSnap.empty) {
-                    generatedTeamId = hSnap.docs[0].data().teamId;
-                } else {
-                    generatedTeamId = "VERIFIED-BY-ADMIN";
-                }
-            }
-
-            setTransactionId(paymentId);
-            setTeamId(generatedTeamId);
-            setStep(3);
-            toast.success(`Team Registered! ID: ${generatedTeamId}`);
-
-        } catch (err: any) {
-            toast.error(err.message);
-        } finally {
-            setSubmitting(false);
-        }
-    };
-
     const handlePayment = async () => {
         setSubmitting(true);
-        callbackFiredRef.current = false; // Reset guard for each attempt
+        paymentOverlay.startPayment();
 
         try {
             // 1. Generate Transaction Details
             const txnid = generateTxnId("HACK");
             const amount = "500.00"; // Hackathon fee
 
-            // 2. SAFETY NET: Create pending registration record BEFORE opening payment gateway.
-            //    If the callback fails (network drop, tab close, SDK bug), this record survives
-            //    and is visible to admins for manual verification.
-            const pendingRef = doc(db, 'pending_registrations', txnid);
-            await setDoc(pendingRef, {
+            // 2. Prepare pending payload for transaction check in Cloud Function
+            const pendingPayload = {
                 txnId: txnid,
                 type: 'hackathon',
                 status: 'payment_pending',
@@ -481,7 +383,7 @@ const HackathonRegistration: React.FC = () => {
                     formData.member3AvrId,
                     formData.member4AvrId
                 ],
-                createdAt: serverTimestamp(),
+                // createdAt and serverTimestamp replaced in backend
                 resolvedAt: null,
                 easepayId: null,
                 bankRefNum: null,
@@ -504,10 +406,10 @@ const HackathonRegistration: React.FC = () => {
                     ],
                     uid: user?.uid
                 }
-            });
+            };
             
-            // 3. Get access_key from Cloud Function (which calls Easebuzz API)
-            const response = await fetch("https://initiatepayment-rgvkuxdaea-uc.a.run.app", {
+            // 3. Get access_key from Cloud Function (which calls Easebuzz API and pre-flights)
+            const response = await fetch(FUNCTIONS_CONFIG.initiatePayment, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -517,62 +419,30 @@ const HackathonRegistration: React.FC = () => {
                     firstname: formData.leaderName,
                     email: formData.leaderEmail,
                     phone: formData.leaderPhone,
-                    surl: "https://us-central1-avishkar--26.cloudfunctions.net/paymentWebhook",
-                    furl: "https://us-central1-avishkar--26.cloudfunctions.net/paymentWebhook"
+                    surl: FUNCTIONS_CONFIG.paymentSuccess,
+                    furl: FUNCTIONS_CONFIG.paymentFailure,
+                    pendingPayload // Pass the payload directly
                 })
             });
+
+            paymentOverlay.setConnecting();
 
             const result = await response.json();
 
             if (result.success && result.access_key) {
-                // 4. Open Easebuzz checkout overlay with callback
-                const merchantKey = import.meta.env.VITE_EASEBUZZ_KEY;
-                
-                initiateEasebuzzCheckout(merchantKey, result.access_key, async (ebResponse: any) => {
-                    // Guard: prevent duplicate callbacks from Easebuzz SDK
-                    if (callbackFiredRef.current) return;
-                    callbackFiredRef.current = true;
-
-                    if (ebResponse.status === "success") {
-                        // Use real Easebuzz txnid from response, fallback to generated one
-                        const realTxnId = ebResponse.txnid || txnid;
-                        
-                        // Pass straight to submit registration, let the transaction guarantee atomicity
-                        await handleSubmitRegistration(realTxnId, {
-                            easepayId: ebResponse.easepayid || null,
-                            bankRef: ebResponse.bank_ref_num || null,
-                            paymentMode: ebResponse.mode || null,
-                        });
-                    } else {
-                        // Update pending record to failed
-                        try {
-                            await updateDoc(pendingRef, {
-                                status: 'failed',
-                                resolvedAt: serverTimestamp()
-                            });
-                        } catch (e) {
-                            console.warn('Failed to update pending record on failure:', e);
-                        }
-                        callbackFiredRef.current = false; // Allow retry on failure
-                        toast.error("Payment was not successful.");
-                    }
-                }, 'prod');
+                paymentOverlay.setRedirecting();
+                const redirectUrl = `https://pay.easebuzz.in/pay/${result.access_key}`;
+                setTimeout(() => {
+                    window.location.href = redirectUrl;
+                }, 1200);
             } else {
-                // Payment initiation failed, clean up pending record
-                try {
-                    await updateDoc(pendingRef, {
-                        status: 'initiation_failed',
-                        resolvedAt: serverTimestamp()
-                    });
-                } catch (e) {
-                    console.warn('Failed to update pending record:', e);
-                }
                 throw new Error(result.error || "Unable to reach payment gateway.");
             }
 
         } catch (err: any) {
             console.error("Payment Error:", err);
-            toast.error("Communication Interrupted. Deployment halted.");
+            paymentOverlay.dismiss();
+            toast.error("Payment initiation failed. Please try again.");
             setSubmitting(false);
         }
     };
@@ -583,6 +453,7 @@ const HackathonRegistration: React.FC = () => {
 
     return (
         <div className="hackathon-reg-page">
+            <PaymentOverlay isVisible={paymentOverlay.isVisible} stage={paymentOverlay.stage} />
             <SEO 
                 title="Param-X '26 | Registration" 
                 description="Secure your spot in Param-X '26 Hackathon. Enter your details and let's build something epic."
@@ -707,67 +578,7 @@ const HackathonRegistration: React.FC = () => {
                     </div>
                 )}
 
-                {step === 3 && (
-                    <div className="reg-card success-card fade-in">
-                        <div className="success-lottie">
-                            <div className="victory-badge">
-                                <Check size={48} strokeWidth={3} />
-                            </div>
-                        </div>
-                        <header>
-                            <h1>Registration Complete!</h1>
-                            <p>Get ready for the ultimate innovation marathon.</p>
-                        </header>
-                        
-                        <div className="success-content">
-                            <div className="team-highlight">
-                                <span className="label">Confirmed Squad</span>
-                                <span className="value">{formData.teamName}</span>
-                            </div>
 
-                            <div className="success-details">
-                                <div className="detail-item id-highlight">
-                                    <span className="d-label">Team ID</span>
-                                    <span className="d-value team-id">{teamId}</span>
-                                </div>
-
-                                <div className="detail-item">
-                                    <span className="d-label">Transaction ID</span>
-                                    <span className="d-value">{transactionId}</span>
-                                </div>
-
-                                <div className="detail-item">
-                                    <span className="d-label">Status</span>
-                                    <span className="d-value status-paid">Successfully Paid</span>
-                                </div>
-                                <p className="confirmation-help">
-                                    We've sent a detailed confirmation email and rules booklet to <strong>{formData.leaderEmail}</strong>. 
-                                    Please check your inbox (and spam folder).
-                                </p>
-                            </div>
-                        </div>
-
-                        <footer className="success-footer">
-                            <button className="secondary-btn invoice-btn" onClick={() => generateInvoice({
-                                teamName: formData.teamName,
-                                leaderName: formData.leaderName,
-                                leaderEmail: formData.leaderEmail,
-                                avrId: formData.leaderAvrId,
-                                psId: formData.psId,
-                                psTitle: selectedPs?.title || formData.psId,
-                                paymentId: transactionId,
-                                date: new Date().toLocaleDateString(),
-                                amount: "500.00"
-                            })}>
-                                <Download size={18} /> Download Invoice
-                            </button>
-                            <button className="primary-btn dashboard-btn" onClick={() => window.location.href = '/user/dashboard'}>
-                                Go to Dashboard <ArrowRight size={18} />
-                            </button>
-                        </footer>
-
-                    </div>
-                )}
 
 
             </div>

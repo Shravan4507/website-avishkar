@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuthState } from 'react-firebase-hooks/auth';
-import { doc, getDoc, setDoc, updateDoc, serverTimestamp, collection, query, where, getDocs, limit } from 'firebase/firestore';
+import { doc, getDoc, setDoc, serverTimestamp, collection, query, where, getDocs, limit } from 'firebase/firestore';
 import { auth, db } from '../../firebase/firebase';
 import { useToast } from '../../components/toast/Toast';
 import { COMPETITIONS_DATA } from '../../data/competitions';
@@ -13,9 +13,12 @@ import {
   Copy, Loader2, ShieldAlert, Check 
 } from 'lucide-react';
 import { useRegistrationGuard } from '../../hooks/useRegistrationGuard';
-import { initiateEasebuzzCheckout, generateTxnId } from '../../utils/easebuzz';
+import { generateTxnId } from '../../utils/easebuzz';
 import './Registration.css';
 import { reportError, withRetry } from '../../utils/errorReport';
+import { FUNCTIONS_CONFIG } from '../../config/functions';
+import PaymentOverlay from '../../components/payment/PaymentOverlay';
+import { usePaymentOverlay } from '../../hooks/usePaymentOverlay';
 
 
 const Registration: React.FC = () => {
@@ -32,7 +35,7 @@ const Registration: React.FC = () => {
   const [alreadyRegistered, setAlreadyRegistered] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [accountabilityAccepted, setAccountabilityAccepted] = useState(false);
-  const [transactionId, setTransactionId] = useState<string | null>(null);
+  const [transactionId] = useState<string | null>(null);
   const [moonObservation, setMoonObservation] = useState(false);
 
   // --- Squad State ---
@@ -44,6 +47,7 @@ const Registration: React.FC = () => {
   const { isRegistered, eventName: registeredEventName } = useRegistrationGuard();
 
   const isSubmittingRef = useRef(false);
+  const paymentOverlay = usePaymentOverlay();
 
 
   useEffect(() => {
@@ -234,8 +238,21 @@ const Registration: React.FC = () => {
   };
 
 
-  /** Write registration to Firestore */
-  const submitRegistration = async (paymentTxnId?: string, paymentMeta?: { easepayId?: string; bankRef?: string; paymentMode?: string }) => {
+  /** Write registration to Firestore — FREE EVENTS ONLY.
+   *  Paid events are handled server-side by the paymentWebhook Cloud Function.
+   */
+  const submitRegistration = async () => {
+    // SECURITY: Block paid events from using client-side writes.
+    // Paid registrations MUST go through the webhook to prevent unpaid confirmations.
+    const baseFee = competition!.entryFee || 0;
+    const addOnFee = (competition!.slug === 'orbitx_solar' && moonObservation) ? 20 : 0;
+    const fee = baseFee + addOnFee;
+    if (fee > 0) {
+      console.error("SECURITY: Paid events must go through the payment gateway. Client-side write blocked.");
+      toast.error("Registration error. Please try again through the payment flow.");
+      return;
+    }
+
     const regId = `${competition!.id}_${userData.avrId}`;
     const regRef = doc(db, 'registrations', regId);
 
@@ -254,9 +271,6 @@ const Registration: React.FC = () => {
     }
 
     const userAge = calculateAge(userData.dob);
-    const baseFee = competition!.entryFee || 0;
-    const addOnFee = (competition!.slug === 'orbitx_solar' && moonObservation) ? 20 : 0;
-    const fee = baseFee + addOnFee;
 
     const allMembersAvr = [
       userData.avrId,
@@ -295,14 +309,14 @@ const Registration: React.FC = () => {
         category: competition!.subtitle || 'General Event',
         department: competition!.department,
         isFlagship: competition!.isFlagship || false,
-        // Payment
-        paymentStatus: fee > 0 ? 'paid' : 'free',
-        amountPaid: fee,
+        // Payment (always free for this code path)
+        paymentStatus: 'free',
+        amountPaid: 0,
         moonObservation: moonObservation,
-        transactionId: paymentTxnId || null,
-        easepayId: paymentMeta?.easepayId || null,
-        bankRefNum: paymentMeta?.bankRef || null,
-        paymentMode: paymentMeta?.paymentMode || null,
+        transactionId: null,
+        easepayId: null,
+        bankRefNum: null,
+        paymentMode: null,
         // Metadata
         status: 'confirmed',
         registeredAt: serverTimestamp(),
@@ -310,7 +324,6 @@ const Registration: React.FC = () => {
       });
     }, 3, 1500);
 
-    if (paymentTxnId) setTransactionId(paymentTxnId);
     setAlreadyRegistered(true);
     setIsSuccess(true);
   };
@@ -320,6 +333,7 @@ const Registration: React.FC = () => {
     if (!competition || !userData || !user) return;
     setIsSubmitting(true);
     isSubmittingRef.current = true;
+    paymentOverlay.startPayment();
 
     try {
       const txnid = generateTxnId(competition.id.toUpperCase().replace(/[^A-Z0-9]/g, ''));
@@ -327,11 +341,8 @@ const Registration: React.FC = () => {
       const addOnFee = (competition.slug === 'orbitx_solar' && moonObservation) ? 20 : 0;
       const fee = baseFee + addOnFee;
 
-      // SAFETY NET: Create pending registration record BEFORE opening payment gateway.
-      //    If the callback fails (network drop, tab close, SDK bug), this record survives
-      //    and is visible to admins for manual verification.
-      const pendingRef = doc(db, 'pending_registrations', txnid);
-      await setDoc(pendingRef, {
+      // Prepare pending payload for transaction check in Cloud Function
+      const pendingPayload = {
         txnId: txnid,
         type: 'competition',
         status: 'payment_pending',
@@ -361,7 +372,6 @@ const Registration: React.FC = () => {
             .filter(m => !!m.avrId && m.avrId.length >= 9)
             .map(m => m.avrId)
         ],
-        createdAt: serverTimestamp(),
         resolvedAt: null,
         easepayId: null,
         bankRefNum: null,
@@ -401,9 +411,9 @@ const Registration: React.FC = () => {
           amountPaid: fee,
           moonObservation: moonObservation
         }
-      });
+      };
 
-      const response = await fetch("https://initiatepayment-rgvkuxdaea-uc.a.run.app", {
+      const response = await fetch(FUNCTIONS_CONFIG.initiatePayment, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -413,73 +423,29 @@ const Registration: React.FC = () => {
           firstname: `${userData.firstName} ${userData.lastName}`,
           email: userData.email || user.email,
           phone: userData.phone || '',
-          surl: "https://us-central1-avishkar--26.cloudfunctions.net/paymentWebhook",
-          furl: "https://us-central1-avishkar--26.cloudfunctions.net/paymentWebhook"
+          surl: FUNCTIONS_CONFIG.paymentSuccess,
+          furl: FUNCTIONS_CONFIG.paymentFailure,
+          pendingPayload
         })
       });
+
+      paymentOverlay.setConnecting();
 
       const result = await response.json();
 
       if (result.success && result.access_key) {
-        const merchantKey = import.meta.env.VITE_EASEBUZZ_KEY;
-        initiateEasebuzzCheckout(merchantKey, result.access_key, async (ebResponse: any) => {
-          // Guard: prevent duplicate callbacks from Easebuzz SDK
-          if (isSubmittingRef.current === false) return;
-          isSubmittingRef.current = false;
-
-          if (ebResponse.status === "success") {
-            // Use real Easebuzz txnid from response, fallback to generated one
-            const realTxnId = ebResponse.txnid || txnid;
-
-            // Update pending record to confirmed
-            try {
-              await updateDoc(pendingRef, {
-                status: 'confirmed',
-                resolvedAt: serverTimestamp(),
-                easepayId: ebResponse.easepayid || null,
-                bankRefNum: ebResponse.bank_ref_num || null,
-                paymentMode: ebResponse.mode || null
-              });
-            } catch (e) {
-              console.warn('Failed to update pending record, continuing with registration:', e);
-            }
-
-            await submitRegistration(realTxnId, {
-              easepayId: ebResponse.easepayid || null,
-              bankRef: ebResponse.bank_ref_num || null,
-              paymentMode: ebResponse.mode || null,
-            });
-            setIsSubmitting(false); // Done
-          } else {
-            // Update pending record to failed
-            try {
-              await updateDoc(pendingRef, {
-                status: 'failed',
-                resolvedAt: serverTimestamp()
-              });
-            } catch (e) {
-              console.warn('Failed to update pending record on failure:', e);
-            }
-            toast.error("Payment was not successful. Please try again.");
-            setIsSubmitting(false); // Enable the button again
-            isSubmittingRef.current = false; // Allow retry on failure
-          }
-        }, 'prod');
+        paymentOverlay.setRedirecting();
+        const redirectUrl = `https://pay.easebuzz.in/pay/${result.access_key}`;
+        setTimeout(() => {
+          window.location.href = redirectUrl;
+        }, 1200);
       } else {
-        // Payment initiation failed, clean up pending record
-        try {
-          await updateDoc(pendingRef, {
-            status: 'initiation_failed',
-            resolvedAt: serverTimestamp()
-          });
-        } catch (e) {
-          console.warn('Failed to update pending record:', e);
-        }
         throw new Error(result.error || "Payment initiation failed.");
       }
     } catch (err: any) {
       console.error("Payment Error:", err);
-      toast.error("Payment system error. Please try again.");
+      paymentOverlay.dismiss();
+      toast.error("Payment initiation failed. Please try again.");
       setIsSubmitting(false);
       isSubmittingRef.current = false;
     }
@@ -585,6 +551,7 @@ const Registration: React.FC = () => {
 
   return (
     <div className="registration-page animate-in">
+      <PaymentOverlay isVisible={paymentOverlay.isVisible} stage={paymentOverlay.stage} />
       <div className="registration-container">
         
         {/* Left Side: Competition Details */}

@@ -202,8 +202,10 @@ service cloud.firestore {
 
       // Write: only allow incrementing counter fields (used in AVR ID generation & team counter transactions)
       // Block arbitrary overwrites — only 'count' or 'currentId' keys can change
+      // SECURITY: Prevent decrement attacks by ensuring count only goes up
       allow update: if isAuth() &&
-                       request.resource.data.diff(resource.data).affectedKeys().hasOnly(['count', 'currentId']);
+                       request.resource.data.diff(resource.data).affectedKeys().hasOnly(['count', 'currentId']) &&
+                       request.resource.data.count >= resource.data.count;
 
       // No creates or deletes from client — these are seeded by admins
       allow create, delete: if isAuth() && isCoreAdmin();
@@ -269,13 +271,15 @@ service cloud.firestore {
     // If payment succeeds but callback fails, admin can manually verify & approve.
     // =============================================
     match /pending_registrations/{txnId} {
-      // Any authenticated user can create a pending record (before paying)
-      allow create: if isAuth();
+      // SECURITY: Created ONLY by Cloud Functions (admin SDK) during initiatePayment.
+      // No client creates — prevents forged pending docs with fake finalPayload.
+      allow create: if false;
 
-      // Users can update their own pending record (to mark confirmed/failed after callback)
-      allow update: if isAuth() && request.auth.uid == resource.data.userId;
+      // SECURITY: Users cannot update pending records.
+      // Only the webhook (admin SDK) and core admins can modify status.
+      // Previously allowed user self-update which enabled fake 'confirmed' status via DevTools.
 
-      // Users can read their own pending records
+      // Users can read their own pending records (needed for dashboard polling)
       allow get: if isAuth() && request.auth.uid == resource.data.userId;
 
       // Admins can list and read all pending records
