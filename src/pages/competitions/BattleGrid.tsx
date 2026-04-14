@@ -181,8 +181,12 @@ const BattleGrid: React.FC = () => {
                         isRegistered={isRegistered}
                         registeredEventName={eventName}
                         onItemClick={(item: ChromaItem) => {
+                            if (item.id === 'bgmi') {
+                                toast.info("Page is under constructions team is building shraders...");
+                                return;
+                            }
                             if (item.comingSoon) {
-                                toast.info("BGMI Registration is opening soon! Complete your squad's profiles while you wait.");
+                                toast.info("Registration is opening soon!");
                                 return;
                             }
                             if (!user) {

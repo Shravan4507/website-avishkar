@@ -291,7 +291,7 @@ export const ChromaGrid: React.FC<ChromaGridProps> = ({
                         <img src={c.image} alt={c.title} loading="lazy" />
                         {c.date && <div className="date-badge">{c.date}</div>}
                         {c.prizePool && <div className="prize-tag">Prize: {c.prizePool}</div>}
-                        {c.entryFee && <div className="fee-tag">Fee: ₹{c.entryFee}</div>}
+                        {(c.entryFee ?? 0) > 0 && <div className="fee-tag">Fee: ₹{c.entryFee}</div>}
                         {c.comingSoon && <div className="coming-soon-badge">COMING SOON</div>}
                     </div>
                     <footer className="chroma-info">
@@ -320,7 +320,7 @@ export const ChromaGrid: React.FC<ChromaGridProps> = ({
                                 <div className="modal-header-top">
                                     <span className="modal-loc">{selectedMember.location}</span>
                                     {selectedMember.prizePool && <span className="modal-prize-pool">Pool: {selectedMember.prizePool}</span>}
-                                    {selectedMember.entryFee && <span className="modal-prize-pool">Fee: ₹{selectedMember.entryFee}</span>}
+                                    {(selectedMember.entryFee ?? 0) > 0 && <span className="modal-prize-pool">Fee: ₹{selectedMember.entryFee}</span>}
                                 </div>
                                 <h2>{selectedMember.title}</h2>
                                 <div className="modal-meta">
