@@ -10,6 +10,9 @@
 .eb-content {
   max-width: 520px;
   text-align: center;
+  background-color: #000;
+  border-radius: 2rem;
+  padding: 2rem;
 }
 
 .eb-icon {

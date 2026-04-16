@@ -17,9 +17,8 @@ import {
     User, Mail, Phone, Building2, Fingerprint, Search, ShieldAlert, Copy
 } from 'lucide-react';
 import { useRegistrationGuard } from '../../hooks/useRegistrationGuard';
-import { FUNCTIONS_CONFIG } from '../../config/functions';
-import PaymentOverlay from '../../components/payment/PaymentOverlay';
-import { usePaymentOverlay } from '../../hooks/usePaymentOverlay';
+import PaymentCheckout from '../../components/payment/PaymentCheckout';
+import { usePaymentCheckout } from '../../hooks/usePaymentCheckout';
 
 import './HackathonRegistration.css';
 
@@ -148,11 +147,17 @@ const HackathonRegistration: React.FC = () => {
     }, [user, isRegistered, eventName, guardLoading, navigate, toast, searchParams]);
 
 
-    
+    const calculateAge = (dob: string) => {
+        if (!dob) return 0;
+        const diff = Date.now() - new Date(dob).getTime();
+        return Math.abs(new Date(diff).getUTCFullYear() - 1970);
+    };
+
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
-    const paymentOverlay = usePaymentOverlay();
+    const paymentCheckout = usePaymentCheckout();
+    const [checkoutOrderDetails, setCheckoutOrderDetails] = useState<{ eventName: string; amount: number; participantName: string; avrId: string } | null>(null);
     const [problems, setProblems] = useState<ProblemStatement[]>([]);
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [lookupLoading, setLookupLoading] = useState<Record<string, boolean>>({});
@@ -169,25 +174,38 @@ const HackathonRegistration: React.FC = () => {
         leaderEmail: '',
         leaderPhone: '',
         leaderCollege: '',
+        leaderMajor: '',
+        leaderAge: 0,
+        leaderSex: '',
 
         member2AvrId: '',
         member2Name: '',
         member2Email: '',
         member2Phone: '',
         member2College: '',
+        member2Major: '',
+        member2Age: 0,
+        member2Sex: '',
 
         member3AvrId: '',
         member3Name: '',
         member3Email: '',
         member3Phone: '',
         member3College: '',
+        member3Major: '',
+        member3Age: 0,
+        member3Sex: '',
 
         member4AvrId: '',
         member4Name: '',
         member4Email: '',
         member4Phone: '',
         member4College: '',
+        member4Major: '',
+        member4Age: 0,
+        member4Sex: '',
     });
+
 
     // 1. Initial Load: Fetch Leader Details
     useEffect(() => {
@@ -210,7 +228,11 @@ const HackathonRegistration: React.FC = () => {
                             leaderEmail: data.email || user.email || '',
                             leaderPhone: data.whatsappNumber || data.whatsapp || data.phone || '',
                             leaderCollege: data.college || '',
+                            leaderMajor: data.major || '',
+                            leaderAge: calculateAge(data.dob),
+                            leaderSex: data.sex || '',
                         }));
+
                     }
                 }
             } catch (err) {
@@ -280,7 +302,11 @@ const HackathonRegistration: React.FC = () => {
                     [`${memberKey}Email`]: data.email || '',
                     [`${memberKey}Phone`]: data.whatsappNumber || data.whatsapp || data.phone || '',
                     [`${memberKey}College`]: data.college || '',
+                    [`${memberKey}Major`]: data.major || '',
+                    [`${memberKey}Age`]: calculateAge(data.dob),
+                    [`${memberKey}Sex`]: data.sex || '',
                 }));
+
                 setLookupFailed(prev => ({ ...prev, [memberKey]: false }));
             } else {
                 setFormData(prev => ({
@@ -289,7 +315,11 @@ const HackathonRegistration: React.FC = () => {
                     [`${memberKey}Email`]: '',
                     [`${memberKey}Phone`]: '',
                     [`${memberKey}College`]: '',
+                    [`${memberKey}Major`]: '',
+                    [`${memberKey}Age`]: 0,
+                    [`${memberKey}Sex`]: '',
                 }));
+
                 // Only set as 'failed' if they have actually typed a full ID
                 setLookupFailed(prev => ({ ...prev, [memberKey]: true }));
             }
@@ -356,14 +386,11 @@ const HackathonRegistration: React.FC = () => {
 
     const handlePayment = async () => {
         setSubmitting(true);
-        paymentOverlay.startPayment();
 
         try {
-            // 1. Generate Transaction Details
             const txnid = generateTxnId("HACK");
-            const amount = "500.00"; // Hackathon fee
+            const amount = "500.00";
 
-            // 2. Prepare pending payload for transaction check in Cloud Function
             const pendingPayload = {
                 txnId: txnid,
                 type: 'hackathon',
@@ -383,65 +410,70 @@ const HackathonRegistration: React.FC = () => {
                     formData.member3AvrId,
                     formData.member4AvrId
                 ],
-                // createdAt and serverTimestamp replaced in backend
                 resolvedAt: null,
                 easepayId: null,
                 bankRefNum: null,
                 paymentMode: null,
                 adminNote: null,
                 finalPayload: {
-                    ...formData,
-                    amountPaid: 500,
-                    allEmails: [
-                        formData.leaderEmail.toLowerCase(), 
-                        formData.member2Email.toLowerCase(), 
-                        formData.member3Email.toLowerCase(), 
-                        formData.member4Email.toLowerCase()
-                    ],
+                    id: `HACK_${formData.leaderAvrId}`,
+                    leaderAvrId: formData.leaderAvrId,
+                    userId: user?.uid || '',
+                    competitionId: formData.psId,
+                    eventName: `Param-X '26 (PS: ${formData.psId})`,
+                    competitionCode: 'HACK',
+                    category: 'FLG',
+                    department: 'CS/IT',
+                    isFlagship: true,
+                    registrationType: 'TEAM',
+                    teamId: `HACK_${formData.leaderAvrId}`,
+                    teamName: formData.teamName,
+                    teamSize: 4,
+                    squad: ['leader', 'member2', 'member3', 'member4'].map(m => ({
+                        avrId: (formData as any)[`${m}AvrId`],
+                        name: (formData as any)[`${m}Name`],
+                        email: (formData as any)[`${m}Email`],
+                        phone: (formData as any)[`${m}Phone`],
+                        college: (formData as any)[`${m}College`],
+                        major: (formData as any)[`${m}Major`],
+                        age: (formData as any)[`${m}Age`],
+                        sex: (formData as any)[`${m}Sex`]
+                    })),
                     allAvrIds: [
                         formData.leaderAvrId,
                         formData.member2AvrId,
                         formData.member3AvrId,
                         formData.member4AvrId
                     ],
-                    uid: user?.uid
+                    paymentRequired: true,
+                    paymentStatus: 'paid',
+                    amountPaid: 500,
+                    status: 'confirmed',
+                    metadata: {
+                        createdAt: null
+                    }
                 }
             };
-            
-            // 3. Get access_key from Cloud Function (which calls Easebuzz API and pre-flights)
-            const response = await fetch(FUNCTIONS_CONFIG.initiatePayment, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    txnid,
-                    amount,
-                    productinfo: "Param-X '26 Registration",
-                    firstname: formData.leaderName,
-                    email: formData.leaderEmail,
-                    phone: formData.leaderPhone,
-                    surl: FUNCTIONS_CONFIG.paymentSuccess,
-                    furl: FUNCTIONS_CONFIG.paymentFailure,
-                    pendingPayload // Pass the payload directly
-                })
+
+            setCheckoutOrderDetails({
+                eventName: `Param-X '26 (PS: ${formData.psId})`,
+                amount: 500,
+                participantName: formData.leaderName,
+                avrId: formData.leaderAvrId
             });
 
-            paymentOverlay.setConnecting();
-
-            const result = await response.json();
-
-            if (result.success && result.access_key) {
-                paymentOverlay.setRedirecting();
-                const redirectUrl = `https://pay.easebuzz.in/pay/${result.access_key}`;
-                setTimeout(() => {
-                    window.location.href = redirectUrl;
-                }, 1200);
-            } else {
-                throw new Error(result.error || "Unable to reach payment gateway.");
-            }
+            await paymentCheckout.initiatePayment({
+                txnid,
+                amount,
+                productinfo: "Param-X '26 Registration",
+                firstname: formData.leaderName,
+                email: formData.leaderEmail,
+                phone: formData.leaderPhone,
+                pendingPayload
+            });
 
         } catch (err: any) {
             console.error("Payment Error:", err);
-            paymentOverlay.dismiss();
             toast.error("Payment initiation failed. Please try again.");
             setSubmitting(false);
         }
@@ -453,7 +485,18 @@ const HackathonRegistration: React.FC = () => {
 
     return (
         <div className="hackathon-reg-page">
-            <PaymentOverlay isVisible={paymentOverlay.isVisible} stage={paymentOverlay.stage} />
+            <PaymentCheckout
+                isVisible={paymentCheckout.status !== 'idle'}
+                status={paymentCheckout.status}
+                qrLink={paymentCheckout.qrLink}
+                timeRemaining={paymentCheckout.timeRemaining}
+                error={paymentCheckout.error}
+                registrationId={paymentCheckout.registrationId}
+                orderDetails={checkoutOrderDetails || { eventName: '', amount: 0, participantName: '', avrId: '' }}
+                onCancel={() => { paymentCheckout.cancelPayment(); setSubmitting(false); }}
+                onRetry={() => paymentCheckout.retry()}
+                onSuccess={() => navigate('/user/dashboard')}
+            />
             <SEO 
                 title="Param-X '26 | Registration" 
                 description="Secure your spot in Param-X '26 Hackathon. Enter your details and let's build something epic."

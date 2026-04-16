@@ -63,8 +63,9 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgb(0, 1, 7);
+    border: none;
+    border-bottom: 3px solid rgba(255, 255, 255, 0.3);
     padding: 0.6rem 1.25rem;
     border-radius: 2rem;
     font-size: 0.9rem;
@@ -155,7 +156,7 @@
 }
 
 .paramx-page .primary-cta {
-    background: rgba(0, 0, 0, 0.65);
+    background: rgb(0, 0, 0);
     color: #fff;
     padding: 1.2rem 3rem;
     border-radius: 3.5rem;
@@ -166,6 +167,7 @@
     gap: 0.75rem;
     cursor: pointer;
     border: none;
+    border-bottom: 3px solid rgba(255, 255, 255, 0.3);
     transition: all 0.3s ease;
 }
 
@@ -186,6 +188,7 @@
     cursor: pointer;
     text-decoration: none;
     border: none;
+    border-bottom: 3px solid rgba(255, 255, 255, 0.3);
     transition: all 0.3s ease;
 }
 
@@ -246,7 +249,8 @@
 
 .judging-card {
     background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: none;
+    border-bottom: 3px solid rgba(255, 255, 255, 0.3);
     padding: 2.5rem;
     border-radius: 2rem;
     text-align: left;
@@ -337,7 +341,8 @@
     align-items: center;
     gap: 1rem;
     flex: 1;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: none;
+    border-bottom: 3px solid rgba(255, 255, 255, 0.3);
 }
 
 .search-box input {
@@ -391,12 +396,13 @@
 .center { text-align: center; }
 
 .domain-pill {
-    background: rgba(167, 139, 250, 0.1);
-    color: #a78bfa;
+    background: rgb(0, 0, 0);
+    color: #9cfa8b;
     padding: 0.4rem 1rem;
     border-radius: 2rem;
     font-size: 0.85rem;
-    border: 1px solid rgba(167, 139, 250, 0.2);
+    border: none;
+    border-bottom: 3px solid rgba(255, 255, 255, 0.3);
     white-space: nowrap;
 }
 
@@ -412,9 +418,10 @@
 .slot-text { font-size: 0.8rem; color: rgba(255, 255, 255, 0.85); font-weight: 700; }
 
 .register-cta {
-    background: #5227ff;
+    background: #3300ff91;
     color: #fff;
     border: none;
+    border-bottom: 3px solid rgba(255, 255, 255, 0.3);
     padding: 0.8rem 1.8rem;
     border-radius: 3rem;
     font-weight: 700;
@@ -422,6 +429,11 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.register-cta:active {
+    transform: scale(0.98);
 }
 
 /* --- MODAL --- */
@@ -594,8 +606,7 @@
 
 /* Detailed View Styling */
 .detailed-view {
-    padding-top: 100px;
-    padding-bottom: 5rem;
+    padding: 100px;
 }
 
 .back-nav {
@@ -603,9 +614,10 @@
 }
 
 .back-btn {
-    background: rgba(255,255,255,0.05);
+    background: rgb(0, 0, 0);
     color: #fff;
-    border: 1px solid rgba(255,255,255,0.1);
+    border: none;
+    border-bottom: 3px solid rgba(255, 255, 255, 0.3);
     padding: 0.8rem 1.5rem;
     border-radius: 2rem;
     cursor: pointer;
@@ -668,10 +680,11 @@
 }
 
 .artifact-card {
-    background: rgba(255,255,255,0.03);
+    background: rgb(0, 0, 0);
     padding: 2rem;
     border-radius: 2rem;
-    border: 1px solid rgba(255,255,255,0.05);
+    border: none;
+    border-bottom: 3px solid rgba(255, 255, 255, 0.3);
     transition: all 0.3s ease;
 }
 
@@ -682,10 +695,11 @@
 .sidebar { display: flex; flex-direction: column; gap: 2rem; }
 
 .availability-card, .action-card {
-    background: rgba(255,255,255,0.03);
+    background: rgb(0, 0, 0);
     padding: 2.5rem;
     border-radius: 2.5rem;
-    border: 1px solid rgba(255,255,255,0.05);
+    border: none;
+    border-bottom: 3px solid rgba(255, 255, 255, 0.3);
 }
 
 .availability-card h3 { font-size: 1.25rem; color: #fff; margin-bottom: 2rem; text-align: center; }
@@ -696,9 +710,11 @@
     justify-content: center;
     gap: 2.5rem;
     margin-bottom: 1.5rem;
-    background: rgba(0,0,0,0.2);
+    background: rgb(0, 0, 0);
     padding: 2rem;
     border-radius: 2rem;
+    border: none;
+    border-bottom: 3px solid rgba(255, 255, 255, 0.3);
 }
 
 .slot-bar-v {
@@ -785,6 +801,7 @@
     font-weight: 800;
     font-size: 1.5rem;
     border: none;
+    border-bottom: 3px solid rgba(255, 255, 255, 0.3);
     cursor: pointer;
     transition: all 0.3s ease;
 }
@@ -802,7 +819,8 @@
     text-decoration: none;
     font-weight: 600;
     display: flex; align-items: center; justify-content: center; gap: 0.75rem;
-    border: 1px solid rgba(255,255,255,0.08);
+    border: none;
+    border-bottom: 3px solid rgba(255, 255, 255, 0.3);
     transition: all 0.3s ease;
 }
 
@@ -818,7 +836,8 @@
     justify-content: center;
     gap: 0.75rem;
     font-weight: 700;
-    border: 1px solid rgba(0, 102, 255, 0.2);
+    border: none;
+    border-bottom: 3px solid rgba(255, 255, 255, 0.3);
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }

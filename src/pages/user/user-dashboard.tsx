@@ -17,22 +17,34 @@ import './user-dashboard.css';
 
 interface UserProfile {
   uid: string;
+
   firstName: string;
   lastName: string;
   email: string;
-  phone: string;
-  whatsappNumber?: string;
-  dob: string;
-  sex: string;
-  major: string;
-  college: string;
-  passingYear: string;
-  avrId: string;
   photoURL?: string;
+  sex: "Male" | "Female" | "Other";
+  dob: string;
+
+  phone: string;
+  whatsappNumber: string;
+
+  college: string;
+  major: string;
+  passingYear: number;
+
+  avrId: string;
+  role: "user" | "admin" | "coordinator" | "volunteer";
+
+  isProfileComplete: boolean;
+
+  metadata: {
+    createdAt: any;
+  };
+
+  // Additional fields for UI / Extensions
+  designation?: string;
   points?: number;
   referrals?: number;
-  role?: string;
-  designation?: string;
   badges?: {
     voidWalker?: {
       unlocked: boolean;
@@ -40,6 +52,7 @@ interface UserProfile {
     }
   };
 }
+
 
 const UserDashboard: React.FC = () => {
   const [user, authLoading] = useAuthState(auth);
@@ -173,56 +186,17 @@ const UserDashboard: React.FC = () => {
     }
 
     if (user) {
-      // Handle Payment Redirect Status
+      // Notice: Payment Redirect Status handling is now cleanly managed by /payment/status.
+      // We keep a lightweight toast check here strictly as a fallback.
       const urlParams = new URLSearchParams(window.location.search);
       const status = urlParams.get('status');
-      const reason = urlParams.get('reason');
-      const txnid = urlParams.get('txnid');
-
-      // Track polling timers for cleanup on unmount
-      let pollingIntervalId: ReturnType<typeof setInterval> | null = null;
-      let pollingTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
       if (status === 'success') {
-        toast.success("Registration Successful! Your payment was verified.");
+        toast.success("Welcome back! Your registration was successfully verified.");
         window.history.replaceState({}, document.title, window.location.pathname);
       } else if (status === 'failed') {
-        const errorMsg = reason === 'hash_mismatch' 
-          ? "Security verification failed. Please contact support." 
-          : "Payment was unsuccessful or rejected by the gateway.";
-        toast.error(errorMsg);
+        toast.error("Your recent payment attempt was unsuccessful.");
         window.history.replaceState({}, document.title, window.location.pathname);
-      } else if (status === 'verifying' && txnid) {
-        toast.info("Verifying your payment with the gateway. Please do not close this window...");
-        pollingIntervalId = setInterval(async () => {
-          try {
-            const pendingDoc = await getDoc(doc(db, "pending_registrations", txnid));
-            if (pendingDoc.exists()) {
-              const pData = pendingDoc.data();
-              if (pData.status === 'confirmed') {
-                if (pollingIntervalId) clearInterval(pollingIntervalId);
-                if (pollingTimeoutId) clearTimeout(pollingTimeoutId);
-                toast.success("Payment Verified! Registration Confirmed.");
-                window.history.replaceState({}, document.title, window.location.pathname);
-                fetchMyRegistrations();
-              } else if (pData.status === 'failed') {
-                if (pollingIntervalId) clearInterval(pollingIntervalId);
-                if (pollingTimeoutId) clearTimeout(pollingTimeoutId);
-                toast.error("Payment was marked as failed by the gateway.");
-                window.history.replaceState({}, document.title, window.location.pathname);
-              }
-            }
-          } catch (e) {
-            console.error("Polling error", e);
-          }
-        }, 2000);
-
-        // Timeout polling after 30 seconds
-        pollingTimeoutId = setTimeout(() => {
-          if (pollingIntervalId) clearInterval(pollingIntervalId);
-          toast.info("Verification is taking longer than expected. Please check your email later for confirmation.");
-          window.history.replaceState({}, document.title, window.location.pathname);
-        }, 30000);
       }
 
       // REAL-TIME LISTENER FOR USER PROFILE
@@ -312,8 +286,6 @@ const UserDashboard: React.FC = () => {
 
       return () => {
         unsubscribe();
-        if (pollingIntervalId) clearInterval(pollingIntervalId);
-        if (pollingTimeoutId) clearTimeout(pollingTimeoutId);
       };
     }
   }, [user, authLoading, navigate]);
@@ -474,50 +446,53 @@ const UserDashboard: React.FC = () => {
               <div className="registrations-grid">
                 {myRegistrations.length > 0 ? myRegistrations.map((reg) => (
                     <div key={reg.id} className="registration-card">
-                    <div className="reg-icon"><Award size={20}/></div>
-                    <div className="reg-details">
-                      <h3>{reg.eventName}</h3>
-                      <p>{reg.category}</p>
-
-                      {reg.teamId && (
+                      <div className="reg-card-top">
+                        <div className="reg-icon-wrapper">
+                          <div className="reg-icon"><Award size={22}/></div>
+                          <div className="reg-details">
+                            <h3>{reg.eventName}</h3>
+                            <p>{reg.category}</p>
+                          </div>
+                        </div>
+                        <div className="reg-status-pill">Registered</div>
+                      </div>
+                      
+                      <div className="reg-card-bottom">
                         <div className="reg-team-id">
-                          <span className="id-label">Team ID</span>
-                          <span className="id-value">{reg.teamId}</span>
+                          <span className="id-label">{reg.teamId ? 'Team ID' : 'Reg ID'}</span>
+                          <span className="id-value" title={reg.teamId || reg.id}>{reg.teamId || reg.id}</span>
                         </div>
-                      )}
+
+                        {reg.isHackathon && (
+                          <div className="reg-hackathon-actions">
+                            <button 
+                              className="invoice-download-btn" 
+                              title="Download Invoice"
+                              onClick={() => generateInvoice({
+                                teamName: reg.teamName,
+                                leaderName: reg.leaderName,
+                                leaderEmail: reg.leaderEmail,
+                                avrId: reg.leaderAvrId || reg.avrId,
+                                psId: reg.psId,
+                                psTitle: reg.psId, 
+                                paymentId: reg.paymentId,
+                                date: reg.createdAt?.toDate ? reg.createdAt.toDate().toLocaleDateString() : new Date().toLocaleDateString(),
+                                amount: "500.00"
+                              })}
+                            >
+                              <Download size={18} />
+                            </button>
+                            <button 
+                              className="dashboard-upload-btn"
+                              title="Upload PPT"
+                              onClick={() => navigate('/param-x/upload')}
+                            >
+                              <CloudUpload size={18} />
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    <div className="reg-actions">
-                      <div className="reg-status">Registered</div>
-                      {reg.isHackathon && (
-                        <div className="reg-hackathon-actions">
-                          <button 
-                            className="invoice-download-btn" 
-                            title="Download Invoice"
-                            onClick={() => generateInvoice({
-                              teamName: reg.teamName,
-                              leaderName: reg.leaderName,
-                              leaderEmail: reg.leaderEmail,
-                              avrId: reg.leaderAvrId || reg.avrId,
-                              psId: reg.psId,
-                              psTitle: reg.psId, 
-                              paymentId: reg.paymentId,
-                              date: reg.createdAt?.toDate ? reg.createdAt.toDate().toLocaleDateString() : new Date().toLocaleDateString(),
-                              amount: "500.00"
-                            })}
-                          >
-                            <Download size={18} />
-                          </button>
-                          <button 
-                            className="dashboard-upload-btn"
-                            title="Upload PPT"
-                            onClick={() => navigate('/param-x/upload')}
-                          >
-                            <CloudUpload size={18} />
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
 
                 )) : (
                   <div className="empty-state-card">
@@ -666,7 +641,7 @@ const UserDashboard: React.FC = () => {
           email: userData.email,
           photoURL: userData.photoURL,
           avrId: userData.avrId,
-          yearBorn: userData.dob ? userData.dob.split('-')[0] : (userData.passingYear ? (parseInt(userData.passingYear) - 4).toString() : '2005'),
+          yearBorn: userData.dob ? userData.dob.split('-')[0] : (userData.passingYear ? (userData.passingYear - 4).toString() : '2005'),
           eventId: myRegistrations.find(r => r.eventName === 'Param-X Hackathon')?.id || myRegistrations[0]?.id,
           hasRegistrations: myRegistrations.length > 0
         }} 
@@ -684,7 +659,7 @@ const UserDashboard: React.FC = () => {
           email: userData.email,
           photoURL: userData.photoURL,
           avrId: userData.avrId,
-          yearBorn: userData.dob ? userData.dob.split('-')[0] : (userData.passingYear ? (parseInt(userData.passingYear) - 4).toString() : '2005'),
+          yearBorn: userData.dob ? userData.dob.split('-')[0] : (userData.passingYear ? (userData.passingYear - 4).toString() : '2005'),
           eventId: myRegistrations.find(r => r.eventName === 'Param-X Hackathon')?.id || myRegistrations[0]?.id,
           hasRegistrations: myRegistrations.length > 0
         }} 

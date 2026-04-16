@@ -144,7 +144,7 @@ const CompetitionForm: React.FC<CompetitionFormProps> = ({ adminProfile }) => {
             : adminProfile.assignment || 'Unknown';
 
           // Generate deterministic competition ID
-          const competitionId = generateCompetitionId(adminDept, formData.title);
+          const competitionId = generateCompetitionId(`${adminDept}_${formData.title}`);
           const selectedTheme = THEME_PRESETS[themeIndex];
 
           const competitionDoc = {

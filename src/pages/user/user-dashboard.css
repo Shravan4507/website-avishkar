@@ -266,64 +266,129 @@
 /* --- Registrations Grid --- */
 .registrations-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
     gap: 1.5rem;
 }
 
 .registration-card {
     display: flex;
-    align-items: center;
-    padding: 0.75rem 1.25rem;
-    background: rgba(255, 255, 255, 0);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 7rem;
-    transition: background 0.2s ease;
-    gap: 1rem;
+    flex-direction: column;
+    padding: 1.5rem;
+    background: rgba(0, 0, 0, 0.65);
+    border: none;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 16px;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    position: relative;
+    overflow: hidden;
+    gap: 1.2rem;
+}
+
+.registration-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #a78bfa, #8b5cf6, #3b82f6);
 }
 
 
+.reg-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.reg-icon-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
 .reg-icon {
-    width: 46px;
-    height: 46px;
-    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
     background: rgba(167, 139, 250, 0.15);
     color: #a78bfa;
     display: flex;
     align-items: center;
     justify-content: center;
-}
-
-.reg-details {
-    flex: 1;
+    flex-shrink: 0;
+    border: 1px solid rgba(167, 139, 250, 0.25);
 }
 
 .reg-details h3 {
-    font-size: 1.1rem;
-    color: #fff;
-    margin: 0 0 0.25rem 0;
+    font-size: 1.15rem;
+    color: #ffffff;
+    margin: 0 0 0.2rem 0;
+    font-weight: 700;
 }
 
 .reg-details p {
     font-size: 0.85rem;
     color: rgba(255, 255, 255, 0.5);
     margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
 }
 
-.reg-status {
-    background: rgba(94, 255, 91, 0.1);
-    color: rgb(94, 255, 91);
+.reg-status-pill {
+    background: rgba(16, 185, 129, 0.15);
+    color: #34d399;
     padding: 0.4rem 0.8rem;
-    border-radius: 12px;
+    border-radius: 20px;
     font-size: 0.75rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 1px;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    flex-shrink: 0;
 }
 
-.reg-actions {
+.reg-card-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.reg-team-id {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    max-width: 70%;
+}
+
+.reg-team-id .id-label {
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.4);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+}
+
+.reg-team-id .id-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: #e2e8f0;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
+}
+
+.reg-hackathon-actions {
     display: flex;
     align-items: center;
-    gap: 0.8rem;
+    gap: 0.5rem;
 }
 
 .invoice-download-btn {

@@ -164,12 +164,6 @@
     transition: all 0.3s ease;
 }
 
-.battle-grid-page .primary-cta:hover {
-    background: #111;
-    transform: translateY(-2px);
-    box-shadow: 0 10px 30px rgba(217, 255, 0, 0.15);
-    border-color: rgba(255, 255, 255, 0.5);
-}
 
 .primary-cta:active {
     transform: scale(0.98);
@@ -195,13 +189,6 @@
     border: none;
     border-bottom: 2px solid rgba(255, 255, 255, 0.3);
     transition: all 0.3s ease;
-}
-
-.secondary-cta:hover {
-    background: #111;
-    transform: translateY(-2px);
-    box-shadow: 0 10px 30px rgba(217, 255, 0, 0.05);
-    border-color: rgba(255, 255, 255, 0.5);
 }
 
 .secondary-cta:active {
@@ -244,18 +231,13 @@
 }
 
 .judging-card {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgb(0, 0, 0);
     padding: 2.5rem;
     border-radius: 2rem;
+    border: none;
+    border-bottom: 3px solid rgba(255, 255, 255, 0.3);
     text-align: left;
     transition: all 0.3s ease;
-}
-
-.judging-card:hover {
-    background: rgba(255, 255, 255, 0.02);
-    border-color: rgba(217, 255, 0, 0.3);
-    transform: translateY(-5px);
 }
 
 .j-icon {

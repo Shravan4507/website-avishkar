@@ -6,9 +6,8 @@ import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../../firebase/firebase';
 import { useToast } from '../../components/toast/Toast';
 import { generateTxnId } from '../../utils/easebuzz';
-import { FUNCTIONS_CONFIG } from '../../config/functions';
-import PaymentOverlay from '../../components/payment/PaymentOverlay';
-import { usePaymentOverlay } from '../../hooks/usePaymentOverlay';
+import PaymentCheckout from '../../components/payment/PaymentCheckout';
+import { usePaymentCheckout } from '../../hooks/usePaymentCheckout';
 import './OrbitXRegistrationModal.css';
 
 interface OrbitXRegistrationModalProps {
@@ -21,7 +20,8 @@ const OrbitXRegistrationModal: React.FC<OrbitXRegistrationModalProps> = ({ onClo
   const [userData, setUserData] = useState<any>(null);
   const [isMoonAddon, setIsMoonAddon] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const paymentOverlay = usePaymentOverlay();
+  const paymentCheckout = usePaymentCheckout();
+  const [checkoutOrderDetails, setCheckoutOrderDetails] = useState<{ eventName: string; amount: number; participantName: string; avrId: string } | null>(null);
   // NOTE: activeStep 'success' is unreachable after redirect-mode migration,
   // but the JSX referencing it is harmless dead markup. Safe to remove in a future cleanup.
   const [txnId] = useState<string | null>(null);
@@ -56,7 +56,6 @@ const OrbitXRegistrationModal: React.FC<OrbitXRegistrationModalProps> = ({ onClo
     }
     
     setIsSubmitting(true);
-    paymentOverlay.startPayment();
     try {
       const generatedTxnId = generateTxnId("ORBX");
       const amount = totalPrice.toFixed(2);
@@ -92,38 +91,24 @@ const OrbitXRegistrationModal: React.FC<OrbitXRegistrationModalProps> = ({ onClo
         }
       };
 
-      const response = await fetch(FUNCTIONS_CONFIG.initiatePayment, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          txnid: generatedTxnId,
-          amount,
-          productinfo: `OrbitX Solar Observation ${isMoonAddon ? "+ Moon Addon" : ""}`,
-          firstname: `${userData.firstName} ${userData.lastName}`,
-          email: userData.email || user.email,
-          phone: userData.phone || '',
-          udf1: userData.college || 'N/A',
-          surl: FUNCTIONS_CONFIG.paymentSuccess,
-          furl: FUNCTIONS_CONFIG.paymentFailure,
-          pendingPayload
-        })
+      setCheckoutOrderDetails({
+        eventName: `OrbitX Solar Observation${isMoonAddon ? ' + Moon Addon' : ''}`,
+        amount: totalPrice,
+        participantName: `${userData.firstName} ${userData.lastName}`,
+        avrId: userData.avrId
       });
 
-      paymentOverlay.setConnecting();
+      await paymentCheckout.initiatePayment({
+        txnid: generatedTxnId,
+        amount,
+        productinfo: `OrbitX Solar Observation ${isMoonAddon ? "+ Moon Addon" : ""}`,
+        firstname: `${userData.firstName} ${userData.lastName}`,
+        email: userData.email || user.email || '',
+        phone: userData.phone || '',
+        pendingPayload
+      });
 
-      const result = await response.json();
-
-      if (result.success && result.access_key) {
-        paymentOverlay.setRedirecting();
-        const redirectUrl = `https://pay.easebuzz.in/pay/${result.access_key}`;
-        setTimeout(() => {
-            window.location.href = redirectUrl;
-        }, 1200);
-      } else {
-        throw new Error(result.error || "Payment initiation failed.");
-      }
     } catch (err: any) {
-      paymentOverlay.dismiss();
       toast.error(err.message || "Payment initiation failed. Please try again.");
       setIsSubmitting(false);
     }
@@ -149,7 +134,18 @@ const OrbitXRegistrationModal: React.FC<OrbitXRegistrationModalProps> = ({ onClo
         exit={{ opacity: 0, scale: 0.9, y: 20 }}
         className="orbitx-modal-container"
       >
-        <PaymentOverlay isVisible={paymentOverlay.isVisible} stage={paymentOverlay.stage} />
+        <PaymentCheckout
+          isVisible={paymentCheckout.status !== 'idle'}
+          status={paymentCheckout.status}
+          qrLink={paymentCheckout.qrLink}
+          timeRemaining={paymentCheckout.timeRemaining}
+          error={paymentCheckout.error}
+          registrationId={paymentCheckout.registrationId}
+          orderDetails={checkoutOrderDetails || { eventName: '', amount: 0, participantName: '', avrId: '' }}
+          onCancel={() => { paymentCheckout.cancelPayment(); setIsSubmitting(false); }}
+          onRetry={() => paymentCheckout.retry()}
+          onSuccess={onClose}
+        />
 
         <div className="modal-header">
           <h2>RESERVATION</h2>

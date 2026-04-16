@@ -1,0 +1,87 @@
+.intro-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 99999; /* Higher than EVERYTHING */
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  user-select: none;
+  cursor: none; /* Immersive feel */
+}
+
+.video-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.intro-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Cinematic immersion */
+  scale: 1.7; /* <--- DESKTOP ZOOM LEVEL */
+}
+
+/* Screen blending vignette */
+.video-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, transparent 40%, rgba(0, 0, 0, 0.4) 100%);
+  pointer-events: none;
+}
+
+.skip-btn {
+  position: absolute;
+  bottom: 2rem;
+  right: 2rem;
+  padding: 0.75rem 1.5rem;
+  font-family: 'Iceland', sans-serif;
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.4);
+  letter-spacing: 2px;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  z-index: 10;
+}
+
+.skip-btn:hover {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.05);
+  transform: translateY(-2px);
+}
+
+/* Desktop optimization */
+@media (min-aspect-ratio: 16/9) {
+  .intro-video {
+    width: 100%;
+    height: auto;
+  }
+}
+
+/* Mobile optimization */
+@media (max-aspect-ratio: 16/9) {
+  .intro-video {
+    height: 100%;
+    width: auto;
+  }
+}
+
+/* Mobile scale adjustment */
+@media (max-width: 768px) {
+  .intro-video {
+    scale: 1; /* <--- MOBILE ZOOM LEVEL (Adjust this independently for phones) */
+  }
+}

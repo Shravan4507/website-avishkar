@@ -10,7 +10,8 @@
   padding: 16px;
   border-radius: 3rem;
   background: rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(167, 139, 250, 0.3);
+  border: none;
+  border-bottom: 3px solid rgba(255, 255, 255, 0.3);
   color: #fff;
   font-size: 0.95rem;
   display: flex;

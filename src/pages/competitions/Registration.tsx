@@ -16,9 +16,8 @@ import { useRegistrationGuard } from '../../hooks/useRegistrationGuard';
 import { generateTxnId } from '../../utils/easebuzz';
 import './Registration.css';
 import { reportError, withRetry } from '../../utils/errorReport';
-import { FUNCTIONS_CONFIG } from '../../config/functions';
-import PaymentOverlay from '../../components/payment/PaymentOverlay';
-import { usePaymentOverlay } from '../../hooks/usePaymentOverlay';
+import PaymentCheckout from '../../components/payment/PaymentCheckout';
+import { usePaymentCheckout } from '../../hooks/usePaymentCheckout';
 
 
 const Registration: React.FC = () => {
@@ -47,7 +46,8 @@ const Registration: React.FC = () => {
   const { isRegistered, eventName: registeredEventName } = useRegistrationGuard();
 
   const isSubmittingRef = useRef(false);
-  const paymentOverlay = usePaymentOverlay();
+  const paymentCheckout = usePaymentCheckout();
+  const [checkoutOrderDetails, setCheckoutOrderDetails] = useState<{ eventName: string; amount: number; participantName: string; avrId: string } | null>(null);
 
 
   useEffect(() => {
@@ -218,6 +218,9 @@ const Registration: React.FC = () => {
                         email: data.email || '',
                         phone: data.whatsappNumber || data.whatsapp || data.phone || '',
                         college: data.college || '',
+                        major: data.major || '',
+                        dob: data.dob || '',
+                        sex: data.sex || '',
                     };
                 }
                 return updated;
@@ -270,8 +273,6 @@ const Registration: React.FC = () => {
       return;
     }
 
-    const userAge = calculateAge(userData.dob);
-
     const allMembersAvr = [
       userData.avrId,
       ...squadMembers
@@ -279,61 +280,76 @@ const Registration: React.FC = () => {
         .map(m => m.avrId)
     ];
 
+    const activeSquad = squadMembers.filter(m => !!m.avrId && m.avrId.length >= 9);
+
     // WRAP FIREBASE WRITE IN SELF-HEALING RETRY
     await withRetry(async () => {
       await setDoc(regRef, {
-        // User Info (Leader)
+        id: regId,
+        // Identification
+        leaderAvrId: userData.avrId,
         userId: user!.uid,
-        userName: `${userData.firstName} ${userData.lastName}`,
-        userEmail: userData.email || user!.email,
-        userAVR: userData.avrId,
-        allAvrIds: allMembersAvr,
-        userPhone: userData.phone || '',
-        userCollege: userData.college || '',
-        userMajor: userData.major || '',
-        userAge: userAge,
-        userSex: userData.sex || '',
-        // Team Info
-        teamName: teamName || null,
-        squad: squadMembers.filter(m => !!m.avrId && m.avrId.length >= 9).map(m => ({
-          avrId: m.avrId,
-          name: m.name,
-          email: m.email,
-          phone: m.phone,
-          college: m.college
-        })),
         // Competition Info
         competitionId: competition!.id,
         eventName: competition!.title,
-        competitionHandle: competition!.handle || '',
-        category: competition!.subtitle || 'General Event',
+        competitionCode: competition!.code,
+        category: competition!.category,
         department: competition!.department,
         isFlagship: competition!.isFlagship || false,
+        // Team Info
+        registrationType: (competition!.maxTeamSize || 1) > 1 ? "TEAM" : "SOLO",
+        teamId: regId, // For free events, regId serves as teamId
+        teamName: teamName || null,
+        teamSize: activeSquad.length + 1,
+        squad: [
+          {
+            avrId: userData.avrId,
+            name: `${userData.firstName} ${userData.lastName}`,
+            email: userData.email,
+            phone: userData.whatsappNumber || userData.phone,
+            college: userData.college,
+            major: userData.major,
+            age: calculateAge(userData.dob),
+            sex: userData.sex
+          },
+          ...activeSquad.map(m => ({
+            avrId: m.avrId,
+            name: m.name,
+            email: m.email,
+            phone: m.phone,
+            college: m.college,
+            major: m.major || '',
+            age: calculateAge(m.dob),
+            sex: m.sex || ''
+          }))
+        ],
+        allAvrIds: allMembersAvr,
         // Payment (always free for this code path)
+        paymentRequired: competition!.paymentRequired,
         paymentStatus: 'free',
         amountPaid: 0,
-        moonObservation: moonObservation,
         transactionId: null,
-        easepayId: null,
-        bankRefNum: null,
         paymentMode: null,
-        // Metadata
+        // Status & Metadata
         status: 'confirmed',
         registeredAt: serverTimestamp(),
-        isAttended: false
+        isAttended: false,
+        metadata: {
+          createdAt: serverTimestamp()
+        }
       });
     }, 3, 1500);
+
 
     setAlreadyRegistered(true);
     setIsSuccess(true);
   };
 
-  /** Handle paid registration via Easebuzz */
+  /** Handle paid registration via Custom Checkout (UPI QR) */
   const handlePaidRegistration = async () => {
     if (!competition || !userData || !user) return;
     setIsSubmitting(true);
     isSubmittingRef.current = true;
-    paymentOverlay.startPayment();
 
     try {
       const txnid = generateTxnId(competition.id.toUpperCase().replace(/[^A-Z0-9]/g, ''));
@@ -341,7 +357,6 @@ const Registration: React.FC = () => {
       const addOnFee = (competition.slug === 'orbitx_solar' && moonObservation) ? 20 : 0;
       const fee = baseFee + addOnFee;
 
-      // Prepare pending payload for transaction check in Cloud Function
       const pendingPayload = {
         txnId: txnid,
         type: 'competition',
@@ -378,73 +393,74 @@ const Registration: React.FC = () => {
         paymentMode: null,
         adminNote: null,
         finalPayload: {
+          leaderAvrId: userData.avrId,
           userId: user.uid,
+          competitionId: competition.id,
+          eventName: competition.title,
+          competitionCode: competition.code,
+          category: competition.category,
+          department: competition.department,
+          isFlagship: competition.isFlagship || false,
           userName: `${userData.firstName} ${userData.lastName}`,
-          userEmail: userData.email || user.email,
-          userAVR: userData.avrId,
+          userEmail: userData.email || user.email || '',
+          userPhone: userData.phone || '',
+          registrationType: (competition.maxTeamSize || 1) > 1 ? "TEAM" : "SOLO",
+          teamName: teamName || null,
+          teamSize: (squadMembers.filter(m => !!m.avrId && m.avrId.length >= 9).length) + 1,
+          squad: [
+            {
+              avrId: userData.avrId,
+              name: `${userData.firstName} ${userData.lastName}`,
+              email: userData.email,
+              phone: userData.whatsappNumber || userData.phone,
+              college: userData.college,
+              major: userData.major,
+              age: calculateAge(userData.dob),
+              sex: userData.sex
+            },
+            ...squadMembers.filter(m => !!m.avrId && m.avrId.length >= 9).map(m => ({
+              avrId: m.avrId,
+              name: m.name,
+              email: m.email,
+              phone: m.phone,
+              college: m.college,
+              major: m.major || '',
+              age: calculateAge(m.dob),
+              sex: m.sex || ''
+            }))
+          ],
           allAvrIds: [
             userData.avrId,
             ...squadMembers
               .filter(m => !!m.avrId && m.avrId.length >= 9)
               .map(m => m.avrId)
           ],
-          userPhone: userData.phone || '',
-          userCollege: userData.college || '',
-          userMajor: userData.major || '',
-          userAge: calculateAge(userData.dob),
-          userSex: userData.sex || '',
-          teamName: teamName || null,
-          squad: squadMembers.filter(m => !!m.avrId && m.avrId.length >= 9).map(m => ({
-            avrId: m.avrId,
-            name: m.name,
-            email: m.email,
-            phone: m.phone,
-            college: m.college
-          })),
-          competitionId: competition.id,
-          eventName: competition.title,
-          competitionHandle: competition.handle || '',
-          category: competition.subtitle || 'General Event',
-          department: competition.department,
-          isFlagship: competition.isFlagship || false,
-          paymentStatus: fee > 0 ? 'paid' : 'free',
+          paymentRequired: true,
+          paymentStatus: 'paid',
           amountPaid: fee,
           moonObservation: moonObservation
         }
       };
 
-      const response = await fetch(FUNCTIONS_CONFIG.initiatePayment, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          txnid,
-          amount: fee.toFixed(2),
-          productinfo: `${competition.title}${moonObservation ? ' + Moon Observation' : ''} Registration`,
-          firstname: `${userData.firstName} ${userData.lastName}`,
-          email: userData.email || user.email,
-          phone: userData.phone || '',
-          surl: FUNCTIONS_CONFIG.paymentSuccess,
-          furl: FUNCTIONS_CONFIG.paymentFailure,
-          pendingPayload
-        })
+      setCheckoutOrderDetails({
+        eventName: competition.title,
+        amount: fee,
+        participantName: `${userData.firstName} ${userData.lastName}`,
+        avrId: userData.avrId
       });
 
-      paymentOverlay.setConnecting();
+      await paymentCheckout.initiatePayment({
+        txnid,
+        amount: fee.toFixed(2),
+        productinfo: `${competition.title}${moonObservation ? ' + Moon Observation' : ''} Registration`,
+        firstname: `${userData.firstName} ${userData.lastName}`,
+        email: userData.email || user.email || '',
+        phone: userData.phone || '',
+        pendingPayload
+      });
 
-      const result = await response.json();
-
-      if (result.success && result.access_key) {
-        paymentOverlay.setRedirecting();
-        const redirectUrl = `https://pay.easebuzz.in/pay/${result.access_key}`;
-        setTimeout(() => {
-          window.location.href = redirectUrl;
-        }, 1200);
-      } else {
-        throw new Error(result.error || "Payment initiation failed.");
-      }
     } catch (err: any) {
       console.error("Payment Error:", err);
-      paymentOverlay.dismiss();
       toast.error("Payment initiation failed. Please try again.");
       setIsSubmitting(false);
       isSubmittingRef.current = false;
@@ -551,7 +567,26 @@ const Registration: React.FC = () => {
 
   return (
     <div className="registration-page animate-in">
-      <PaymentOverlay isVisible={paymentOverlay.isVisible} stage={paymentOverlay.stage} />
+      <PaymentCheckout
+        isVisible={paymentCheckout.status !== 'idle'}
+        status={paymentCheckout.status}
+        qrLink={paymentCheckout.qrLink}
+        timeRemaining={paymentCheckout.timeRemaining}
+        error={paymentCheckout.error}
+        paymentMode={paymentCheckout.paymentMode}
+        registrationId={paymentCheckout.registrationId}
+        orderDetails={checkoutOrderDetails || { eventName: '', amount: 0, participantName: '', avrId: '' }}
+        onCancel={() => { paymentCheckout.cancelPayment(); setIsSubmitting(false); isSubmittingRef.current = false; }}
+        onRetry={() => paymentCheckout.retry()}
+        onChangeModeRequest={(upiId) => {
+          if (upiId) {
+            paymentCheckout.updatePayloadAndRetry({ upiId });
+          } else {
+            paymentCheckout.updatePayloadAndRetry({ upiId: undefined });
+          }
+        }}
+        onSuccess={() => navigate('/user/dashboard')}
+      />
       <div className="registration-container">
         
         {/* Left Side: Competition Details */}

@@ -23,45 +23,79 @@ import './RegistrationManager.css';
 /* ─── Types ─── */
 interface Registration {
   id: string;
-  userName: string;
-  userEmail: string;
-  avrId: string;
-  userPhone: string;
-  userCollege: string;
-  userMajor: string;
-  userAge: number;
-  userSex: string;
+
+  // Identification
+  leaderAvrId: string;
   userId: string;
-  eventName: string;
+  
+  // Competition Info
   competitionId: string;
+  eventName: string;
+  competitionCode: string;
   category: string;
   department: string;
-  registeredAt: any;
-  isAttended: boolean;
-  paymentStatus: string;
-  amountPaid: number;
-  transactionId: string | null;
-  status: string;
-  allAvrIds?: string[];
-  competitionHandle?: string;
-  isFlagship?: boolean;
+  isFlagship: boolean;
+
+  registrationType: "SOLO" | "TEAM";
+  
+  // Team Info
+  teamId: string;
   teamName?: string;
-  memberCount?: number;
-  // Team details for modal
-  members?: Array<{
+  teamSize: number;
+
+  squad: {
+    avrId: string;
     name: string;
     email: string;
-    phone?: string;
-    college?: string;
-  }>;
+    phone: string;
+    college: string;
+    major: string;
+    age: number;
+    sex: string;
+  }[];
+
+  allAvrIds: string[];
+
+  // Payment Info
+  paymentRequired: boolean;
+  paymentStatus: "paid" | "free" | "pending" | "success";
+  amountPaid: number;
+  transactionId?: string;
+  paymentMode?: string;
+
+  // Status & Attendance
+  status: "confirmed" | "payment_pending";
+  registeredAt: any;
+  isAttended: boolean;
+  checkInTime?: any;
+
+  metadata: {
+    createdAt: any;
+  };
+
+  // UI Mapping (kept for backward compatibility with existing components)
+  userName?: string;
+  userEmail?: string;
+  userPhone?: string;
+  userCollege?: string;
+  userMajor?: string;
+  userAge?: number;
+  userSex?: string;
+  avrId?: string;
+  competitionHandle?: string;
+  memberCount?: number;
+  members?: any[];
   moonAddon?: boolean;
-  _collection: 'registrations' | 'hackathon_registrations' | 'pending_registrations';
-  // Pending-specific fields
+
+  // Admin Internal
+  _collection: string;
   _isPending?: boolean;
   pendingTxnId?: string;
   pendingType?: string;
   pendingFormData?: any;
 }
+
+
 
 interface RegistrationManagerProps {
   forcedHandle?: string;
@@ -133,71 +167,95 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({ forcedHandle,
 
         const standardRegs = regSnap.docs.map(d => {
           const data = d.data();
-          // Normalize: fallback to leader* fields for esports/robokshetra registrations
-          const normalized: Registration = {
+          
+          // Normalize: fallback logic to handle both legacy and new standardized schema
+          const normalized = {
             id: d.id,
             ...data,
-            userName: data.userName || data.leaderName || '—',
-            userEmail: data.userEmail || data.leaderEmail || '—',
-            avrId: data.avrId || data.leaderAvrId || data.userAVR || '—',
-            userPhone: data.userPhone || data.leaderPhone || '',
-            userCollege: data.userCollege || data.leaderCollege || '',
+            // Header display fields
+            userName: data.userName || (data.squad && data.squad[0]?.name) || data.leaderName || '—',
+            userEmail: data.userEmail || (data.squad && data.squad[0]?.email) || data.leaderEmail || '—',
+            avrId: data.avrId || data.leaderAvrId || (data.squad && data.squad[0]?.avrId) || data.userAVR || '—',
+            userPhone: data.userPhone || (data.squad && data.squad[0]?.phone) || data.leaderPhone || '',
+            userCollege: data.userCollege || (data.squad && data.squad[0]?.college) || data.leaderCollege || '',
+            userMajor: data.userMajor || (data.squad && data.squad[0]?.major) || '',
+            userAge: data.userAge || (data.squad && data.squad[0]?.age) || 0,
+            userSex: data.userSex || (data.squad && data.squad[0]?.sex) || '',
+            
             eventName: data.eventName || data.eventTitle || '—',
             department: data.department || data.competitionHandle || '',
             category: data.category || data.competitionHandle || '',
             teamName: data.teamName || '',
+            teamSize: data.teamSize || data.memberCount || (data.squad ? data.squad.length : 1),
             _collection: 'registrations',
           } as Registration;
 
-          // Build team members for esports/robokshetra detail view
-          const memberKeys = ['member2', 'member3', 'member4', 'member5'];
-          const members = [
-            { name: normalized.userName, email: normalized.userEmail, phone: normalized.userPhone, college: normalized.userCollege },
-            ...memberKeys
-              .filter(k => data[`${k}Name`] || data[`${k}AvrId`])
-              .map(k => ({
-                name: data[`${k}Name`] || '—',
-                email: data[`${k}Email`] || '',
-                phone: data[`${k}Phone`] || '',
-                college: data[`${k}College`] || '',
-              }))
-          ];
-          if (members.length > 1) {
-            normalized.members = members;
-            normalized.memberCount = members.length;
+          // If squad exists (new schema), use it. Otherwise, build members from legacy fields.
+          if (!normalized.squad && !normalized.members) {
+            const memberKeys = ['member2', 'member3', 'member4', 'member5'];
+            const members = [
+              { name: normalized.userName, email: normalized.userEmail, phone: normalized.userPhone, college: normalized.userCollege },
+              ...memberKeys
+                .filter(k => data[`${k}Name`] || data[`${k}AvrId`])
+                .map(k => ({
+                  name: data[`${k}Name`] || '—',
+                  email: data[`${k}Email`] || '',
+                  phone: data[`${k}Phone`] || '',
+                  college: data[`${k}College`] || '',
+                }))
+            ];
+            if (members.length > 1) {
+              normalized.members = members;
+              normalized.memberCount = members.length;
+            }
+          } else if (normalized.squad) {
+            normalized.memberCount = normalized.squad.length;
           }
+
           return normalized;
         });
 
+
         const hackathonRegs = hackSnap.docs.map(d => {
           const data = d.data();
-          return {
+          
+          const normalized = {
             id: d.id,
-            avrId: data.leaderAvrId || data.avrId || '—',
-            userName: data.leaderName,
-            userEmail: data.leaderEmail,
-            userPhone: data.leaderPhone,
-            userCollege: data.leaderCollege,
+            ...data,
+            avrId: data.leaderAvrId || data.avrId || (data.squad && data.squad[0]?.avrId) || '—',
+            userName: data.leaderName || data.userName || (data.squad && data.squad[0]?.name) || '—',
+            userEmail: data.leaderEmail || data.userEmail || (data.squad && data.squad[0]?.email) || '—',
+            userPhone: data.leaderPhone || data.userPhone || (data.squad && data.squad[0]?.phone) || '',
+            userCollege: data.leaderCollege || data.userCollege || (data.squad && data.squad[0]?.college) || '',
+            userMajor: data.userMajor || (data.squad && data.squad[0]?.major) || '',
+            userAge: data.userAge || (data.squad && data.squad[0]?.age) || 0,
+            userSex: data.userSex || (data.squad && data.squad[0]?.sex) || '',
+            
             eventName: data.psId ? `Hackathon (PS: ${data.psId})` : "Param-X '26",
             department: "Hackathon",
-            registeredAt: data.createdAt || data.timestamp,
+            registeredAt: data.createdAt || data.timestamp || (data.metadata?.createdAt),
             paymentStatus: data.status === 'confirmed' ? 'paid' : 'pending',
             amountPaid: data.amountPaid || data.amount || 0,
-            transactionId: data.transactionId || null,
+            transactionId: data.transactionId || data.paymentId || null,
             status: data.status || 'pending',
             isAttended: data.isAttended || false,
             teamName: data.teamName,
-            memberCount: [data.member2Name, data.member3Name, data.member4Name].filter(Boolean).length + 1,
-            members: [
+            teamSize: data.teamSize || (data.squad ? data.squad.length : [data.member2Name, data.member3Name, data.member4Name].filter(Boolean).length + 1),
+            _collection: 'hackathon_registrations'
+          } as Registration;
+
+          if (!normalized.squad) {
+            normalized.members = [
               { name: data.leaderName, email: data.leaderEmail, phone: data.leaderPhone, college: data.leaderCollege },
               data.member2Name ? { name: data.member2Name, email: data.member2Email, phone: data.member2Phone, college: data.member2College } : null,
               data.member3Name ? { name: data.member3Name, email: data.member3Email, phone: data.member3Phone, college: data.member3College } : null,
               data.member4Name ? { name: data.member4Name, email: data.member4Email, phone: data.member4Phone, college: data.member4College } : null,
-            ].filter(Boolean) as any,
-            competitionHandle: 'ParamX-Hack',
-            _collection: 'hackathon_registrations'
-          } as Registration;
+            ].filter(Boolean) as any;
+          }
+
+          return normalized;
         });
+
 
         // Map pending registrations (payment_pending only — skip confirmed/failed)
         const pendingRegs = pendingSnap.docs
@@ -236,7 +294,49 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({ forcedHandle,
             } as Registration;
           });
 
-        setRegistrations([...standardRegs, ...hackathonRegs, ...pendingRegs]);
+        const confirmedRegs = [...standardRegs, ...hackathonRegs];
+
+        // Deduplicate Pending Registrations
+        const pendingMap = new Map<string, Registration>();
+
+        pendingRegs.forEach(reg => {
+          // Check if this pending registration has already been paid/confirmed
+          const isConfirmed = confirmedRegs.some(cr => {
+            const matchesUser = (cr.userId && cr.userId === reg.userId) || 
+                                (cr.avrId && reg.avrId && cr.avrId === reg.avrId && reg.avrId !== '—') ||
+                                (cr.userName && reg.userName && cr.userName === reg.userName && reg.userName !== '—');
+            const matchesEvent = (cr.competitionId && reg.competitionId && cr.competitionId === reg.competitionId) ||
+                                 (cr.competitionHandle && reg.competitionHandle && cr.competitionHandle === reg.competitionHandle) ||
+                                 (cr.eventName === reg.eventName);
+            
+            return matchesUser && matchesEvent;
+          });
+
+          if (!isConfirmed) {
+            const deductionKey = `${reg.userId || reg.avrId || reg.userName}_${reg.competitionId || reg.competitionHandle || reg.eventName}`;
+            const existing = pendingMap.get(deductionKey);
+            
+            const getTimestamp = (val: any) => {
+              if (val?.toDate) return val.toDate().getTime();
+              if (val?._seconds) return val._seconds * 1000;
+              if (typeof val === 'number') return val;
+              return 0;
+            };
+
+            const newDate = getTimestamp(reg.registeredAt);
+
+            if (!existing) {
+              pendingMap.set(deductionKey, reg);
+            } else {
+              const existingDate = getTimestamp(existing.registeredAt);
+              if (newDate > existingDate) {
+                pendingMap.set(deductionKey, reg);
+              }
+            }
+          }
+        });
+
+        setRegistrations([...confirmedRegs, ...Array.from(pendingMap.values())]);
       } catch (err) {
         console.error(err);
         toast.error('Failed to load registrations.');
@@ -250,7 +350,7 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({ forcedHandle,
   /* ────────────────── Derived Data ────────────────── */
   const uniqueEvents = useMemo(() => ['All', ...new Set(registrations.map(r => r.eventName).filter(Boolean))], [registrations]);
   const uniqueDepts = useMemo(() => ['All', ...new Set(registrations.map(r => r.department).filter(Boolean))], [registrations]);
-  const uniqueColleges = useMemo(() => ['All', ...new Set(registrations.map(r => r.userCollege).filter(Boolean))], [registrations]);
+  const uniqueColleges = useMemo(() => ['All', ...new Set(registrations.map(r => r.userCollege || '').filter(Boolean))], [registrations]);
 
   const filtered = useMemo(() => {
     let result = [...registrations];
@@ -470,23 +570,41 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({ forcedHandle,
     if (!editReg) return;
     setSaving(true);
     try {
-      const updateData: any = {
-        isAttended: editReg.isAttended
-      };
-
-      if (editReg._collection === 'hackathon_registrations') {
+      const updateData: Record<string, any> = {};
+      if (editReg._collection === 'hackathon_registrations' as any) {
         updateData.leaderName = editReg.userName;
         updateData.leaderEmail = editReg.userEmail;
         updateData.leaderPhone = editReg.userPhone;
+        updateData.leaderMajor = editReg.userMajor;
+        updateData.leaderAge = editReg.userAge;
+        updateData.leaderSex = editReg.userSex;
         updateData.status = editReg.paymentStatus === 'paid' ? 'confirmed' : 'pending';
       } else {
         updateData.userName = editReg.userName;
         updateData.userEmail = editReg.userEmail;
         updateData.userPhone = editReg.userPhone;
+        updateData.userMajor = editReg.userMajor;
+        updateData.userAge = editReg.userAge;
+        updateData.userSex = editReg.userSex;
         updateData.eventName = editReg.eventName;
         updateData.category = editReg.category;
         updateData.department = editReg.department;
         updateData.paymentStatus = editReg.paymentStatus;
+      }
+
+      // Keep squad array in sync for new standard registrations
+      if (editReg.squad && editReg.squad.length > 0) {
+        const newSquad = [...editReg.squad];
+        newSquad[0] = {
+          ...newSquad[0],
+          name: editReg.userName || '',
+          email: editReg.userEmail || '',
+          phone: editReg.userPhone || '',
+          major: editReg.userMajor || '',
+          age: editReg.userAge || 0,
+          sex: editReg.userSex || ''
+        };
+        updateData.squad = newSquad;
       }
 
       await updateDoc(doc(db, editReg._collection, editReg.id), updateData);
@@ -780,35 +898,47 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({ forcedHandle,
               <div className="modal-section">
                 <div className="modal-section-title"><User size={15} /> Participant Info</div>
                 <div className="modal-grid">
-                  <DetailRow label="Name" value={detailReg.userName} copyable onCopy={copyToClipboard} />
-                  <DetailRow label="AVR ID" value={detailReg.avrId} copyable onCopy={copyToClipboard} />
-                  <DetailRow label="Email" value={detailReg.userEmail} copyable onCopy={copyToClipboard} />
+                  <DetailRow label="Name" value={detailReg.userName || '—'} copyable onCopy={copyToClipboard} />
+                  <DetailRow label="AVR ID" value={detailReg.avrId || '—'} copyable onCopy={copyToClipboard} />
+                  <DetailRow label="Email" value={detailReg.userEmail || '—'} copyable onCopy={copyToClipboard} />
                   <DetailRow label="Phone" value={detailReg.userPhone || '—'} copyable onCopy={copyToClipboard} />
                   <DetailRow label="College" value={detailReg.userCollege || '—'} />
+                  <DetailRow label="Major" value={detailReg.userMajor || '—'} />
+                  <DetailRow label="Age" value={String(detailReg.userAge || '—')} />
+                  <DetailRow label="Sex" value={detailReg.userSex || '—'} />
                   {detailReg.teamName && <DetailRow label="Team Name" value={detailReg.teamName} />}
-                  {detailReg.memberCount && <DetailRow label="Team Size" value={String(detailReg.memberCount)} />}
+                  {(detailReg.teamSize || detailReg.memberCount) && <DetailRow label="Team Size" value={String(detailReg.teamSize || detailReg.memberCount)} />}
+
                 </div>
               </div>
 
-              {detailReg.members && detailReg.members.length > 0 && (
+              {(detailReg.squad || detailReg.members) && (detailReg.squad || detailReg.members)!.length > 0 && (
                 <div className="modal-section">
-                  <div className="modal-section-title"><Users size={15} /> Team Members ({detailReg.members.length})</div>
+                  <div className="modal-section-title"><Users size={15} /> Team Members ({(detailReg.squad || detailReg.members)!.length})</div>
                   <div className="team-members-list">
-                    {detailReg.members.map((member, idx) => (
+                    {(detailReg.squad || (detailReg.members as any[]))!.map((member, idx) => (
                       <div key={idx} className="team-member-item">
                         <div className="member-main">
                           <span className="member-name">{member.name}</span>
                           <span className="member-role">{idx === 0 ? 'Leader' : `Member ${idx + 1}`}</span>
+                          {member.avrId && <span className="member-avr">{member.avrId}</span>}
                         </div>
                         <div className="member-sub">
                           <span><Mail size={12} /> {member.email}</span>
                           {member.phone && <span><Phone size={12} /> {member.phone}</span>}
                         </div>
+                        {member.major && (
+                          <div className="member-extra">
+                            <span>{member.major}</span>
+                            <span>{member.sex} ({member.age})</span>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
                 </div>
               )}
+
 
               <div className="modal-section">
                 <div className="modal-section-title"><CreditCard size={15} /> Payment & Event</div>
@@ -859,6 +989,25 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({ forcedHandle,
               </div>
               <div className="modal-row">
                 <div className="modal-field">
+                  <label>Major/Branch</label>
+                  <input type="text" value={editReg.userMajor || ''} onChange={e => setEditReg({ ...editReg, userMajor: e.target.value })} />
+                </div>
+                <div className="modal-field">
+                  <label>Age</label>
+                  <input type="number" value={editReg.userAge || ''} onChange={e => setEditReg({ ...editReg, userAge: parseInt(e.target.value) || 0 })} />
+                </div>
+                <div className="modal-field">
+                  <label>Sex</label>
+                  <select value={editReg.userSex || ''} onChange={e => setEditReg({ ...editReg, userSex: e.target.value })}>
+                    <option value="">Select</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+              </div>
+              <div className="modal-row">
+                <div className="modal-field">
                   <label>Event Name</label>
                   <input type="text" value={editReg.eventName} onChange={e => setEditReg({ ...editReg, eventName: e.target.value })} required />
                 </div>
@@ -874,7 +1023,7 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({ forcedHandle,
                 </div>
                 <div className="modal-field">
                   <label>Payment Status</label>
-                  <select value={editReg.paymentStatus || 'free'} onChange={e => setEditReg({ ...editReg, paymentStatus: e.target.value })}>
+                  <select value={editReg.paymentStatus || 'free'} onChange={e => setEditReg({ ...editReg, paymentStatus: e.target.value as Registration['paymentStatus'] })}>
                     <option value="paid">Paid</option>
                     <option value="free">Free</option>
                   </select>

@@ -30,9 +30,9 @@ import {
 } from 'lucide-react';
 import { useRegistrationGuard } from '../../hooks/useRegistrationGuard';
 import { generateTxnId } from '../../utils/easebuzz';
-import { FUNCTIONS_CONFIG } from '../../config/functions';
-import PaymentOverlay from '../../components/payment/PaymentOverlay';
-import { usePaymentOverlay } from '../../hooks/usePaymentOverlay';
+
+import PaymentCheckout from '../../components/payment/PaymentCheckout';
+import { usePaymentCheckout } from '../../hooks/usePaymentCheckout';
 import './EsportsRegistration.css';
 
 // Game Configurations
@@ -58,7 +58,8 @@ const EsportsRegistration: React.FC = () => {
     const [submitting, setSubmitting] = useState(false);
     const [success, setSuccess] = useState(false);
     const [ticketId, setTicketId] = useState('');
-    const paymentOverlay = usePaymentOverlay();
+    const paymentCheckout = usePaymentCheckout();
+    const [checkoutOrderDetails, setCheckoutOrderDetails] = useState<{ eventName: string; amount: number; participantName: string; avrId: string } | null>(null);
     const [showPreview, setShowPreview] = useState(false);
     const [accountabilityAccepted, setAccountabilityAccepted] = useState(false);
     const [lookupLoading, setLookupLoading] = useState<Record<string, boolean>>({});
@@ -169,13 +170,29 @@ const EsportsRegistration: React.FC = () => {
             if (!querySnapshot.empty) {
                 const data = querySnapshot.docs[0].data();
                 const fullName = `${data.firstName || ''} ${data.lastName || ''}`.trim() || data.name || data.displayName || '';
+                const calculateAge = (dob: string) => {
+                    if (!dob) return 0;
+                    const birthDate = new Date(dob);
+                    const today = new Date();
+                    let age = today.getFullYear() - birthDate.getFullYear();
+                    const m = today.getMonth() - birthDate.getMonth();
+                    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+                        age--;
+                    }
+                    return age;
+                };
+
                 setFormData(prev => ({
                     ...prev,
                     [`${memberKey}Name`]: fullName,
                     [`${memberKey}Email`]: data.email || '',
                     [`${memberKey}Phone`]: data.whatsappNumber || data.whatsapp || data.phone || '',
                     [`${memberKey}College`]: data.college || '',
+                    [`${memberKey}Major`]: data.major || '',
+                    [`${memberKey}Age`]: calculateAge(data.dob).toString(),
+                    [`${memberKey}Sex`]: data.sex || '',
                 }));
+
                 setLookupFailed(prev => ({ ...prev, [memberKey]: false }));
             } else {
                 setFormData(prev => ({
@@ -328,12 +345,10 @@ const EsportsRegistration: React.FC = () => {
         }
 
         setSubmitting(true);
-        paymentOverlay.startPayment();
 
         try {
             const txnid = generateTxnId(activeGame.id.toUpperCase());
 
-            // Build structured team roster for the final registration document
             const memberKeys = getMemberKeys();
             const allAvrIds = memberKeys
                 .map(m => formData[`${m}AvrId`])
@@ -344,7 +359,11 @@ const EsportsRegistration: React.FC = () => {
                 email: formData[`${m}Email`] || '',
                 phone: formData[`${m}Phone`] || '',
                 college: formData[`${m}College`] || '',
+                major: formData[`${m}Major`] || 'None',
+                age: parseInt(formData[`${m}Age`] || '0') || 18,
+                sex: formData[`${m}Sex`] || 'Other',
                 ign: formData[`${m}Ign`] || '',
+                gameSpecificId: formData[`${m}BgmiId`] || formData[`${m}FfId`] || formData[`${m}CodmId`] || formData[`${m}Sf4Id`] || '',
             })).filter(m => m.avrId && m.avrId.length >= 9);
 
             const pendingPayload = {
@@ -358,61 +377,56 @@ const EsportsRegistration: React.FC = () => {
                 amount: activeGame.fee,
                 status: 'pending',
                 finalPayload: {
+                    id: txnid,
+                    leaderAvrId: formData.leaderAvrId || '',
                     userId: user.uid,
-                    userName: formData.leaderName || user.displayName || '',
-                    userEmail: formData.leaderEmail || user.email || '',
-                    userAVR: formData.leaderAvrId || '',
-                    allAvrIds,
-                    userPhone: formData.leaderPhone || '',
-                    userCollege: formData.leaderCollege || '',
-                    teamName: formData.teamName || null,
-                    squad,
                     competitionId: `battlegrid_${activeGame.id}`,
-                    competitionHandle: 'Battle-Grid',
+                    competitionCode: 'BG',
                     eventName: activeGame.label,
-                    eventTitle: activeGame.label,
                     category: 'Esports',
                     department: 'Battle Grid',
                     isFlagship: true,
+                    registrationType: activeGame.type as 'TEAM' | 'SOLO',
+                    teamId: txnid,
+                    teamName: formData.teamName || null,
+                    teamSize: squad.length,
+                    squad,
+                    allAvrIds,
+                    paymentRequired: true,
                     paymentStatus: 'paid',
                     amountPaid: activeGame.fee,
+                    transactionId: txnid,
+                    paymentMode: 'online',
                     gameId: activeGame.id,
                     platform: activeGame.platform,
+                    status: 'confirmed',
+                    registeredAt: new Date().toISOString(),
+                    isAttended: false,
+                    metadata: {
+                        createdAt: new Date().toISOString()
+                    }
                 }
             };
 
-            paymentOverlay.setConnecting();
-
-            const response = await fetch(FUNCTIONS_CONFIG.initiatePayment, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    txnid,
-                    amount: activeGame.fee.toFixed(2),
-                    productinfo: `BattleGrid: ${activeGame.label}`,
-                    firstname: formData.leaderName || user.displayName || "Participant",
-                    email: formData.leaderEmail || user.email,
-                    phone: formData.leaderPhone,
-                    surl: FUNCTIONS_CONFIG.paymentSuccess,
-                    furl: FUNCTIONS_CONFIG.paymentFailure,
-                    pendingPayload
-                })
+            setCheckoutOrderDetails({
+                eventName: `Battle Grid: ${activeGame.label}`,
+                amount: activeGame.fee,
+                participantName: formData.leaderName || user.displayName || 'Participant',
+                avrId: formData.leaderAvrId
             });
 
-            const result = await response.json();
+            await paymentCheckout.initiatePayment({
+                txnid,
+                amount: activeGame.fee.toFixed(2),
+                productinfo: `BattleGrid: ${activeGame.label}`,
+                firstname: formData.leaderName || user.displayName || "Participant",
+                email: formData.leaderEmail || user.email || '',
+                phone: formData.leaderPhone,
+                pendingPayload
+            });
 
-            if (result.success && result.access_key) {
-                paymentOverlay.setRedirecting();
-                const redirectUrl = `https://pay.easebuzz.in/pay/${result.access_key}`;
-                setTimeout(() => {
-                    window.location.href = redirectUrl;
-                }, 1200);
-            } else {
-                throw new Error(result.error || "Initiation failed.");
-            }
         } catch (err: any) {
             console.error("Payment error:", err);
-            paymentOverlay.dismiss();
             toast.error("Payment initiation failed. Please try again.");
             setSubmitting(false);
         }
@@ -420,8 +434,20 @@ const EsportsRegistration: React.FC = () => {
 
     if (loading || guardLoading) return <div className="loader-screen"><Loader2 className="spinner" /></div>;
 
-    // Payment processing overlay (rendered outside main flow)
-    const paymentOverlayElement = <PaymentOverlay isVisible={paymentOverlay.isVisible} stage={paymentOverlay.stage} />;
+    const checkoutOverlayElement = (
+        <PaymentCheckout
+            isVisible={paymentCheckout.status !== 'idle'}
+            status={paymentCheckout.status}
+            qrLink={paymentCheckout.qrLink}
+            timeRemaining={paymentCheckout.timeRemaining}
+            error={paymentCheckout.error}
+            registrationId={paymentCheckout.registrationId}
+            orderDetails={checkoutOrderDetails || { eventName: '', amount: 0, participantName: '', avrId: '' }}
+            onCancel={() => { paymentCheckout.cancelPayment(); setSubmitting(false); }}
+            onRetry={() => paymentCheckout.retry()}
+            onSuccess={() => navigate('/user/dashboard')}
+        />
+    );
 
     if (isRegistered) {
         return (
@@ -461,7 +487,7 @@ const EsportsRegistration: React.FC = () => {
 
     return (
         <div className="esports-reg-page-v2">
-            {paymentOverlayElement}
+            {checkoutOverlayElement}
             <SEO title={`${activeGame?.label} Registration`} description="Battle-Grid '26 E-Sports Entry" />
             
             <div className="esports-header-v2">

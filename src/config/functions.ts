@@ -16,4 +16,8 @@ export const FUNCTIONS_CONFIG = {
     
     // Pre-flight check
     validateRegistration: `${CLOUD_FUNCTIONS_BASE_URL}/validateRegistration`,
+
+    // Custom Checkout (UPI QR)
+    createPaymentOrder: `${CLOUD_FUNCTIONS_BASE_URL}/createPaymentOrder`,
+    checkPaymentStatus: `${CLOUD_FUNCTIONS_BASE_URL}/checkPaymentStatus`,
 };

@@ -163,22 +163,30 @@ const Signup: React.FC = () => {
         transaction.set(counterRef, { count: nextNumber }, { merge: true });
         
         transaction.set(userRef, {
+          uid: user.uid,
           firstName: formData.firstName,
           lastName: formData.lastName,
           email: formData.email,
-          photoURL: formData.photoURL,
+          photoURL: formData.photoURL || '',
+          sex: formData.sex as "Male" | "Female" | "Other",
+          dob: formData.dob,
           phone: formData.phone,
           whatsappNumber: formData.whatsappNumber,
-          dob: formData.dob,
-          sex: formData.sex,
           college: formData.college,
           major: formData.major,
-          passingYear: formData.passingYear,
-          uid: user.uid,
+          passingYear: parseInt(formData.passingYear),
           avrId: uniqueAvrId,
-          createdAt: serverTimestamp(),
-          role: 'user'
+          role: 'user',
+          isProfileComplete: true,
+          registeredCompetitionIds: [],
+          accountStatus: 'active',
+          metadata: {
+            createdAt: serverTimestamp(),
+          },
+          updatedAt: serverTimestamp(),
+          lastLoginAt: serverTimestamp()
         });
+
       });
 
       toast.success("Welcome to Avishkar '26!");

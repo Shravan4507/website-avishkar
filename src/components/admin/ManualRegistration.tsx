@@ -26,14 +26,19 @@ interface Participant {
   email: string;
   phone: string;
   college: string;
+  major: string;
+  age: number;
+  sex: string;
 }
+
 
 type PaymentMode = 'pre_paid' | 'cash' | 'online';
 
 /* ═══════════════════════════════════════
    Constants
    ═══════════════════════════════════════ */
-const EMPTY_PARTICIPANT: Participant = { avrId: '', name: '', email: '', phone: '', college: '' };
+const EMPTY_PARTICIPANT: Participant = { avrId: '', name: '', email: '', phone: '', college: '', major: '', age: 0, sex: '' };
+
 
 const STEP_LABELS = ['Competition', 'Participants', 'Payment', 'Done'];
 
@@ -171,11 +176,11 @@ const ManualRegistration: React.FC<ManualRegistrationProps> = ({ isSuper = false
 
   /* ── Filtered competitions (excludes umbrella entries) ── */
   const filteredComps = COMPETITIONS_DATA.filter(c => {
-    if (c.comingSoon) return false;
+    if (c.status === 'draft') return false;
     if (UMBRELLA_IDS.includes(c.id)) return false; // replaced by sub-events
     
     if (!isSuper) {
-      if (!allowedHandles.has(c.handle) && !allowedEventTitles.has(c.title.toUpperCase())) {
+      if (!allowedHandles.has(c.code) && !allowedEventTitles.has(c.title.toUpperCase())) {
         return false;
       }
     }
@@ -183,7 +188,7 @@ const ManualRegistration: React.FC<ManualRegistrationProps> = ({ isSuper = false
     const q = searchTerm.toLowerCase();
     return c.title.toLowerCase().includes(q) ||
       c.department.toLowerCase().includes(q) ||
-      (c.handle || '').toLowerCase().includes(q);
+      (c.code || '').toLowerCase().includes(q);
   });
 
   /* ── Filtered sub-events ── */
@@ -238,6 +243,19 @@ const ManualRegistration: React.FC<ManualRegistrationProps> = ({ isSuper = false
   }, [teamSize]);
 
   /* ── AVR ID Lookup ── */
+  const calculateAge = (dob: string) => {
+    if (!dob) return 0;
+    const birthDate = new Date(dob);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age;
+  };
+
+  /* ── AVR ID Lookup ── */
   const handleAvrLookup = useCallback(async (index: number) => {
     const avrId = participants[index].avrId.trim().toUpperCase();
     if (!avrId || avrId.length < 8) {
@@ -264,6 +282,9 @@ const ManualRegistration: React.FC<ManualRegistrationProps> = ({ isSuper = false
             email: data.email || '',
             phone: data.whatsappNumber || data.whatsapp || data.phone || '',
             college: data.college || '',
+            major: data.major || '',
+            age: calculateAge(data.dob),
+            sex: data.sex || '',
           };
           return updated;
         });
@@ -279,6 +300,7 @@ const ManualRegistration: React.FC<ManualRegistrationProps> = ({ isSuper = false
       setLookupLoading(prev => ({ ...prev, [index]: false }));
     }
   }, [participants, toast]);
+
 
   /* ── Participant field update ── */
   const updateParticipant = (index: number, field: keyof Participant, value: string) => {
@@ -395,64 +417,60 @@ const ManualRegistration: React.FC<ManualRegistrationProps> = ({ isSuper = false
 
       transaction.set(psMetadataRef, { count: currentCount + 1 }, { merge: true });
 
-      // Build hackathon form data
-      const leader = participants[0];
-      const member2 = participants[1] || EMPTY_PARTICIPANT;
-      const member3 = participants[2] || EMPTY_PARTICIPANT;
-      const member4 = participants[3] || EMPTY_PARTICIPANT;
+      // Standardize squad
+      const squad = participants.map(p => ({
+        avrId: p.avrId,
+        name: p.name,
+        email: p.email,
+        phone: p.phone,
+        college: p.college,
+        major: p.major || 'None',
+        age: p.age || 18,
+        sex: p.sex || 'Other'
+      }));
 
       const regRef = doc(collection(db, 'hackathon_registrations'));
       transaction.set(regRef, {
-        teamName,
-        psId: selectedPsId,
+        id: regRef.id,
+        leaderAvrId: participants[0].avrId,
+        userId: participants[0].avrId, // Manual entry: using AVR as fallback for userId
+        
+        competitionId: 'codex--26',
+        competitionCode: 'PRM',
+        eventName: "Param-X '26",
+        category: 'Flagship Hackathon',
+        department: 'Engineering',
+        isFlagship: true,
 
-        leaderAvrId: leader.avrId,
-        leaderName: leader.name,
-        leaderEmail: leader.email,
-        leaderPhone: leader.phone,
-        leaderCollege: leader.college,
-
-        member2AvrId: member2.avrId,
-        member2Name: member2.name,
-        member2Email: member2.email,
-        member2Phone: member2.phone,
-        member2College: member2.college,
-
-        member3AvrId: member3.avrId,
-        member3Name: member3.name,
-        member3Email: member3.email,
-        member3Phone: member3.phone,
-        member3College: member3.college,
-
-        member4AvrId: member4.avrId,
-        member4Name: member4.name,
-        member4Email: member4.email,
-        member4Phone: member4.phone,
-        member4College: member4.college,
-
+        registrationType: 'TEAM',
         teamId: generatedTeamId,
-        status: 'confirmed',
-        paymentId: txnId,
-        paymentMode: paymentMode,
+        teamName,
+        teamSize: participants.length,
+        squad,
+        allAvrIds: participants.map(p => p.avrId),
+
+        psId: selectedPsId,
+        
+        paymentRequired: true,
+        paymentStatus: 'paid',
         amountPaid: fee,
+        transactionId: txnId,
+        paymentMode: paymentMode,
         paymentProofUrl: proofUrl || null,
 
-        allEmails: [leader.email, member2.email, member3.email, member4.email].filter(e => e).map(e => e.toLowerCase()),
-        allAvrIds: [leader.avrId, member2.avrId, member3.avrId, member4.avrId].filter(a => a),
-
-        competitionHandle: 'ParamX-Hack', // Required for admin filtering
-        eventName: "Param-X '26",
-
-        createdAt: serverTimestamp(),
-        uid: leader.avrId, // No actual UID for manual entry; use leader AVR
-
-        // Audit trail
-        _manualEntry: true,
-        _createdBy: user!.uid,
-        _createdByEmail: user!.email || '',
-        _createdAt: serverTimestamp(),
+        status: 'confirmed',
+        registeredAt: serverTimestamp(),
+        isAttended: false,
+        
+        metadata: {
+          createdAt: serverTimestamp(),
+          _manualEntry: true,
+          _createdBy: user!.uid,
+          _createdByEmail: user!.email || '',
+        }
       });
     });
+
 
     setResultTeamId(generatedTeamId);
     setResultId(txnId);
@@ -470,58 +488,57 @@ const ManualRegistration: React.FC<ManualRegistrationProps> = ({ isSuper = false
       throw new Error(`${leader.avrId} is already registered for ${selectedComp!.title}.`);
     }
 
-    const allAvrIds = participants.filter(p => p.avrId.length >= 8).map(p => p.avrId);
-    const squad = participants.slice(1).filter(p => p.avrId.length >= 8).map(p => ({
+    const squad = participants.map(p => ({
       avrId: p.avrId,
       name: p.name,
       email: p.email,
       phone: p.phone,
       college: p.college,
+      major: p.major || 'None',
+      age: p.age || 18,
+      sex: p.sex || 'Other'
     }));
 
+    const allAvrIds = participants.map(p => p.avrId);
+
     await setDoc(regRef, {
-      // User Info (Leader)
-      userId: leader.avrId, // No UID for manual entry
-      userName: leader.name,
-      userEmail: leader.email,
-      userAVR: leader.avrId,
-      allAvrIds,
-      userPhone: leader.phone,
-      userCollege: leader.college,
-      userMajor: '',
-      userAge: null,
-      userSex: '',
+      id: regId,
+      leaderAvrId: leader.avrId,
+      userId: leader.avrId, // Manual entry: using AVR as fallback for userId
 
-      // Team
-      teamName: teamName || null,
-      squad,
-
-      // Competition
       competitionId: selectedComp!.id,
+      competitionCode: (selectedComp as any).code || selectedComp!.id.split('--')[0].toUpperCase(),
       eventName: selectedComp!.title,
-      competitionHandle: selectedComp!.handle || '',
       category: selectedComp!.subtitle || 'General Event',
       department: selectedComp!.department,
-      isFlagship: selectedComp!.isFlagship || false,
+      isFlagship: (selectedComp as any).isFlagship || false,
 
-      // Payment
+      registrationType: participants.length > 1 ? 'TEAM' : 'SOLO',
+      teamId: regId, // For solo events, record ID acts as teamId
+      teamName: teamName || null,
+      teamSize: participants.length,
+      squad,
+      allAvrIds,
+
+      paymentRequired: (selectedComp as any).paymentRequired || fee > 0,
       paymentStatus: fee > 0 ? 'paid' : 'free',
       amountPaid: fee,
       transactionId: txnId,
       paymentMode: paymentMode,
       paymentProofUrl: proofUrl || null,
 
-      // Meta
       status: 'confirmed',
       registeredAt: serverTimestamp(),
       isAttended: false,
-
-      // Audit
-      _manualEntry: true,
-      _createdBy: user!.uid,
-      _createdByEmail: user!.email || '',
-      _createdAt: serverTimestamp(),
+      
+      metadata: {
+        createdAt: serverTimestamp(),
+        _manualEntry: true,
+        _createdBy: user!.uid,
+        _createdByEmail: user!.email || '',
+      }
     });
+
 
     setResultId(regId);
   };
@@ -538,67 +555,56 @@ const ManualRegistration: React.FC<ManualRegistrationProps> = ({ isSuper = false
       throw new Error(`${leader.avrId} is already registered for ${se.title}.`);
     }
 
-    const allAvrIds = participants.filter(p => p.avrId.length >= 8).map(p => p.avrId);
-
-    // Build member fields matching EsportsRegistration format
-    const memberData: Record<string, string> = {};
-    memberData.leaderAvrId = leader.avrId;
-    memberData.leaderName = leader.name;
-    memberData.leaderEmail = leader.email;
-    memberData.leaderPhone = leader.phone;
-    memberData.leaderCollege = leader.college;
-    const memberKeys = ['member2', 'member3', 'member4', 'member5'];
-    participants.slice(1).forEach((p, idx) => {
-      const key = memberKeys[idx];
-      if (key && p.avrId) {
-        memberData[`${key}AvrId`] = p.avrId;
-        memberData[`${key}Name`] = p.name;
-        memberData[`${key}Email`] = p.email;
-        memberData[`${key}Phone`] = p.phone;
-        memberData[`${key}College`] = p.college;
-      }
-    });
+    const allAvrIds = participants.map(p => p.avrId);
+    const squad = participants.map(p => ({
+      avrId: p.avrId,
+      name: p.name,
+      email: p.email,
+      phone: p.phone,
+      college: p.college,
+      major: p.major || 'None',
+      age: p.age || 18,
+      sex: p.sex || 'Other'
+    }));
 
     await setDoc(regRef, {
-      ...memberData,
-      // Normalized fields for RegistrationManager
-      userName: leader.name,
-      userEmail: leader.email,
-      avrId: leader.avrId,
-      userPhone: leader.phone,
-      userCollege: leader.college,
-      allAvrIds,
+      id: regId,
+      leaderAvrId: leader.avrId,
+      userId: leader.avrId, // Manual entry: using AVR as fallback for userId
 
-      // Team
-      teamName: teamName || null,
-
-      // Event info
       competitionId: se.id,
+      competitionCode: se.id.includes('robokshetra') ? 'ROBO' : se.id.includes('battlegrid') ? 'BG' : 'SUB',
       eventName: se.title,
-      eventTitle: se.title,
-      competitionHandle: se.handle,
-      category: se.handle,
+      category: se.parentTitle,
       department: se.department,
       isFlagship: se.isFlagship,
 
-      // Payment
+      registrationType: participants.length > 1 ? 'TEAM' : 'SOLO',
+      teamId: regId,
+      teamName: teamName || null,
+      teamSize: participants.length,
+      squad,
+      allAvrIds,
+
+      paymentRequired: se.entryFee > 0,
       paymentStatus: 'paid',
       amountPaid: se.entryFee,
       transactionId: txnId,
       paymentMode: paymentMode,
       paymentProofUrl: proofUrl || null,
 
-      // Meta
       status: 'confirmed',
       registeredAt: serverTimestamp(),
       isAttended: false,
-
-      // Audit
-      _manualEntry: true,
-      _createdBy: user!.uid,
-      _createdByEmail: user!.email || '',
-      _createdAt: serverTimestamp(),
+      
+      metadata: {
+        createdAt: serverTimestamp(),
+        _manualEntry: true,
+        _createdBy: user!.uid,
+        _createdByEmail: user!.email || '',
+      }
     });
+
 
     setResultId(regId);
   };
@@ -942,7 +948,41 @@ const ManualRegistration: React.FC<ManualRegistrationProps> = ({ isSuper = false
                     placeholder="Institution"
                   />
                 </div>
+                <div className="participant-field">
+                  <label>Major</label>
+                  <input
+                    type="text"
+                    value={p.major}
+                    onChange={e => updateParticipant(idx, 'major', e.target.value)}
+                    readOnly={lookupStatus[idx] === 'verified'}
+                    placeholder="e.g. CSE, ME"
+                  />
+                </div>
+                <div className="participant-field">
+                  <label>Age</label>
+                  <input
+                    type="number"
+                    value={p.age || ''}
+                    onChange={e => updateParticipant(idx, 'age', e.target.value)}
+                    readOnly={lookupStatus[idx] === 'verified'}
+                    placeholder="18"
+                  />
+                </div>
+                <div className="participant-field">
+                  <label>Sex</label>
+                  <select
+                    value={p.sex}
+                    onChange={e => updateParticipant(idx, 'sex', e.target.value)}
+                    disabled={lookupStatus[idx] === 'verified'}
+                  >
+                    <option value="">— Select —</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
               </div>
+
             </div>
           ))}
 

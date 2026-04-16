@@ -1,0 +1,192 @@
+.payment-status-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #0f172a;
+  padding: 2rem;
+  font-family: 'Inter', sans-serif;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Background glow */
+.payment-status-container::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(167, 139, 250, 0.15) 0%, rgba(15, 23, 42, 0) 70%);
+  pointer-events: none;
+}
+
+.payment-status-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 3rem 2rem;
+  max-width: 500px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  z-index: 10;
+  transition: all 0.3s ease;
+}
+
+.status-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.icon-wrapper {
+  margin-bottom: 0.5rem;
+  padding: 1rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.03);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.status-content h2 {
+  color: #f8fafc;
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.status-subtitle {
+  color: #94a3b8;
+  font-size: 1rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.status-txnid {
+  font-family: monospace;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  color: #cbd5e1;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+  user-select: all;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+.error-notice {
+  background: rgba(239, 68, 68, 0.1);
+  border-left: 4px solid #ef4444;
+  padding: 1rem;
+  border-radius: 4px;
+  color: #fca5a5;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  text-align: left;
+  margin: 1rem 0;
+}
+
+.error-notice a {
+  color: #fff;
+  text-decoration: underline;
+  text-decoration-color: rgba(255, 255, 255, 0.4);
+  font-weight: 500;
+}
+
+/* Icons */
+.spinner-icon {
+  color: #a78bfa;
+  animation: spin 1.5s linear infinite;
+}
+
+.success-icon {
+  color: #10b981;
+}
+
+.icon-wrapper:has(.success-icon) {
+  background: rgba(16, 185, 129, 0.1);
+  box-shadow: 0 0 30px rgba(16, 185, 129, 0.2);
+}
+
+.failed-icon {
+  color: #ef4444;
+}
+
+.icon-wrapper:has(.failed-icon) {
+  background: rgba(239, 68, 68, 0.1);
+  box-shadow: 0 0 30px rgba(239, 68, 68, 0.2);
+}
+
+.timeout-icon {
+  color: #f59e0b;
+}
+
+.icon-wrapper:has(.timeout-icon) {
+  background: rgba(245, 158, 11, 0.1);
+}
+
+/* Actions */
+.status-action-btn {
+  margin-top: 1.5rem;
+  width: 100%;
+  padding: 1rem;
+  border-radius: 12px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  background: #334155;
+  color: #fff;
+  transition: all 0.2s ease;
+}
+
+.status-action-btn:hover {
+  background: #475569;
+}
+
+.success-btn {
+  background: #10b981;
+  color: #022c22;
+}
+
+.success-btn:hover {
+  background: #34d399;
+}
+
+.failed-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.failed-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 600px) {
+  .payment-status-card {
+    padding: 2.5rem 1.5rem;
+    margin: 1rem;
+    border-radius: 16px;
+  }
+
+  .status-content h2 {
+    font-size: 1.5rem;
+  }
+
+  .status-subtitle {
+    font-size: 0.95rem;
+  }
+}

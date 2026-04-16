@@ -16,9 +16,10 @@ import ScrollToTop from './components/common/ScrollToTop';
 import { BugReportProvider } from './components/BugReport/BugReport';
 import { isLowSpecDevice } from './utils/performance';
 import { reportError } from './utils/errorReport';
+import IntroPreloader from './components/Preloader/IntroPreloader';
 
 
-const Grainient = lazy(() => import('./components/background/Grainient'));
+const LineWaves = lazy(() => import('./components/background/LineWaves'));
 
 // Lazy Loaded Public Pages
 const Home = lazy(() => import('./pages/home/Home'));
@@ -41,6 +42,8 @@ const ParamX = lazy(() => import('./pages/competitions/ParamX'));
 const ParamXUpload = lazy(() => import('./pages/competitions/ParamXUpload'));
 const ParamXRules = lazy(() => import('./pages/competitions/ParamXRules'));
 const Rules = lazy(() => import('./pages/rules/Rules'));
+const CheckoutSimulator = lazy(() => import('./pages/dev/CheckoutSimulator'));
+const PaymentStatus = lazy(() => import('./pages/payment/PaymentStatus'));
 
 // Lazy Loaded Legal Pages
 const Privacy = lazy(() => import('./pages/legal/Privacy'));
@@ -148,36 +151,27 @@ const LayoutManager = () => {
 
   // Match any Param-X feature including upload, rules, or hackathon registration
   const isParamX = location.pathname.startsWith('/param-x') || location.pathname.startsWith('/hackathon-register');
-  const grainientColor2 = isParamX ? "#110057" : "#5227FF";
+  const bgColor2 = isParamX ? "#3300ffff" : "#000000";
 
   return (
     <>
 
       <div className="background-fixed">
         <Suspense fallback={null}>
-          <Grainient
-            color1="#000000"
-            color2={grainientColor2}
-            color3="#201d20"
-            timeSpeed={0.25}
-            colorBalance={0}
-            warpStrength={1}
-            warpFrequency={5}
-            warpSpeed={2}
-            warpAmplitude={50}
-            blendAngle={0}
-            blendSoftness={0.05}
-            rotationAmount={500}
-            noiseScale={2}
-            grainAmount={0.1}
-            grainScale={2}
-            grainAnimated={false}
-            contrast={1.5}
-            gamma={1}
-            saturation={1}
-            centerX={0}
-            centerY={0}
-            zoom={0.9}
+          <LineWaves
+            speed={0.1}
+            innerLineCount={32}
+            outerLineCount={36}
+            warpIntensity={1}
+            rotation={0}
+            edgeFadeWidth={0}
+            colorCycleSpeed={1}
+            brightness={0.2}
+            color1="#3300ffff"
+            color2={bgColor2}
+            color3="#000000ff"
+            enableMouseInteraction
+            mouseInfluence={0.1}
           />
         </Suspense>
       </div>
@@ -212,6 +206,7 @@ const LayoutManager = () => {
                   <Route path="/param-x/rules" element={<T el={<ParamXRules />} />} />
                   <Route path="/param-x/upload" element={<T el={<ParamXUpload />} />} />
                   <Route path="/rules" element={<T el={<Rules />} />} />
+                  <Route path="/dev/checkout-test" element={<T el={<CheckoutSimulator />} />} />
 
                   {/* ── Club Detail Pages ── */}
                   <Route path="/gdgoc-zcoer"    element={<T el={<GDGClub />} />} />
@@ -233,6 +228,7 @@ const LayoutManager = () => {
                     <Route path="/register/:slug" element={<T el={<ErrorBoundary name="Registration"><Registration /></ErrorBoundary>} />} />
                     <Route path="/hackathon-register" element={<T el={<ErrorBoundary name="HackathonReg"><HackathonRegistration /></ErrorBoundary>} />} />
                     <Route path="/esports-register" element={<T el={<ErrorBoundary name="EsportsReg"><EsportsRegistration /></ErrorBoundary>} />} />
+                    <Route path="/payment/status" element={<T el={<ErrorBoundary name="PaymentStatus"><PaymentStatus /></ErrorBoundary>} />} />
                   </Route>
 
                   {/* ── Admin Protected ── */}
@@ -290,6 +286,7 @@ function App() {
       <ErrorBoundary>
         <ToastProvider>
             <Router>
+              <IntroPreloader />
               <ScrollReset />
               <BugReportProvider>
                 <LayoutManager />

@@ -69,11 +69,6 @@
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.coord-pill:hover {
-    transform: translateY(-2px);
-    border-color: rgba(255, 255, 255, 0.5);
-    box-shadow: 0 10px 25px rgba(217, 255, 0, 0.1);
-}
 
 .coord-role {
     font-size: 0.75rem;
@@ -174,13 +169,6 @@
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.rk-page .primary-cta:hover {
-    background: #111;
-    transform: translateY(-2px);
-    box-shadow: 0 15px 35px rgba(217, 255, 0, 0.15);
-    border-color: rgba(255, 255, 255, 0.5);
-}
-
 .primary-cta:active {
     transform: scale(0.98);
 }
@@ -200,13 +188,6 @@
     border: none;
     border-bottom: 2px solid rgba(255, 255, 255, 0.3);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.secondary-cta:hover {
-    background: #111;
-    transform: translateY(-2px);
-    box-shadow: 0 15px 35px rgba(217, 255, 0, 0.05);
-    border-color: rgba(255, 255, 255, 0.5);
 }
 
 .secondary-cta:active {
@@ -254,9 +235,8 @@
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.rk-rb-item:hover {
-    background: rgba(217, 255, 0, 0.1);
-    color: #fff;
+.rk-rb-item:active {
+    transform: scale(0.98);
 }
 
 .rk-rb-item svg {

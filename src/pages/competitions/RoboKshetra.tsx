@@ -35,9 +35,8 @@ import {
 } from 'lucide-react';
 import { useRegistrationGuard } from '../../hooks/useRegistrationGuard';
 import { generateTxnId } from '../../utils/easebuzz';
-import { FUNCTIONS_CONFIG } from '../../config/functions';
-import PaymentOverlay from '../../components/payment/PaymentOverlay';
-import { usePaymentOverlay } from '../../hooks/usePaymentOverlay';
+import PaymentCheckout from '../../components/payment/PaymentCheckout';
+import { usePaymentCheckout } from '../../hooks/usePaymentCheckout';
 import './RoboKshetra.css';
 
 // --- ROBO_EVENTS logic ---
@@ -133,11 +132,24 @@ const RoboKshetra: React.FC = () => {
     const [accountabilityAccepted, setAccountabilityAccepted] = useState(false);
     const [showPreview, setShowPreview] = useState(false);
     const [showRulebookDropdown, setShowRulebookDropdown] = useState(false);
-    const paymentOverlay = usePaymentOverlay();
+    const paymentCheckout = usePaymentCheckout();
+    const [checkoutOrderDetails, setCheckoutOrderDetails] = useState<{ eventName: string; amount: number; participantName: string; avrId: string } | null>(null);
 
     const { isRegistered, eventName: registeredEventName } = useRegistrationGuard();
 
     const activeEvent = ROBO_EVENTS.find(e => e.id === selectedEvent);
+
+    const calculateAge = (dob: string) => {
+        if (!dob) return 0;
+        const birthDate = new Date(dob);
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const m = today.getMonth() - birthDate.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+        return age;
+    };
 
     useEffect(() => {
         if (selectedEvent) {
@@ -193,6 +205,9 @@ const RoboKshetra: React.FC = () => {
                         leaderEmail: data.email || user.email || '',
                         leaderPhone: data.whatsappNumber || data.whatsapp || data.phone || '',
                         leaderCollege: data.college || '',
+                        leaderMajor: data.major || '',
+                        leaderAge: calculateAge(data.dob).toString(),
+                        leaderSex: data.sex || '',
                     }));
                 }
             } catch (err) {
@@ -253,6 +268,9 @@ const RoboKshetra: React.FC = () => {
                     [`${memberKey}Email`]: data.email || '',
                     [`${memberKey}Phone`]: data.whatsappNumber || data.whatsapp || data.phone || '',
                     [`${memberKey}College`]: data.college || '',
+                    [`${memberKey}Major`]: data.major || '',
+                    [`${memberKey}Age`]: calculateAge(data.dob).toString(),
+                    [`${memberKey}Sex`]: data.sex || '',
                 }));
                 setLookupFailed(prev => ({ ...prev, [memberKey]: false }));
             } else {
@@ -262,6 +280,9 @@ const RoboKshetra: React.FC = () => {
                     [`${memberKey}Email`]: '',
                     [`${memberKey}Phone`]: '',
                     [`${memberKey}College`]: '',
+                    [`${memberKey}Major`]: '',
+                    [`${memberKey}Age`]: '',
+                    [`${memberKey}Sex`]: '',
                 }));
                 setLookupFailed(prev => ({ ...prev, [memberKey]: true }));
             }
@@ -353,12 +374,10 @@ const RoboKshetra: React.FC = () => {
         }
 
         setLoading(true);
-        paymentOverlay.startPayment();
 
         try {
             const txnid = generateTxnId("ROBO");
 
-            // Build structured team roster for the final registration document
             const memberKeys = ['leader', 'member2', 'member3', 'member4'];
             const allAvrIds = memberKeys
                 .map(m => formData[`${m}AvrId`])
@@ -369,6 +388,9 @@ const RoboKshetra: React.FC = () => {
                 email: formData[`${m}Email`] || '',
                 phone: formData[`${m}Phone`] || '',
                 college: formData[`${m}College`] || '',
+                major: formData[`${m}Major`] || '',
+                age: parseInt(formData[`${m}Age`] || '0') || 18,
+                sex: formData[`${m}Sex`] || 'Other',
             })).filter(m => m.avrId && m.avrId.length >= 9);
 
             const pendingPayload = {
@@ -381,61 +403,55 @@ const RoboKshetra: React.FC = () => {
                 allAvrIds,
                 amount: activeEvent.fee,
                 status: 'pending',
-                // Structured finalPayload for the webhook to spread into the registration doc
                 finalPayload: {
+                    id: txnid,
+                    leaderAvrId: formData.leaderAvrId || '',
                     userId: user.uid,
-                    userName: formData.leaderName || user.displayName || '',
-                    userEmail: formData.leaderEmail || user.email || '',
-                    userAVR: formData.leaderAvrId || '',
-                    allAvrIds,
-                    userPhone: formData.leaderPhone || '',
-                    userCollege: formData.leaderCollege || '',
-                    teamName: formData.teamName || null,
-                    squad,
                     competitionId: `robokshetra_${activeEvent.id}`,
-                    competitionHandle: 'Robo-Kshetra',
+                    competitionCode: activeEvent.id.toUpperCase(),
                     eventName: activeEvent.label,
-                    eventTitle: activeEvent.label,
                     category: 'Robotics',
                     department: 'Robo-Kshetra',
                     isFlagship: true,
+                    registrationType: 'TEAM' as const,
+                    teamId: txnid,
+                    teamName: formData.teamName || null,
+                    teamSize: squad.length,
+                    squad,
+                    allAvrIds,
+                    paymentRequired: true,
                     paymentStatus: 'paid',
                     amountPaid: activeEvent.fee,
+                    transactionId: txnid,
+                    paymentMode: 'online',
+                    status: 'confirmed',
+                    registeredAt: new Date().toISOString(),
+                    isAttended: false,
+                    metadata: {
+                        createdAt: new Date().toISOString()
+                    }
                 }
             };
 
-            paymentOverlay.setConnecting();
-
-            const response = await fetch(FUNCTIONS_CONFIG.initiatePayment, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    txnid,
-                    amount: activeEvent.fee.toFixed(2),
-                    productinfo: `RK26: ${activeEvent.label}`,
-                    firstname: formData.leaderName || user.displayName || "Participant",
-                    email: formData.leaderEmail || user.email,
-                    phone: formData.leaderPhone,
-                    surl: FUNCTIONS_CONFIG.paymentSuccess,
-                    furl: FUNCTIONS_CONFIG.paymentFailure,
-                    pendingPayload
-                })
+            setCheckoutOrderDetails({
+                eventName: `Robo-Kshetra: ${activeEvent.label}`,
+                amount: activeEvent.fee,
+                participantName: formData.leaderName || user.displayName || 'Participant',
+                avrId: formData.leaderAvrId
             });
 
-            const result = await response.json();
+            await paymentCheckout.initiatePayment({
+                txnid,
+                amount: activeEvent.fee.toFixed(2),
+                productinfo: `RK26: ${activeEvent.label}`,
+                firstname: formData.leaderName || user.displayName || "Participant",
+                email: formData.leaderEmail || user.email || '',
+                phone: formData.leaderPhone,
+                pendingPayload
+            });
 
-            if (result.success && result.access_key) {
-                paymentOverlay.setRedirecting();
-                const redirectUrl = `https://pay.easebuzz.in/pay/${result.access_key}`;
-                setTimeout(() => {
-                    window.location.href = redirectUrl;
-                }, 1200);
-            } else {
-                throw new Error(result.error || "Initiation failed.");
-            }
         } catch (err: any) {
             console.error("Payment error:", err);
-            paymentOverlay.dismiss();
             toast.error("Payment initiation failed. Please try again.");
         } finally {
             setLoading(false);
@@ -470,7 +486,18 @@ const RoboKshetra: React.FC = () => {
 
     return (
         <div className="rk-page">
-            <PaymentOverlay isVisible={paymentOverlay.isVisible} stage={paymentOverlay.stage} />
+            <PaymentCheckout
+                isVisible={paymentCheckout.status !== 'idle'}
+                status={paymentCheckout.status}
+                qrLink={paymentCheckout.qrLink}
+                timeRemaining={paymentCheckout.timeRemaining}
+                error={paymentCheckout.error}
+                registrationId={paymentCheckout.registrationId}
+                orderDetails={checkoutOrderDetails || { eventName: '', amount: 0, participantName: '', avrId: '' }}
+                onCancel={() => { paymentCheckout.cancelPayment(); setLoading(false); }}
+                onRetry={() => paymentCheckout.retry()}
+                onSuccess={() => navigate('/user/dashboard')}
+            />
             <SEO 
                 title={selectedEvent ? `Assemble: ${activeEvent?.label}` : "Robo-Kshetra Arena"} 
                 description="Join the ultimate battlefield of metal and electronics at Robo-Kshetra '26."
