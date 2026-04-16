@@ -37,7 +37,7 @@ import './EsportsRegistration.css';
 
 // Game Configurations
 const GAMES = [
-    { id: 'bgmi', label: 'BGMI', tagline: 'Grid-Warrior Mobile (4+1 Squad)', prize: '₹50,000', fee: 500, type: 'TEAM', members: 5, platform: 'Mobile', color: '#ff9800', image: `${import.meta.env.BASE_URL}assets/esports/bgmi.webp`, rulebook: `${import.meta.env.BASE_URL}assets/rule-books/bgmi.pdf`, coordinator: 'Rohit Bayas', contactNumber: '9322708124', coordinator2: 'Omkar Wadekar', contactNumber2: '7378503893' },
+    { id: 'bgmi', label: 'BGMI', tagline: 'Grid-Warrior Mobile (4+1 Squad)', prize: '₹50,000', fee: 0, type: 'TEAM', members: 5, platform: 'Mobile', color: '#9af000', image: `${import.meta.env.BASE_URL}assets/esports/bgmi.webp`, rulebook: `${import.meta.env.BASE_URL}assets/rule-books/bgmi.pdf`, coordinator: 'Rohit Bayas', contactNumber: '9322708124', coordinator2: 'Omkar Wadekar', contactNumber2: '7378503893' },
     { id: 'freefire', label: 'FREE FIRE', tagline: 'Garena Battle-Royale (4-Player Squad)', prize: '₹6,000', fee: 250, type: 'TEAM', members: 4, platform: 'Mobile', color: '#e91e63', image: `${import.meta.env.BASE_URL}assets/esports/freefire.webp`, rulebook: `${import.meta.env.BASE_URL}assets/rule-books/free-fire.pdf`, coordinator: 'Rohit Chavan', contactNumber: '7823056055' },
     { id: 'codm', label: 'CALL OF DUTY (MOBILE)', tagline: 'Tactical 5v5 Combat', prize: '₹16,000', fee: 400, type: 'TEAM', members: 5, platform: 'Mobile', color: '#4caf50', image: `${import.meta.env.BASE_URL}assets/esports/codm.webp`, rulebook: `${import.meta.env.BASE_URL}assets/rule-books/call-of-duty.pdf`, coordinator: 'Vaibhav Bandgar', contactNumber: '9730906103' },
     { id: 'sf4', label: 'SHADOW-FIGHT 4', tagline: 'Arena 1v1 Combat', prize: '₹8,000', fee: 150, type: 'SOLO', members: 1, platform: 'Mobile', color: '#ffeb3b', image: `${import.meta.env.BASE_URL}assets/esports/sf4.webp`, rulebook: `${import.meta.env.BASE_URL}assets/rule-books/shadow-fight-4.pdf`, coordinator: 'Pranav Kulkarni', contactNumber: '9423162724' },
@@ -407,6 +407,23 @@ const EsportsRegistration: React.FC = () => {
                     }
                 }
             };
+            
+            if (activeGame.fee === 0) {
+                // Free Event bypass
+                pendingPayload.finalPayload.paymentRequired = false;
+                pendingPayload.finalPayload.paymentStatus = 'free';
+                pendingPayload.finalPayload.paymentMode = 'free_tier';
+                
+                await import('firebase/firestore').then(async ({ setDoc }) => {
+                    await setDoc(doc(db, 'registrations', txnid), pendingPayload.finalPayload);
+                });
+                
+                setTicketId(txnid);
+                setSuccess(true);
+                toast.success('Registration successful! Free entry confirmed.');
+                setSubmitting(false);
+                return;
+            }
 
             setCheckoutOrderDetails({
                 eventName: `Battle Grid: ${activeGame.label}`,
@@ -486,7 +503,7 @@ const EsportsRegistration: React.FC = () => {
     const memberKeys = getMemberKeys();
 
     return (
-        <div className="esports-reg-page-v2">
+        <div className={`esports-reg-page-v2 ${activeGame?.id === 'bgmi' ? 'monster-theme' : ''}`}>
             {checkoutOverlayElement}
             <SEO title={`${activeGame?.label} Registration`} description="Battle-Grid '26 E-Sports Entry" />
             
@@ -499,6 +516,12 @@ const EsportsRegistration: React.FC = () => {
                         {(activeGame?.platform as string) === 'PC' ? <Target size={14} /> : <Phone size={14} />}
                         {activeGame?.platform} - {activeGame?.type} Entry
                     </div>
+                    {activeGame?.id === 'bgmi' && (
+                        <div className="monster-reg-badge animate-slide-right">
+                            <span className="powered-by-small">POWERED BY</span>
+                            <img src={`${import.meta.env.BASE_URL}assets/sponsors/monsterenergy-logo.png`} alt="Monster Energy" className="monster-small-logo" />
+                        </div>
+                    )}
                 </div>
                 <div className="main-logo-row">
                     <span className="game-label-large">{activeGame?.label}</span>
@@ -784,7 +807,7 @@ const EsportsRegistration: React.FC = () => {
                                 disabled={submitting || (activeGame?.type === 'TEAM' && !formData.teamName)}
                                 onClick={handleReview}
                             >
-                                REVIEW {activeGame?.type === 'TEAM' ? 'SQUAD' : 'ENTRY'} & PAY
+                                REVIEW {activeGame?.type === 'TEAM' ? 'SQUAD' : 'ENTRY'} & {activeGame?.fee === 0 ? 'REGISTER' : 'PAY'}
                                 <ArrowRight size={20} />
                             </button>
                             <p className="es-disclaimer">Verify your details before proceeding to payment.</p>
@@ -839,13 +862,13 @@ const EsportsRegistration: React.FC = () => {
                             <div className="es-payment-summary">
                                 <div className="es-summary-row">
                                     <span>Registration Fee</span>
-                                    <span>₹{activeGame?.fee.toFixed(2)}</span>
+                                    <span>{activeGame?.fee === 0 ? 'FREE' : `₹${activeGame?.fee.toFixed(2)}`}</span>
                                 </div>
                                 <div className="es-summary-row total">
                                     <span>Total Payable</span>
-                                    <span>₹{activeGame?.fee.toFixed(2)}</span>
+                                    <span>{activeGame?.fee === 0 ? 'FREE' : `₹${activeGame?.fee.toFixed(2)}`}</span>
                                 </div>
-                                <p className="es-payment-note">Secure payment via Easebuzz Gateway</p>
+                                <p className="es-payment-note">{activeGame?.fee === 0 ? 'Registration is free' : 'Secure payment via Easebuzz Gateway'}</p>
                             </div>
 
                             <div className="es-preview-actions">
@@ -853,7 +876,7 @@ const EsportsRegistration: React.FC = () => {
                                     <ArrowLeft size={16} /> Edit Details
                                 </button>
                                 <button className="es-deploy-btn" onClick={handlePayNow} disabled={submitting}>
-                                    {submitting ? <Loader2 className="animate-spin" /> : 'PAY NOW'}
+                                    {submitting ? <Loader2 className="animate-spin" /> : (activeGame?.fee === 0 ? 'CONFIRM REGISTRATION' : 'PAY NOW')}
                                     {!submitting && <ArrowRight size={20} />}
                                 </button>
                             </div>

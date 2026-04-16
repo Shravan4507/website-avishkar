@@ -37,6 +37,7 @@ const RoboKshetraRules = lazy(() => import('./pages/competitions/RoboKshetraRule
 const BattleGrid = lazy(() => import('./pages/competitions/BattleGrid'));
 const BattleGridRules = lazy(() => import('./pages/competitions/BattleGridRules'));
 const EsportsRegistration = lazy(() => import('./pages/competitions/EsportsRegistration'));
+const MonsterBgmi = lazy(() => import('./pages/competitions/MonsterBgmi'));
 const BookStall = lazy(() => import('./pages/stalls/BookStall'));
 const ParamX = lazy(() => import('./pages/competitions/ParamX'));
 const ParamXUpload = lazy(() => import('./pages/competitions/ParamXUpload'));
@@ -206,6 +207,7 @@ const LayoutManager = () => {
                   <Route path="/param-x/rules" element={<T el={<ParamXRules />} />} />
                   <Route path="/param-x/upload" element={<T el={<ParamXUpload />} />} />
                   <Route path="/rules" element={<T el={<Rules />} />} />
+                  <Route path="/monster-x-bgmi" element={<T el={<MonsterBgmi />} />} />
                   <Route path="/dev/checkout-test" element={<T el={<CheckoutSimulator />} />} />
 
                   {/* ── Club Detail Pages ── */}

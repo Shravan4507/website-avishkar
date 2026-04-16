@@ -749,3 +749,104 @@
     background: rgba(82, 39, 255, 0.1);
     cursor: default;
 }
+/* --- MONSTER THEME OVERRIDES --- */
+.esports-reg-page-v2.monster-theme {
+    background: radial-gradient(circle at top right, rgba(154, 240, 0, 0.08), transparent);
+}
+
+.monster-theme .game-label-large {
+    color: #9af000;
+}
+
+.monster-theme .es-section-header {
+    color: #9af000;
+}
+
+.monster-theme .es-status.info {
+    background: rgba(154, 240, 0, 0.1);
+    color: #9af000;
+    border-color: rgba(154, 240, 0, 0.2);
+}
+
+.monster-theme .es-input-with-icon.avr-lookup {
+    background: rgba(154, 240, 0, 0.04);
+    border-color: rgba(154, 240, 0, 0.15);
+}
+
+.monster-theme .es-input-with-icon.avr-lookup:focus-within {
+    border-color: rgba(154, 240, 0, 0.4);
+}
+
+.monster-theme .es-deploy-btn {
+    background: #9af000;
+    color: #000;
+    box-shadow: 0 10px 40px rgba(154, 240, 0, 0.2);
+}
+
+.monster-theme .es-summary-row.total {
+    color: #9af000;
+}
+
+.monster-theme .es-protocol-banner {
+    background: rgba(154, 240, 0, 0.05);
+    border-color: rgba(154, 240, 0, 0.2);
+}
+
+.monster-theme .es-protocol-icon {
+    background: rgba(154, 240, 0, 0.1);
+    border-color: rgba(154, 240, 0, 0.3);
+    color: #9af000;
+}
+
+.monster-theme .es-share-btn {
+    background: #9af000;
+    color: #000;
+}
+
+.monster-theme .es-member-index {
+    background: rgba(154, 240, 0, 0.15);
+    border-color: rgba(154, 240, 0, 0.2);
+}
+
+.monster-theme .es-checkbox-row input[type="checkbox"] {
+    accent-color: #9af000;
+}
+
+/* --- MONSTER BADGE --- */
+.monster-reg-badge {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding-left: 1.5rem;
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.powered-by-small {
+    font-size: 0.6rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.monster-small-logo {
+    height: 48px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 10px rgba(154, 240, 0, 0.3));
+}
+
+@keyframes slideRight {
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+.animate-slide-right {
+    animation: slideRight 0.6s ease forwards;
+}
+
+@media (max-width: 600px) {
+    .monster-reg-badge {
+        padding-left: 0;
+        border-left: none;
+        margin-top: 0.5rem;
+    }
+}

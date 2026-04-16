@@ -290,7 +290,8 @@ export const COMPETITIONS_DATA: Competition[] = [
             { name: "TBA", phone: "" }
         ],
         status: "published",
-        isExhibition: true
+        isExhibition: true,
+        prizePool: 'TBD'
     },
     {
         id: 'CMP-26-BTG-FF-002',

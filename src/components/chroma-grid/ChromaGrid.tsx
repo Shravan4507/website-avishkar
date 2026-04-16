@@ -32,6 +32,7 @@ export interface ChromaItem {
     };
     rulebook?: string;
     rulebookComingSoon?: boolean;
+    noModal?: boolean;
 }
 
 export interface ChromaGridProps {
@@ -151,7 +152,7 @@ export const ChromaGrid: React.FC<ChromaGridProps> = ({
 
     const handleCardClick = (member: ChromaItem) => {
         onItemClick?.(member);
-        if (!disableModal) {
+        if (!disableModal && !member.noModal) {
             setSelectedMember(member);
             setClickCount(0); // Reset count for new member
             setShowTooltip(false);
