@@ -241,6 +241,8 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({ forcedHandle,
             isAttended: data.isAttended || false,
             teamName: data.teamName,
             teamSize: data.teamSize || (data.squad ? data.squad.length : [data.member2Name, data.member3Name, data.member4Name].filter(Boolean).length + 1),
+            // Hackathon records often miss competitionHandle; default it for the Param-X admin view
+            competitionHandle: data.competitionHandle || 'ParamX-Hack',
             _collection: 'hackathon_registrations'
           } as Registration;
 
@@ -284,7 +286,7 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({ forcedHandle,
               transactionId: data.txnId || null,
               status: 'payment_pending',
               teamName: data.teamName || data.formData?.teamName || '',
-              competitionHandle: data.competitionHandle || '',
+              competitionHandle: data.competitionHandle || (data.type === 'hackathon' ? 'ParamX-Hack' : ''),
               _collection: 'pending_registrations' as const,
               _isPending: true,
               pendingTxnId: data.txnId,
