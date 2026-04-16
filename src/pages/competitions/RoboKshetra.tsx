@@ -52,7 +52,7 @@ const ROBO_EVENTS = [
         fee: 499,
         type: 'TEAM', 
         members: 4,
-        minMembers: 2, 
+        minMembers: 1, 
         mode: 'Offline',
         color: '#d9ff00', 
         description: 'Forge a bot capable of extreme precision. Navigate high-speed tracks and complex intersections with autonomous perfection. Engineering focus: PID control, sensor calibration, and mechanical stability.',
@@ -311,9 +311,12 @@ const RoboKshetra: React.FC = () => {
             return;
         }
 
-        // Validate all members (leader + member2 required, member3/member4 optional)
+        // Validate all members 
         const memberKeys = ['leader', 'member2', 'member3', 'member4'];
-        const requiredKeys = ['leader', 'member2']; // min team size = 2
+        const requiredKeys = ['leader'];
+        if (activeEvent.minMembers >= 2) requiredKeys.push('member2');
+        if (activeEvent.minMembers >= 3) requiredKeys.push('member3');
+        if (activeEvent.minMembers >= 4) requiredKeys.push('member4');
         memberKeys.forEach(m => {
             const avr = formData[`${m}AvrId`];
             const name = formData[`${m}Name`];
