@@ -364,145 +364,8 @@ export const paymentWebhook = functions.https.onRequest({
        return;
     }
 
-    const pendingRef = admin.firestore().doc(`pending_registrations/${data.txnid}`);
-    
-    // Use transaction to guarantee idempotent processing
-    await admin.firestore().runTransaction(async (t) => {
-       const pendingSnap = await t.get(pendingRef);
-       if (!pendingSnap.exists) {
-         console.warn(`Pending registration not found for ${data.txnid}`);
-         return;
-       }
-
-       const pendingData = pendingSnap.data()!;
-       if (pendingData.status === 'confirmed') {
-         console.log(`Registration already confirmed for ${data.txnid}, skipping.`);
-         return;
-       }
-
-       // Mark as confirmed
-       t.update(pendingRef, {
-         status: 'confirmed',
-         resolvedAt: admin.firestore.FieldValue.serverTimestamp(),
-         easepayId: data.easepayid || null,
-         bankRefNum: data.bank_ref_num || null,
-         paymentMode: data.mode || null
-       });
-
-       const finalPayload = pendingData.finalPayload || {};
-
-       if (pendingData.type === 'hackathon') {
-          const psId = pendingData.competitionId; 
-          const psMetadataRef = admin.firestore().doc(`ps_metadata/${psId}`);
-          const psMetadataDoc = await t.get(psMetadataRef);
-
-          let currentCount = 0;
-          if (psMetadataDoc.exists) {
-             currentCount = psMetadataDoc.data()?.count || 0;
-          }
-
-          const teamCounterRef = admin.firestore().doc(`counters/hackathon_team_counter`);
-          const teamCounterDoc = await t.get(teamCounterRef);
-          let nextTeamCount = 1;
-          if (teamCounterDoc.exists) {
-             nextTeamCount = (teamCounterDoc.data()?.count || 0) + 1;
-          }
-
-           t.set(teamCounterRef, { count: nextTeamCount }, { merge: true });
-          const generatedTeamId = `AVR-PRM-${nextTeamCount.toString().padStart(4, '0')}`;
-
-          t.set(psMetadataRef, { count: currentCount + 1 }, { merge: true });
-
-          const newRegRef = admin.firestore().collection('registrations').doc();
-          const newRegId = newRegRef.id;
-          t.set(newRegRef, {
-             ...finalPayload,
-             id: newRegId,
-             teamId: generatedTeamId,
-             transactionId: data.txnid,
-             paymentMode: data.mode || null,
-             status: 'confirmed',
-             registeredAt: admin.firestore.FieldValue.serverTimestamp(),
-             isAttended: false,
-             metadata: {
-               createdAt: admin.firestore.FieldValue.serverTimestamp()
-             }
-          });
-
-       } else if (pendingData.type === 'robokshetra') {
-          const teamCounterRef = admin.firestore().doc(`counters/robokshetra_team_counter`);
-          const teamCounterDoc = await t.get(teamCounterRef);
-          let nextTeamCount = 1;
-          if (teamCounterDoc.exists) {
-             nextTeamCount = (teamCounterDoc.data()?.count || 0) + 1;
-          }
-
-          t.set(teamCounterRef, { count: nextTeamCount }, { merge: true });
-          const generatedTeamId = `AVR-ROB-${nextTeamCount.toString().padStart(4, '0')}`;
-
-          const newRegRef = admin.firestore().collection('registrations').doc();
-          const newRegId = newRegRef.id;
-          t.set(newRegRef, {
-             ...finalPayload,
-             id: newRegId,
-             teamId: generatedTeamId,
-             transactionId: data.txnid,
-             paymentMode: data.mode || null,
-             status: 'confirmed',
-             registeredAt: admin.firestore.FieldValue.serverTimestamp(),
-             isAttended: false,
-             metadata: {
-               createdAt: admin.firestore.FieldValue.serverTimestamp()
-             }
-          });
-
-       } else if (pendingData.type === 'esports') {
-          const teamCounterRef = admin.firestore().doc(`counters/esports_team_counter`);
-          const teamCounterDoc = await t.get(teamCounterRef);
-          let nextTeamCount = 1;
-          if (teamCounterDoc.exists) {
-             nextTeamCount = (teamCounterDoc.data()?.count || 0) + 1;
-          }
-
-          t.set(teamCounterRef, { count: nextTeamCount }, { merge: true });
-          const prefix = pendingData.competitionId.includes('bgmi') || pendingData.competitionId.includes('freefire') ? 'AVR-BG' : 'AVR-ESP';
-          const generatedTeamId = `${prefix}-${nextTeamCount.toString().padStart(4, '0')}`;
-
-          const newRegRef = admin.firestore().collection('registrations').doc();
-          const newRegId = newRegRef.id;
-          t.set(newRegRef, {
-             ...finalPayload,
-             id: newRegId,
-             teamId: generatedTeamId,
-             transactionId: data.txnid,
-             paymentMode: data.mode || null,
-             status: 'confirmed',
-             registeredAt: admin.firestore.FieldValue.serverTimestamp(),
-             isAttended: false,
-             metadata: {
-               createdAt: admin.firestore.FieldValue.serverTimestamp()
-             }
-          });
-
-       } else {
-          // Standard Competition
-          const regId = `${pendingData.competitionId}_${pendingData.userAVR}`;
-          const regRef = admin.firestore().doc(`registrations/${regId}`);
-          t.set(regRef, {
-             ...finalPayload,
-             id: regId,
-             teamId: regId,
-             transactionId: data.txnid,
-             paymentMode: data.mode || null,
-             status: 'confirmed',
-             registeredAt: admin.firestore.FieldValue.serverTimestamp(),
-             isAttended: false,
-             metadata: {
-               createdAt: admin.firestore.FieldValue.serverTimestamp()
-             }
-          });
-       }
-    });
+    // Finalize the registration using shared handler (reads-before-writes safe)
+    await finalizeRegistration(data.txnid, data.mode || null, data.easepayid || null, data.bank_ref_num || null);
 
     res.status(200).send("OK");
 
@@ -589,6 +452,10 @@ async function finalizeRegistration(
   const pendingRef = admin.firestore().doc(`pending_registrations/${txnid}`);
 
   return admin.firestore().runTransaction(async (t) => {
+    // ═══════════════════════════════════════════════════════════════
+    // PHASE 1: ALL READS — Firestore requires every t.get() to
+    //          complete before any t.set() / t.update() is called.
+    // ═══════════════════════════════════════════════════════════════
     const pendingSnap = await t.get(pendingRef);
     if (!pendingSnap.exists) {
       console.warn(`[Finalize] Pending registration not found for ${txnid}`);
@@ -601,6 +468,36 @@ async function finalizeRegistration(
       return pendingData.registrationId || txnid;
     }
 
+    const finalPayload = pendingData.finalPayload || {};
+    let registrationId = '';
+
+    // Read type-specific counters BEFORE any writes
+    let psMetadataRef: FirebaseFirestore.DocumentReference | null = null;
+    let psMetadataDoc: FirebaseFirestore.DocumentSnapshot | null = null;
+    let teamCounterRef: FirebaseFirestore.DocumentReference | null = null;
+    let teamCounterDoc: FirebaseFirestore.DocumentSnapshot | null = null;
+
+    if (pendingData.type === 'hackathon') {
+      psMetadataRef = admin.firestore().doc(`ps_metadata/${pendingData.competitionId}`);
+      psMetadataDoc = await t.get(psMetadataRef);
+      teamCounterRef = admin.firestore().doc('counters/hackathon_team_counter');
+      teamCounterDoc = await t.get(teamCounterRef);
+
+    } else if (pendingData.type === 'robokshetra') {
+      teamCounterRef = admin.firestore().doc('counters/robokshetra_team_counter');
+      teamCounterDoc = await t.get(teamCounterRef);
+
+    } else if (pendingData.type === 'esports') {
+      teamCounterRef = admin.firestore().doc('counters/esports_team_counter');
+      teamCounterDoc = await t.get(teamCounterRef);
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // PHASE 2: ALL WRITES — now that every read is done, we can
+    //          safely issue writes.
+    // ═══════════════════════════════════════════════════════════════
+
+    // 1. Mark the pending registration as confirmed
     t.update(pendingRef, {
       status: 'confirmed',
       resolvedAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -609,22 +506,14 @@ async function finalizeRegistration(
       paymentMode: paymentMode
     });
 
-    const finalPayload = pendingData.finalPayload || {};
-    let registrationId = '';
-
+    // 2. Create the actual registration based on type
     if (pendingData.type === 'hackathon') {
-      const psId = pendingData.competitionId;
-      const psMetadataRef = admin.firestore().doc(`ps_metadata/${psId}`);
-      const psMetadataDoc = await t.get(psMetadataRef);
-      let currentCount = psMetadataDoc.exists ? psMetadataDoc.data()?.count || 0 : 0;
+      const currentCount = psMetadataDoc?.exists ? psMetadataDoc.data()?.count || 0 : 0;
+      const nextTeamCount = teamCounterDoc?.exists ? (teamCounterDoc.data()?.count || 0) + 1 : 1;
 
-      const teamCounterRef = admin.firestore().doc(`counters/hackathon_team_counter`);
-      const teamCounterDoc = await t.get(teamCounterRef);
-      let nextTeamCount = teamCounterDoc.exists ? (teamCounterDoc.data()?.count || 0) + 1 : 1;
-
-      t.set(teamCounterRef, { count: nextTeamCount }, { merge: true });
+      t.set(teamCounterRef!, { count: nextTeamCount }, { merge: true });
       const generatedTeamId = `AVR-PRM-${nextTeamCount.toString().padStart(4, '0')}`;
-      t.set(psMetadataRef, { count: currentCount + 1 }, { merge: true });
+      t.set(psMetadataRef!, { count: currentCount + 1 }, { merge: true });
 
       const newRegRef = admin.firestore().collection('registrations').doc();
       registrationId = newRegRef.id;
@@ -641,11 +530,9 @@ async function finalizeRegistration(
       });
 
     } else if (pendingData.type === 'robokshetra') {
-      const teamCounterRef = admin.firestore().doc(`counters/robokshetra_team_counter`);
-      const teamCounterDoc = await t.get(teamCounterRef);
-      let nextTeamCount = teamCounterDoc.exists ? (teamCounterDoc.data()?.count || 0) + 1 : 1;
+      const nextTeamCount = teamCounterDoc?.exists ? (teamCounterDoc.data()?.count || 0) + 1 : 1;
 
-      t.set(teamCounterRef, { count: nextTeamCount }, { merge: true });
+      t.set(teamCounterRef!, { count: nextTeamCount }, { merge: true });
       const generatedTeamId = `AVR-ROB-${nextTeamCount.toString().padStart(4, '0')}`;
 
       const newRegRef = admin.firestore().collection('registrations').doc();
@@ -663,11 +550,9 @@ async function finalizeRegistration(
       });
 
     } else if (pendingData.type === 'esports') {
-      const teamCounterRef = admin.firestore().doc(`counters/esports_team_counter`);
-      const teamCounterDoc = await t.get(teamCounterRef);
-      let nextTeamCount = teamCounterDoc.exists ? (teamCounterDoc.data()?.count || 0) + 1 : 1;
+      const nextTeamCount = teamCounterDoc?.exists ? (teamCounterDoc.data()?.count || 0) + 1 : 1;
 
-      t.set(teamCounterRef, { count: nextTeamCount }, { merge: true });
+      t.set(teamCounterRef!, { count: nextTeamCount }, { merge: true });
       const prefix = pendingData.competitionId.includes('bgmi') || pendingData.competitionId.includes('freefire') ? 'AVR-BG' : 'AVR-ESP';
       const generatedTeamId = `${prefix}-${nextTeamCount.toString().padStart(4, '0')}`;
 
@@ -686,6 +571,7 @@ async function finalizeRegistration(
       });
 
     } else {
+      // Standard competition
       registrationId = `${pendingData.competitionId}_${pendingData.userAVR}`;
       const regRef = admin.firestore().doc(`registrations/${registrationId}`);
       t.set(regRef, {
@@ -701,7 +587,7 @@ async function finalizeRegistration(
       });
     }
 
-    // Store the registrationId back on pending for idempotent lookups
+    // 3. Store the registrationId back on pending for idempotent lookups
     t.update(pendingRef, { registrationId });
 
     return registrationId;
