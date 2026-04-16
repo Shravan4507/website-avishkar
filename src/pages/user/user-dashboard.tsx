@@ -421,13 +421,13 @@ const UserDashboard: React.FC = () => {
             </aside>
 
             {/* Follow Us Panel */}
-            <aside className="user-dashboard-section" style={{ textAlign: 'center' }}>
-              <h3 style={{ color: '#e2e8f0', fontSize: '1.2rem', marginBottom: '1rem', fontFamily: "'Iceland', sans-serif", letterSpacing: '1.5px' }}>Follow Us</h3>
-              <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem' }}>
-                <a href="https://www.instagram.com/zeal_avishkar/" target="_blank" rel="noreferrer" className="social-icon-btn">
+            <aside className="user-dashboard-section follow-us-section">
+              <h3>Follow Us</h3>
+              <div className="social-icons-row">
+                <a href="https://www.instagram.com/zeal_avishkar/" target="_blank" rel="noreferrer" className="social-icon-btn" aria-label="Instagram">
                   <Camera size={24} />
                 </a>
-                <a href="https://www.youtube.com/@zeal_avishkar" target="_blank" rel="noreferrer" className="social-icon-btn">
+                <a href="https://www.youtube.com/@zeal_avishkar" target="_blank" rel="noreferrer" className="social-icon-btn" aria-label="YouTube">
                   <Video size={24} />
                 </a>
               </div>

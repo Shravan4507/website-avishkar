@@ -29,6 +29,8 @@ interface Participant {
   major: string;
   age: number;
   sex: string;
+  igName?: string;
+  gameUid?: string;
 }
 
 
@@ -37,7 +39,7 @@ type PaymentMode = 'pre_paid' | 'cash' | 'online';
 /* ═══════════════════════════════════════
    Constants
    ═══════════════════════════════════════ */
-const EMPTY_PARTICIPANT: Participant = { avrId: '', name: '', email: '', phone: '', college: '', major: '', age: 0, sex: '' };
+const EMPTY_PARTICIPANT: Participant = { avrId: '', name: '', email: '', phone: '', college: '', major: '', age: 0, sex: '', igName: '', gameUid: '' };
 
 
 const STEP_LABELS = ['Competition', 'Participants', 'Payment', 'Done'];
@@ -58,10 +60,10 @@ interface SubEvent {
 }
 
 const BATTLE_GRID_SUBEVENTS: SubEvent[] = [
-  { id: 'battlegrid_bgmi',    title: 'BGMI',              subtitle: '4+1 Squad',       parentTitle: 'Battle Grid', handle: 'Battle-Grid', department: 'Flagship', entryFee: 500, minTeamSize: 5, maxTeamSize: 5, borderColor: '#ff9800', isFlagship: true },
+  { id: 'battlegrid_bgmi',    title: 'BGMI',              subtitle: '4+1 Squad',       parentTitle: 'Battle Grid', handle: 'Battle-Grid', department: 'Flagship', entryFee: 0, minTeamSize: 5, maxTeamSize: 5, borderColor: '#ff9800', isFlagship: true },
   { id: 'battlegrid_freefire', title: 'Free Fire',         subtitle: '4-Player Squad',  parentTitle: 'Battle Grid', handle: 'Battle-Grid', department: 'Flagship', entryFee: 250, minTeamSize: 4, maxTeamSize: 4, borderColor: '#e91e63', isFlagship: true },
   { id: 'battlegrid_codm',    title: 'CODM',              subtitle: 'Tactical 5v5',    parentTitle: 'Battle Grid', handle: 'Battle-Grid', department: 'Flagship', entryFee: 400, minTeamSize: 5, maxTeamSize: 5, borderColor: '#4caf50', isFlagship: true },
-  { id: 'battlegrid_sf4',     title: 'Shadow Fight 4',    subtitle: '1v1 Combat',      parentTitle: 'Battle Grid', handle: 'Battle-Grid', department: 'Flagship', entryFee: 150, minTeamSize: 1, maxTeamSize: 1, borderColor: '#ffeb3b', isFlagship: true },
+  { id: 'battlegrid_sf4',     title: 'Shadow Fight 4',    subtitle: '1v1 Combat',      parentTitle: 'Battle Grid', handle: 'Battle-Grid', department: 'Flagship', entryFee: 99, minTeamSize: 1, maxTeamSize: 1, borderColor: '#ffeb3b', isFlagship: true },
   { id: 'battlegrid_amongus', title: 'Among Us',          subtitle: 'Social Deduction',parentTitle: 'Battle Grid', handle: 'Battle-Grid', department: 'Flagship', entryFee: 100, minTeamSize: 1, maxTeamSize: 1, borderColor: '#00bcd4', isFlagship: true },
 ];
 
@@ -426,7 +428,9 @@ const ManualRegistration: React.FC<ManualRegistrationProps> = ({ isSuper = false
         college: p.college,
         major: p.major || 'None',
         age: p.age || 18,
-        sex: p.sex || 'Other'
+        sex: p.sex || 'Other',
+        igName: p.igName || null,
+        gameUid: p.gameUid || null
       }));
 
       const regRef = doc(collection(db, 'hackathon_registrations'));
@@ -556,16 +560,6 @@ const ManualRegistration: React.FC<ManualRegistrationProps> = ({ isSuper = false
     }
 
     const allAvrIds = participants.map(p => p.avrId);
-    const squad = participants.map(p => ({
-      avrId: p.avrId,
-      name: p.name,
-      email: p.email,
-      phone: p.phone,
-      college: p.college,
-      major: p.major || 'None',
-      age: p.age || 18,
-      sex: p.sex || 'Other'
-    }));
 
     await setDoc(regRef, {
       id: regId,
@@ -583,7 +577,19 @@ const ManualRegistration: React.FC<ManualRegistrationProps> = ({ isSuper = false
       teamId: regId,
       teamName: teamName || null,
       teamSize: participants.length,
-      squad,
+
+      squad: participants.map(p => ({
+        avrId: p.avrId,
+        name: p.name,
+        email: p.email,
+        phone: p.phone,
+        college: p.college,
+        major: p.major || 'None',
+        age: p.age || 18,
+        sex: p.sex || 'Other',
+        igName: p.igName || null,
+        gameUid: p.gameUid || null
+      })),
       allAvrIds,
 
       paymentRequired: se.entryFee > 0,
@@ -981,6 +987,29 @@ const ManualRegistration: React.FC<ManualRegistrationProps> = ({ isSuper = false
                     <option value="Other">Other</option>
                   </select>
                 </div>
+                
+                {selectedSubEvent?.title.toLowerCase().includes('free fire') && (
+                  <>
+                    <div className="participant-field">
+                      <label>In-game Name</label>
+                      <input
+                        type="text"
+                        value={p.igName}
+                        onChange={e => updateParticipant(idx, 'igName', e.target.value)}
+                        placeholder="e.g. ProPlayer_X"
+                      />
+                    </div>
+                    <div className="participant-field">
+                      <label>Free Fire UID</label>
+                      <input
+                        type="text"
+                        value={p.gameUid}
+                        onChange={e => updateParticipant(idx, 'gameUid', e.target.value)}
+                        placeholder="e.g. 1234567890"
+                      />
+                    </div>
+                  </>
+                )}
               </div>
 
             </div>
@@ -1154,9 +1183,21 @@ const ManualRegistration: React.FC<ManualRegistrationProps> = ({ isSuper = false
             <div>
               <div className="detail-label">Amount</div>
               <div className="detail-value">
-                {isHackathon ? '₹500' : selectedComp?.entryFee ? `₹${selectedComp.entryFee}` : 'Free'}
+                {isHackathon ? '₹500' : (selectedSubEvent ? `₹${selectedSubEvent.entryFee}` : selectedComp?.entryFee ? `₹${selectedComp.entryFee}` : 'Free')}
               </div>
             </div>
+            {participants[0]?.igName && (
+              <div>
+                <div className="detail-label">In-game Name</div>
+                <div className="detail-value">{participants[0].igName}</div>
+              </div>
+            )}
+            {participants[0]?.gameUid && (
+              <div>
+                <div className="detail-label">Game UID</div>
+                <div className="detail-value">{participants[0].gameUid}</div>
+              </div>
+            )}
           </div>
 
           <button className="manual-btn manual-btn-another" onClick={handleReset}>
