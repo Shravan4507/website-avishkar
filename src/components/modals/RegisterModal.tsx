@@ -13,6 +13,7 @@ interface RegisterModalProps {
     title: string;
     category: string;
     icon: string;
+    handle: string;
   } | null;
   onClose: () => void;
 }
@@ -59,7 +60,8 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ competition, onClose }) =
       userPhone: userData?.phone || null,
       userAVR: userData?.avrId || 'TBD',
       userCollege: userData?.college || 'Other',
-      eventId: competition.title.toLowerCase().replace(/\s+/g, '-'),
+      competitionId: competition.title.toLowerCase().replace(/\s+/g, '-'),
+      competitionHandle: competition.handle,
       eventName: competition.title,
       category: competition.category,
       registeredAt: serverTimestamp(),

@@ -1191,12 +1191,12 @@ const AdminDashboard: React.FC = () => {
       case 'admins':
         return isSuper ? <AdminDirectoryView currentUserId={user?.uid} /> : <div>Access Denied</div>;
       case 'hackathon_regs':
-        return (isSuper || adminProfile?.roleLevel.includes('admin-param-x') || adminProfile?.roleLevel.includes('flagship_admin-paramx--26')) 
+        return (isSuper || adminProfile?.roleLevel.includes('admin-param-x') || adminProfile?.roleLevel.includes('flagship_admin-paramx--26'))
           ? <RegistrationManager 
               key="paramx-hack"
               isSuper={isSuper}
               forcedHandle="ParamX-Hack" 
-              collectionScope="hackathon"
+              collectionScope="both"
               title="Param-X '26 Registrations" 
               subtitle="Managing all hackathon team registrations" 
             /> 

@@ -123,7 +123,7 @@ const ManualRegistration: React.FC<ManualRegistrationProps> = ({ isSuper = false
   const [resultId, setResultId] = useState('');
   const [resultTeamId, setResultTeamId] = useState('');
 
-  const isHackathon = selectedComp?.id === 'codex--26';
+  const isHackathon = selectedComp?.handle === 'ParamX-Hack';
   const isSubEvent = !!selectedSubEvent;
   // IDs of umbrella competitions that should be replaced by sub-events
   const UMBRELLA_IDS = ['robotron--26', 'battlegrid--26'];
@@ -439,11 +439,12 @@ const ManualRegistration: React.FC<ManualRegistrationProps> = ({ isSuper = false
         leaderAvrId: participants[0].avrId,
         userId: participants[0].avrId, // Manual entry: using AVR as fallback for userId
         
-        competitionId: 'codex--26',
-        competitionCode: 'PRM',
-        eventName: "Param-X '26",
-        category: 'Flagship Hackathon',
-        department: 'Engineering',
+        competitionId: selectedComp!.id,
+        competitionCode: (selectedComp as any).code || 'PRM',
+        competitionHandle: 'ParamX-Hack',
+        eventName: selectedComp!.title,
+        category: selectedComp!.subtitle || 'Flagship Hackathon',
+        department: selectedComp!.department,
         isFlagship: true,
 
         registrationType: 'TEAM',
@@ -512,6 +513,7 @@ const ManualRegistration: React.FC<ManualRegistrationProps> = ({ isSuper = false
 
       competitionId: selectedComp!.id,
       competitionCode: (selectedComp as any).code || selectedComp!.id.split('--')[0].toUpperCase(),
+      competitionHandle: selectedComp!.handle || null,
       eventName: selectedComp!.title,
       category: selectedComp!.subtitle || 'General Event',
       department: selectedComp!.department,
@@ -568,6 +570,7 @@ const ManualRegistration: React.FC<ManualRegistrationProps> = ({ isSuper = false
 
       competitionId: se.id,
       competitionCode: se.id.includes('robokshetra') ? 'ROBO' : se.id.includes('battlegrid') ? 'BG' : 'SUB',
+      competitionHandle: se.handle,
       eventName: se.title,
       category: se.parentTitle,
       department: se.department,

@@ -139,11 +139,13 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({ forcedHandle,
         let hackQuery = query(collection(db, 'hackathon_registrations'), orderBy('createdAt', 'desc'));
 
         if (forcedHandle) {
-          regsQuery = query(regsQuery, where('competitionHandle', '==', forcedHandle));
-          // Only filter hackathon by handle if NOT hackathon-only scope
-          // (existing public hackathon registrations don't have competitionHandle field)
-          if (collectionScope !== 'hackathon') {
-            hackQuery = query(hackQuery, where('competitionHandle', '==', forcedHandle));
+          // If we filter, we must remove orderBy to avoid requiring composite indexes,
+          // since the client-side sorts the data anyway.
+          regsQuery = query(collection(db, 'registrations'), where('competitionHandle', '==', forcedHandle));
+          if (collectionScope !== 'hackathon' && forcedHandle !== 'ParamX-Hack') {
+            hackQuery = query(collection(db, 'hackathon_registrations'), where('competitionHandle', '==', forcedHandle));
+          } else if (forcedHandle === 'ParamX-Hack') {
+            hackQuery = query(collection(db, 'hackathon_registrations'));
           }
         }
 
@@ -153,19 +155,39 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({ forcedHandle,
         const shouldFetchRegs = collectionScope === 'both' || collectionScope === 'registrations';
         const shouldFetchHack = collectionScope === 'both' || collectionScope === 'hackathon';
 
+        // FALLBACK: For Param-X, also fetch by event name prefix if handle query might miss records
+        let fallbackRegSnap: any = { docs: [] };
+        if (shouldFetchRegs && forcedHandle === 'ParamX-Hack') {
+          const fallbackQuery = query(
+            collection(db, 'registrations'), 
+            where('eventName', '>=', 'Param-X'),
+            where('eventName', '<=', 'Param-X' + '\uf8ff')
+          );
+          fallbackRegSnap = await getDocs(fallbackQuery).catch(() => ({ docs: [] }));
+        }
+
         // Also fetch pending registrations for admin visibility
         let pendingQuery = query(collection(db, 'pending_registrations'), orderBy('createdAt', 'desc'));
         if (forcedHandle) {
-          pendingQuery = query(pendingQuery, where('competitionHandle', '==', forcedHandle));
+          pendingQuery = query(collection(db, 'pending_registrations'), where('competitionHandle', '==', forcedHandle));
         }
 
         const [regSnap, hackSnap, pendingSnap] = await Promise.all([
           shouldFetchRegs ? getDocs(regsQuery) : Promise.resolve({ docs: [] }),
           shouldFetchHack ? getDocs(hackQuery) : Promise.resolve({ docs: [] }),
-          getDocs(pendingQuery).catch(() => ({ docs: [] })) // Graceful fallback if no pending collection
+          getDocs(pendingQuery).catch(() => ({ docs: [] }))
         ]);
 
-        const standardRegs = regSnap.docs.map(d => {
+        // Merge standard results with fallback results (deduplicate by doc ID)
+        const allStandardDocs = [...regSnap.docs];
+        const existingIds = new Set(allStandardDocs.map(d => d.id));
+        fallbackRegSnap.docs.forEach((d: any) => {
+          if (!existingIds.has(d.id)) {
+            allStandardDocs.push(d);
+          }
+        });
+
+        const standardRegs = allStandardDocs.map(d => {
           const data = d.data();
           
           // Normalize: fallback logic to handle both legacy and new standardized schema
@@ -187,6 +209,8 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({ forcedHandle,
             category: data.category || data.competitionHandle || '',
             teamName: data.teamName || '',
             teamSize: data.teamSize || data.memberCount || (data.squad ? data.squad.length : 1),
+            // Default to 'ParamX-Hack' if missing but eventName indicates a Param-X hackathon
+            competitionHandle: data.competitionHandle || ((data.eventName || data.eventTitle || '').includes('Param-X') ? 'ParamX-Hack' : ''),
             _collection: 'registrations',
           } as Registration;
 
@@ -231,8 +255,8 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({ forcedHandle,
             userAge: data.userAge || (data.squad && data.squad[0]?.age) || 0,
             userSex: data.userSex || (data.squad && data.squad[0]?.sex) || '',
             
-            eventName: data.psId ? `Hackathon (PS: ${data.psId})` : "Param-X '26",
-            department: "Hackathon",
+            eventName: data.psId ? `Param-X '26 (PS: ${data.psId})` : "Param-X '26",
+            department: data.userMajor || data.department || "Hackathon",
             registeredAt: data.createdAt || data.timestamp || (data.metadata?.createdAt),
             paymentStatus: data.status === 'confirmed' ? 'paid' : 'pending',
             amountPaid: data.amountPaid || data.amount || 0,

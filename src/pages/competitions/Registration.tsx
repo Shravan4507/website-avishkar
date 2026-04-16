@@ -291,6 +291,7 @@ const Registration: React.FC = () => {
         userId: user!.uid,
         // Competition Info
         competitionId: competition!.id,
+        competitionHandle: competition!.handle || '',
         eventName: competition!.title,
         competitionCode: competition!.code,
         category: competition!.category,
@@ -396,6 +397,7 @@ const Registration: React.FC = () => {
           leaderAvrId: userData.avrId,
           userId: user.uid,
           competitionId: competition.id,
+          competitionHandle: competition.handle || '',
           eventName: competition.title,
           competitionCode: competition.code,
           category: competition.category,
