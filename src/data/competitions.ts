@@ -651,7 +651,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         maxTeamSize: 5,
         teamRequired: true,
         coordinators: [
-            { name: 'Varad Gaurav', phone: '7887323956' }
+            { name: 'Varad Gurav', phone: '7887323956' }
         ],
         rulebook: `${import.meta.env.BASE_URL}assets/rule-books/devclash.pdf`,
         handle: 'Dev-Striker',
