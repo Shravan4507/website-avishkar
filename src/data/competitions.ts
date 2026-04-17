@@ -603,7 +603,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         maxTeamSize: 1,
         teamRequired: false,
         coordinators: [
-            { name: 'Sherya Kadam', phone: '9511659631' }
+            { name: 'Shivani Shinde', phone: '9011214573' }
         ],
         rulebook: `${import.meta.env.BASE_URL}assets/rule-books/blind-coding.pdf`,
         status: "published"
@@ -638,7 +638,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         maxTeamSize: 5,
         teamRequired: true,
         coordinators: [
-            { name: 'Vallabh Gundap', phone: '9921371155' }
+            { name: 'Varad Gaurav', phone: '7887323956' }
         ],
         rulebook: `${import.meta.env.BASE_URL}assets/rule-books/devclash.pdf`,
         status: "published"
@@ -673,7 +673,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         maxTeamSize: 1,
         teamRequired: false,
         coordinators: [
-            { name: 'M Venkat Chandrakat Babu', phone: '8788675249' }
+            { name: 'Manish Saindane', phone: '8010550280' }
         ],
         rulebook: `${import.meta.env.BASE_URL}assets/rule-books/vibe-coding.pdf`,
         status: "published"

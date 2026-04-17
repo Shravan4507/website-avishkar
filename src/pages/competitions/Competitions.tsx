@@ -68,7 +68,11 @@ function Competitions() {
                 </div>
                 <div className="competitions-container">
                     <ChromaGrid
-                        items={flagshipCompetitions}
+                        items={flagshipCompetitions.map(c => ({
+                            ...c,
+                            coordinator: c.coordinators?.[0]?.name,
+                            contactNumber: c.coordinators?.[0]?.phone
+                        }))}
                         radius={400}
                         damping={0.5}
                         fadeOut={0.8}
@@ -106,7 +110,11 @@ function Competitions() {
                     </div>
                     <div className="competitions-container">
                         <ChromaGrid
-                            items={regularCompetitions}
+                            items={regularCompetitions.map(c => ({
+                                ...c,
+                                coordinator: c.coordinators?.[0]?.name,
+                                contactNumber: c.coordinators?.[0]?.phone
+                            }))}
                             radius={400}
                             damping={0.5}
                             fadeOut={0.8}
