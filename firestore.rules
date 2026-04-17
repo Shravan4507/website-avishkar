@@ -125,8 +125,9 @@ service cloud.firestore {
     // ADMIN PROFILES
     // =============================================
     match /admins/{adminId} {
-      // Admins can read their own and any other admin (needed for getAdminData() in rule functions)
-      allow read: if isAdmin();
+      // Any authenticated user can read their OWN admin document (used by route guard to check if they are an admin)
+      // Other admins can read ALL admin documents (needed for cross-collection lookups in rule functions)
+      allow read: if isOwner(adminId) || isAdmin();
 
       // Admins can update their own safe fields (photo, ID, assignedEventSlugs for CMS)
       allow update: if isOwner(adminId) && 
