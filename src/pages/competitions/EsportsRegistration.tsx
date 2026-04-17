@@ -263,8 +263,8 @@ const EsportsRegistration: React.FC = () => {
                     if (!ign) newErrors[`${m}Ign`] = "IGN Required";
                     if (!bgmiId) {
                         newErrors[`${m}BgmiId`] = "ID Required";
-                    } else if (!/^\d{10}$/.test(bgmiId)) {
-                        newErrors[`${m}BgmiId`] = "Exactly 10 digits";
+                    } else if (!/^\d{10,11}$/.test(bgmiId)) {
+                        newErrors[`${m}BgmiId`] = "10 or 11 digits";
                     }
                 }
 
@@ -619,7 +619,7 @@ const EsportsRegistration: React.FC = () => {
                                         </div>
                                         <div className={`es-input-with-icon prefilled editable ${errors.leaderBgmiId ? 'field-error' : ''}`}>
                                             <Hash size={16} />
-                                            <input type="text" name="leaderBgmiId" value={formData.leaderBgmiId || ''} onChange={handleInputChange} placeholder="BGMI ID (10-digit)" />
+                                            <input type="text" name="leaderBgmiId" value={formData.leaderBgmiId || ''} onChange={handleInputChange} placeholder="BGMI ID (10-11 digits)" maxLength={11} />
                                             {errors.leaderBgmiId && <span className="es-error-badge">{errors.leaderBgmiId}</span>}
                                         </div>
                                     </div>
@@ -744,7 +744,7 @@ const EsportsRegistration: React.FC = () => {
                                             </div>
                                             <div className={`es-input-with-icon prefilled editable ${errors[`${id}BgmiId`] ? 'field-error' : ''}`}>
                                                 <Hash size={16} />
-                                                <input type="text" name={`${id}BgmiId`} value={formData[`${id}BgmiId`] || ''} onChange={handleInputChange} placeholder="BGMI ID (10-digit)" />
+                                                <input type="text" name={`${id}BgmiId`} value={formData[`${id}BgmiId`] || ''} onChange={handleInputChange} placeholder="BGMI ID (10-11 digits)" maxLength={11} />
                                                 {errors[`${id}BgmiId`] && <span className="es-error-badge">{errors[`${id}BgmiId`]}</span>}
                                             </div>
                                         </div>

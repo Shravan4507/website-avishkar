@@ -7,6 +7,7 @@ import { db } from '../../firebase/firebase';
 import { useToast } from '../../components/toast/Toast';
 import GlassSelect from '../../components/dropdown/GlassSelect';
 import * as XLSX from 'xlsx';
+import { COMPETITIONS_DATA } from '../../data/competitions';
 
 import {
   Search, Download, Edit2, Trash2, X, Eye,
@@ -344,30 +345,21 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({ forcedHandle,
   const filtered = useMemo(() => {
     let result = [...registrations];
 
-    // ── Handle-based filtering (now client-side with multi-signal matching) ──
-    // Maps forcedHandle → all possible identifiers that a registration could have
-    const HANDLE_SIGNALS: Record<string, { ids: string[]; depts: string[]; cats: string[] }> = {
-      'Battle-Grid':    { ids: ['battlegrid_', 'CMP-26-BTG', 'CMP-26-FLG-BG'], depts: ['Battle Grid'], cats: ['BTG'] },
-      'Robo-Kshetra':   { ids: ['robokshetra_', 'CMP-26-FLG-ROBO', 'CMP-26-FLG-ALX', 'CMP-26-FLG-RM', 'CMP-26-FLG-RR'], depts: ['Robo-Kshetra', 'Flagship'], cats: ['FLG'] },
-      'ParamX-Hack':    { ids: ['CMP-26-FLG-PRX'], depts: ['Flagship'], cats: ['FLG'] },
-      'Forge-Lead':     { ids: ['CMP-26-GEN-FGX'], depts: ['Forge-X'], cats: ['GEN'] },
-      'Algo-Master':    { ids: ['CMP-26-GEN-ALB'], depts: ['AlgoBid'], cats: ['GEN'] },
-      'Code-Climber':   { ids: ['CMP-26-GEN-CDL'], depts: ['Code Ladder'], cats: ['GEN'] },
-      'IPL-Auctioneer': { ids: ['CMP-26-GEN-IPL'], depts: ['IPL Auction'], cats: ['GEN'] },
-      'Blind-Coder':    { ids: ['CMP-26-GEN-BLC'], depts: ['Blind Code'], cats: ['GEN'] },
-      'Dev-Striker':    { ids: ['CMP-26-GEN-DVC'], depts: ['DevClash'], cats: ['GEN'] },
-      'Vibe-Lead':      { ids: ['CMP-26-GEN-VBS'], depts: ['Vibe Sprint'], cats: ['GEN'] },
-      'Relay-Coder':    { ids: ['CMP-26-GEN-CRL'], depts: ['Code Relay'], cats: ['GEN'] },
-      'Arch-Nova':      { ids: ['CMP-26-GEN-BNV'], depts: ['Bridge Nova'], cats: ['GEN'] },
-      'Paper-Lead':     { ids: ['CMP-26-DEP-PST'], depts: ['Poster'], cats: ['DEP'] },
-      'Spark-Lead':     { ids: ['CMP-26-DEP-SPK'], depts: ['Spark Tank'], cats: ['DEP'] },
-      'Mat-Master':     { ids: ['CMP-26-DEP-MTL'], depts: ['Matlab'], cats: ['DEP'] },
-      'Circuit-Ninja':  { ids: ['CMP-26-DEP-CKT'], depts: ['Circuit'], cats: ['DEP'] },
-      'Master-Builder': { ids: ['CMP-26-DEP-CNT'], depts: ['Contraptions'], cats: ['DEP'] },
-      'Cricket-Lead':   { ids: ['CMP-26-DEP-CCK'], depts: ['Circle Cricket'], cats: ['DEP'] },
-      'Research-Lead':  { ids: ['CMP-26-DEP-PPR'], depts: ['Paper Presentation'], cats: ['DEP'] },
-      'Project-Master': { ids: ['CMP-26-DEP-PRJ'], depts: ['Project Competition'], cats: ['DEP'] },
-    };
+    // ── Handle-based filtering (dynamically built from COMPETITIONS_DATA) ──
+    // Auto-groups competitions by handle so IDs, departments, and categories are always correct
+    const HANDLE_SIGNALS: Record<string, { ids: string[]; depts: Set<string>; titles: Set<string> }> = {};
+    for (const comp of COMPETITIONS_DATA) {
+      if (!comp.handle) continue;
+      if (!HANDLE_SIGNALS[comp.handle]) {
+        HANDLE_SIGNALS[comp.handle] = { ids: [], depts: new Set(), titles: new Set() };
+      }
+      HANDLE_SIGNALS[comp.handle].ids.push(comp.id);
+      if (comp.department) HANDLE_SIGNALS[comp.handle].depts.add(comp.department);
+      if (comp.title) HANDLE_SIGNALS[comp.handle].titles.add(comp.title);
+    }
+    // Add esports/robo prefixes used by EsportsRegistration.tsx and RoboKshetra.tsx
+    if (HANDLE_SIGNALS['Battle-Grid']) HANDLE_SIGNALS['Battle-Grid'].ids.push('battlegrid_');
+    if (HANDLE_SIGNALS['Robo-Kshetra']) HANDLE_SIGNALS['Robo-Kshetra'].ids.push('robokshetra_');
 
     if (forcedHandle) {
       const signals = HANDLE_SIGNALS[forcedHandle];
@@ -378,17 +370,13 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({ forcedHandle,
         if (signals && r.competitionId) {
           if (signals.ids.some(prefix => r.competitionId.startsWith(prefix))) return true;
         }
-        // Fallback 2: department match (only for unique handles, skip generic ones)
-        if (signals && r.department && signals.depts.includes(r.department)) {
-          // For flagship events sharing dept "Flagship", narrow by eventName
-          if (r.department === 'Flagship') {
-            if (forcedHandle === 'ParamX-Hack' && (r.eventName || '').includes('Param-X')) return true;
-            if (forcedHandle === 'Robo-Kshetra' && (r.eventName || '').toLowerCase().includes('robo')) return true;
-            if (forcedHandle === 'Battle-Grid' && (r.eventName || '').toLowerCase().includes('battle')) return true;
-            return false;
-          }
-          return true;
+        // Fallback 2: department match
+        if (signals && r.department && signals.depts.has(r.department)) {
+          // Multiple handles can share a department (e.g. 'Flagship'), so narrow by eventName/title
+          if (signals.depts.size === 1 || signals.titles.has(r.eventName || '')) return true;
         }
+        // Fallback 3: eventName/title match
+        if (signals && r.eventName && signals.titles.has(r.eventName)) return true;
         return false;
       });
     }
