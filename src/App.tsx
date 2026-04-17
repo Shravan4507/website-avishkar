@@ -16,7 +16,6 @@ import ScrollToTop from './components/common/ScrollToTop';
 import { BugReportProvider } from './components/BugReport/BugReport';
 import { isLowSpecDevice } from './utils/performance';
 import { reportError } from './utils/errorReport';
-import IntroPreloader from './components/Preloader/IntroPreloader';
 
 
 const LineWaves = lazy(() => import('./components/background/LineWaves'));
@@ -161,8 +160,8 @@ const LayoutManager = () => {
         <Suspense fallback={null}>
           <LineWaves
             speed={0.1}
-            innerLineCount={32}
-            outerLineCount={36}
+            innerLineCount={lowSpec ? 12 : 32}
+            outerLineCount={lowSpec ? 12 : 36}
             warpIntensity={1}
             rotation={0}
             edgeFadeWidth={0}
@@ -171,8 +170,9 @@ const LayoutManager = () => {
             color1="#3300ffff"
             color2={bgColor2}
             color3="#000000ff"
-            enableMouseInteraction
+            enableMouseInteraction={!lowSpec}
             mouseInfluence={0.1}
+            fpsLimit={lowSpec ? 30 : 0}
           />
         </Suspense>
       </div>
@@ -288,7 +288,6 @@ function App() {
       <ErrorBoundary>
         <ToastProvider>
             <Router>
-              <IntroPreloader />
               <ScrollReset />
               <BugReportProvider>
                 <LayoutManager />

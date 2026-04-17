@@ -10,6 +10,7 @@ import './Navbar.css'
 const TABS = [
   { label: 'Home', path: '/' },
   { label: 'Workshops', path: '/workshops' },
+  { label: 'Schedule', path: '/schedule' },
   { label: 'Rules', path: '/rules' },
   { label: 'Competitions', path: '/competitions' },
 ] as const
@@ -17,6 +18,7 @@ const TABS = [
 const PRELOAD_MAP: Record<string, () => Promise<any>> = {
   '/': () => import('../../pages/home/Home'),
   '/workshops': () => import('../../pages/workshops/Workshops'),
+  '/schedule': () => import('../../pages/schedule/Schedule'),
   '/competitions': () => import('../../pages/competitions/Competitions'),
   '/rules': () => import('../../pages/rules/Rules'),
 
@@ -82,8 +84,8 @@ function Navbar() {
     setIsMobileMenuOpen(false)
   }, [location.pathname])
 
-  const leftTabs = TABS.slice(0, 2)
-  const rightTabs = TABS.slice(2)
+  const leftTabs = TABS.slice(0, 3)
+  const rightTabs = TABS.slice(3)
 
   return (
     <div className={`navbar ${isScrolled ? 'navbar--scrolled' : ''} ${isMobileMenuOpen ? 'navbar--open' : ''}`}>

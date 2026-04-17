@@ -142,7 +142,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         status: "published",
         isFlagship: true,
         slug: 'battle-grid-26',
-        handle: 'Grid-Warrior',
+        handle: 'Battle-Grid',
         prizePool: '₹80,000+',
         url: '#'
     },
@@ -184,6 +184,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         coordinators: [
             { name: "TBA", phone: "" }
         ],
+        handle: 'Robo-Kshetra',
         status: "published",
         isExhibition: true
     },
@@ -219,6 +220,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         coordinators: [
             { name: "TBA", phone: "" }
         ],
+        handle: 'Robo-Kshetra',
         status: "published",
         isExhibition: true
     },
@@ -254,6 +256,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         coordinators: [
             { name: "TBA", phone: "" }
         ],
+        handle: 'Robo-Kshetra',
         status: "published",
         isExhibition: true
     },
@@ -289,6 +292,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         coordinators: [
             { name: "TBA", phone: "" }
         ],
+        handle: 'Battle-Grid',
         status: "published",
         isExhibition: true,
         prizePool: 'TBD'
@@ -325,6 +329,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         coordinators: [
             { name: "TBA", phone: "" }
         ],
+        handle: 'Battle-Grid',
         status: "published",
         isExhibition: true
     },
@@ -360,6 +365,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         coordinators: [
             { name: "TBA", phone: "" }
         ],
+        handle: 'Battle-Grid',
         status: "published",
         isExhibition: true
     },
@@ -395,6 +401,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         coordinators: [
             { name: "TBA", phone: "" }
         ],
+        handle: 'Battle-Grid',
         status: "published",
         isExhibition: true
     },
@@ -430,6 +437,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         coordinators: [
             { name: "TBA", phone: "" }
         ],
+        handle: 'Battle-Grid',
         status: "published",
         isExhibition: true
     },
@@ -466,6 +474,7 @@ export const COMPETITIONS_DATA: Competition[] = [
             { name: "Chetan Badgujar", phone: "8530052369" }
         ],
         rulebook: `${import.meta.env.BASE_URL}assets/rule-books/forgex.pdf`,
+        handle: 'Forge-Lead',
         status: "published"
     },
     {
@@ -501,6 +510,7 @@ export const COMPETITIONS_DATA: Competition[] = [
             { name: 'Tejprakash Mirashi', phone: '7378965050' }
         ],
         rulebook: `${import.meta.env.BASE_URL}assets/rule-books/algobid.pdf`,
+        handle: 'Algo-Master',
         status: "published"
     },
     {
@@ -536,6 +546,7 @@ export const COMPETITIONS_DATA: Competition[] = [
             { name: 'Shreya Kad', phone: '7517021872' }
         ],
         rulebook: `${import.meta.env.BASE_URL}assets/rule-books/code-ladder.pdf`,
+        handle: 'Code-Climber',
         status: "published"
     },
     {
@@ -571,6 +582,7 @@ export const COMPETITIONS_DATA: Competition[] = [
             { name: "Dhanraj Funde", phone: "9370304023" }
         ],
         rulebook: `${import.meta.env.BASE_URL}assets/rule-books/ipl-auction.pdf`,
+        handle: 'IPL-Auctioneer',
         status: "published"
     },
     {
@@ -606,6 +618,7 @@ export const COMPETITIONS_DATA: Competition[] = [
             { name: 'Shivani Shinde', phone: '9011214573' }
         ],
         rulebook: `${import.meta.env.BASE_URL}assets/rule-books/blind-coding.pdf`,
+        handle: 'Blind-Coder',
         status: "published"
     },
     {
@@ -641,6 +654,7 @@ export const COMPETITIONS_DATA: Competition[] = [
             { name: 'Varad Gaurav', phone: '7887323956' }
         ],
         rulebook: `${import.meta.env.BASE_URL}assets/rule-books/devclash.pdf`,
+        handle: 'Dev-Striker',
         status: "published"
     },
     {
@@ -676,6 +690,7 @@ export const COMPETITIONS_DATA: Competition[] = [
             { name: 'Manish Saindane', phone: '8010550280' }
         ],
         rulebook: `${import.meta.env.BASE_URL}assets/rule-books/vibe-coding.pdf`,
+        handle: 'Vibe-Lead',
         status: "published"
     },
     {
@@ -711,6 +726,7 @@ export const COMPETITIONS_DATA: Competition[] = [
             { name: 'Parth Shinde', phone: '9168906630' }
         ],
         rulebook: `${import.meta.env.BASE_URL}assets/rule-books/code-relay.pdf`,
+        handle: 'Relay-Coder',
         status: "published"
     },
     {
@@ -746,6 +762,7 @@ export const COMPETITIONS_DATA: Competition[] = [
             { name: 'Ashish Shinde', phone: '9373113736' }
         ],
         rulebook: `${import.meta.env.BASE_URL}assets/rule-books/bridge-nova.pdf`,
+        handle: 'Arch-Nova',
         status: "published"
     },
     {
@@ -781,6 +798,7 @@ export const COMPETITIONS_DATA: Competition[] = [
             { name: 'Pranav Katu', phone: '9503231138' }
         ],
         rulebook: `${import.meta.env.BASE_URL}assets/rule-books/poster-presentation.pdf`,
+        handle: 'Paper-Lead',
         status: "published"
     },
     {
@@ -816,6 +834,7 @@ export const COMPETITIONS_DATA: Competition[] = [
             { name: 'Harshita Jadhav', phone: '9356766305' }
         ],
         rulebook: `${import.meta.env.BASE_URL}assets/rule-books/spark-tank.pdf`,
+        handle: 'Spark-Lead',
         status: "published"
     },
     {
@@ -851,6 +870,7 @@ export const COMPETITIONS_DATA: Competition[] = [
             { name: 'Pranav Achrekar', phone: '7058481186' }
         ],
         rulebook: `${import.meta.env.BASE_URL}assets/rule-books/matlab-madness.pdf`,
+        handle: 'Mat-Master',
         status: "published"
     },
     {
@@ -885,6 +905,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         coordinators: [
             { name: 'Saniya Jadhav', phone: '9699281400' }
         ],
+        handle: 'Circuit-Ninja',
         status: "published"
     },
     {
@@ -920,6 +941,7 @@ export const COMPETITIONS_DATA: Competition[] = [
             { name: 'Swapnil Gole', phone: '7058855414' }
         ],
         rulebook: `${import.meta.env.BASE_URL}assets/rule-books/contraptions.pdf`,
+        handle: 'Master-Builder',
         status: "published"
     },
     {
@@ -955,6 +977,7 @@ export const COMPETITIONS_DATA: Competition[] = [
             { name: 'Trushita Barhate', phone: '9009989885' }
         ],
         rulebook: `${import.meta.env.BASE_URL}assets/rule-books/circle-cricket.pdf`,
+        handle: 'Cricket-Lead',
         status: "published"
     },
     {
@@ -990,6 +1013,7 @@ export const COMPETITIONS_DATA: Competition[] = [
             { name: 'TBA', phone: '' }
         ],
         rulebook: `${import.meta.env.BASE_URL}assets/rule-books/paper-presentation.pdf`,
+        handle: 'Research-Lead',
         status: "published"
     },
     {
@@ -1025,6 +1049,7 @@ export const COMPETITIONS_DATA: Competition[] = [
             { name: 'TBA', phone: '' }
         ],
         rulebook: `${import.meta.env.BASE_URL}assets/rule-books/project-presentation.pdf`,
+        handle: 'Project-Master',
         status: "published"
     },
 ];

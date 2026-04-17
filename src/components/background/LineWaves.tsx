@@ -17,6 +17,7 @@ interface LineWavesProps {
   color3?: string;
   enableMouseInteraction?: boolean;
   mouseInfluence?: number;
+  fpsLimit?: number;
 }
 
 function hexToVec3(hex: string): [number, number, number] {
@@ -160,7 +161,8 @@ export default function LineWaves({
   color2 = '#ffffff',
   color3 = '#ffffff',
   enableMouseInteraction = true,
-  mouseInfluence = 2.0
+  mouseInfluence = 2.0,
+  fpsLimit = 0
 }: LineWavesProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -231,9 +233,18 @@ export default function LineWaves({
     }
 
     let animationFrameId: number;
+    let lastTime = 0;
+    const interval = fpsLimit > 0 ? 1000 / fpsLimit : 0;
 
     function update(time: number) {
       animationFrameId = requestAnimationFrame(update);
+      
+      if (interval > 0) {
+        const delta = time - lastTime;
+        if (delta < interval) return;
+        lastTime = time - (delta % interval);
+      }
+
       program.uniforms.uTime.value = time * 0.001;
 
       if (enableMouseInteraction) {
@@ -260,7 +271,7 @@ export default function LineWaves({
       container.removeChild(gl.canvas);
       gl.getExtension('WEBGL_lose_context')?.loseContext();
     };
-  }, [speed, innerLineCount, outerLineCount, warpIntensity, rotation, edgeFadeWidth, colorCycleSpeed, brightness, color1, color2, color3, enableMouseInteraction, mouseInfluence]);
+  }, [speed, innerLineCount, outerLineCount, warpIntensity, rotation, edgeFadeWidth, colorCycleSpeed, brightness, color1, color2, color3, enableMouseInteraction, mouseInfluence, fpsLimit]);
 
   return <div ref={containerRef} className="line-waves-container" />;
 }

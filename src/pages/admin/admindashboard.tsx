@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import GlassSelect from '../../components/dropdown/GlassSelect';
+import { COMPETITIONS_DATA } from '../../data/competitions';
 import './admindashboard.css';
 
 
@@ -650,7 +651,7 @@ const AdminDashboard: React.FC = () => {
   const handleSyncRegistrations = async () => {
     if (!isSuper || syncingLoading) return;
     
-    if (!window.confirm("This will scan all registrations and backfill missing data (Phone, College, Age) from user profiles. Proceed?")) {
+    if (!window.confirm("This will scan all registrations to backfill missing profiles (Phone, College, etc.) and repair corrupted/missing Competition Handles. Proceed?")) {
       return;
     }
 
@@ -677,13 +678,25 @@ const AdminDashboard: React.FC = () => {
         const userSnap = await getDoc(doc(db, "user", regData.userId));
         if (userSnap.exists()) {
           const userData = userSnap.data();
+          
+          // Backfill missing competitionHandle
+          let fixedHandle = regData.competitionHandle || '';
+          if (!fixedHandle && regData.competitionId) {
+             const compIdNoPrefix = regData.competitionId.replace('robokshetra_', '').replace('battlegrid_', '');
+             const matchedComp = COMPETITIONS_DATA.find((c: any) => c.id === regData.competitionId || c.id === compIdNoPrefix);
+             if (matchedComp?.handle) {
+                fixedHandle = matchedComp.handle;
+             }
+          }
+
           await updateDoc(regDoc.ref, {
             userPhone: userData.phone || regData.userPhone || '',
             userCollege: userData.college || regData.userCollege || '',
             userMajor: userData.major || regData.userMajor || '',
             userAge: calculateAge(userData.dob) || regData.userAge || 0,
             userSex: userData.sex || regData.userSex || '',
-            userName: `${userData.firstName} ${userData.lastName}`
+            userName: `${userData.firstName} ${userData.lastName}`,
+            ...(fixedHandle && { competitionHandle: fixedHandle })
           });
           syncCount++;
         }
