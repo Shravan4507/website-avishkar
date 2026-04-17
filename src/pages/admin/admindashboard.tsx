@@ -3,7 +3,7 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import { useNavigate } from 'react-router-dom';
 import { 
   collection, getCountFromServer, query, getDocs, 
-  orderBy, doc, getDoc, where, updateDoc, setDoc, deleteDoc, addDoc
+  orderBy, doc, getDoc, where, updateDoc, setDoc, deleteDoc, addDoc, writeBatch
 } from 'firebase/firestore';
 import { auth, db } from '../../firebase/firebase';
 import { useToast } from '../../components/toast/Toast';
@@ -660,46 +660,77 @@ const AdminDashboard: React.FC = () => {
 
     try {
       const regsSnap = await getDocs(collection(db, "registrations"));
-      const calculateAge = (dob: string) => {
-        if (!dob) return 0;
-        const birthDate = new Date(dob);
-        const today = new Date();
-        let age = today.getFullYear() - birthDate.getFullYear();
-        if (today.getMonth() < birthDate.getMonth() || (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate())) {
-          age--;
-        }
-        return age;
-      };
+      let batch = writeBatch(db);
+      let batchOperationCount = 0;
 
       for (const regDoc of regsSnap.docs) {
         const regData = regDoc.data();
-        if (!regData.userId) continue;
+        let needsUpdate = false;
+        let updates: any = {};
 
-        const userSnap = await getDoc(doc(db, "user", regData.userId));
-        if (userSnap.exists()) {
-          const userData = userSnap.data();
-          
-          // Backfill missing competitionHandle
-          let fixedHandle = regData.competitionHandle || '';
-          if (!fixedHandle && regData.competitionId) {
-             const compIdNoPrefix = regData.competitionId.replace('robokshetra_', '').replace('battlegrid_', '');
-             const matchedComp = COMPETITIONS_DATA.find((c: any) => c.id === regData.competitionId || c.id === compIdNoPrefix);
+        // 1. Repair Handles (Independent of User Profile resolving)
+        let fixedHandle = regData.competitionHandle || '';
+        if (!fixedHandle || fixedHandle === 'Grid-Warrior') {
+             const compIdNoPrefix = regData.competitionId?.replace('robokshetra_', '').replace('battlegrid_', '');
+             const matchedComp = COMPETITIONS_DATA.find((c: any) => c.id === regData.competitionId || c.id === compIdNoPrefix || c.code === regData.competitionCode);
              if (matchedComp?.handle) {
                 fixedHandle = matchedComp.handle;
+                if (fixedHandle !== regData.competitionHandle) {
+                  updates.competitionHandle = fixedHandle;
+                  needsUpdate = true;
+                }
              }
-          }
-
-          await updateDoc(regDoc.ref, {
-            userPhone: userData.phone || regData.userPhone || '',
-            userCollege: userData.college || regData.userCollege || '',
-            userMajor: userData.major || regData.userMajor || '',
-            userAge: calculateAge(userData.dob) || regData.userAge || 0,
-            userSex: userData.sex || regData.userSex || '',
-            userName: `${userData.firstName} ${userData.lastName}`,
-            ...(fixedHandle && { competitionHandle: fixedHandle })
-          });
-          syncCount++;
         }
+
+        // 2. Backfill Profile Missing Data
+        if (regData.userId) {
+          try {
+             // We won't block the handle update if this fails, but it shouldn't
+             const userSnap = await getDoc(doc(db, "user", regData.userId));
+             if (userSnap.exists()) {
+                const userData = userSnap.data();
+                
+                const calculateAge = (dob: string) => {
+                  if (!dob) return 0;
+                  const birthDate = new Date(dob);
+                  const today = new Date();
+                  let age = today.getFullYear() - birthDate.getFullYear();
+                  if (today.getMonth() < birthDate.getMonth() || (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate())) age--;
+                  return age;
+                };
+
+                const expectedPhone = userData.phone || regData.userPhone || '';
+                const expectedCollege = userData.college || regData.userCollege || '';
+                const expectedMajor = userData.major || regData.userMajor || '';
+                const expectedAge = calculateAge(userData.dob) || regData.userAge || 0;
+                const expectedSex = userData.sex || regData.userSex || '';
+                const expectedName = `${userData.firstName} ${userData.lastName}`;
+
+                if (regData.userPhone !== expectedPhone) { updates.userPhone = expectedPhone; needsUpdate = true; }
+                if (regData.userCollege !== expectedCollege) { updates.userCollege = expectedCollege; needsUpdate = true; }
+                if (regData.userMajor !== expectedMajor) { updates.userMajor = expectedMajor; needsUpdate = true; }
+                if (regData.userAge !== expectedAge) { updates.userAge = expectedAge; needsUpdate = true; }
+                if (regData.userSex !== expectedSex) { updates.userSex = expectedSex; needsUpdate = true; }
+                if (regData.userName !== expectedName) { updates.userName = expectedName; needsUpdate = true; }
+             }
+          } catch(e) {}
+        }
+
+        if (needsUpdate) {
+            batch.update(regDoc.ref, updates);
+            batchOperationCount++;
+            syncCount++;
+
+            if (batchOperationCount >= 450) {
+               await batch.commit();
+               batch = writeBatch(db);
+               batchOperationCount = 0;
+            }
+        }
+      }
+
+      if (batchOperationCount > 0) {
+         await batch.commit();
       }
 
       // Sync current admin's profile picture during global sync
