@@ -133,43 +133,62 @@ const ManualRegistration: React.FC<ManualRegistrationProps> = ({ isSuper = false
   
   if (!isSuper && adminProfile?.roleLevel) {
     const roleMapping: Record<string, { handle: string, eventTitle?: string }> = {
-      'admin-param-x': { handle: 'ParamX-Hack' },
+      'admin-param-x': { handle: 'ParamX-Hack', eventTitle: '10-Hour Hackathon' },
       'admin-battle-grid': { handle: 'Battle-Grid' },
       'admin-bgmi': { handle: 'Battle-Grid', eventTitle: 'BGMI' },
       'admin-freefire': { handle: 'Battle-Grid', eventTitle: 'Free Fire' },
       'admin-codm': { handle: 'Battle-Grid', eventTitle: 'CODM' },
-      'admin-sf4': { handle: 'Battle-Grid', eventTitle: 'Shadow Fight 4' },
-      'admin-amongus': { handle: 'Battle-Grid', eventTitle: 'Among Us' },
+      'admin-sf4': { handle: 'Battle-Grid', eventTitle: 'The Duel' },
+      'admin-amongus': { handle: 'Battle-Grid', eventTitle: 'Social Deduction' },
       'admin-robo-kshetra': { handle: 'Robo-Kshetra' },
       'admin-align-x': { handle: 'Robo-Kshetra', eventTitle: 'AlignX' },
       'admin-robo-maze': { handle: 'Robo-Kshetra', eventTitle: 'RoboMaze' },
       'admin-robo-rush': { handle: 'Robo-Kshetra', eventTitle: 'RoboRush' },
-      'admin-forge-x': { handle: 'Forge-Lead' },
-      'admin-algo-bid': { handle: 'Algo-Master' },
-      'admin-code-ladder': { handle: 'Code-Climber' },
-      'admin-ipl-auction': { handle: 'IPL-Auctioneer' },
-      'admin-blind-code': { handle: 'Blind-Coder' },
-      'admin-dev-clash': { handle: 'Dev-Striker' },
-      'admin-vibe-sprint': { handle: 'Vibe-Lead' },
-      'admin-code-relay': { handle: 'Relay-Coder' },
-      'admin-bridge-nova': { handle: 'Arch-Nova' },
-      'admin-poster': { handle: 'Paper-Lead' },
-      'admin-spark-tank': { handle: 'Spark-Lead' },
-      'admin-matlab': { handle: 'Mat-Master' },
-      'admin-circuit-sim': { handle: 'Circuit-Ninja' },
-      'admin-contraptions': { handle: 'Master-Builder' },
-      'admin-circle-cricket': { handle: 'Cricket-Lead' },
-      'admin-paper-pres': { handle: 'Research-Lead' },
-      'admin-project-comp': { handle: 'Project-Master' },
-      'workshop-solar-spot': { handle: 'OrbitX-Solar' },
+      'admin-forge-x': { handle: 'Forge-Lead', eventTitle: 'Forge-X' },
+      'admin-algo-bid': { handle: 'Algo-Master', eventTitle: 'AlgoBid' },
+      'admin-code-ladder': { handle: 'Code-Climber', eventTitle: 'Code Ladder' },
+      'admin-ipl-auction': { handle: 'IPL-Auctioneer', eventTitle: 'IPL Auction' },
+      'admin-blind-code': { handle: 'Blind-Coder', eventTitle: 'Blind Code Challenge' },
+      'admin-dev-clash': { handle: 'Dev-Striker', eventTitle: 'Dev Clash' },
+      'admin-vibe-sprint': { handle: 'Vibe-Lead', eventTitle: 'Vibe Sprint' },
+      'admin-code-relay': { handle: 'Relay-Coder', eventTitle: 'Code Run' },
+      'admin-bridge-nova': { handle: 'Arch-Nova', eventTitle: 'Bridge Nova' },
+      'admin-poster': { handle: 'Paper-Lead', eventTitle: 'Poster Presentation' },
+      'admin-spark-tank': { handle: 'Spark-Lead', eventTitle: 'Spark Tank - Electro-Innovation Pitch' },
+      'admin-matlab': { handle: 'Mat-Master', eventTitle: 'Matlab Madness' },
+      'admin-circuit-sim': { handle: 'Circuit-Ninja', eventTitle: 'Circuit Simulation' },
+      'admin-contraptions': { handle: 'Master-Builder', eventTitle: 'Contraption Challange' },
+      'admin-circle-cricket': { handle: 'Cricket-Lead', eventTitle: 'Circle Cricket' },
+      'admin-paper-pres': { handle: 'Research-Lead', eventTitle: 'Paper Presentation' },
+      'admin-project-comp': { handle: 'Project-Master', eventTitle: 'Project Competition' },
+      'workshop-solar-spot': { handle: 'OrbitX-Solar', eventTitle: 'Solar Spot' },
     };
 
+    const DEPARTMENT_PSEUDO_ROLES: Record<string, string[]> = {
+      'department_admin-computer-engineering': ['admin-forge-x', 'admin-algo-bid'],
+      'department_admin-information-technology': ['admin-sf4', 'admin-codm', 'admin-code-ladder'],
+      'department_admin-ai-ds': ['admin-ipl-auction'],
+      'department_admin-ai-ml': ['admin-dev-clash', 'admin-vibe-sprint', 'admin-code-relay'],
+      'department_admin-civil-engineering': ['admin-bridge-nova'],
+      'department_admin-electrical-engineering': ['admin-poster', 'admin-spark-tank', 'admin-freefire'],
+      'department_admin-e-tc-engineering': ['admin-matlab', 'admin-circuit-sim'],
+      'department_admin-ece': ['admin-blind-code', 'admin-circle-cricket', 'admin-amongus'],
+      'department_admin-mechanical-engineering': ['admin-contraptions'],
+    };
+
+    let expandedRoles: string[] = [];
     adminProfile.roleLevel.forEach((role: string) => {
+      expandedRoles.push(role);
+      if (DEPARTMENT_PSEUDO_ROLES[role]) {
+        expandedRoles.push(...DEPARTMENT_PSEUDO_ROLES[role]);
+      }
+    });
+
+    expandedRoles.forEach((role: string) => {
       const mapping = roleMapping[role];
       if (mapping) {
-        if (!mapping.eventTitle) {
-          allowedHandles.add(mapping.handle);
-        } else {
+        allowedHandles.add(mapping.handle);
+        if (mapping.eventTitle) {
           allowedEventTitles.add(mapping.eventTitle.toUpperCase());
         }
       }
@@ -182,7 +201,8 @@ const ManualRegistration: React.FC<ManualRegistrationProps> = ({ isSuper = false
     if (UMBRELLA_IDS.includes(c.id)) return false; // replaced by sub-events
     
     if (!isSuper) {
-      if (!allowedHandles.has(c.code) && !allowedEventTitles.has(c.title.toUpperCase())) {
+      const upperTitle = (c.title || '').toUpperCase().trim();
+      if (!allowedHandles.has(c.handle || '') && !allowedHandles.has(c.code || '') && !allowedEventTitles.has(upperTitle)) {
         return false;
       }
     }
@@ -196,7 +216,8 @@ const ManualRegistration: React.FC<ManualRegistrationProps> = ({ isSuper = false
   /* ── Filtered sub-events ── */
   const filteredSubEvents = ALL_SUBEVENTS.filter(se => {
     if (!isSuper) {
-      if (!allowedHandles.has(se.handle) && !allowedEventTitles.has(se.title.toUpperCase())) {
+      const upperTitle = (se.title || '').toUpperCase().trim();
+      if (!allowedHandles.has(se.handle || '') && !allowedEventTitles.has(upperTitle)) {
         return false;
       }
     }

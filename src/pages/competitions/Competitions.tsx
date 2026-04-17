@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
 import { db } from '../../firebase/firebase';
 import ChromaGrid from '../../components/chroma-grid/ChromaGrid';
 import SEO from '../../components/seo/SEO';
@@ -10,41 +10,76 @@ import './Competitions.css';
 
 import { useRegistrationGuard } from '../../hooks/useRegistrationGuard';
 
+// Merge Firestore overrides on top of static data
+async function applyOverrides(items: Competition[]): Promise<Competition[]> {
+    return Promise.all(items.map(async (item) => {
+        const key = item.slug || item.id;
+        try {
+            const snap = await getDoc(doc(db, 'events_content', key));
+            if (snap.exists()) {
+                const override = snap.data();
+                return {
+                    ...item,
+                    description: override.description ?? item.description,
+                    prizePool: override.prizePool ?? item.prizePool,
+                    venue: override.venue ?? item.venue,
+                    rulebook: override.rulebook ?? item.rulebook,
+                    rulebookComingSoon: override.rulebookComingSoon ?? item.rulebookComingSoon,
+                    isRegistrationOpen: override.isRegistrationOpen ?? item.isRegistrationOpen,
+                    status: override.status ?? item.status,
+                    coordinators: override.coordinators ?? item.coordinators,
+                };
+            }
+        } catch (e) { /* no override, use static */ }
+        return item;
+    }));
+}
+
 function Competitions() {
     const navigate = useNavigate();
     const { isRegistered, eventName } = useRegistrationGuard();
 
-    const flagshipCompetitions = COMPETITIONS_DATA.filter((item: any) => item.isFlagship);
-    
+    const [flagshipCompetitions, setFlagshipCompetitions] = useState<Competition[]>(
+        COMPETITIONS_DATA.filter((item: any) => item.isFlagship)
+    );
     const [regularCompetitions, setRegularCompetitions] = useState<Competition[]>(
         COMPETITIONS_DATA.filter((item: any) => !item.isFlagship && !item.isExhibition)
     );
     const [selectedSlug, setSelectedSlug] = useState<string | undefined>();
 
     useEffect(() => {
-        const fetchCompetitions = async () => {
+        const fetchAndMerge = async () => {
             try {
+                // Apply Firestore overrides to static data
+                const flagshipRaw = COMPETITIONS_DATA.filter((item: any) => item.isFlagship);
+                const regularRaw = COMPETITIONS_DATA.filter((item: any) => !item.isFlagship && !item.isExhibition);
+
+                const [flagshipMerged, regularMerged] = await Promise.all([
+                    applyOverrides(flagshipRaw),
+                    applyOverrides(regularRaw),
+                ]);
+
+                setFlagshipCompetitions(flagshipMerged);
+
+                // Also check for any additional dynamic competitions in Firestore
                 const querySnapshot = await getDocs(collection(db, 'competitions'));
                 const fetched: Competition[] = [];
-                querySnapshot.forEach((doc) => {
-                    const data = doc.data();
-                    fetched.push({
-                        ...data,
-                        id: data.id || doc.id,
-                        slug: data.slug || doc.id,
-                    } as Competition);
+                querySnapshot.forEach((d) => {
+                    const data = d.data();
+                    // Only include if not already in static data
+                    const alreadyExists = COMPETITIONS_DATA.some(c => c.slug === (data.slug || d.id));
+                    if (!alreadyExists) {
+                        fetched.push({ ...data, id: data.id || d.id, slug: data.slug || d.id } as Competition);
+                    }
                 });
-                
-                if (fetched.length > 0) {
-                    const initial = COMPETITIONS_DATA.filter((item: any) => !item.isFlagship && !item.isExhibition);
-                    setRegularCompetitions([...initial, ...fetched]);
-                }
+
+                setRegularCompetitions([...regularMerged, ...fetched]);
             } catch (error) {
-                console.error("Error fetching dynamic competitions:", error);
+                console.error("Error fetching competitions:", error);
             }
         };
 
-        fetchCompetitions();
+        fetchAndMerge();
     }, []);
 
     return (

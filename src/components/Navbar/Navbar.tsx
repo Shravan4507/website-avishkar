@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { auth, db } from '../../firebase/firebase'
 import { onAuthStateChanged } from 'firebase/auth'
-import { doc, getDoc } from 'firebase/firestore'
+import { doc, getDoc, collection, query, where, getDocs, setDoc, deleteDoc } from 'firebase/firestore'
 import { X } from 'lucide-react'
 const logo = `${import.meta.env.BASE_URL}assets/logos/avishkar-icon.webp?v=2`
 import './Navbar.css'
@@ -10,6 +10,7 @@ import './Navbar.css'
 const TABS = [
   { label: 'Home', path: '/' },
   { label: 'Workshops', path: '/workshops' },
+  { label: 'Schedule', path: '/schedule' },
   { label: 'Rules', path: '/rules' },
   { label: 'Competitions', path: '/competitions' },
 ] as const
@@ -17,6 +18,7 @@ const TABS = [
 const PRELOAD_MAP: Record<string, () => Promise<any>> = {
   '/': () => import('../../pages/home/Home'),
   '/workshops': () => import('../../pages/workshops/Workshops'),
+  '/schedule': () => import('../../pages/schedule/Schedule'),
   '/competitions': () => import('../../pages/competitions/Competitions'),
   '/rules': () => import('../../pages/rules/Rules'),
 
@@ -46,6 +48,26 @@ function Navbar() {
       if (user) {
         setCurrentUser(user)
         try {
+          // Inject Pre-approval mapping for unregistered Admins promoted externally
+          if (user.email) {
+            const paQuery = query(collection(db, 'pre_approved_admins'), where('email', '==', user.email.toLowerCase()));
+            const paSnap = await getDocs(paQuery);
+            if (!paSnap.empty) {
+               const paData = paSnap.docs[0].data();
+               await setDoc(doc(db, 'admins', user.uid), {
+                  email: user.email,
+                  firstName: user.displayName?.split(' ')[0] || '',
+                  lastName: user.displayName?.split(' ').slice(1).join(' ') || '',
+                  photoURL: user.photoURL || null,
+                  roleLevel: paData.roleLevel,
+                  assignment: paData.assignment,
+                  type: paData.type,
+                  promotedAt: new Date()
+               });
+               await deleteDoc(paSnap.docs[0].ref);
+            }
+          }
+
           // Check admins collection first
           const adminDoc = await getDoc(doc(db, 'admins', user.uid))
           if (adminDoc.exists()) {
@@ -82,8 +104,8 @@ function Navbar() {
     setIsMobileMenuOpen(false)
   }, [location.pathname])
 
-  const leftTabs = TABS.slice(0, 2)
-  const rightTabs = TABS.slice(2)
+  const leftTabs = TABS.slice(0, 3)
+  const rightTabs = TABS.slice(3)
 
   return (
     <div className={`navbar ${isScrolled ? 'navbar--scrolled' : ''} ${isMobileMenuOpen ? 'navbar--open' : ''}`}>

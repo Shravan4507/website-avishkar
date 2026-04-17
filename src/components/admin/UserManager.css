@@ -1,0 +1,83 @@
+/* UserManager.css */
+
+.user-manager-table {
+  width: 100%;
+}
+
+@media (max-width: 1024px) {
+  .user-manager-table {
+    display: block !important;
+  }
+  
+  .user-manager-table thead {
+    display: none;
+  }
+  
+  .user-manager-table tbody, 
+  .user-manager-table tr {
+    display: block;
+    width: 100%;
+  }
+  
+  .user-manager-table tr {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    position: relative;
+  }
+  
+  .user-manager-table td {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    align-items: center;
+    border: none !important;
+    padding: 0.5rem 0 !important;
+    font-size: 0.85rem !important;
+    text-align: left;
+    white-space: normal !important;
+  }
+  
+  .user-manager-table td::before {
+    content: attr(data-label);
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.4);
+    text-transform: uppercase;
+    font-size: 0.72rem;
+    letter-spacing: 1px;
+    display: block;
+  }
+
+  /* Specific pseudo-labels for mobile view */
+  .user-manager-table td:nth-child(1)::before { content: "AVR ID"; }
+  .user-manager-table td:nth-child(2)::before { content: "Name"; }
+  .user-manager-table td:nth-child(3)::before { content: "Contact"; }
+  .user-manager-table td:nth-child(4)::before { content: "Context"; }
+  .user-manager-table td:nth-child(5)::before { content: "Joined"; }
+  .user-manager-table td:nth-child(6)::before { content: "Actions"; }
+  
+  .user-manager-table .avr-id-cell {
+    grid-template-columns: 1fr;
+    font-size: 1.15rem !important;
+    color: #a78bfa !important;
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.75rem !important;
+    border-bottom: 1px dashed rgba(255,255,255,0.1) !important;
+  }
+  
+  .user-manager-table .avr-id-cell::before {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .user-manager-table td {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    gap: 0.25rem;
+  }
+  .user-manager-table td::before {
+    margin-bottom: 2px;
+  }
+}

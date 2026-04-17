@@ -170,9 +170,32 @@
 /* ── Data Table ── */
 .reg-table-wrap {
   overflow-x: auto;
+  overflow-y: auto;
+  max-height: 65vh;
   border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.06);
   background: rgba(0, 0, 0, 0.65);
+  /* Prevent ghost height on mobile when table is in card mode */
+  min-height: unset;
+}
+
+.reg-table-wrap::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.reg-table-wrap::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
+.reg-table-wrap::-webkit-scrollbar-thumb {
+  background: rgba(167, 139, 250, 0.3);
+  border-radius: 4px;
+}
+
+.reg-table-wrap::-webkit-scrollbar-thumb:hover {
+  background: rgba(167, 139, 250, 0.5);
 }
 
 .reg-table {
@@ -822,106 +845,235 @@
   }
 }
 
+/* ─── Registration Manager Header Mobile ─── */
 @media (max-width: 768px) {
-  .reg-stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .reg-header {
+  .registration-manager-header {
     flex-direction: column;
-    gap: 12px;
     align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
   }
 
+  .reg-title {
+    font-size: 1.15rem !important;
+    line-height: 1.3;
+  }
+
+  .reg-subtitle {
+    font-size: 0.78rem;
+  }
+
+  .reg-btn-export {
+    padding: 8px 14px;
+    font-size: 0.8rem;
+  }
+
+  /* Filter bar stacks vertically */
   .reg-filter-bar {
     flex-direction: column;
+    padding: 14px;
+    gap: 10px;
+    border-radius: 14px;
+    margin-bottom: 14px;
+  }
+
+  .filter-group-wrap {
+    min-width: unset;
+    width: 100%;
+    flex: none;
+  }
+
+  .filter-group-wrap.search {
+    width: 100%;
+    flex: none;
   }
 
   .reg-search-wrap {
     width: 100%;
   }
 
-  .reg-title {
-    font-size: 1.3rem;
-  }
-
   .modal-row {
     grid-template-columns: 1fr;
   }
 
-  .reg-drawer {
-    width: 100%;
-    max-width: 100vw;
+  /* ── CARD MODE: Hide table header, convert rows to cards ── */
+  .reg-table-wrap {
+    /* Remove border/bg when in card mode — cards have their own styling */
+    border: none !important;
+    background: transparent !important;
+    border-radius: 0 !important;
+    overflow-x: visible !important;
   }
-  
-  /* Table to Cards transition */
+
+  .reg-table {
+    min-width: unset !important;
+  }
+
   .reg-table thead {
     display: none;
   }
-  .reg-table, .reg-table tbody, .reg-table tr, .reg-table td {
+
+  .reg-table,
+  .reg-table tbody,
+  .reg-table tr,
+  .reg-table td {
     display: block;
     width: 100%;
   }
+
+  /* Each row becomes a card */
   .reg-row {
-    margin-bottom: 1rem;
-    background: rgba(255, 255, 255, 0.02);
+    margin-bottom: 0.85rem;
+    background: rgba(255, 255, 255, 0.025);
     border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 12px;
-    padding: 12px;
+    border-radius: 14px;
+    padding: 14px 12px 10px;
     position: relative;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     cursor: pointer;
+    transition: background 0.15s ease;
   }
+
+  .reg-row:hover {
+    background: rgba(167, 139, 250, 0.05);
+  }
+
+  .reg-row-pending {
+    border-left: 3px solid rgba(245, 158, 11, 0.6) !important;
+  }
+
+  /* Each cell becomes a flex label/value row */
   .reg-table td {
-    padding: 6px 4px;
+    padding: 4px 0;
     border: none;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    font-size: 0.82rem;
     text-align: right;
+    min-height: 26px;
   }
 
-  .td-participant {
-    align-items: flex-start !important;
-    flex-direction: column !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
-    padding-bottom: 10px !important;
-    margin-bottom: 6px;
-    text-align: left;
+  /* Serial number - hide */
+  .td-num {
+    display: none !important;
   }
-  
+
+  /* ── Participant cell: full-width header ── */
+  .reg-table td.td-participant {
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    padding-bottom: 10px;
+    margin-bottom: 6px;
+    gap: 4px;
+    min-height: unset;
+  }
+
   .user-info {
     width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
   }
-  
+
   .name-row {
-     justify-content: space-between;
-     width: 100%;
-     gap: 8px;
-     flex-wrap: wrap;
+    justify-content: space-between;
+    width: 100%;
+    gap: 8px;
+    flex-wrap: wrap;
   }
 
-  .participant-name, .user-name { white-space: normal; }
+  .user-name,
+  .participant-name {
+    white-space: normal;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #fff;
+  }
 
-  /* Add Labels via pseudo-elements */
-  .td-avr::before { content: "AVR ID"; font-weight: 600; font-size: 0.65rem; color: rgba(255,255,255,0.4); text-transform: uppercase; }
-  .td-event::before { content: "Event"; font-weight: 600; font-size: 0.65rem; color: rgba(255,255,255,0.4); text-transform: uppercase; }
-  .td-dept::before { content: "Dept"; font-weight: 600; font-size: 0.65rem; color: rgba(255,255,255,0.4); text-transform: uppercase; }
-  .td-amount::before { content: "Amount"; font-weight: 600; font-size: 0.65rem; color: rgba(255,255,255,0.4); text-transform: uppercase; }
-  .td-date::before { content: "Date"; font-weight: 600; font-size: 0.65rem; color: rgba(255,255,255,0.4); text-transform: uppercase; }
-  
-  /* Select direct children td without specific classes to add labels */
-  .reg-table td:nth-child(7)::before { content: "Payment"; font-weight: 600; font-size: 0.65rem; color: rgba(255,255,255,0.4); text-transform: uppercase; }
-  .reg-table td:nth-child(8)::before { content: "Attended"; font-weight: 600; font-size: 0.65rem; color: rgba(255,255,255,0.4); text-transform: uppercase; }
-  
+  .user-email,
+  .participant-email {
+    font-size: 0.72rem;
+    color: rgba(255, 255, 255, 0.4);
+    white-space: normal;
+    word-break: break-all;
+    display: block;
+  }
+
+  /* ── Value cells: label via pseudo-element ── */
+  .td-avr::before    { content: "AVR ID";   }
+  .td-event::before  { content: "Event";    }
+  .td-dept::before   { content: "Dept";     }
+  .td-amount::before { content: "Amount";   }
+  .td-date::before   { content: "Date";     }
+  .reg-table td:nth-child(7)::before { content: "Payment";  }
+  .reg-table td:nth-child(8)::before { content: "Attended"; }
+
+  /* Shared label style */
+  .td-avr::before, .td-event::before, .td-dept::before,
+  .td-amount::before, .td-date::before,
+  .reg-table td:nth-child(7)::before,
+  .reg-table td:nth-child(8)::before {
+    font-weight: 700;
+    font-size: 0.62rem;
+    color: rgba(255, 255, 255, 0.35);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+    text-align: left;
+  }
+
+  /* AVR ID: monospace purple */
+  .td-avr {
+    font-size: 0.78rem;
+    letter-spacing: 0.5px;
+  }
+
+  /* Event name: clip long text */
+  .td-event {
+    max-width: none;
+    white-space: normal;
+    text-align: right;
+    font-size: 0.8rem;
+  }
+
+  /* Amount: keep green */
+  .td-amount {
+    font-size: 0.82rem;
+  }
+
+  /* Actions row: right-aligned at bottom */
   .td-actions {
     justify-content: flex-end;
+    gap: 8px;
     margin-top: 8px;
     border-top: 1px solid rgba(255, 255, 255, 0.05);
-    padding-top: 12px !important;
+    padding-top: 10px !important;
   }
-  
-  .td-num { display: none !important; }
+
+  .reg-act-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+  }
+
+  /* Modals: full width on mobile */
+  .detail-modal {
+    max-width: 100%;
+    border-radius: 16px;
+    max-height: 88vh;
+  }
+
+  .reg-modal {
+    max-width: 100%;
+    border-radius: 16px;
+    margin: 0 0.5rem;
+  }
+
+  .modal-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 480px) {
@@ -931,5 +1083,22 @@
 
   .reg-stat-value {
     font-size: 1.3rem;
+  }
+
+  .reg-row {
+    padding: 12px 10px 8px;
+    border-radius: 12px;
+  }
+
+  .reg-table td {
+    font-size: 0.78rem;
+  }
+
+  .user-name, .participant-name {
+    font-size: 0.85rem;
+  }
+
+  .reg-title {
+    font-size: 1rem !important;
   }
 }

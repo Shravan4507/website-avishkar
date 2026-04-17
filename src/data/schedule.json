@@ -1,0 +1,354 @@
+[
+  {
+    "date": "2026-04-23",
+    "label": "Day 1",
+    "dayName": "Thursday, April 23, 2026",
+    "events": [
+      {
+        "srNo": 1,
+        "department": "CS",
+        "name": "ForgeX",
+        "slot1": "10:30 AM – 12:30 PM",
+        "break": "12:30 PM – 1:30 PM",
+        "slot2": "1:30 PM – 3:00 PM",
+        "location": "D3-05, D3-06, D3-18, D4-01, D4-07, D3-10, D3-01, D4-19"
+      },
+      {
+        "srNo": 2,
+        "department": "IT",
+        "name": "ParamX",
+        "slot1": "9:00 AM – 12:00 PM",
+        "break": "---",
+        "slot2": "---",
+        "location": "Reading Hall"
+      },
+      {
+        "srNo": 3,
+        "department": "Electrical",
+        "name": "Spark Tank",
+        "slot1": "9:00 AM – 12:00 Noon",
+        "break": "12:30 PM – 1:30 PM",
+        "slot2": "1:30 PM – 4:00 PM",
+        "location": "C2-02"
+      },
+      {
+        "srNo": 4,
+        "department": "Mechanical",
+        "name": "Contraption",
+        "slot1": "10:00 AM – 12:00 Noon",
+        "break": "---",
+        "slot2": "---",
+        "location": "B2-02, B2-08"
+      },
+      {
+        "srNo": 5,
+        "department": "Civil",
+        "name": "Bridge Nova (Building)",
+        "slot1": "9:00 AM – 12:00 Noon",
+        "break": "---",
+        "slot2": "---",
+        "location": "D0-05, D0-06, D0-08"
+      },
+      {
+        "srNo": 6,
+        "department": "AI&ML",
+        "name": "Vibe Sprint",
+        "slot1": "10:00 AM – 12:00 Noon",
+        "break": "12:00 PM – 12:30 PM",
+        "slot2": "12:30 PM – 2:30 PM",
+        "location": "B4-04"
+      },
+      {
+        "srNo": 7,
+        "department": "AI&ML",
+        "name": "Code Run",
+        "slot1": "10:00 AM – 12:00 Noon",
+        "break": "12:00 PM – 12:30 PM",
+        "slot2": "12:30 PM – 2:30 PM",
+        "location": "B4-06, B4-07"
+      },
+      {
+        "srNo": 8,
+        "department": "ECE",
+        "name": "Among Us",
+        "slot1": "10:00 AM – 1:00 PM",
+        "break": "---",
+        "slot2": "---",
+        "location": "C5-03"
+      },
+      {
+        "srNo": 9,
+        "department": "EnTC",
+        "name": "Project Competition",
+        "slot1": "9:00 AM – 12:00 Noon",
+        "break": "12:00 Noon – 1:00 PM",
+        "slot2": "1:00 PM – 4:00 PM",
+        "location": "C4-06"
+      },
+      {
+        "srNo": 10,
+        "department": "ECE",
+        "name": "Circle Cricket",
+        "slot1": "10:00 AM – 4:00 PM",
+        "break": "---",
+        "slot2": "---",
+        "location": "C5-10"
+      },
+      {
+        "srNo": 11,
+        "department": "AI&ML",
+        "name": "BGMI",
+        "slot1": "9:00 AM – 12:00 Noon",
+        "break": "12:00 Noon – 1:00 PM",
+        "slot2": "1:00 PM – 4:00 PM",
+        "location": "A1-01, A1-06, B4-11"
+      },
+      {
+        "srNo": 12,
+        "department": "AI&DS",
+        "name": "IPL Auction",
+        "slot1": "9:00 AM – 6:00 PM",
+        "break": "---",
+        "slot2": "---",
+        "location": "A3-11",
+        "note": "*AIDS"
+      },
+      {
+        "srNo": 13,
+        "department": "CS",
+        "name": "Chill Zone",
+        "slot1": "---",
+        "break": "---",
+        "slot2": "---",
+        "location": "D3-15",
+        "note": "*Zone"
+      },
+      {
+        "srNo": 14,
+        "department": "EnTC",
+        "name": "Chill Zone",
+        "slot1": "---",
+        "break": "---",
+        "slot2": "---",
+        "location": "C4-11, C4-12",
+        "note": "*Zone"
+      }
+    ]
+  },
+  {
+    "date": "2026-04-24",
+    "label": "Day 2",
+    "dayName": "Friday, April 24, 2026",
+    "events": [
+      {
+        "srNo": 15,
+        "department": "EnTC",
+        "name": "Paper Presentation",
+        "slot1": "9:00 AM – 12:00 Noon",
+        "break": "12:00 Noon – 1:00 PM",
+        "slot2": "1:00 PM – 4:00 PM",
+        "location": "C4-07"
+      },
+      {
+        "srNo": 16,
+        "department": "EnTC",
+        "name": "Circuit Simulation",
+        "slot1": "9:00 AM – 12:00 Noon",
+        "break": "12:00 Noon – 1:00 PM",
+        "slot2": "1:00 PM – 4:00 PM",
+        "location": "C5-07"
+      },
+      {
+        "srNo": 17,
+        "department": "CS",
+        "name": "Chill Zone",
+        "slot1": "---",
+        "break": "---",
+        "slot2": "---",
+        "location": "D3-15",
+        "note": "*Zone"
+      },
+      {
+        "srNo": 18,
+        "department": "AI&DS",
+        "name": "IPL Auction",
+        "slot1": "9:00 AM – 6:00 PM",
+        "break": "---",
+        "slot2": "---",
+        "location": "A3-11",
+        "note": "*AIDS"
+      },
+      {
+        "srNo": 19,
+        "department": "AI&ML",
+        "name": "BGMI",
+        "slot1": "9:00 AM – 12:00 Noon",
+        "break": "12:00 Noon – 1:00 PM",
+        "slot2": "1:00 PM – 4:00 PM",
+        "location": "A1-01, A1-06, B4-11"
+      },
+      {
+        "srNo": 20,
+        "department": "EnTC",
+        "name": "Matlab Madness",
+        "slot1": "9:00 AM – 12:00 Noon",
+        "break": "12:00 Noon – 1:00 PM",
+        "slot2": "1:00 PM – 4:00 PM",
+        "location": "C5-06"
+      },
+      {
+        "srNo": 21,
+        "department": "CS",
+        "name": "AlgoBid",
+        "slot1": "9:00 AM – 12:00 Noon",
+        "break": "12:00 Noon – 1:00 PM",
+        "slot2": "1:00 PM – 4:00 PM",
+        "location": "D3-05, D3-06, D3-18, D4-01, D4-07, D3-10, D3-01, D4-19"
+      },
+      {
+        "srNo": 22,
+        "department": "IT",
+        "name": "Code Ladder",
+        "slot1": "9:00 AM – 12:30 PM",
+        "break": "12:30 PM – 1:00 PM",
+        "slot2": "1:00 PM – 5:00 PM",
+        "location": "D5-03, D5-04"
+      },
+      {
+        "srNo": 23,
+        "department": "IT",
+        "name": "Shadow Fight",
+        "slot1": "9:00 AM – 12:00 Noon",
+        "break": "12:00 PM – 12:30 PM",
+        "slot2": "12:30 PM – 5:00 PM",
+        "location": "D5-01, D5-10"
+      },
+      {
+        "srNo": 24,
+        "department": "IT",
+        "name": "COD",
+        "slot1": "9:00 AM – 12:00 Noon",
+        "break": "12:00 PM – 12:30 PM",
+        "slot2": "12:30 PM – 5:00 PM",
+        "location": "D5-19, D5-12"
+      },
+      {
+        "srNo": 25,
+        "department": "Electrical",
+        "name": "Free Fire",
+        "slot1": "9:00 AM – 12:00 Noon",
+        "break": "12:00 Noon – 1:00 PM",
+        "slot2": "1:00 PM – 4:00 PM",
+        "location": "C3-01, C3-07"
+      },
+      {
+        "srNo": 26,
+        "department": "Civil",
+        "name": "Bridge Nova (Testing)",
+        "slot1": "9:00 AM – 2:00 PM",
+        "break": "---",
+        "slot2": "---",
+        "location": "D0-05, D0-06, D0-08"
+      },
+      {
+        "srNo": 27,
+        "department": "AI&ML",
+        "name": "Dev Clash",
+        "slot1": "10:00 AM – 1:00 PM",
+        "break": "1:00 PM – 1:30 PM",
+        "slot2": "1:30 PM – 4:30 PM",
+        "location": "B4-03, B4-04"
+      },
+      {
+        "srNo": 28,
+        "department": "ECE",
+        "name": "Blind Code",
+        "slot1": "10:00 AM – 12:00 Noon",
+        "break": "---",
+        "slot2": "---",
+        "location": "A1-02"
+      },
+      {
+        "srNo": 29,
+        "department": "AI&DS",
+        "name": "IPL Auction",
+        "slot1": "9:00 AM – 6:00 PM",
+        "break": "---",
+        "slot2": "---",
+        "location": "A3-11",
+        "note": "*AIDS"
+      }
+    ]
+  },
+  {
+    "date": "2026-04-25",
+    "label": "Day 3",
+    "dayName": "Saturday, April 25, 2026",
+    "events": [
+      {
+        "srNo": 30,
+        "department": "AI&ML",
+        "name": "BGMI",
+        "slot1": "8:00 AM – 2:00 PM",
+        "break": "---",
+        "slot2": "---",
+        "location": "CSMA"
+      },
+      {
+        "srNo": 31,
+        "department": "Electrical",
+        "name": "Poster",
+        "slot1": "9:00 AM – 12:00 Noon",
+        "break": "---",
+        "slot2": "---",
+        "location": "C2-04"
+      },
+      {
+        "srNo": 32,
+        "department": "ECE",
+        "name": "Poster",
+        "slot1": "9:00 AM – 12:00 Noon",
+        "break": "---",
+        "slot2": "---",
+        "location": "C5-10"
+      }
+    ]
+  },
+  {
+    "date": "2026-04-25",
+    "label": "Standby",
+    "dayName": "*Standby Events",
+    "events": [
+      {
+        "srNo": 33,
+        "department": "R&A",
+        "name": "AlignX",
+        "slot1": "9:00 AM – 12:00 Noon",
+        "break": "12:00 Noon – 12:30 PM",
+        "slot2": "12:30 PM – 4:30 PM",
+        "location": "Standby",
+        "note": "*Standby"
+      },
+      {
+        "srNo": 34,
+        "department": "R&A",
+        "name": "RoboRush",
+        "slot1": "9:00 AM – 12:00 Noon",
+        "break": "12:00 Noon – 12:30 PM",
+        "slot2": "12:30 PM – 4:30 PM",
+        "location": "Standby",
+        "note": "*Standby"
+      },
+      {
+        "srNo": 35,
+        "department": "R&A",
+        "name": "RoboMaze",
+        "slot1": "9:00 AM – 12:00 Noon",
+        "break": "12:00 Noon – 12:30 PM",
+        "slot2": "12:30 PM – 4:30 PM",
+        "location": "Standby",
+        "note": "*Standby"
+      }
+    ]
+  }
+]

@@ -3,13 +3,16 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import { useNavigate } from 'react-router-dom';
 import { 
   collection, getCountFromServer, query, getDocs, 
-  orderBy, doc, getDoc, where, updateDoc, setDoc, deleteDoc, addDoc
+  orderBy, doc, getDoc, where, updateDoc, setDoc, deleteDoc, addDoc, writeBatch
 } from 'firebase/firestore';
 import { auth, db } from '../../firebase/firebase';
 import { useToast } from '../../components/toast/Toast';
 import AdminSidebar from '../../components/dashboard/sidebar/AdminSidebar';
 import RegistrationManager from '../../components/admin/RegistrationManager';
 import ManualRegistration from '../../components/admin/ManualRegistration';
+import UserManager from '../../components/admin/UserManager';
+import SponsorsManager from '../../components/admin/SponsorsManager';
+import EventManager from '../../components/admin/EventManager';
 import NotificationBell from '../../components/notifications/NotificationBell';
 
 import { 
@@ -19,6 +22,7 @@ import {
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import GlassSelect from '../../components/dropdown/GlassSelect';
+import { COMPETITIONS_DATA } from '../../data/competitions';
 import './admindashboard.css';
 
 
@@ -70,11 +74,35 @@ const DEPARTMENT_OPTIONS = [
 // Core team sub-assignments
 const CORE_TEAM_OPTIONS = ['Technical Team', 'Registration Team', 'Sponsorship Team', 'Support Team'];
 
-// Flagship competition options for competition admins
-const FLAGSHIP_OPTIONS = [
-  { value: 'paramx--26', label: "ParamX '26" },
-  { value: 'robotron--26', label: "Robo-Kshetra '26" },
-  { value: 'battlegrid--26', label: "Battle Grid '26" }
+// Competition options mapping exactly to router slugs for role permissions
+const COMPETITION_OPTIONS = [
+  { value: 'param-x', label: "ParamX '26" },
+  { value: 'battle-grid', label: "Battle Grid (All Games)" },
+  { value: 'robo-kshetra', label: "Robo-Kshetra (All Events)" },
+  { value: 'bgmi', label: "BGMI" },
+  { value: 'freefire', label: "Free Fire" },
+  { value: 'codm', label: "COD Mobile" },
+  { value: 'sf4', label: "Shadow Fight 4" },
+  { value: 'amongus', label: "Among Us" },
+  { value: 'align-x', label: "AlignX" },
+  { value: 'robo-maze', label: "RoboMaze" },
+  { value: 'robo-rush', label: "RoboRush" },
+  { value: 'forge-x', label: "Forge-X" },
+  { value: 'algo-bid', label: "AlgoBid" },
+  { value: 'code-ladder', label: "Code Ladder" },
+  { value: 'ipl-auction', label: "IPL Auction" },
+  { value: 'blind-code', label: "Blind Code" },
+  { value: 'dev-clash', label: "DevClash" },
+  { value: 'vibe-sprint', label: "Vibe Sprint" },
+  { value: 'code-relay', label: "Code Relay" },
+  { value: 'bridge-nova', label: "Bridge Nova" },
+  { value: 'poster', label: "Poster Presentation" },
+  { value: 'spark-tank', label: "Spark Tank" },
+  { value: 'matlab', label: "Matlab" },
+  { value: 'circuit-sim', label: "Circuit Simulation" },
+  { value: 'contraptions', label: "Contraptions" },
+  { value: 'circle-cricket', label: "Circle Cricket" },
+  { value: 'paper-pres', label: "Paper Presentation" }
 ];
 
 const SCANNER_ROLE_OPTIONS = [
@@ -106,6 +134,7 @@ interface AdminStats {
   paidCount: number | null;
   freeCount: number | null;
   attendedCount: number | null;
+  eventBreakdown: { label: string; count: number; handle: string }[];
 }
 
 const AdminDashboard: React.FC = () => {
@@ -121,7 +150,8 @@ const AdminDashboard: React.FC = () => {
     totalRevenue: null,
     paidCount: null,
     freeCount: null,
-    attendedCount: null
+    attendedCount: null,
+    eventBreakdown: []
   });
 
 
@@ -133,7 +163,7 @@ const AdminDashboard: React.FC = () => {
   const [adminRoleType, setAdminRoleType] = useState('department_admin');
   const [adminDepartment, setAdminDepartment] = useState(DEPARTMENT_OPTIONS[0]);
   const [adminCoreTeam, setAdminCoreTeam] = useState(CORE_TEAM_OPTIONS[0]);
-  const [adminFlagship, setAdminFlagship] = useState(FLAGSHIP_OPTIONS[0].value);
+  const [adminFlagship, setAdminFlagship] = useState(COMPETITION_OPTIONS[0].value);
   const [promotingLoading, setPromotingLoading] = useState(false);
 
   // Helper for auto-formatting AVR-ID: AVR-XXX-0000
@@ -248,55 +278,62 @@ const AdminDashboard: React.FC = () => {
       try {
         const currentProfile = profile || adminProfile;
         const isSuperUser = profile ? (profile.type === 'superadmin' || profile.roleLevel.includes('superadmin')) : isSuper;
+        const isCoreTeam = currentProfile?.roleLevel?.some((r: string) => r.startsWith('core_team') || r === 'competition_admin') || false;
         
-        if (isSuperUser) {
-          // Superadmin sees everything
-          const [userSnap, regSnapCount, hackSnapCount] = await Promise.all([
-            getCountFromServer(collection(db, "user")),
+        if (isSuperUser || isCoreTeam) {
+          // Broad scope admins see global registration counts
+          const [regSnapCount, hackSnapCount] = await Promise.all([
             getCountFromServer(collection(db, "registrations")),
             getCountFromServer(collection(db, "hackathon_registrations"))
-          ]);
-
-          // Fetch docs for detailed metrics
-          const [regsDocs, hackDocs] = await Promise.all([
-            getDocs(collection(db, "registrations")),
-            getDocs(collection(db, "hackathon_registrations"))
           ]);
 
           let revenue = 0;
           let paid = 0;
           let free = 0;
           let attended = 0;
+          let totalUsersCount = null;
 
-          regsDocs.forEach(d => {
-            const data = d.data();
-            if (data.paymentStatus === 'success' || data.paymentStatus === 'paid') {
-              revenue += (data.amountPaid || 0);
-              paid++;
-            } else if (data.paymentStatus === 'free') {
-              free++;
-            }
-            if (data.isAttended) attended++;
-          });
+          if (isSuperUser) {
+            // Superadmins additionally get revenue and users
+            const userSnap = await getCountFromServer(collection(db, "user"));
+            totalUsersCount = userSnap.data().count;
 
-          hackDocs.forEach(d => {
-            const data = d.data();
-            if (data.status === 'confirmed') {
-              revenue += (data.amountPaid || data.amount || 0);
-              paid++;
-            } else {
-              free++;
-            }
-            if (data.isAttended) attended++;
-          });
+            const [regsDocs, hackDocs] = await Promise.all([
+              getDocs(collection(db, "registrations")),
+              getDocs(collection(db, "hackathon_registrations"))
+            ]);
+
+            regsDocs.forEach(d => {
+              const data = d.data();
+              if (data.paymentStatus === 'success' || data.paymentStatus === 'paid') {
+                revenue += (data.amountPaid || 0);
+                paid++;
+              } else if (data.paymentStatus === 'free') {
+                free++;
+              }
+              if (data.isAttended) attended++;
+            });
+
+            hackDocs.forEach(d => {
+              const data = d.data();
+              if (data.status === 'confirmed') {
+                revenue += (data.amountPaid || data.amount || 0);
+                paid++;
+              } else {
+                free++;
+              }
+              if (data.isAttended) attended++;
+            });
+          }
 
           setStats({
-            totalUsers: userSnap.data().count,
+            totalUsers: totalUsersCount,
             totalRegistrations: regSnapCount.data().count + hackSnapCount.data().count,
-            totalRevenue: revenue,
-            paidCount: paid,
-            freeCount: free,
-            attendedCount: attended
+            totalRevenue: isSuperUser ? revenue : null,
+            paidCount: isSuperUser ? paid : null,
+            freeCount: isSuperUser ? free : null,
+            attendedCount: isSuperUser ? attended : null,
+            eventBreakdown: []
           });
         } else if (currentProfile) {
           // Regular admin sees restricted stats
@@ -339,21 +376,75 @@ const AdminDashboard: React.FC = () => {
             'workshop-solar-spot': { handle: 'OrbitX-Solar', collection: 'registrations' },
           };
 
+          // Map department explicitly to node configurations to isolate their counts
+          const DEPARTMENT_EVENT_HANDLES: Record<string, string[]> = {
+            'department_admin-computer-engineering': ['Forge-Lead', 'Algo-Master'],
+            'department_admin-information-technology': ['Battle-Grid', 'Code-Climber'], // Note: Includes shared E-Sports
+            'department_admin-ai-ds': ['IPL-Auctioneer'],
+            'department_admin-ai-ml': ['Dev-Striker', 'Vibe-Lead', 'Relay-Coder'],
+            'department_admin-civil-engineering': ['Arch-Nova'],
+            'department_admin-electrical-engineering': ['Paper-Lead', 'Spark-Lead', 'Battle-Grid'], // Note: Includes shared E-Sports
+            'department_admin-e-tc-engineering': ['Mat-Master', 'Circuit-Ninja'],
+            'department_admin-ece': ['Blind-Coder', 'Cricket-Lead', 'Battle-Grid'], // Note: Includes shared E-Sports
+            'department_admin-mechanical-engineering': ['Master-Builder'],
+          };
+
+          // Per-event label mapping for display
+          const HANDLE_LABELS: Record<string, string> = {
+            'ParamX-Hack': "Param-X '26",
+            'Battle-Grid': 'Battle Grid (E-Sports)',
+            'Robo-Kshetra': 'Robo-Kshetra',
+            'Forge-Lead': 'Forge-X',
+            'Algo-Master': 'AlgoBid (Auction Coding)',
+            'Code-Climber': 'Code Ladder',
+            'IPL-Auctioneer': 'IPL Auction',
+            'Blind-Coder': 'Blind Code Challenge',
+            'Dev-Striker': 'Dev Clash',
+            'Vibe-Lead': 'Vibe Sprint',
+            'Relay-Coder': 'Code Relay',
+            'Arch-Nova': 'Bridge Nova',
+            'Paper-Lead': 'Poster Presentation',
+            'Spark-Lead': 'Spark Tank',
+            'Mat-Master': 'Matlab Madness',
+            'Circuit-Ninja': 'Circuit Simulation',
+            'Master-Builder': 'Contraptions Challenge',
+            'Cricket-Lead': 'Circle Cricket',
+            'Research-Lead': 'Paper Presentation',
+            'Project-Master': 'Project Competition',
+            'OrbitX-Solar': 'Solar Spot (Workshop)',
+          };
+
           let totalRegsCount = 0;
           const countedHandles = new Set<string>(); // Avoid double-counting same handle
-          for (const role of roles) {
+          const eventBreakdown: { label: string; count: number; handle: string }[] = [];
+          
+          let expandedRoles = [...roles];
+          roles.forEach((r) => {
+            if (DEPARTMENT_EVENT_HANDLES[r]) {
+              // Create pseudo-roles to tap into roleMapping safely
+              DEPARTMENT_EVENT_HANDLES[r].forEach(h => {
+                const pseudo = Object.keys(roleMapping).find(k => roleMapping[k].handle === h);
+                if (pseudo) expandedRoles.push(pseudo);
+              });
+            }
+          });
+
+          for (const role of expandedRoles) {
             const mapping = roleMapping[role];
             if (mapping && !countedHandles.has(`${mapping.collection}:${mapping.handle}`)) {
               countedHandles.add(`${mapping.collection}:${mapping.handle}`);
-              // Only filter by competitionHandle — uses existing 2-field index
-              // eventTitle filtering is done client-side in RegistrationManager
               const q = query(
                 collection(db, mapping.collection), 
                 where('competitionHandle', '==', mapping.handle)
               );
-
               const snap = await getCountFromServer(q);
-              totalRegsCount += snap.data().count;
+              const count = snap.data().count;
+              totalRegsCount += count;
+              eventBreakdown.push({
+                label: HANDLE_LABELS[mapping.handle] || mapping.handle,
+                count,
+                handle: mapping.handle
+              });
             }
           }
 
@@ -363,7 +454,8 @@ const AdminDashboard: React.FC = () => {
             totalRevenue: null,
             paidCount: null,
             freeCount: null,
-            attendedCount: null
+            attendedCount: null,
+            eventBreakdown
           });
         }
       } catch (err) {
@@ -466,7 +558,7 @@ const AdminDashboard: React.FC = () => {
   const handlePromoteAdmin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!adminAvrId.trim()) {
-      toast.error("Please enter an AVR ID.");
+      toast.error("Please enter an AVR ID or Email.");
       return;
     }
 
@@ -484,19 +576,46 @@ const AdminDashboard: React.FC = () => {
 
     setPromotingLoading(true);
     try {
-      // Find user by AVR ID
-      const q = query(collection(db, "user"), where("avrId", "==", adminAvrId.trim().toUpperCase()));
-      const snap = await getDocs(q);
+      const isEmail = adminAvrId.includes('@');
+      let userDocSnap = null;
+      let userData = null;
+
+      if (isEmail) {
+        const qEmail = query(collection(db, "user"), where("email", "==", adminAvrId.trim().toLowerCase()));
+        const snapEmail = await getDocs(qEmail);
+        if (!snapEmail.empty) {
+          userDocSnap = snapEmail.docs[0];
+          userData = userDocSnap.data();
+        }
+      } else {
+        const qAvr = query(collection(db, "user"), where("avrId", "==", adminAvrId.trim().toUpperCase()));
+        const snapAvr = await getDocs(qAvr);
+        if (!snapAvr.empty) {
+          userDocSnap = snapAvr.docs[0];
+          userData = userDocSnap.data();
+        }
+      }
       
-      if (snap.empty) {
-        toast.error(`User with ID ${adminAvrId.toUpperCase()} not found.`);
+      if (!userDocSnap || !userData) {
+        if (isEmail) {
+          // Pre-approve this unregistered email
+          await setDoc(doc(collection(db, "pre_approved_admins")), {
+            email: adminAvrId.trim().toLowerCase(),
+            roleLevel: [compositeRole],
+            assignment: compositeRole,
+            type: adminRoleType === 'superadmin' ? 'superadmin' : 'admin',
+            createdAt: new Date()
+          });
+          toast.success(`User not registered yet. Pre-approved ${adminAvrId}! They will become admin upon next login.`);
+          setAdminAvrId('');
+        } else {
+          toast.error(`User with ID ${adminAvrId.toUpperCase()} not found.`);
+        }
         setPromotingLoading(false);
         return;
       }
-      
-      const userDocSnap = snap.docs[0];
-      const userData = userDocSnap.data();
 
+      // If user exists, do normal promotion
       // Generate auto-incrementing AVR-ADM-XXXX
       const counterRef = doc(db, 'counters', 'admin_counter');
       const counterSnap = await getDoc(counterRef);
@@ -511,6 +630,8 @@ const AdminDashboard: React.FC = () => {
         firstName: userData.firstName,
         lastName: userData.lastName,
         email: userData.email,
+        photoURL: userData.photoURL || null,
+        phone: userData.phone || null,
         avrAdmId: avrAdmId,
         roleLevel: [compositeRole],
         assignment: compositeRole, // Legacy fallback
@@ -519,9 +640,6 @@ const AdminDashboard: React.FC = () => {
 
       // Update the counter
       await setDoc(counterRef, { count: nextAdmNum }, { merge: true });
-
-      // Delete user document
-      await deleteDoc(doc(db, "user", userDocSnap.id));
       
       toast.success(`${userData.firstName} promoted as ${compositeRole} (${avrAdmId})!`);
       setAdminAvrId('');
@@ -650,7 +768,7 @@ const AdminDashboard: React.FC = () => {
   const handleSyncRegistrations = async () => {
     if (!isSuper || syncingLoading) return;
     
-    if (!window.confirm("This will scan all registrations and backfill missing data (Phone, College, Age) from user profiles. Proceed?")) {
+    if (!window.confirm("This will scan all registrations to backfill missing profiles (Phone, College, etc.) and repair corrupted/missing Competition Handles. Proceed?")) {
       return;
     }
 
@@ -659,34 +777,77 @@ const AdminDashboard: React.FC = () => {
 
     try {
       const regsSnap = await getDocs(collection(db, "registrations"));
-      const calculateAge = (dob: string) => {
-        if (!dob) return 0;
-        const birthDate = new Date(dob);
-        const today = new Date();
-        let age = today.getFullYear() - birthDate.getFullYear();
-        if (today.getMonth() < birthDate.getMonth() || (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate())) {
-          age--;
-        }
-        return age;
-      };
+      let batch = writeBatch(db);
+      let batchOperationCount = 0;
 
       for (const regDoc of regsSnap.docs) {
         const regData = regDoc.data();
-        if (!regData.userId) continue;
+        let needsUpdate = false;
+        let updates: any = {};
 
-        const userSnap = await getDoc(doc(db, "user", regData.userId));
-        if (userSnap.exists()) {
-          const userData = userSnap.data();
-          await updateDoc(regDoc.ref, {
-            userPhone: userData.phone || regData.userPhone || '',
-            userCollege: userData.college || regData.userCollege || '',
-            userMajor: userData.major || regData.userMajor || '',
-            userAge: calculateAge(userData.dob) || regData.userAge || 0,
-            userSex: userData.sex || regData.userSex || '',
-            userName: `${userData.firstName} ${userData.lastName}`
-          });
-          syncCount++;
+        // 1. Repair Handles (Independent of User Profile resolving)
+        let fixedHandle = regData.competitionHandle || '';
+        if (!fixedHandle || fixedHandle === 'Grid-Warrior') {
+             const compIdNoPrefix = regData.competitionId?.replace('robokshetra_', '').replace('battlegrid_', '');
+             const matchedComp = COMPETITIONS_DATA.find((c: any) => c.id === regData.competitionId || c.id === compIdNoPrefix || c.code === regData.competitionCode);
+             if (matchedComp?.handle) {
+                fixedHandle = matchedComp.handle;
+                if (fixedHandle !== regData.competitionHandle) {
+                  updates.competitionHandle = fixedHandle;
+                  needsUpdate = true;
+                }
+             }
         }
+
+        // 2. Backfill Profile Missing Data
+        if (regData.userId) {
+          try {
+             // We won't block the handle update if this fails, but it shouldn't
+             const userSnap = await getDoc(doc(db, "user", regData.userId));
+             if (userSnap.exists()) {
+                const userData = userSnap.data();
+                
+                const calculateAge = (dob: string) => {
+                  if (!dob) return 0;
+                  const birthDate = new Date(dob);
+                  const today = new Date();
+                  let age = today.getFullYear() - birthDate.getFullYear();
+                  if (today.getMonth() < birthDate.getMonth() || (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate())) age--;
+                  return age;
+                };
+
+                const expectedPhone = userData.phone || regData.userPhone || '';
+                const expectedCollege = userData.college || regData.userCollege || '';
+                const expectedMajor = userData.major || regData.userMajor || '';
+                const expectedAge = calculateAge(userData.dob) || regData.userAge || 0;
+                const expectedSex = userData.sex || regData.userSex || '';
+                const expectedName = `${userData.firstName} ${userData.lastName}`;
+
+                if (regData.userPhone !== expectedPhone) { updates.userPhone = expectedPhone; needsUpdate = true; }
+                if (regData.userCollege !== expectedCollege) { updates.userCollege = expectedCollege; needsUpdate = true; }
+                if (regData.userMajor !== expectedMajor) { updates.userMajor = expectedMajor; needsUpdate = true; }
+                if (regData.userAge !== expectedAge) { updates.userAge = expectedAge; needsUpdate = true; }
+                if (regData.userSex !== expectedSex) { updates.userSex = expectedSex; needsUpdate = true; }
+                if (regData.userName !== expectedName) { updates.userName = expectedName; needsUpdate = true; }
+             }
+          } catch(e) {}
+        }
+
+        if (needsUpdate) {
+            batch.update(regDoc.ref, updates);
+            batchOperationCount++;
+            syncCount++;
+
+            if (batchOperationCount >= 450) {
+               await batch.commit();
+               batch = writeBatch(db);
+               batchOperationCount = 0;
+            }
+        }
+      }
+
+      if (batchOperationCount > 0) {
+         await batch.commit();
       }
 
       // Sync current admin's profile picture during global sync
@@ -813,6 +974,38 @@ const AdminDashboard: React.FC = () => {
                 </>
               )}
             </div>
+
+            {/* Event-wise breakdown for dept/competition admins */}
+            {!isSuper && stats.eventBreakdown && stats.eventBreakdown.length > 0 && (
+              <div className="admin-stat-premium" style={{ marginTop: '2rem', padding: '1.5rem 2rem' }}>
+                <div className="stat-label-row" style={{ marginBottom: '1.2rem' }}>
+                  <Ticket size={20} color="#a78bfa" />
+                  <span style={{ fontWeight: 700, fontSize: '0.85rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)' }}>Event-wise Registrations</span>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {stats.eventBreakdown.map((ev) => (
+                    <div key={ev.handle} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: 'rgba(167,139,250,0.06)', borderRadius: '10px', border: '1px solid rgba(167,139,250,0.1)' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#a78bfa', flexShrink: 0 }} />
+                        <span style={{ color: 'rgba(255,255,255,0.85)', fontSize: '0.9rem', fontWeight: 500 }}>{ev.label}</span>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ color: '#a78bfa', fontWeight: 700, fontSize: '1.15rem', fontFamily: 'Iceland, monospace' }}>{ev.count}</span>
+                        <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.3)' }}>regs</span>
+                      </div>
+                    </div>
+                  ))}
+                  {/* Total row */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 14px', background: 'rgba(167,139,250,0.12)', borderRadius: '10px', border: '1px solid rgba(167,139,250,0.25)', marginTop: '4px' }}>
+                    <span style={{ color: '#fff', fontWeight: 700, fontSize: '0.9rem' }}>Total</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{ color: '#c4b5fd', fontWeight: 700, fontSize: '1.4rem', fontFamily: 'Iceland, monospace' }}>{stats.totalRegistrations ?? 0}</span>
+                      <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)' }}>registrations</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
             
             {isSuper && (
                 <div style={{ marginTop: '3rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '2rem' }}>
@@ -877,12 +1070,12 @@ const AdminDashboard: React.FC = () => {
                   <h3 style={{ color: '#a78bfa', marginBottom: '16px', fontSize: '1.2rem' }}>Core Team Promotion (Superadmin Only)</h3>
                   <form onSubmit={handlePromoteAdmin} className="whitelist-form">
                     <div className="form-group" style={{ marginBottom: '1rem' }}>
-                      <label style={{ color: '#e2e8f0', marginBottom: '8px', display: 'block', fontSize: '0.9rem', fontWeight: 600 }}>Target AVR-ID</label>
+                      <label style={{ color: '#e2e8f0', marginBottom: '8px', display: 'block', fontSize: '0.9rem', fontWeight: 600 }}>Target Identifier (AVR-ID or Email)</label>
                       <input 
                         type="text" 
-                        placeholder="e.g. AVR-SHR-0001" 
+                        placeholder="e.g. AVR-SHR-0001 or pre-approve@gmail.com" 
                         value={adminAvrId}
-                        onChange={(e) => handleAvrIdChange(e.target.value, setAdminAvrId)}
+                        onChange={(e) => setAdminAvrId(e.target.value)}
                         style={{ width: '100%', padding: '14px 16px', borderRadius: '12px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(167, 139, 250, 0.3)', color: '#fff', outline: 'none', fontFamily: 'inherit', fontSize: '0.95rem' }}
                       />
                     </div>
@@ -925,7 +1118,7 @@ const AdminDashboard: React.FC = () => {
                         <GlassSelect 
                           value={adminFlagship}
                           onChange={(val: string) => setAdminFlagship(val)}
-                          options={FLAGSHIP_OPTIONS}
+                          options={COMPETITION_OPTIONS}
                           style={{ width: '100%' }}
                         />
                       )}
@@ -944,16 +1137,7 @@ const AdminDashboard: React.FC = () => {
           </div>
         );
       case 'sponsors':
-        return (
-          <div className="admin-overview">
-            <h2 style={{ color: '#fff', marginBottom: '24px' }}>Sponsors & Partners</h2>
-            <div className="admin-form-card" style={{ background: 'rgba(255,255,255,0.02)', padding: '3rem', borderRadius: '24px', textAlign: 'center', border: '1px dashed rgba(255,255,255,0.1)' }}>
-              <Shield size={48} color="rgba(255,255,255,0.2)" style={{ margin: '0 auto 1rem auto' }} />
-              <h3 style={{ color: 'rgba(255,255,255,0.8)' }}>Coming Soon</h3>
-              <p style={{ color: 'rgba(255,255,255,0.4)', marginTop: '0.5rem' }}>Sponsor inquiries and partner management will appear here.</p>
-            </div>
-          </div>
-        );
+        return <SponsorsManager />;
       case 'stall_bookings':
         return (
           <div className="tab-content animate-in">
@@ -969,62 +1153,68 @@ const AdminDashboard: React.FC = () => {
               </div>
             </div>
 
-            <div className="premium-table-container" style={{ marginTop: '24px' }}>
-              <table className="admin-data-table" style={{ minWidth: '1100px' }}>
-                <thead>
-                  <tr>
-                    <th>Organization</th>
-                    <th>Contact Person</th>
-                    <th>Stall Type</th>
-                    <th>Phone</th>
-                    <th>Requirements</th>
-                    <th style={{ textAlign: 'center' }}>Status</th>
-                    <th style={{ textAlign: 'center' }}>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {loadingStalls ? <tr><td colSpan={7} style={{ textAlign: 'center' }}>Loading stalls...</td></tr> : 
-                   stallBookings.length === 0 ? <tr><td colSpan={7} style={{ textAlign: 'center', opacity: 0.5 }}>No stall bookings found.</td></tr> :
-                   stallBookings.map(stall => (
-                    <tr key={stall.id}>
-                      <td style={{ fontWeight: 600 }}>{stall.organization}</td>
-                      <td>
-                        <div style={{ display: 'flex', flexDirection: 'column' }}>
-                          <span>{stall.name}</span>
-                          <span style={{ fontSize: '0.8rem', opacity: 0.5 }}>{stall.email}</span>
-                        </div>
-                      </td>
-                      <td><span className="category-pill">{stall.stallType}</span></td>
-                      <td>{stall.phone}</td>
-                      <td style={{ maxWidth: '300px', fontSize: '0.85rem' }}>{stall.requirements}</td>
-                      <td style={{ textAlign: 'center' }}>
-                        <select 
-                          className={`status-select status--${stall.status || 'pending'}`}
-                          value={stall.status || 'pending'}
-                          onChange={(e) => handleUpdateStallStatus(stall.id, e.target.value)}
-                        >
-                          <option value="pending">Pending</option>
-                          <option value="contacted">Contacted</option>
-                          <option value="approved">Approved</option>
-                          <option value="rejected">Rejected</option>
-                        </select>
-                      </td>
-                      <td>
-                        <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                          <button 
-                            onClick={() => handleDeleteStall(stall.id)}
-                            style={{ background: 'rgba(255, 68, 68, 0.1)', border: 'none', color: '#ff4444', padding: '8px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
-                            title="Delete"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                   ))
-                  }
-                </tbody>
-              </table>
+            <div className="admin-directory-grid" style={{ marginTop: '24px' }}>
+              {loadingStalls ? (
+                <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.9rem' }}>Loading stall bookings...</div>
+              ) : stallBookings.length === 0 ? (
+                <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.9rem' }}>No stall bookings found.</div>
+              ) : (
+                stallBookings.map(stall => (
+                  <div key={stall.id} className="admin-profile-card">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+                      <span className="badge-flagship" style={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                        {stall.stallType}
+                      </span>
+                      <select 
+                        className={`status-select status--${stall.status || 'pending'}`}
+                        value={stall.status || 'pending'}
+                        onChange={(e) => handleUpdateStallStatus(stall.id, e.target.value)}
+                        style={{ padding: '4px 8px', fontSize: '0.75rem', borderRadius: '6px' }}
+                      >
+                        <option value="pending">Pending</option>
+                        <option value="contacted">Contacted</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                      </select>
+                    </div>
+
+                    <h3 style={{ color: '#fff', fontSize: '1.2rem', marginBottom: '4px' }}>{stall.organization}</h3>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginBottom: '16px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem' }}>
+                        <Users size={14} /> {stall.name}
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem' }}>
+                        <Phone size={14} /> {stall.phone}
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem' }}>
+                        <Mail size={14} /> {stall.email}
+                      </div>
+                    </div>
+
+                    <div style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(167,139,250,0.1)', padding: '12px', borderRadius: '12px', marginBottom: '16px', fontSize: '0.85rem', color: '#e2e8f0', minHeight: '60px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 'bold', marginBottom: '6px', color: '#a78bfa' }}>
+                        <Wrench size={14} /> Requirements
+                      </div>
+                      <div style={{ lineHeight: '1.5', color: 'rgba(255,255,255,0.8)' }}>
+                        {stall.requirements || <span style={{ opacity: 0.5 }}>No specific requirements provided.</span>}
+                      </div>
+                    </div>
+
+                    <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.3)' }}>
+                        {stall.createdAt?.seconds ? new Date(stall.createdAt.seconds * 1000).toLocaleDateString() : 'New'}
+                      </span>
+                      <button 
+                        onClick={() => handleDeleteStall(stall.id)}
+                        style={{ background: 'rgba(255, 68, 68, 0.1)', border: '1px solid rgba(255, 68, 68, 0.2)', color: '#ff4444', padding: '6px 12px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', fontWeight: 'bold', transition: 'all 0.2s' }}
+                        title="Delete Request"
+                      >
+                        <Trash2 size={14} /> Delete
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         );
@@ -1063,128 +1253,162 @@ const AdminDashboard: React.FC = () => {
             </div>
 
             {supportSubTab === 'contact' ? (
-              <div className="premium-table-container">
-                <table className="admin-data-table" style={{ minWidth: '1000px' }}>
-                  <thead>
-                    <tr>
-                      <th>Name</th>
-                      <th>Subject</th>
-                      <th>Message</th>
-                      <th style={{ textAlign: 'center' }}>Status</th>
-                      <th style={{ textAlign: 'center' }}>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {loadingContact ? <tr><td colSpan={5} style={{ textAlign: 'center' }}>Loading queries...</td></tr> : 
-                     contactQueries.length === 0 ? <tr><td colSpan={5} style={{ textAlign: 'center', opacity: 0.5 }}>No contact inquiries found.</td></tr> :
-                     contactQueries.map(q => (
-                      <tr key={q.id}>
-                        <td style={{ fontWeight: 600 }}>
-                          <div style={{ display: 'flex', flexDirection: 'column' }}>
-                            <span>{q.name}</span>
-                            <span style={{ fontSize: '0.8rem', opacity: 0.5 }}>{q.email}</span>
-                          </div>
-                        </td>
-                        <td style={{ fontWeight: 600 }}>{q.subject}</td>
-                        <td style={{ maxWidth: '400px', whiteSpace: 'normal', fontSize: '0.85rem' }}>{q.message}</td>
-                        <td style={{ textAlign: 'center' }}>
-                          <select 
-                            className={`status-select status--${q.status || 'pending'}`}
-                            value={q.status || 'pending'}
-                            onChange={(e) => handleUpdateContactStatus(q.id, e.target.value)}
-                          >
-                            <option value="pending">Pending</option>
-                            <option value="contacted">Contacted</option>
-                            <option value="resolved">Resolved</option>
-                          </select>
-                        </td>
-                        <td>
-                          <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                            <button 
-                              onClick={() => handleDeleteContact(q.id)}
-                              style={{ background: 'rgba(255, 68, 68, 0.1)', border: 'none', color: '#ff4444', padding: '8px', borderRadius: '8px', cursor: 'pointer' }}
-                              title="Delete"
-                            >
-                              <Trash2 size={16} />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                     ))
-                    }
-                  </tbody>
-                </table>
+              <div className="admin-directory-grid" style={{ marginTop: '24px' }}>
+                {loadingContact ? (
+                   <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.9rem' }}>Loading queries...</div>
+                ) : contactQueries.length === 0 ? (
+                   <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.9rem' }}>No contact inquiries found.</div>
+                ) : (
+                   contactQueries.map(q => (
+                     <div key={q.id} className="admin-profile-card">
+                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+                         <span className="badge-flagship" style={{ textTransform: 'uppercase', letterSpacing: '0.5px', background: 'rgba(59, 130, 246, 0.15)', color: '#60a5fa', border: '1px solid rgba(59, 130, 246, 0.3)' }}>INQUIRY</span>
+                         <select 
+                           className={`status-select status--${q.status || 'pending'}`}
+                           value={q.status || 'pending'}
+                           onChange={(e) => handleUpdateContactStatus(q.id, e.target.value)}
+                           style={{ padding: '4px 8px', fontSize: '0.75rem', borderRadius: '6px' }}
+                         >
+                           <option value="pending">Pending</option>
+                           <option value="contacted">Contacted</option>
+                           <option value="resolved">Resolved</option>
+                         </select>
+                       </div>
+
+                       <h3 style={{ color: '#fff', fontSize: '1.2rem', marginBottom: '4px' }}>{q.name}</h3>
+                       <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginBottom: '16px' }}>
+                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem' }}>
+                           <Mail size={14} /> {q.email}
+                         </div>
+                       </div>
+                       
+                       <div style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(167,139,250,0.1)', padding: '12px', borderRadius: '12px', marginBottom: '16px', fontSize: '0.85rem', color: '#e2e8f0', minHeight: '80px' }}>
+                         <div style={{ fontWeight: 'bold', marginBottom: '6px', color: '#60a5fa', fontSize: '0.9rem' }}>
+                           {q.subject}
+                         </div>
+                         <div style={{ lineHeight: '1.5', color: 'rgba(255,255,255,0.8)' }}>
+                           {q.message}
+                         </div>
+                       </div>
+
+                       <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                         <span style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.3)' }}>
+                           {q.createdAt?.seconds ? new Date(q.createdAt.seconds * 1000).toLocaleDateString() : 'New'}
+                         </span>
+                         <div style={{ display: 'flex', gap: '8px' }}>
+                           <a href={`mailto:${q.email}`} style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#a78bfa', background: 'rgba(167,139,250,0.1)', border: '1px solid rgba(167,139,250,0.2)', padding: '6px 12px', borderRadius: '8px', textDecoration: 'none', fontSize: '0.8rem', fontWeight: 'bold', transition: 'all 0.2s' }}>
+                             Reply
+                           </a>
+                           <button 
+                             onClick={() => handleDeleteContact(q.id)}
+                             style={{ background: 'rgba(255, 68, 68, 0.1)', border: '1px solid rgba(255, 68, 68, 0.2)', color: '#ff4444', padding: '6px 12px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', fontWeight: 'bold', transition: 'all 0.2s' }}
+                           >
+                             <Trash2 size={14} /> Delete
+                           </button>
+                         </div>
+                       </div>
+                     </div>
+                   ))
+                )}
               </div>
             ) : (
-              <div className="premium-table-container">
-                <table className="admin-data-table" style={{ minWidth: '1000px' }}>
-                  <thead>
-                    <tr>
-                      <th>URL / Device</th>
-                      <th>User</th>
-                      <th>Description</th>
-                      <th style={{ textAlign: 'center' }}>Status</th>
-                      <th style={{ textAlign: 'center' }}>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {loadingBugs ? <tr><td colSpan={5} style={{ textAlign: 'center' }}>Loading reports...</td></tr> : 
-                     bugReports.length === 0 ? <tr><td colSpan={5} style={{ textAlign: 'center', opacity: 0.5 }}>No bug reports found.</td></tr> :
-                     bugReports.map(b => (
-                      <tr key={b.id}>
-                        <td>
-                          <div style={{ display: 'flex', flexDirection: 'column' }}>
-                            <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>{b.url}</span>
-                            <span style={{ fontSize: '0.75rem', opacity: 0.5, maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis' }}>{b.userAgent}</span>
-                          </div>
-                        </td>
-                        <td>
-                          {b.userData ? (
-                            <div style={{ display: 'flex', flexDirection: 'column' }}>
-                              <span>{b.userData.email}</span>
-                              <span style={{ fontSize: '0.7rem', opacity: 0.5 }}>{b.userData.uid}</span>
-                            </div>
-                          ) : (
-                            <span style={{ opacity: 0.5 }}>Anonymous</span>
-                          )}
-                        </td>
-                        <td style={{ maxWidth: '400px', whiteSpace: 'normal', fontSize: '0.85rem' }}>{b.description}</td>
-                        <td style={{ textAlign: 'center' }}>
-                          <select 
-                            className={`status-select bug--${b.status || 'open'}`}
-                            value={b.status || 'open'}
-                            onChange={(e) => handleUpdateBugStatus(b.id, e.target.value)}
-                          >
-                            <option value="open">Open</option>
-                            <option value="fixing">Fixing</option>
-                            <option value="resolved">Resolved</option>
-                          </select>
-                        </td>
-                        <td>
-                          <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                            <button 
-                              onClick={() => handleDeleteBug(b.id)}
-                              style={{ background: 'rgba(255, 68, 68, 0.1)', border: 'none', color: '#ff4444', padding: '8px', borderRadius: '8px', cursor: 'pointer' }}
-                              title="Delete"
-                            >
-                              <Trash2 size={16} />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                     ))
-                    }
-                  </tbody>
-                </table>
+              <div className="admin-directory-grid" style={{ marginTop: '24px' }}>
+                {loadingBugs ? (
+                   <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.9rem' }}>Loading reports...</div>
+                ) : bugReports.length === 0 ? (
+                   <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.9rem' }}>No bug reports found.</div>
+                ) : (
+                   bugReports.map(b => (
+                     <div key={b.id} className="admin-profile-card" style={{ borderTop: '3px solid rgba(255, 68, 68, 0.5)' }}>
+                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+                         <span className="badge-flagship" style={{ textTransform: 'uppercase', letterSpacing: '0.5px', background: 'rgba(255, 68, 68, 0.15)', color: '#ff4444', border: '1px solid rgba(255, 68, 68, 0.3)' }}>BUG REPORT</span>
+                         <select 
+                           className={`status-select bug--${b.status || 'open'}`}
+                           value={b.status || 'open'}
+                           onChange={(e) => handleUpdateBugStatus(b.id, e.target.value)}
+                           style={{ padding: '4px 8px', fontSize: '0.75rem', borderRadius: '6px' }}
+                         >
+                           <option value="open">Open</option>
+                           <option value="fixing">Fixing</option>
+                           <option value="resolved">Resolved</option>
+                         </select>
+                       </div>
+
+                       <div style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,68,68,0.2)', padding: '12px', borderRadius: '12px', marginBottom: '16px', fontSize: '0.85rem', color: '#e2e8f0', minHeight: '60px' }}>
+                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 'bold', marginBottom: '6px', color: '#ff4444' }}>
+                           <AlertCircle size={14} /> Description
+                         </div>
+                         <div style={{ lineHeight: '1.5', color: 'rgba(255,255,255,0.8)' }}>
+                           {b.description}
+                         </div>
+                       </div>
+
+                       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
+                         <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)' }}>
+                           <strong style={{ color: 'rgba(255,255,255,0.7)' }}>URL:</strong> {b.url}
+                         </div>
+                         <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.05)', padding: '6px', borderRadius: '6px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                           {b.userAgent}
+                         </div>
+                       </div>
+
+                       <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)' }}>
+                           <UserCheck size={14} /> 
+                           {b.userData ? <span style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', maxWidth: '120px' }}>{b.userData.email}</span> : 'Anonymous'}
+                         </div>
+                         <button 
+                           onClick={() => handleDeleteBug(b.id)}
+                           style={{ background: 'rgba(255, 68, 68, 0.1)', border: '1px solid rgba(255, 68, 68, 0.2)', color: '#ff4444', padding: '6px 12px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', fontWeight: 'bold', transition: 'all 0.2s' }}
+                         >
+                           <Trash2 size={14} /> Delete
+                         </button>
+                       </div>
+                     </div>
+                   ))
+                )}
               </div>
             )}
           </div>
         );
-      case 'registrations':
-        return <RegistrationManager key="all-registrations" isSuper={isSuper} />;
+      case 'registrations': {
+        const isDeptAdmin = adminProfile?.roleLevel?.some((r: string) => r.startsWith('department_admin')) || false;
+        let forcedHandles: string[] | undefined = undefined;
+        let specificEvents: string[] | undefined = undefined;
+        
+        if (!isSuper && isDeptAdmin) {
+          const DEPARTMENT_EVENT_MAPPING: Record<string, { handles: string[], specificEvents?: string[] }> = {
+            'department_admin-computer-engineering': { handles: ['Forge-Lead', 'Algo-Master', 'Code-Climber'] },
+            'department_admin-information-technology': { handles: ['Battle-Grid', 'Code-Climber'], specificEvents: ['sf4', 'codm'] },
+            'department_admin-ai-ds': { handles: ['IPL-Auctioneer'] },
+            'department_admin-ai-ml': { handles: ['Dev-Striker', 'Vibe-Lead', 'Relay-Coder'] },
+            'department_admin-civil-engineering': { handles: ['Arch-Nova'] },
+            'department_admin-electrical-engineering': { handles: ['Paper-Lead', 'Spark-Lead', 'Battle-Grid'], specificEvents: ['free fire'] },
+            'department_admin-e-tc-engineering': { handles: ['Mat-Master', 'Circuit-Ninja'] },
+            'department_admin-ece': { handles: ['Blind-Coder', 'Cricket-Lead', 'Battle-Grid'], specificEvents: ['among us'] },
+            'department_admin-mechanical-engineering': { handles: ['Master-Builder'] },
+          };
+
+          const activeDeptRole = adminProfile?.roleLevel?.find((r: string) => r.startsWith('department_admin')) || '';
+          const mapping = DEPARTMENT_EVENT_MAPPING[activeDeptRole];
+          if (mapping) {
+            forcedHandles = mapping.handles;
+            specificEvents = mapping.specificEvents;
+          }
+        }
+        
+        return <RegistrationManager 
+           key={`all-registrations-${isDeptAdmin}`} 
+           isSuper={isSuper} 
+           forcedHandle={forcedHandles} 
+           eventTitleFilter={specificEvents} 
+           title={isSuper ? "Global Registrations" : "Department Registrations"}
+           subtitle={isSuper ? "Managing all system-wide registrations" : "Managing registrations for your department events"}
+        />;
+      }
       case 'manual_entry': {
-        const canManualRegister = isSuper || (adminProfile?.roleLevel && adminProfile.roleLevel.some((r: string) => r.startsWith('admin-') || r.startsWith('workshop-')));
-        return canManualRegister ? <ManualRegistration isSuper={isSuper} adminProfile={adminProfile} /> : <div>Access Denied</div>;
+        const canManualRegister = isSuper || (adminProfile?.roleLevel && adminProfile.roleLevel.some((r: string) => r.startsWith('admin-') || r.startsWith('workshop-') || r.startsWith('department_admin-') || r === 'competition_admin'));
+        return canManualRegister ? <ManualRegistration isSuper={isSuper} adminProfile={adminProfile} /> : <div style={{ color: 'white' }}>Access Denied</div>;
       }
       case 'search':
         return isSuper ? <GlobalSearchView /> : <div>Access Denied</div>;
@@ -1572,8 +1796,27 @@ const AdminDashboard: React.FC = () => {
             </div>
           </div>
         );
+      case 'event_manager':
+        return (
+          <div className="admin-tab-section">
+            <div className="admin-header-card" style={{ marginBottom: '2rem' }}>
+              <div>
+                <h1 className="tab-title-premium">Event Manager</h1>
+                <p className="tab-subtitle-premium" style={{ margin: 0 }}>Edit your event cards, rules, and publish changes live to the website.</p>
+              </div>
+            </div>
+            <EventManager adminProfile={adminProfile} isSuper={isSuper} />
+          </div>
+        );
+      case 'users':
+        return (isSuper || adminProfile?.assignment === 'Registration Team') ? <UserManager isSuper={isSuper} /> : <div>Access Denied</div>;
       default:
-        return <div className="tab-content"><h1>{activeTab}</h1><p>Under construction.</p></div>;
+        return (
+          <div className="admin-tab-section animate-in" style={{ padding: '4rem 2rem', textAlign: 'center' }}>
+            <h1 className="tab-title-premium" style={{ textTransform: 'capitalize' }}>{activeTab.replace(/_/g, ' ')}</h1>
+            <p className="tab-subtitle-premium">Under construction.</p>
+          </div>
+        );
     }
   };
 
@@ -1605,12 +1848,35 @@ const AdminDirectoryView: React.FC<AdminDirectoryProps> = ({ currentUserId }) =>
   const [loading, setLoading] = useState(true);
   const toast = useToast();
 
+  // Add admin state
+  const [addAvrId, setAddAvrId] = useState('');
+  const [addRoleType, setAddRoleType] = useState('department_admin');
+  const [addDept, setAddDept] = useState(DEPARTMENT_OPTIONS[0]);
+  const [addCoreTeam, setAddCoreTeam] = useState(CORE_TEAM_OPTIONS[0]);
+  const [addFlagship, setAddFlagship] = useState(COMPETITION_OPTIONS[0].value);
+  const [addLoading, setAddLoading] = useState(false);
+
+  const handleAvrIdChangeLocal = (val: string, setter: (v: string) => void) => {
+    let raw = val.toUpperCase();
+    if (!raw.startsWith('AVR-')) raw = 'AVR-' + raw.replace(/^AVR-?/i, '');
+    const content = raw.slice(4).replace(/[^A-Z0-9]/g, '');
+    let letters = content.slice(0, 3).replace(/[0-9]/g, '');
+    let numbers = content.slice(letters.length).replace(/[A-Z]/g, '').slice(0, 4);
+    let formatted = 'AVR-' + letters;
+    if (letters.length === 3) formatted += (numbers.length > 0 ? '-' + numbers : '');
+    setter(formatted);
+  };
+
+  const refreshAdmins = async () => {
+    const q = query(collection(db, 'admins'), orderBy('type', 'desc'));
+    const snap = await getDocs(q);
+    setActiveAdmins(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+  };
+
   useEffect(() => {
     const fetchAdmins = async () => {
       try {
-        const q = query(collection(db, "admins"), orderBy("type", "desc"));
-        const snap = await getDocs(q);
-        setActiveAdmins(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+        await refreshAdmins();
       } catch (err) {
         console.error(err);
       } finally {
@@ -1620,29 +1886,113 @@ const AdminDirectoryView: React.FC<AdminDirectoryProps> = ({ currentUserId }) =>
     fetchAdmins();
   }, []);
 
-  const handleDemote = async (adminId: string, adminName: string) => {
-    if (adminId === currentUserId) {
-      toast.error("You cannot demote yourself!");
-      return;
-    }
-    
-    if (!window.confirm(`Are you sure you want to demote ${adminName}? They will lose all admin access instantly.`)) {
-      return;
-    }
-    
+  const handleAddAdmin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!addAvrId.trim()) { toast.error('Please enter an AVR-ID or Email.'); return; }
+
+    let compositeRole = '';
+    if (addRoleType === 'department_admin') compositeRole = `department_admin-${addDept.toLowerCase().replace(/[^a-z]/g, '-')}`;
+    else if (addRoleType === 'core_team') compositeRole = `core_team-${addCoreTeam.toLowerCase().replace(/[^a-z]/g, '-')}`;
+    else if (addRoleType === 'competition_admin') compositeRole = `admin-${addFlagship}`;
+    else compositeRole = 'superadmin';
+
+    setAddLoading(true);
     try {
-      await deleteDoc(doc(db, "admins", adminId));
+      const isEmail = addAvrId.includes('@');
+      let userDocSnap = null;
+      let userData = null;
+
+      if (isEmail) {
+        const qEmail = query(collection(db, "user"), where("email", "==", addAvrId.trim().toLowerCase()));
+        const snapEmail = await getDocs(qEmail);
+        if (!snapEmail.empty) {
+          userDocSnap = snapEmail.docs[0];
+          userData = userDocSnap.data();
+        }
+      } else {
+        const qAvr = query(collection(db, "user"), where("avrId", "==", addAvrId.trim().toUpperCase()));
+        const snapAvr = await getDocs(qAvr);
+        if (!snapAvr.empty) {
+          userDocSnap = snapAvr.docs[0];
+          userData = userDocSnap.data();
+        }
+      }
+
+      if (!userDocSnap || !userData) {
+        if (isEmail) {
+          await setDoc(doc(collection(db, "pre_approved_admins")), {
+            email: addAvrId.trim().toLowerCase(),
+            roleLevel: [compositeRole],
+            assignment: compositeRole,
+            type: addRoleType === 'superadmin' ? 'superadmin' : 'admin',
+            createdAt: new Date()
+          });
+          toast.success(`User not registered yet. Pre-approved ${addAvrId}!`);
+          setAddAvrId('');
+        } else {
+          toast.error(`User with ID ${addAvrId.toUpperCase()} not found.`);
+        }
+        setAddLoading(false);
+        return;
+      }
+
+      const counterRef = doc(db, 'counters', 'admin_counter');
+      const counterSnap = await getDoc(counterRef);
+      const nextAdmNum = (counterSnap.exists() ? (counterSnap.data().count || 0) : 0) + 1;
+      const avrAdmId = `AVR-ADM-${String(nextAdmNum).padStart(4, '0')}`;
+
+      await setDoc(doc(db, 'admins', userDocSnap.id), {
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        email: userData.email,
+        photoURL: userData.photoURL || null,
+        phone: userData.phone || null,
+        avrAdmId,
+        roleLevel: [compositeRole],
+        assignment: compositeRole,
+        type: addRoleType === 'superadmin' ? 'superadmin' : 'admin'
+      });
+      await setDoc(counterRef, { count: nextAdmNum }, { merge: true });
+
+      toast.success(`${userData.firstName} promoted as ${compositeRole}!`);
+      setAddAvrId('');
+    } catch (err: any) {
+      console.error(err);
+      toast.error('Failed to add admin: ' + (err.message || 'Unknown error'));
+    } finally {
+      setAddLoading(false);
+    }
+  };
+
+  const handleDemote = async (adminId: string, adminName: string) => {
+    if (adminId === currentUserId) { toast.error('You cannot demote yourself!'); return; }
+    if (!window.confirm(`Demote ${adminName}? They will lose all admin access instantly.`)) return;
+    try {
+      await deleteDoc(doc(db, 'admins', adminId));
       setActiveAdmins(prev => prev.filter(adm => adm.id !== adminId));
       toast.success(`${adminName} has been demoted to a regular user.`);
     } catch (err) {
       console.error(err);
-      toast.error("Failed to demote admin.");
+      toast.error('Failed to demote admin.');
     }
+  };
+
+  const getRoleBadgeLabel = (admin: any) => {
+    if (admin.type === 'superadmin') return 'SUPERADMIN';
+    const roles: string[] = Array.isArray(admin.roleLevel) ? admin.roleLevel : (admin.roleLevel ? [admin.roleLevel] : []);
+    if (roles.length === 0) return 'ADMIN';
+    const r = roles[0];
+    if (r.startsWith('department_admin')) return 'DEPT ADMIN';
+    if (r.startsWith('core_team')) return 'CORE TEAM';
+    if (r.startsWith('competition_admin')) return 'COMP ADMIN';
+    if (r === 'superadmin') return 'SUPERADMIN';
+    return r.toUpperCase().replace(/-/g, ' ');
   };
 
   return (
     <div className="admin-tab-section">
-      <div className="admin-header-card" style={{ marginBottom: '2.5rem' }}>
+      {/* Header */}
+      <div className="admin-header-card" style={{ marginBottom: '2rem' }}>
         <div>
           <h1 className="tab-title-premium">Admin Directory</h1>
           <p className="tab-subtitle-premium" style={{ margin: 0 }}>System-wide access management</p>
@@ -1652,38 +2002,118 @@ const AdminDirectoryView: React.FC<AdminDirectoryProps> = ({ currentUserId }) =>
         </div>
       </div>
 
+      {/* ── Add Admin Form ── */}
+      <div style={{ background: 'rgba(167,139,250,0.05)', borderRadius: '1.5rem', padding: '1.5rem', border: '1px solid rgba(167,139,250,0.2)', marginBottom: '2rem', backdropFilter: 'blur(20px)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.25rem' }}>
+          <Shield size={20} color="#a78bfa" />
+          <h3 style={{ color: '#a78bfa', margin: 0, fontSize: '1.05rem', fontWeight: 700 }}>Add New Admin</h3>
+        </div>
+        <form onSubmit={handleAddAdmin}>
+          {/* AVR-ID row */}
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ color: '#e2e8f0', marginBottom: '6px', display: 'block', fontSize: '0.82rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Target Identifier (AVR-ID or Email)</label>
+            <input
+              type="text"
+              placeholder="e.g. AVR-SHR-0001 or pre-approve@gmail.com"
+              value={addAvrId}
+              onChange={e => setAddAvrId(e.target.value)}
+              style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(167,139,250,0.3)', color: '#fff', outline: 'none', fontFamily: 'inherit', fontSize: '0.95rem' }}
+            />
+          </div>
+          {/* Role selects row */}
+          <div className="add-admin-form-row">
+            <div>
+              <label style={{ color: '#e2e8f0', marginBottom: '6px', display: 'block', fontSize: '0.82rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Role Type</label>
+              <GlassSelect
+                value={addRoleType}
+                onChange={(val: string) => setAddRoleType(val)}
+                options={[
+                  { label: 'Department Admin', value: 'department_admin' },
+                  { label: 'Competition Admin', value: 'competition_admin' },
+                  { label: 'Core Team', value: 'core_team' },
+                  { label: 'Superadmin', value: 'superadmin' }
+                ]}
+                style={{ width: '100%' }}
+              />
+            </div>
+            <div>
+              <label style={{ color: '#e2e8f0', marginBottom: '6px', display: 'block', fontSize: '0.82rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                {addRoleType === 'department_admin' ? 'Department' : addRoleType === 'core_team' ? 'Team' : addRoleType === 'competition_admin' ? 'Competition' : 'Scope'}
+              </label>
+              {addRoleType === 'department_admin' && (
+                <GlassSelect value={addDept} onChange={(v: string) => setAddDept(v)} options={DEPARTMENT_OPTIONS.map(d => ({ label: d, value: d }))} style={{ width: '100%' }} />
+              )}
+              {addRoleType === 'core_team' && (
+                <GlassSelect value={addCoreTeam} onChange={(v: string) => setAddCoreTeam(v)} options={CORE_TEAM_OPTIONS.map(t => ({ label: t, value: t }))} style={{ width: '100%' }} />
+              )}
+              {addRoleType === 'competition_admin' && (
+                <GlassSelect value={addFlagship} onChange={(v: string) => setAddFlagship(v)} options={COMPETITION_OPTIONS} style={{ width: '100%' }} />
+              )}
+              {addRoleType === 'superadmin' && (
+                <input disabled value="All Access" style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(167,139,250,0.25)', color: '#888', outline: 'none', fontFamily: 'inherit', fontSize: '0.95rem' }} />
+              )}
+            </div>
+          </div>
+          <button
+            type="submit"
+            disabled={addLoading}
+            style={{ width: '100%', padding: '12px', borderRadius: '12px', background: 'linear-gradient(135deg,#a78bfa,#7c3aed)', color: '#fff', fontWeight: 700, fontSize: '0.95rem', border: 'none', cursor: addLoading ? 'not-allowed' : 'pointer', opacity: addLoading ? 0.6 : 1, transition: 'all 0.2s ease', marginTop: '0.5rem' }}
+          >
+            {addLoading ? 'Promoting...' : '+ Promote User to Admin'}
+          </button>
+        </form>
+      </div>
+
+      {/* ── Admin Cards Grid ── */}
       <div className="admin-directory-grid">
-        {loading ? <div style={{ color: '#fff' }}>Scanning nodes...</div> :
-         activeAdmins.map(admin => (
+        {loading ? (
+          <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.9rem' }}>Scanning nodes...</div>
+        ) : activeAdmins.length === 0 ? (
+          <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.9rem' }}>No admins found.</div>
+        ) : activeAdmins.map(admin => (
           <div key={admin.id} className="admin-profile-card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
-              <div className="admin-avatar-wrapper" style={{ width: '60px', height: '60px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+              <div className="admin-avatar-wrapper" style={{ width: '52px', height: '52px' }}>
                 <img src={admin.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${admin.email}`} alt="Avatar" />
               </div>
-              <span className={`badge-premium ${admin.roleLevel === 'superadmin' ? 'badge-super' : 'badge-flagship'}`}>
-                {admin.roleLevel === 'superadmin' ? 'SUPER' : 'FLAGSHIP'}
+              <span className={`badge-premium ${admin.type === 'superadmin' ? 'badge-superadmin' : 'badge-flagship'}`}>
+                {getRoleBadgeLabel(admin)}
               </span>
             </div>
-            
-            <h3 style={{ color: '#fff', fontSize: '1.1rem', marginBottom: '4px' }}>{admin.email?.split('@')[0]}</h3>
-            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.85rem', marginBottom: '1rem' }}>{admin.email}</p>
-            
-            <div className="admin-id-pill" style={{ fontSize: '0.75rem', marginBottom: '1.5rem' }}>
+
+            <h3 style={{ color: '#fff', fontSize: '1rem', marginBottom: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {admin.firstName ? `${admin.firstName} ${admin.lastName || ''}`.trim() : admin.email?.split('@')[0]}
+            </h3>
+            <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '0.75rem', marginBottom: '0.75rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{admin.email}</p>
+
+            <div className="admin-id-pill" style={{ fontSize: '0.7rem', marginBottom: '1rem' }}>
               Node: <span>{admin.avrAdmId || 'Unassigned'}</span>
             </div>
 
-            <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-               <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'rgba(20, 255, 201, 0.8)', fontSize: '0.75rem', fontWeight: 700 }}>
-                  <Shield size={14} /> ONLINE
-               </div>
-               {admin.id !== currentUserId && (
-                 <button 
-                   onClick={() => handleDemote(admin.id, admin.email)}
-                   style={{ background: 'transparent', border: 'none', color: '#ff4444', cursor: 'pointer', padding: '4px', opacity: 0.6 }}
-                 >
-                   <Trash2 size={16} />
-                 </button>
-               )}
+            {/* Role detail */}
+            {Array.isArray(admin.roleLevel) && admin.roleLevel.length > 0 && (
+              <div style={{ marginBottom: '1rem', display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                {admin.roleLevel.slice(0, 3).map((r: string, i: number) => (
+                  <span key={i} style={{ fontSize: '0.62rem', padding: '2px 8px', background: 'rgba(167,139,250,0.1)', color: '#a78bfa', borderRadius: '6px', fontWeight: 600, letterSpacing: '0.3px' }}>
+                    {r}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '0.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: 'rgba(20,255,201,0.8)', fontSize: '0.7rem', fontWeight: 700 }}>
+                <Shield size={12} /> ONLINE
+              </div>
+              {admin.id !== currentUserId && (
+                <button
+                  onClick={() => handleDemote(admin.id, admin.email)}
+                  title="Remove Admin Access"
+                  style={{ background: 'rgba(255,68,68,0.1)', border: '1px solid rgba(255,68,68,0.2)', color: '#ff4444', cursor: 'pointer', padding: '5px 10px', borderRadius: '8px', fontSize: '0.72rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px', transition: 'all 0.2s ease' }}
+                >
+                  <Trash2 size={12} /> Remove
+                </button>
+              )}
             </div>
           </div>
         ))}
@@ -1691,6 +2121,7 @@ const AdminDirectoryView: React.FC<AdminDirectoryProps> = ({ currentUserId }) =>
     </div>
   );
 };
+
 
 // WebsiteSettingsView removed
 
@@ -1716,7 +2147,7 @@ const GlobalSearchView: React.FC = () => {
       );
       const userSnap = await getDocs(qUser);
 
-      let foundUser = null;
+      let foundUser: any = null;
       if (userSnap.empty) {
         const qEmail = query(collection(db, "user"), where("email", "==", searchQuery.trim().toLowerCase()));
         const emailSnap = await getDocs(qEmail);
@@ -1728,11 +2159,50 @@ const GlobalSearchView: React.FC = () => {
       }
 
       if (!foundUser) {
+        // Fallback: search admins collection
+        const qAdminId = query(collection(db, "admins"), where("avrAdmId", "==", searchQuery.trim().toUpperCase()));
+        const adminIdSnap = await getDocs(qAdminId);
+        
+        if (!adminIdSnap.empty) {
+          foundUser = { id: adminIdSnap.docs[0].id, ...adminIdSnap.docs[0].data(), avrId: adminIdSnap.docs[0].data().avrAdmId || 'Admin' };
+        } else {
+          const qAdminEmail = query(collection(db, "admins"), where("email", "==", searchQuery.trim().toLowerCase()));
+          const adminEmailSnap = await getDocs(qAdminEmail);
+          if (!adminEmailSnap.empty) {
+            foundUser = { id: adminEmailSnap.docs[0].id, ...adminEmailSnap.docs[0].data(), avrId: adminEmailSnap.docs[0].data().avrAdmId || 'Admin' };
+          }
+        }
+      }
+
+      if (!foundUser) {
         toast.error("No user found with that ID or Email.");
         return;
       }
 
-      setUserData(foundUser);
+      // Fetch BOTH standard profile and admin profile to merge data
+      let standardData: any = {};
+      let adminData: any = {};
+      try {
+        const uDoc = await getDoc(doc(db, "user", foundUser.id));
+        if (uDoc.exists()) standardData = uDoc.data();
+      } catch (e) {}
+      
+      try {
+        const aDoc = await getDoc(doc(db, "admins", foundUser.id));
+        if (aDoc.exists()) adminData = aDoc.data();
+      } catch (e) {}
+
+      // Prefer standardData properties, fallback to adminData properties (like photoURL), then overlay BOTH IDs.
+      const mergedUser = { 
+        ...adminData,
+        ...standardData,
+        id: foundUser.id,
+        // Ensure both IDs are available for the UI
+        avrId: standardData.avrId || foundUser.avrId,
+        avrAdmId: adminData.avrAdmId || null
+      };
+
+      setUserData(mergedUser);
 
       const qRegs = query(collection(db, "registrations"), where("userId", "==", foundUser.id));
       const regsSnap = await getDocs(qRegs);
@@ -1785,7 +2255,10 @@ const GlobalSearchView: React.FC = () => {
                   )}
                 </div>
                 <h2 style={{ color: '#fff', margin: 0 }}>{userData.firstName} {userData.lastName}</h2>
-                <span className="avr-id-cell">{userData.avrId}</span>
+                <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginTop: '6px' }}>
+                  {userData.avrId && userData.avrId !== 'Admin' && <span className="avr-id-cell">{userData.avrId}</span>}
+                  {userData.avrAdmId && <span className="badge-premium badge-superadmin" style={{ padding: '4px 8px', fontSize: '0.75rem' }}>{userData.avrAdmId}</span>}
+                </div>
               </div>
               
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -1796,13 +2269,23 @@ const GlobalSearchView: React.FC = () => {
                   <Phone size={16} /> {userData.phone || 'No Phone'}
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#e2e8f0', fontSize: '0.9rem' }}>
-                  <Fingerprint size={16} /> Age: {userData.dob ? (new Date().getFullYear() - new Date(userData.dob).getFullYear()) : 'N/A'}
+                  <Fingerprint size={16} /> Age: {(() => {
+                    if (!userData.dob) return 'N/A';
+                    let yr = NaN;
+                    if (userData.dob.includes('/')) {
+                      const pts = userData.dob.split('/');
+                      if(pts.length === 3) yr = parseInt(pts[2], 10);
+                    } else {
+                      yr = new Date(userData.dob).getFullYear();
+                    }
+                    return isNaN(yr) ? 'N/A' : (new Date().getFullYear() - yr).toString();
+                  })()}
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#e2e8f0', fontSize: '0.9rem' }}>
                   <School size={16} /> {userData.college || 'N/A'}
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#e2e8f0', fontSize: '0.9rem' }}>
-                  <BookOpen size={16} /> {userData.major || 'N/A'}
+                  <BookOpen size={16} /> {userData.major || 'N/A'} • Pass Year: {userData.passingYear || userData.year || 'N/A'}
                 </div>
               </div>
             </div>

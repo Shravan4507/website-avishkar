@@ -1,5 +1,5 @@
 export interface Competition {
-    id: string;
+        id: string;
     code: string;
     title: string;
     subtitle: string;
@@ -185,7 +185,9 @@ export const COMPETITIONS_DATA: Competition[] = [
             { name: "TBA", phone: "" }
         ],
         status: "published",
-        isExhibition: true
+        isExhibition: true,
+        slug: 'align-x-26',
+        handle: 'AlignX'
     },
     {
         id: 'CMP-26-FLG-RBR-003',
@@ -220,7 +222,9 @@ export const COMPETITIONS_DATA: Competition[] = [
             { name: "TBA", phone: "" }
         ],
         status: "published",
-        isExhibition: true
+        isExhibition: true,
+        slug: 'robo-rush-26',
+        handle: 'RoboRush'
     },
     {
         id: 'CMP-26-FLG-RBM-004',
@@ -255,7 +259,9 @@ export const COMPETITIONS_DATA: Competition[] = [
             { name: "TBA", phone: "" }
         ],
         status: "published",
-        isExhibition: true
+        isExhibition: true,
+        slug: 'robo-maze-26',
+        handle: 'RoboMaze'
     },
     {
         id: 'CMP-26-BTG-BGMI-001',
@@ -291,7 +297,9 @@ export const COMPETITIONS_DATA: Competition[] = [
         ],
         status: "published",
         isExhibition: true,
-        prizePool: 'TBD'
+        prizePool: 'TBD',
+        slug: 'bgmi-26',
+        handle: 'BGMI'
     },
     {
         id: 'CMP-26-BTG-FF-002',
@@ -318,15 +326,19 @@ export const COMPETITIONS_DATA: Competition[] = [
         registrationEnd: '2026-04-15',
         isRegistrationOpen: true,
         entryFee: 250,
+        prizePool: '6000',
         paymentRequired: true,
         minTeamSize: 4,
         maxTeamSize: 4,
         teamRequired: true,
         coordinators: [
-            { name: "TBA", phone: "" }
+            { name: "Rohit Chavan", phone: "7823056055" },
+            { name: "Shubham Jagtap", phone: "9172125455" }
         ],
         status: "published",
-        isExhibition: true
+        isExhibition: true,
+        slug: 'free-fire-26',
+        handle: 'FreeFire'
     },
     {
         id: 'CMP-26-BTG-CODM-003',
@@ -352,16 +364,20 @@ export const COMPETITIONS_DATA: Competition[] = [
         registrationStart: '2026-03-01',
         registrationEnd: '2026-04-15',
         isRegistrationOpen: true,
-        entryFee: 300,
+        entryFee: 400,
+        prizePool: '16000',
         paymentRequired: true,
         minTeamSize: 4,
         maxTeamSize: 5,
         teamRequired: true,
         coordinators: [
-            { name: "TBA", phone: "" }
+            { name: "Vaibhav Bandgar", phone: "9730906103" },
+            { name: "Sujal Jaju", phone: "8010127828" }
         ],
         status: "published",
-        isExhibition: true
+        isExhibition: true,
+        slug: 'codm-26',
+        handle: 'CODM'
     },
     {
         id: 'CMP-26-BTG-SF4-004',
@@ -388,15 +404,19 @@ export const COMPETITIONS_DATA: Competition[] = [
         registrationEnd: '2026-04-15',
         isRegistrationOpen: true,
         entryFee: 150,
+        prizePool: '8000',
         paymentRequired: true,
         minTeamSize: 1,
         maxTeamSize: 1,
         teamRequired: false,
         coordinators: [
-            { name: "TBA", phone: "" }
+            { name: "Pranav Kulkarni", phone: "9423162724" },
+            { name: "Sujal Jaju", phone: "8010127828" }
         ],
         status: "published",
-        isExhibition: true
+        isExhibition: true,
+        slug: 'shadow-fight-4-26',
+        handle: 'ShadowFight4'
     },
     {
         id: 'CMP-26-BTG-AUS-005',
@@ -423,15 +443,19 @@ export const COMPETITIONS_DATA: Competition[] = [
         registrationEnd: '2026-04-15',
         isRegistrationOpen: true,
         entryFee: 100,
+        prizePool: '6000',
         paymentRequired: true,
         minTeamSize: 1,
         maxTeamSize: 1,
         teamRequired: false,
         coordinators: [
-            { name: "TBA", phone: "" }
+            { name: "Mrunali Kolte", phone: "9067101314" },
+            { name: "Yadnesh Chakolkar", phone: "8080206737" }
         ],
         status: "published",
-        isExhibition: true
+        isExhibition: true,
+        slug: 'among-us-26',
+        handle: 'AmongUs'
     },
     {
         id: 'CMP-26-CS-FGX-001',
@@ -458,15 +482,20 @@ export const COMPETITIONS_DATA: Competition[] = [
         registrationEnd: '2026-04-15',
         isRegistrationOpen: true,
         entryFee: 99,
+        prizePool: '9000',
         paymentRequired: true,
         minTeamSize: 1,
         maxTeamSize: 2,
         teamRequired: false,
         coordinators: [
-            { name: "Chetan Badgujar", phone: "8530052369" }
+            { name: "Chetan Badgujar", phone: "8530052369" },
+            { name: "Yuvraj Gaykhe", phone: "7276310480" },
+            { name: "Vedanshu Kshirsagar", phone: "9822239552" }
         ],
         rulebook: `${import.meta.env.BASE_URL}assets/rule-books/forgex.pdf`,
-        status: "published"
+        status: "published",
+        slug: 'forge-x-26',
+        handle: 'Forge-Lead'
     },
     {
         id: 'CMP-26-CS-ALB-002',
@@ -493,15 +522,20 @@ export const COMPETITIONS_DATA: Competition[] = [
         registrationEnd: '2026-04-15',
         isRegistrationOpen: true,
         entryFee: 99,
+        prizePool: '9000',
         paymentRequired: true,
         minTeamSize: 3,
         maxTeamSize: 4,
         teamRequired: true,
         coordinators: [
-            { name: 'Tejprakash Mirashi', phone: '7378965050' }
+            { name: "Tejprakash Mirashi", phone: "7378965050" },
+            { name: "Yuvraj Gaykhe", phone: "7276310480" },
+            { name: "Vedanshu Kshirsagar", phone: "9822239552" }
         ],
         rulebook: `${import.meta.env.BASE_URL}assets/rule-books/algobid.pdf`,
-        status: "published"
+        status: "published",
+        slug: 'algo-bid-26',
+        handle: 'Algo-Master'
     },
     {
         id: 'CMP-26-IT-CDL-003',
@@ -528,15 +562,19 @@ export const COMPETITIONS_DATA: Competition[] = [
         registrationEnd: '2026-04-15',
         isRegistrationOpen: true,
         entryFee: 250,
+        prizePool: '15000',
         paymentRequired: true,
         minTeamSize: 4,
         maxTeamSize: 4,
         teamRequired: true,
         coordinators: [
-            { name: 'Shreya Kad', phone: '7517021872' }
+            { name: "Shreya Kad", phone: "7517021872" },
+            { name: "Sujal Jaju", phone: "8010127828" }
         ],
         rulebook: `${import.meta.env.BASE_URL}assets/rule-books/code-ladder.pdf`,
-        status: "published"
+        status: "published",
+        slug: 'code-ladder-26',
+        handle: 'Code-Climber'
     },
     {
         id: 'CMP-26-AD-IPL-004',
@@ -562,7 +600,8 @@ export const COMPETITIONS_DATA: Competition[] = [
         registrationStart: '2026-03-01',
         registrationEnd: '2026-04-15',
         isRegistrationOpen: true,
-        entryFee: 400,
+        entryFee: 250,
+        prizePool: '31000',
         paymentRequired: true,
         minTeamSize: 1,
         maxTeamSize: 5,
@@ -571,7 +610,9 @@ export const COMPETITIONS_DATA: Competition[] = [
             { name: "Dhanraj Funde", phone: "9370304023" }
         ],
         rulebook: `${import.meta.env.BASE_URL}assets/rule-books/ipl-auction.pdf`,
-        status: "published"
+        status: "published",
+        slug: 'ipl-auction-26',
+        handle: 'IPL-Auctioneer'
     },
     {
         id: 'CMP-26-EC-BCC-005',
@@ -598,20 +639,24 @@ export const COMPETITIONS_DATA: Competition[] = [
         registrationEnd: '2026-04-15',
         isRegistrationOpen: true,
         entryFee: 200,
+        prizePool: '6000',
         paymentRequired: true,
         minTeamSize: 1,
         maxTeamSize: 1,
         teamRequired: false,
         coordinators: [
-            { name: 'Shivani Shinde', phone: '9011214573' }
+            { name: "Sherya Kadam", phone: "9511659631" },
+            { name: "Yadnesh Chakolkar", phone: "8080206737" }
         ],
         rulebook: `${import.meta.env.BASE_URL}assets/rule-books/blind-coding.pdf`,
-        status: "published"
+        status: "published",
+        slug: 'blind-code-26',
+        handle: 'Blind-Coder'
     },
     {
         id: 'CMP-26-AM-DVC-006',
         code: 'DVC',
-        title: 'DevClash',
+        title: 'Dev Clash',
         subtitle: 'AI Hackathon & Pitching',
         description: 'An innovation-based technical event where teams develop AI solutions for real-world problems.',
         category: 'DEP',
@@ -633,15 +678,19 @@ export const COMPETITIONS_DATA: Competition[] = [
         registrationEnd: '2026-04-15',
         isRegistrationOpen: true,
         entryFee: 250,
+        prizePool: '10000',
         paymentRequired: true,
         minTeamSize: 3,
         maxTeamSize: 5,
         teamRequired: true,
         coordinators: [
-            { name: 'Varad Gaurav', phone: '7887323956' }
+            { name: "Vallabh Gundap", phone: "9921371155" },
+            { name: "Varad Gaurav", phone: "7887323956" }
         ],
         rulebook: `${import.meta.env.BASE_URL}assets/rule-books/devclash.pdf`,
-        status: "published"
+        status: "published",
+        slug: 'dev-clash-26',
+        handle: 'Dev-Striker'
     },
     {
         id: 'CMP-26-AM-VSP-007',
@@ -668,20 +717,24 @@ export const COMPETITIONS_DATA: Competition[] = [
         registrationEnd: '2026-04-15',
         isRegistrationOpen: true,
         entryFee: 100,
+        prizePool: '10000',
         paymentRequired: true,
         minTeamSize: 1,
         maxTeamSize: 1,
         teamRequired: false,
         coordinators: [
-            { name: 'Manish Saindane', phone: '8010550280' }
+            { name: "M Venkat Chandrakat Babu", phone: "8788675249" },
+            { name: "Varad Gaurav", phone: "7887323956" }
         ],
         rulebook: `${import.meta.env.BASE_URL}assets/rule-books/vibe-coding.pdf`,
-        status: "published"
+        status: "published",
+        slug: 'vibe-sprint-26',
+        handle: 'Vibe-Lead'
     },
     {
         id: 'CMP-26-AM-CRR-008',
         code: 'CRR',
-        title: 'Code Relay Race',
+        title: 'Code Run',
         subtitle: 'Relay. Code. Conquer.',
         description: 'A team-based relay coding challenge where each member writes a part of the code.',
         category: 'DEP',
@@ -703,15 +756,19 @@ export const COMPETITIONS_DATA: Competition[] = [
         registrationEnd: '2026-04-15',
         isRegistrationOpen: true,
         entryFee: 250,
+        prizePool: '10000',
         paymentRequired: true,
         minTeamSize: 5,
         maxTeamSize: 5,
         teamRequired: true,
         coordinators: [
-            { name: 'Parth Shinde', phone: '9168906630' }
+            { name: "Parth Shinde", phone: "9168906630" },
+            { name: "Varad Gaurav", phone: "7887323956" }
         ],
         rulebook: `${import.meta.env.BASE_URL}assets/rule-books/code-relay.pdf`,
-        status: "published"
+        status: "published",
+        slug: 'code-relay-26',
+        handle: 'Relay-Coder'
     },
     {
         id: 'CMP-26-CE-BRN-009',
@@ -738,15 +795,18 @@ export const COMPETITIONS_DATA: Competition[] = [
         registrationEnd: '2026-04-15',
         isRegistrationOpen: true,
         entryFee: 150,
+        prizePool: '11000',
         paymentRequired: true,
         minTeamSize: 2,
         maxTeamSize: 4,
         teamRequired: true,
         coordinators: [
-            { name: 'Ashish Shinde', phone: '9373113736' }
+            { name: "Ashish Shinde", phone: "9373113736" }
         ],
         rulebook: `${import.meta.env.BASE_URL}assets/rule-books/bridge-nova.pdf`,
-        status: "published"
+        status: "published",
+        slug: 'bridge-nova-26',
+        handle: 'Arch-Nova'
     },
     {
         id: 'CMP-26-EE-PPT-010',
@@ -773,20 +833,24 @@ export const COMPETITIONS_DATA: Competition[] = [
         registrationEnd: '2026-04-15',
         isRegistrationOpen: true,
         entryFee: 100,
+        prizePool: '6000',
         paymentRequired: true,
         minTeamSize: 1,
         maxTeamSize: 2,
         teamRequired: false,
         coordinators: [
-            { name: 'Pranav Katu', phone: '9503231138' }
+            { name: "Pranav Katu", phone: "9503231138" },
+            { name: "Shubham Jagtap", phone: "9172125455" }
         ],
         rulebook: `${import.meta.env.BASE_URL}assets/rule-books/poster-presentation.pdf`,
-        status: "published"
+        status: "published",
+        slug: 'poster-presentation-26',
+        handle: 'Paper-Lead'
     },
     {
         id: 'CMP-26-EE-SPT-011',
         code: 'SPT',
-        title: 'Spark Tank',
+        title: 'Spark Tank - Electro-Innovation Pitch',
         subtitle: 'Pitch Your Innovation',
         description: 'Pitch your innovative electronics-based products to a panel of expert "sharks".',
         category: 'DEP',
@@ -808,15 +872,19 @@ export const COMPETITIONS_DATA: Competition[] = [
         registrationEnd: '2026-04-15',
         isRegistrationOpen: true,
         entryFee: 200,
+        prizePool: '6000',
         paymentRequired: true,
         minTeamSize: 1,
         maxTeamSize: 4,
         teamRequired: true,
         coordinators: [
-            { name: 'Harshita Jadhav', phone: '9356766305' }
+            { name: "Harshita Jadhav", phone: "9356766305" },
+            { name: "Shubham Jagtap", phone: "9172125455" }
         ],
         rulebook: `${import.meta.env.BASE_URL}assets/rule-books/spark-tank.pdf`,
-        status: "published"
+        status: "published",
+        slug: 'spark-tank-26',
+        handle: 'Spark-Lead'
     },
     {
         id: 'CMP-26-EC-MTM-012',
@@ -842,16 +910,22 @@ export const COMPETITIONS_DATA: Competition[] = [
         registrationStart: '2026-03-01',
         registrationEnd: '2026-04-15',
         isRegistrationOpen: true,
-        entryFee: 149,
+        entryFee: 300,
+        prizePool: '6000',
         paymentRequired: true,
         minTeamSize: 1,
         maxTeamSize: 2,
         teamRequired: false,
         coordinators: [
-            { name: 'Pranav Achrekar', phone: '7058481186' }
+            { name: "Pranav Achrekar", phone: "7058481186" },
+            { name: "Aadesh Bartakke", phone: "8888487529" },
+            { name: "Sarvesh Vadgave", phone: "7709594746" },
+            { name: "Neel Mehata", phone: "7741022634" }
         ],
         rulebook: `${import.meta.env.BASE_URL}assets/rule-books/matlab-madness.pdf`,
-        status: "published"
+        status: "published",
+        slug: 'matlab-madness-26',
+        handle: 'Mat-Master'
     },
     {
         id: 'CMP-26-EC-CTS-013',
@@ -877,20 +951,26 @@ export const COMPETITIONS_DATA: Competition[] = [
         registrationStart: '2026-03-01',
         registrationEnd: '2026-04-15',
         isRegistrationOpen: true,
-        entryFee: 149,
+        entryFee: 300,
+        prizePool: '6000',
         paymentRequired: true,
         minTeamSize: 1,
         maxTeamSize: 2,
         teamRequired: false,
         coordinators: [
-            { name: 'Saniya Jadhav', phone: '9699281400' }
+            { name: "Saniya Jadhav", phone: "9699281400" },
+            { name: "Aadesh Bartakke", phone: "8888487529" },
+            { name: "Sarvesh Vadgave", phone: "7709594746" },
+            { name: "Neel Mehata", phone: "7741022634" }
         ],
-        status: "published"
+        status: "published",
+        slug: 'circuit-sim-26',
+        handle: 'Circuit-Ninja'
     },
     {
         id: 'CMP-26-ME-CTC-014',
         code: 'CTC',
-        title: 'Contraptions Challenge',
+        title: 'Contraption Challange',
         subtitle: 'Energy Conversion',
         description: 'Design and build intricate chain-reaction systems of energy conversion.',
         category: 'DEP',
@@ -912,15 +992,19 @@ export const COMPETITIONS_DATA: Competition[] = [
         registrationEnd: '2026-04-15',
         isRegistrationOpen: true,
         entryFee: 150,
+        prizePool: '6000',
         paymentRequired: true,
         minTeamSize: 4,
         maxTeamSize: 4,
         teamRequired: true,
         coordinators: [
-            { name: 'Swapnil Gole', phone: '7058855414' }
+            { name: "Swapnil Gole", phone: "7058855414" },
+            { name: "Trupti doiphode", phone: "9309206369" }
         ],
         rulebook: `${import.meta.env.BASE_URL}assets/rule-books/contraptions.pdf`,
-        status: "published"
+        status: "published",
+        slug: 'contraptions-26',
+        handle: 'Master-Builder'
     },
     {
         id: 'CMP-26-EC-CCK-015',
@@ -947,15 +1031,19 @@ export const COMPETITIONS_DATA: Competition[] = [
         registrationEnd: '2026-04-15',
         isRegistrationOpen: true,
         entryFee: 100,
+        prizePool: '6000',
         paymentRequired: true,
         minTeamSize: 4,
         maxTeamSize: 4,
         teamRequired: true,
         coordinators: [
-            { name: 'Trushita Barhate', phone: '9009989885' }
+            { name: "Trushita Barhate", phone: "9009989885" },
+            { name: "Yadnesh Chakolkar", phone: "8080206737" }
         ],
         rulebook: `${import.meta.env.BASE_URL}assets/rule-books/circle-cricket.pdf`,
-        status: "published"
+        status: "published",
+        slug: 'circle-cricket-26',
+        handle: 'Cricket-Lead'
     },
     {
         id: 'CMP-26-GEN-PPR-001',
@@ -990,7 +1078,9 @@ export const COMPETITIONS_DATA: Competition[] = [
             { name: 'TBA', phone: '' }
         ],
         rulebook: `${import.meta.env.BASE_URL}assets/rule-books/paper-presentation.pdf`,
-        status: "published"
+        status: "published",
+        slug: 'paper-presentation-26',
+        handle: 'Research-Lead'
     },
     {
         id: 'CMP-26-GEN-PRJ-002',
@@ -1025,7 +1115,9 @@ export const COMPETITIONS_DATA: Competition[] = [
             { name: 'TBA', phone: '' }
         ],
         rulebook: `${import.meta.env.BASE_URL}assets/rule-books/project-presentation.pdf`,
-        status: "published"
+        status: "published",
+        slug: 'project-comp-26',
+        handle: 'Project-Master'
     },
 ];
 

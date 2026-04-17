@@ -1,5 +1,5 @@
 import React from 'react';
-import { BarChart2, Users, LogOut, Ticket, Shield, Search, Sparkles, Mail, Gamepad2, Cpu, Code, FileText, UserPlus } from 'lucide-react';
+import { BarChart2, Users, LogOut, Ticket, Shield, Search, Sparkles, Mail, Gamepad2, Cpu, Code, FileText, UserPlus, Edit } from 'lucide-react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from '../../../firebase/firebase';
 import type { AdminProfile } from '../../../pages/admin/admindashboard';
@@ -26,15 +26,19 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, setActiveTab, is
   };
 
   const hasRole = (role: string) => adminProfile?.roleLevel?.includes(role);
+  const isDeptAdmin = adminProfile?.roleLevel?.some((r: string) => r.startsWith('department_admin')) || false;
+  const isCoreTeam = adminProfile?.roleLevel?.some((r: string) => r.startsWith('core_team')) || false;
+  const isCompAdmin = adminProfile?.roleLevel?.some((r: string) => r.startsWith('admin-') || r === 'competition_admin') || false;
 
   const navItems = [
     // Core
     { id: 'overview',       label: 'Command Center',    Icon: BarChart2, visible: true },
-    { id: 'registrations',  label: 'Registrations',     Icon: Ticket, visible: isSuper },
-    { id: 'manual_entry',   label: 'Manual Registration', Icon: UserPlus, visible: isSuper || adminProfile?.roleLevel?.some((r: string) => r.startsWith('admin-') || r.startsWith('workshop-')) },
-    { id: 'search',         label: 'Global Search',     Icon: Search, visible: isSuper },
-    { id: 'sponsors',       label: 'Sponsors & Partners', Icon: Shield, visible: isSuper || adminProfile?.assignment === 'Sponsorship Team' },
+    { id: 'registrations',  label: 'Registrations',     Icon: Ticket, visible: isSuper || isDeptAdmin || adminProfile?.assignment === 'core_team-technical-team' },
+    { id: 'manual_entry',   label: 'Manual Registration', Icon: UserPlus, visible: isSuper || isDeptAdmin || isCompAdmin || adminProfile?.roleLevel?.some((r: string) => r.startsWith('workshop-')) },
+    { id: 'search',         label: 'Global Search',     Icon: Search, visible: isSuper || isCoreTeam },
+    { id: 'sponsors',       label: 'Sponsors & Partners', Icon: Shield, visible: isSuper || adminProfile?.assignment === 'core_team-sponsorship-team' || hasRole('core_team-sponsorship-team') },
     { id: 'stall_bookings', label: 'Marketplace Bookings', Icon: Ticket, visible: isSuper },
+    { id: 'event_manager',  label: 'Event Manager',       Icon: Edit,   visible: isSuper || isDeptAdmin || isCompAdmin },
 
     // Flagship — ParamX
     { id: 'hackathon_regs', label: 'ParamX Registrations', Icon: Users, visible: isSuper || hasRole('admin-param-x') },
@@ -75,9 +79,9 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, setActiveTab, is
 
     // System
     { id: 'email_tester',  label: 'Email Tester',     Icon: Mail, visible: isSuper },
-    { id: 'support',       label: 'Support Tickets',  Icon: Users, visible: isSuper || adminProfile?.assignment === 'Support Team' },
+    { id: 'support',       label: 'Support Tickets',  Icon: Users, visible: isSuper || adminProfile?.assignment === 'core_team-support-team' || hasRole('core_team-support-team') },
     { id: 'admins',        label: 'Admin Directory',  Icon: Shield, visible: isSuper },
-    { id: 'users',         label: 'Manage Users',     Icon: Users, visible: isSuper || adminProfile?.assignment === 'Registration Team' },
+    { id: 'users',         label: 'Manage Users',     Icon: Users, visible: isSuper || adminProfile?.assignment === 'core_team-registration-team' || hasRole('core_team-registration-team') },
   ];
 
   const mainNav = navItems.filter(item => ['overview', 'registrations', 'manual_entry', 'search'].includes(item.id) && item.visible);

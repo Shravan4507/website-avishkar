@@ -99,42 +99,67 @@ service cloud.firestore {
     // USER PROFILES
     // =============================================
     match /user/{userId} {
-      // Users can read their own profile; admins can read any profile
-      allow get: if isOwner(userId) || (isAdmin() && isCoreAdmin());
+      // Users can read their own profile; superadmins can read everyone; core admins can list for lookups
+      allow get: if isOwner(userId) || isSuper() || (isAdmin() && isCoreAdmin());
 
-      // Allow listing users for squad verification (AVR ID lookups during registration)
+      // Allow listing users — superadmins unrestricted; others for registration guard checks
       allow list: if isAuth();
 
       // Users can create their own profile (signup)
       allow create: if isOwner(userId);
 
-      // Users can update their own profile (avatar, whatsapp, etc.)
-      // Core admins can update any user
+      // Users can update their own profile
+      // Superadmins can update any user (e.g. promotion, role assignment)
       // Volunteers with 'gate' role can mark gateCheckIn
       allow update: if isOwner(userId) || 
+                       isSuper() ||
                        (isAdmin() && isCoreAdmin()) ||
                        (hasScannerRole('gate') && 
                         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['gateCheckIn']));
 
       // Only superadmins can delete user profiles
-      allow delete: if false;
+      allow delete: if isSuper();
     }
 
     // =============================================
     // ADMIN PROFILES
     // =============================================
     match /admins/{adminId} {
-      allow read: if isOwner(adminId) || (isAdmin() && isCoreAdmin());
+      // Admins can read their own and any other admin (needed for getAdminData() in rule functions)
+      allow read: if isAdmin();
 
-      // Admins can update their own photo and ID (sync logic)
+      // Admins can update their own safe fields (photo, ID, assignedEventSlugs for CMS)
       allow update: if isOwner(adminId) && 
-                      request.resource.data.diff(resource.data).affectedKeys().hasOnly(['photoURL', 'avrAdmId']);
+                      request.resource.data.diff(resource.data).affectedKeys()
+                        .hasOnly(['photoURL', 'avrAdmId', 'assignedEventSlugs']);
 
-      // Superadmins can do anything
-      allow create, update, delete: if isAdmin() && 
-                                     (getAdminData().get('roleLevel', '') == 'superadmin' || 
-                                      (getAdminData().get('roleLevel', []) is list && getAdminData().get('roleLevel', []).hasAny(['superadmin'])) ||
-                                      getAdminData().get('type', '') == 'superadmin');
+      // Superadmins have FULL access to create, update, delete any admin document
+      allow create, update, delete: if isSuper();
+    }
+
+    // =============================================
+    // PRE-APPROVED ADMINS
+    // =============================================
+    match /pre_approved_admins/{docId} {
+      allow read: if isAuth();
+      allow write: if isAuth() && isCoreAdmin();
+      allow delete: if isAuth();
+    }
+
+    // =============================================
+    // EVENTS CONTENT (Live CMS for Event Cards)
+    // =============================================
+    match /events_content/{eventId} {
+      // Anyone can read (public website fetches these)
+      allow read: if true;
+
+      // Superadmins can write everything
+      // Other admins can only write if eventId is in their assignedEventSlugs field
+      allow write: if isAuth() && isAdmin() && (
+        getAdminData().get('type', '') == 'superadmin' ||
+        getAdminData().get('roleLevel', []).hasAny(['superadmin']) ||
+        eventId in getAdminData().get('assignedEventSlugs', [])
+      );
     }
 
     // =============================================
@@ -151,8 +176,9 @@ service cloud.firestore {
       // Admins use client-side WHERE clauses to scope data for their dashboard
       allow list: if isAuth();
 
-      // Update: authorized admins or superadmins. Volunteers only attendance.
-      allow update: if (isAuth() && isAdmin() && isAuthorizedFor(resource.data)) ||
+      // Update: superadmins unrestricted; authorized admins; volunteers for attendance only
+      allow update: if isSuper() ||
+                       (isAuth() && isAdmin() && isAuthorizedFor(resource.data)) ||
                        (isVolunteer() && 
                         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isAttended', 'scannedAt']));
 
@@ -299,6 +325,14 @@ service cloud.firestore {
 
       // No client reads needed — the extension processes server-side
       allow read, update, delete: if false;
+    }
+
+    // =============================================
+    // PAGE SETTINGS
+    // =============================================
+    match /page_settings/{settingId} {
+      allow read: if true;
+      allow write: if isAuth() && isCoreAdmin();
     }
 
     // =============================================

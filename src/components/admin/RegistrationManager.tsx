@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import {
-  collection, query, getDocs, orderBy, doc, updateDoc, deleteDoc, where,
+  collection, query, getDocs, orderBy, doc, updateDoc, deleteDoc,
   setDoc, serverTimestamp, runTransaction
 } from 'firebase/firestore';
 import { db } from '../../firebase/firebase';
@@ -98,8 +98,8 @@ interface Registration {
 
 
 interface RegistrationManagerProps {
-  forcedHandle?: string;
-  eventTitleFilter?: string; // Filter by specific event title (e.g. 'BGMI')
+  forcedHandle?: string | string[];
+  eventTitleFilter?: string | string[]; // Filter by specific event title (e.g. 'BGMI')
   title?: string;
   subtitle?: string;
   isSuper?: boolean;
@@ -135,42 +135,14 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({ forcedHandle,
     const fetch = async () => {
       setLoading(true);
       try {
-        let regsQuery = query(collection(db, 'registrations'), orderBy('registeredAt', 'desc'));
-        let hackQuery = query(collection(db, 'hackathon_registrations'), orderBy('createdAt', 'desc'));
-
-        if (forcedHandle) {
-          // If we filter, we must remove orderBy to avoid requiring composite indexes,
-          // since the client-side sorts the data anyway.
-          regsQuery = query(collection(db, 'registrations'), where('competitionHandle', '==', forcedHandle));
-          if (collectionScope !== 'hackathon' && forcedHandle !== 'ParamX-Hack') {
-            hackQuery = query(collection(db, 'hackathon_registrations'), where('competitionHandle', '==', forcedHandle));
-          } else if (forcedHandle === 'ParamX-Hack') {
-            hackQuery = query(collection(db, 'hackathon_registrations'));
-          }
-        }
-
-        // NOTE: eventTitleFilter is applied CLIENT-SIDE after fetch (see filteredRegistrations)
-        // to avoid needing a 3-field composite index (competitionHandle + eventTitle + registeredAt)
+        // SOLUTION A: Fetch ALL registrations — filter client-side in useMemo.
+        // Server-side where('competitionHandle') was hiding documents with empty/missing handles.
+        const regsQuery = query(collection(db, 'registrations'), orderBy('registeredAt', 'desc'));
+        const hackQuery = query(collection(db, 'hackathon_registrations'), orderBy('createdAt', 'desc'));
+        const pendingQuery = query(collection(db, 'pending_registrations'), orderBy('createdAt', 'desc'));
 
         const shouldFetchRegs = collectionScope === 'both' || collectionScope === 'registrations';
         const shouldFetchHack = collectionScope === 'both' || collectionScope === 'hackathon';
-
-        // FALLBACK: For Param-X, also fetch by event name prefix if handle query might miss records
-        let fallbackRegSnap: any = { docs: [] };
-        if (shouldFetchRegs && forcedHandle === 'ParamX-Hack') {
-          const fallbackQuery = query(
-            collection(db, 'registrations'), 
-            where('eventName', '>=', 'Param-X'),
-            where('eventName', '<=', 'Param-X' + '\uf8ff')
-          );
-          fallbackRegSnap = await getDocs(fallbackQuery).catch(() => ({ docs: [] }));
-        }
-
-        // Also fetch pending registrations for admin visibility
-        let pendingQuery = query(collection(db, 'pending_registrations'), orderBy('createdAt', 'desc'));
-        if (forcedHandle) {
-          pendingQuery = query(collection(db, 'pending_registrations'), where('competitionHandle', '==', forcedHandle));
-        }
 
         const [regSnap, hackSnap, pendingSnap] = await Promise.all([
           shouldFetchRegs ? getDocs(regsQuery) : Promise.resolve({ docs: [] }),
@@ -178,16 +150,7 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({ forcedHandle,
           getDocs(pendingQuery).catch(() => ({ docs: [] }))
         ]);
 
-        // Merge standard results with fallback results (deduplicate by doc ID)
-        const allStandardDocs = [...regSnap.docs];
-        const existingIds = new Set(allStandardDocs.map(d => d.id));
-        fallbackRegSnap.docs.forEach((d: any) => {
-          if (!existingIds.has(d.id)) {
-            allStandardDocs.push(d);
-          }
-        });
-
-        const standardRegs = allStandardDocs.map(d => {
+        const standardRegs = regSnap.docs.map(d => {
           const data = d.data();
           
           // Normalize: fallback logic to handle both legacy and new standardized schema
@@ -381,14 +344,81 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({ forcedHandle,
   const filtered = useMemo(() => {
     let result = [...registrations];
 
+    // ── Handle-based filtering (now client-side with multi-signal matching) ──
+    // Maps forcedHandle → all possible identifiers that a registration could have
+    const HANDLE_SIGNALS: Record<string, { ids: string[]; depts: string[]; cats: string[] }> = {
+      'Battle-Grid':    { ids: ['battlegrid_', 'CMP-26-BTG', 'CMP-26-FLG-BG'], depts: ['Battle Grid'], cats: ['BTG'] },
+      'Robo-Kshetra':   { ids: ['robokshetra_', 'CMP-26-FLG-ROBO', 'CMP-26-FLG-ALX', 'CMP-26-FLG-RM', 'CMP-26-FLG-RR'], depts: ['Robo-Kshetra', 'Flagship'], cats: ['FLG'] },
+      'ParamX-Hack':    { ids: ['CMP-26-FLG-PRX'], depts: ['Flagship'], cats: ['FLG'] },
+      'Forge-Lead':     { ids: ['CMP-26-GEN-FGX'], depts: ['Forge-X'], cats: ['GEN'] },
+      'Algo-Master':    { ids: ['CMP-26-GEN-ALB'], depts: ['AlgoBid'], cats: ['GEN'] },
+      'Code-Climber':   { ids: ['CMP-26-GEN-CDL'], depts: ['Code Ladder'], cats: ['GEN'] },
+      'IPL-Auctioneer': { ids: ['CMP-26-GEN-IPL'], depts: ['IPL Auction'], cats: ['GEN'] },
+      'Blind-Coder':    { ids: ['CMP-26-GEN-BLC'], depts: ['Blind Code'], cats: ['GEN'] },
+      'Dev-Striker':    { ids: ['CMP-26-GEN-DVC'], depts: ['DevClash'], cats: ['GEN'] },
+      'Vibe-Lead':      { ids: ['CMP-26-GEN-VBS'], depts: ['Vibe Sprint'], cats: ['GEN'] },
+      'Relay-Coder':    { ids: ['CMP-26-GEN-CRL'], depts: ['Code Relay'], cats: ['GEN'] },
+      'Arch-Nova':      { ids: ['CMP-26-GEN-BNV'], depts: ['Bridge Nova'], cats: ['GEN'] },
+      'Paper-Lead':     { ids: ['CMP-26-DEP-PST'], depts: ['Poster'], cats: ['DEP'] },
+      'Spark-Lead':     { ids: ['CMP-26-DEP-SPK'], depts: ['Spark Tank'], cats: ['DEP'] },
+      'Mat-Master':     { ids: ['CMP-26-DEP-MTL'], depts: ['Matlab'], cats: ['DEP'] },
+      'Circuit-Ninja':  { ids: ['CMP-26-DEP-CKT'], depts: ['Circuit'], cats: ['DEP'] },
+      'Master-Builder': { ids: ['CMP-26-DEP-CNT'], depts: ['Contraptions'], cats: ['DEP'] },
+      'Cricket-Lead':   { ids: ['CMP-26-DEP-CCK'], depts: ['Circle Cricket'], cats: ['DEP'] },
+      'Research-Lead':  { ids: ['CMP-26-DEP-PPR'], depts: ['Paper Presentation'], cats: ['DEP'] },
+      'Project-Master': { ids: ['CMP-26-DEP-PRJ'], depts: ['Project Competition'], cats: ['DEP'] },
+    };
+
     if (forcedHandle) {
-      result = result.filter(r => r.competitionHandle === forcedHandle);
+      const targetHandles = Array.isArray(forcedHandle) ? forcedHandle : [forcedHandle];
+      result = result.filter(r => {
+        return targetHandles.some(handle => {
+          const signals = HANDLE_SIGNALS[handle];
+          // Primary: exact handle match
+          if (r.competitionHandle === handle) return true;
+          // Fallback 1: competitionId starts with any known prefix
+          if (signals && r.competitionId) {
+            if (signals.ids.some(prefix => r.competitionId.startsWith(prefix))) return true;
+          }
+          // Fallback 2: department match (only for unique handles, skip generic ones)
+          if (signals && r.department && signals.depts.includes(r.department)) {
+            // For flagship events sharing dept "Flagship", narrow by eventName
+            if (r.department === 'Flagship') {
+              if (handle === 'ParamX-Hack' && (r.eventName || '').includes('Param-X')) return true;
+              if (handle === 'Robo-Kshetra' && (r.eventName || '').toLowerCase().includes('robo')) return true;
+              if (handle === 'Battle-Grid' && (r.eventName || '').toLowerCase().includes('battle')) return true;
+              return false;
+            }
+            return true;
+          }
+          return false;
+        });
+      });
     }
 
+    // ── Sub-event filtering (e.g. BGMI within Battle-Grid) ──
     if (eventTitleFilter) {
+      const titles = Array.isArray(eventTitleFilter) ? eventTitleFilter : [eventTitleFilter];
+      const validIds = titles.map(t => {
+        const term = t.toLowerCase();
+        const idMap: Record<string, string> = {
+           'bgmi': 'bgmi', 'free fire': 'freefire',
+           'codm': 'call of duty (mobile)', 'call of duty': 'call of duty (mobile)',
+           'shadow fight 4': 'shadow-fight 4', 'sf4': 'shadow-fight 4',
+           'among us': 'among us',
+           'alignx': 'alignx', 'robomaze': 'robomaze', 'roborush': 'roborush'
+        };
+        return idMap[term] || term;
+      });
       result = result.filter(r => {
-        const title = r.eventName || '';
-        return title === eventTitleFilter;
+        // Only apply sub-event filtering to shared generic handles that pool multiple sub-games
+        const isSharedParent = ['Battle-Grid', 'Robo-Kshetra'].includes(r.competitionHandle || '');
+        if (isSharedParent) {
+          const evt = (r.eventName || r.eventTitle || '').toLowerCase();
+          return validIds.some(vId => evt.includes(vId));
+        }
+        // Dedicated handles bypass this filter
+        return true;
       });
     }
 
