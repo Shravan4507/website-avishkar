@@ -878,7 +878,7 @@ const RoboKshetra: React.FC = () => {
                                     <div>
                                         <h4 style={{ color: '#d9ff00', margin: '0 0 0.4rem 0', fontSize: '0.85rem', letterSpacing: '1px' }}>SCHEDULING ACCOUNTABILITY</h4>
                                         <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', lineHeight: '1.4', margin: 0 }}>
-                                            One User, One Event policy active. You are solely responsible for managing any scheduling overlaps between registered events.
+                                            You are solely responsible for managing any scheduling overlaps between your registered events. The organizing committee is not liable for your participation overlaps.
                                         </p>
                                         <div style={{ marginTop: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                                             <input 
@@ -889,7 +889,7 @@ const RoboKshetra: React.FC = () => {
                                                 style={{ width: '16px', height: '16px', accentColor: '#d9ff00', cursor: 'pointer' }}
                                             />
                                             <label htmlFor="rk-acc-check" style={{ color: '#fff', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer' }}>
-                                                I accept full responsibility for my schedule.
+                                                I accept full responsibility for my schedule and agree to the Terms & Conditions.
                                             </label>
                                         </div>
                                     </div>

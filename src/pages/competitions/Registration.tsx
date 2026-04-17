@@ -629,7 +629,7 @@ const Registration: React.FC = () => {
             <div className="notice-text">
               <h4>SCHEDULING ACCOUNTABILITY</h4>
               <p>
-                By registering, you acknowledge that Avishkar '26 follows a <strong>One User, One Event</strong> policy. If you register for overlapping events, the responsibility for scheduling conflicts rests solely with you. The organizing committee is not liable for participation overlaps.
+                You are solely responsible for managing any scheduling overlaps between your registered events. The organizing committee is not liable for your participation overlaps.
               </p>
               <div className="notice-check">
                 <input 
@@ -640,7 +640,7 @@ const Registration: React.FC = () => {
                   style={{ width: '18px', height: '18px', accentColor: '#d9ff00', cursor: 'pointer' }}
                 />
                 <label htmlFor="acc-check" style={{ color: '#fff', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer' }}>
-                  I accept full responsibility for my schedule.
+                  I accept full responsibility for my schedule and agree to the Terms & Conditions.
                 </label>
               </div>
             </div>

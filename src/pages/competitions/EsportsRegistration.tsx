@@ -787,7 +787,7 @@ const EsportsRegistration: React.FC = () => {
                         <AlertTriangle size={24} style={{ flexShrink: 0, color: '#5227ff' }} />
                         <div>
                             <h4>SCHEDULING ACCOUNTABILITY</h4>
-                            <p>One User, One Event policy active. You are solely responsible for managing any scheduling overlaps between registered events.</p>
+                            <p>You are solely responsible for managing any scheduling overlaps between your registered events. The organizing committee is not liable for your participation overlaps.</p>
                             <div className="es-checkbox-row">
                                 <input 
                                     type="checkbox" 
@@ -795,7 +795,7 @@ const EsportsRegistration: React.FC = () => {
                                     checked={accountabilityAccepted}
                                     onChange={(e) => setAccountabilityAccepted(e.target.checked)}
                                 />
-                                <label htmlFor="es-acc-check">I accept full responsibility for my schedule.</label>
+                                <label htmlFor="es-acc-check">I accept full responsibility for my schedule and agree to the Terms & Conditions.</label>
                             </div>
                         </div>
                     </div>
