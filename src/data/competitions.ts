@@ -683,8 +683,8 @@ export const COMPETITIONS_DATA: Competition[] = [
         isRegistrationOpen: true,
         entryFee: 100,
         paymentRequired: true,
-        minTeamSize: 1,
-        maxTeamSize: 1,
+        minTeamSize: 2,
+        maxTeamSize: 2,
         teamRequired: false,
         coordinators: [
             { name: 'Manish Saindane', phone: '8010550280' }
