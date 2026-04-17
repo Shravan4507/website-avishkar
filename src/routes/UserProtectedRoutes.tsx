@@ -27,19 +27,32 @@ const UserProtectedRoutes = () => {
         return;
       }
 
-      // 1. Check Admin status
-      const adminSnap = await getDoc(doc(db, "admins", user.uid));
-      if (adminSnap.exists()) {
-        setRole('admin');
-        return;
+      // 1. Check Admin status — use try/catch because the rule only allows
+      //    reading admins/uid if you own it; if not found = regular user, not an error.
+      try {
+        const adminSnap = await getDoc(doc(db, "admins", user.uid));
+        if (adminSnap.exists()) {
+          setRole('admin');
+          return;
+        }
+      } catch (err: any) {
+        // permission-denied or any other error means not an admin — fall through to user check
+        console.warn("[UserProtectedRoutes] Admin check failed (expected for non-admins):", err?.code);
       }
 
       // 2. Check User status
-      const userSnap = await getDoc(doc(db, "user", user.uid));
-      if (userSnap.exists()) {
-        setRole('user');
-        setHasAvrId(!!userSnap.data()?.avrId);
-      } else {
+      try {
+        const userSnap = await getDoc(doc(db, "user", user.uid));
+        if (userSnap.exists()) {
+          setRole('user');
+          setHasAvrId(!!userSnap.data()?.avrId);
+        } else {
+          setRole('user');
+          setHasAvrId(false);
+        }
+      } catch (err: any) {
+        console.warn("[UserProtectedRoutes] User profile check failed:", err?.code);
+        // Default to 'user' so they can proceed to signup
         setRole('user');
         setHasAvrId(false);
       }

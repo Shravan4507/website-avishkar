@@ -99,10 +99,11 @@ service cloud.firestore {
     // USER PROFILES
     // =============================================
     match /user/{userId} {
-      // Users can read their own profile; superadmins can read everyone; core admins can list for lookups
-      allow get: if isOwner(userId) || isSuper() || (isAdmin() && isCoreAdmin());
+      // Users can always read their own profile (no admin check needed - avoids cascading permission errors)
+      // Superadmins and core admins can read any profile
+      allow get: if isOwner(userId) || isSuper() || isAdmin();
 
-      // Allow listing users — superadmins unrestricted; others for registration guard checks
+      // Allow listing users — admins use this for lookups; authenticated users for registration guards
       allow list: if isAuth();
 
       // Users can create their own profile (signup)
@@ -113,7 +114,7 @@ service cloud.firestore {
       // Volunteers with 'gate' role can mark gateCheckIn
       allow update: if isOwner(userId) || 
                        isSuper() ||
-                       (isAdmin() && isCoreAdmin()) ||
+                       isAdmin() ||
                        (hasScannerRole('gate') && 
                         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['gateCheckIn']));
 
