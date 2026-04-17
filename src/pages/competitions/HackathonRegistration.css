@@ -1,0 +1,661 @@
+.hackathon-reg-page {
+    padding: 120px 2rem 4rem;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    background: radial-gradient(circle at top right, rgba(82, 39, 255, 0.05), transparent);
+}
+
+.hackathon-reg-container {
+    width: 100%;
+    max-width: 800px;
+}
+
+.reg-steps {
+    display: flex;
+    justify-content: center;
+    gap: 3rem;
+    margin-bottom: 3rem;
+    position: relative;
+}
+
+.reg-steps::before {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 200px;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.05);
+    z-index: 0;
+}
+
+.step-dot {
+    width: 40px;
+    height: 40px;
+    background: #000;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+    color: rgba(255, 255, 255, 0.5);
+    font-weight: 700;
+}
+
+.step-dot.active {
+    border-color: #5227ff;
+    color: #5227ff;
+}
+
+.step-dot.completed {
+    background: #5227ff;
+    border-color: #5227ff;
+    color: #fff;
+}
+
+.reg-card {
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(20px);
+    border-bottom: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 3rem;
+    padding: 4rem;
+    animation: slideUp 0.6s ease;
+}
+
+.reg-card header {
+    text-align: center;
+    margin-bottom: 3.5rem;
+}
+
+.reg-card header h1 {
+    font-size: 2.5rem;
+    font-family: 'Iceland', sans-serif;
+    color: #fff;
+    margin-bottom: 0.5rem;
+}
+
+.reg-card header p {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.form-section {
+    margin-bottom: 2.5rem;
+}
+
+.form-section label, .form-group label {
+    display: block;
+    margin-bottom: 0.75rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.form-group input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 3rem;
+    padding: 1rem 1.5rem;
+    color: #fff;
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.form-group input:focus {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+/* Members Section */
+.members-section {
+    margin-top: 4rem;
+}
+
+.members-section h3 {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+    font-size: 1.4rem;
+    color: #fff;
+}
+
+.member-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 2rem;
+    padding: 2.5rem;
+    margin-bottom: 2rem;
+    display: flex;
+    gap: 2rem;
+}
+
+.member-card.leader {
+    border-color: rgba(167, 139, 250, 0.3);
+    background: linear-gradient(135deg, rgba(167, 139, 250, 0.05), transparent);
+}
+
+.member-index {
+    background: rgba(167, 139, 250, 0.1);
+    color: #a78bfa;
+    width: 45px; height: 45px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center; justify-content: center;
+    font-weight: 800;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+}
+
+.member-inputs {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.input-with-icon {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 3rem;
+    padding: 0.8rem 1.2rem;
+    gap: 1rem;
+}
+
+.input-with-icon input {
+    background: transparent;
+    border: none;
+    color: #fff;
+    width: 100%;
+    outline: none;
+    font-size: 1rem;
+}
+
+.input-with-icon.avr-lookup {
+    border-color: #5227ff;
+    background: rgba(82, 39, 255, 0.05);
+}
+
+.input-with-icon.avr-lookup.readonly {
+    border-color: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.input-with-icon.searching .spinner {
+    animation: rotate 1s linear infinite;
+    color: #5227ff;
+}
+
+.input-with-icon.prefilled {
+    border-color: rgba(16, 185, 129, 0.2);
+    background: rgba(16, 185, 129, 0.02);
+}
+
+.readonly-input {
+    color: rgba(255, 255, 255, 0.4) !important;
+}
+
+.detail-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+/* Footer & Buttons */
+.form-footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 3.5rem;
+}
+
+.form-footer.space-between { justify-content: space-between; }
+
+.primary-btn {
+    background: #5227ff;
+    color: #fff;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 3rem;
+    font-family: 'Iceland', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.primary-btn:active {
+    transform: scale(0.98);
+}
+
+.secondary-btn {
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.8);
+    border: none;
+    padding: 1.2rem 2.5rem;
+    border-radius: 3rem;
+    display: flex; align-items: center; gap: 0.75rem;
+    cursor: pointer;
+}
+
+/* Payment Review Styling */
+.section-label {
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+    color: #a78bfa;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.review-members-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+.review-member {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 1.5rem;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    border-bottom: none;
+}
+
+.m-rank {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    color: #a78bfa;
+    letter-spacing: 1.5px;
+    font-weight: 700;
+}
+
+.m-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.m-name {
+    font-size: 1.2rem;
+    color: #fff;
+    font-weight: 600;
+}
+
+.m-avr {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.6);
+    font-family: 'Iceland', sans-serif;
+    letter-spacing: 1px;
+}
+
+.meta-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 1rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.meta-label {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 1rem;
+    min-width: 140px;
+}
+
+.meta-value {
+    color: #fff;
+    font-weight: 600;
+    text-align: right;
+    font-size: 1.1rem;
+    flex: 1;
+}
+
+.payment-summary {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 3px solid rgba(255, 255, 255, 0.2);
+    border-radius: 2.5rem;
+    padding: 3rem;
+    margin-top: 3rem;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 1rem;
+}
+
+.summary-row.total {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px dashed rgba(255, 255, 255, 0.1);
+    color: #fff;
+    font-size: 2.2rem;
+    font-family: 'Iceland', sans-serif;
+}
+
+
+.payment-note {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.3);
+    text-align: center;
+    margin-top: 1rem;
+    font-style: italic;
+}
+
+.payment-trigger {
+    background: linear-gradient(135deg, #5227ff 0%, #3d1cb5 100%) !important;
+}
+
+.success-details {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background: rgba(16, 185, 129, 0.05);
+    border-radius: 1.5rem;
+    border: 1px solid rgba(16, 185, 129, 0.1);
+}
+
+.success-details p {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 0.5rem;
+}
+
+/* Success Component Upgrades */
+.success-card {
+    text-align: center;
+    padding: 5rem 3rem !important;
+}
+
+.success-lottie {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2.5rem;
+}
+
+.victory-badge {
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(135deg, #10b932 0%, #059669 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    animation: victoryBounce 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.team-highlight {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 2rem;
+    padding: 2.5rem;
+    margin: 2rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.team-highlight .label {
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.3);
+    letter-spacing: 2px;
+}
+
+.team-highlight .value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+.detail-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 1.2rem 0;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+.d-label {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.status-paid {
+    color: #10b981;
+    font-weight: 700;
+}
+
+.confirmation-help {
+    margin-top: 2rem;
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.3);
+    line-height: 1.7;
+    background: rgba(255, 255, 255, 0.02);
+    padding: 1.5rem;
+    border-radius: 1.5rem;
+}
+
+.success-footer {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-top: 3.5rem;
+}
+
+.invoice-btn, .dashboard-btn {
+    flex: 1;
+    max-width: 250px;
+    justify-content: center;
+    padding: 1.2rem !important;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+
+@keyframes victoryBounce {
+    0% { transform: scale(0); opacity: 0; }
+    70% { transform: scale(1.15); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+
+@media (max-width: 600px) {
+    .review-members-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+@media (max-width: 900px) {
+    .reg-card { padding: 3rem 1.5rem; }
+    .member-card { flex-direction: column; gap: 1rem; padding: 1.5rem; }
+    .detail-row { grid-template-columns: 1fr; }
+    .member-index { width: 35px; height: 35px; }
+}
+
+/* Accountability Notice */
+.accountability-notice {
+    background: rgba(167, 139, 250, 0.05);
+    border: 1px solid rgba(167, 139, 250, 0.2);
+    padding: 1.25rem;
+    border-radius: 1.25rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin: 1.5rem 0 2rem 0;
+}
+
+.accountability-notice svg {
+    color: #a78bfa;
+    flex-shrink: 0;
+    margin-top: 3px;
+}
+
+.accountability-notice p {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin: 0;
+    line-height: 1.5;
+}
+
+.accountability-notice strong {
+    color: #fff;
+    display: block;
+    margin-bottom: 2px;
+}
+/* Registration Instructions & Protocol */
+.primary-instruction {
+    color: #a78bfa !important;
+    font-weight: 600;
+    margin-top: 0.5rem;
+}
+
+.protocol-banner {
+    background: rgba(82, 39, 255, 0.1);
+    border: 1x solid rgba(82, 39, 255, 0.3);
+    border-bottom: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 3rem;
+    padding: 2rem;
+    margin-bottom: 3rem;
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    backdrop-filter: blur(10px);
+}
+
+.protocol-icon {
+    width: 50px;
+    height: 50px;
+    background: rgba(82, 39, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #5227ff;
+    flex-shrink: 0;
+}
+
+.protocol-content h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.1rem;
+    color: #fff;
+    font-family: 'Iceland', sans-serif;
+    letter-spacing: 1px;
+}
+
+.protocol-content p {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.share-link-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    padding: 0.5rem 1rem;
+    border-radius: 2rem;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.share-link-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: #5227ff;
+}
+
+/* Member Status Bar */
+.member-status-bar {
+    margin-top: -0.5rem;
+    padding: 0 0.5rem;
+    min-height: 20px;
+}
+
+.status-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.status-label.hint {
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.status-label.found {
+    color: #10b981;
+}
+
+.status-label.not-found {
+    color: #ef4444;
+}
+
+.highlight-hint {
+    color: #fff;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.animated {
+    animation: fadeInSlide 0.4s ease forwards;
+}
+
+@keyframes fadeInSlide {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Mobile Adjustments for Protocol Banner */
+@media (max-width: 600px) {
+    .protocol-banner {
+        flex-direction: column;
+        padding: 1.5rem;
+        text-align: center;
+    }
+}
+
+/* Team ID Highlight Styles */
+.id-highlight {
+    background: rgba(82, 39, 255, 0.12) !important;
+    border: 2px solid rgba(82, 39, 255, 0.3) !important;
+    box-shadow: 0 0 40px rgba(82, 39, 255, 0.15);
+}
+
+.id-highlight .label {
+    color: #a78bfa !important;
+}
+
+.id-highlight .value {
+    font-family: 'Iceland', sans-serif;
+    letter-spacing: 4px;
+    color: #fff !important;
+    text-shadow: 0 0 15px rgba(167, 139, 250, 0.5);
+}

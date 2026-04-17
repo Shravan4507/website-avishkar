@@ -1,0 +1,32 @@
+<!-- Payment Pending Content Block -->
+<div style="text-align: center;">
+    <!-- Status Badge -->
+    <div class="badge badge-pending">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 5px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>Action Required
+    </div>
+    
+    <h2 class="h2">PAYMENT PENDING</h2>
+    <p class="text-muted" style="margin: 11px 0 32px 0; font-size: 15px;">We've received your registration for <span class="text-bold">{{EVENT_NAME}}</span>. However, your payment status is currently <span class="badge-pending" style="padding: 2px 8px; border-radius: 4px;">Pending</span>.</p>
+    
+    <!-- Info Box -->
+    <div class="summary-box" style="text-align: left; padding: 30px;">
+        <h4 class="h3 uppercase" style="font-size: 14px; margin-bottom: 10px;">Why is this happening?</h4>
+        <p class="text-muted" style="font-size: 14px; margin: 0;">Most pending payments are confirmed automatically within 2-4 hours. In rare cases, it can take up to 24 hours depending on the bank process.</p>
+    </div>
+
+    <!-- Details List -->
+    <div class="details-list" style="text-align: left;">
+        <div class="details-item">
+            <p class="text-muted uppercase text-bold" style="font-size: 10px;">Reference ID</p>
+            <p class="text-bold" style="font-size: 16px; margin: 5px 0 0 0; font-family: 'Courier New', Courier, monospace;">{{AVR_ID}}</p>
+        </div>
+        <div class="details-item">
+            <p class="text-muted uppercase text-bold" style="font-size: 10px;">Total Amount</p>
+            <p class="text-accent text-bold" style="font-size: 20px; font-family: 'Outfit', sans-serif;">₹{{AMOUNT}}</p>
+        </div>
+    </div>
+
+    <p class="text-muted" style="margin-bottom: 30px; font-size: 13px;">If your money was deducted but registration is not confirmed, please reach out with your transaction receipt.</p>
+    
+    <a href="{{SUPPORT_URL}}" class="btn btn-primary">Contact Support</a>
+</div>

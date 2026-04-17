@@ -1,0 +1,139 @@
+.workshops-page {
+    min-height: 100vh;
+    padding-top: 100px;
+    background: rgba(0, 0, 0, 0);
+    color: #fff;
+    overflow-x: hidden;
+}
+
+.workshops-header {
+    text-align: center;
+    padding: 6rem 2rem 4rem;
+    position: relative;
+    z-index: 10;
+    animation: fadeInUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.header-glow {
+    position: absolute;
+    top: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 800px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(217, 255, 0, 0.15) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: -1;
+}
+
+.section-label {
+    display: block;
+    color: #d9ff00;
+    font-size: 0.9rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    margin-bottom: 15px;
+}
+
+.workshops-header h1 {
+    font-size: clamp(3.5rem, 10vw, 7rem);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: -2px;
+    margin-bottom: 20px;
+    background: linear-gradient(to bottom, #fff 40%, rgba(255, 255, 255, 0.4));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1;
+}
+
+.workshops-header .section-line {
+    width: 80px;
+    height: 4px;
+    background: #d9ff00;
+    margin: 0 auto 30px;
+    border-radius: 2px;
+}
+
+.workshops-header p {
+    font-size: 1.25rem;
+    color: rgba(255, 255, 255, 0.6);
+    max-width: 800px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+/* Innovators' Circle Section */
+.innovators-circle {
+    padding: 2rem 2rem 8rem;
+    position: relative;
+    background: radial-gradient(circle at 50% 0%, rgba(217, 255, 0, 0.03) 0%, transparent 70%);
+}
+
+.innovators-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Overrides for ChromaGrid to display logos properly */
+.innovators-circle .chroma-img-wrapper {
+    background: rgba(255, 255, 255, 0.02);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem; /* Reduced padding to make logos bigger */
+    height: 350px; /* Increased container height */
+}
+
+.innovators-circle .chroma-img-wrapper img {
+    object-fit: contain !important;
+    max-width: 100%;  /* Increased total image area */
+    max-height: 100%; /* Increased total image area */
+    filter: drop-shadow(0 0 25px rgba(255, 255, 255, 0.2));
+}
+
+@media (max-width: 900px) {
+    .workshops-page {
+        padding-top: 80px;
+    }
+    .workshops-header {
+        padding: 4rem 1.5rem 3rem;
+    }
+    .workshops-header h1 {
+        font-size: 3.5rem;
+        letter-spacing: -1px;
+    }
+    .workshops-header p {
+        font-size: 1.1rem;
+        line-height: 1.5;
+    }
+}
+
+@media (max-width: 600px) {
+    .innovators-circle {
+        padding: 4rem 1.5rem;
+    }
+    .innovators-circle .chroma-img-wrapper {
+        height: 250px;
+        padding: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .workshops-header h1 {
+        font-size: 3rem;
+    }
+}

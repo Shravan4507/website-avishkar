@@ -1,0 +1,131 @@
+/* ── Base shimmer ───────────────────────────────────────────────────────────── */
+.skeleton {
+  background: rgba(255, 255, 255, 0.06);
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+/* The travelling light sweep */
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.04) 45%,
+    rgba(255, 255, 255, 0.09) 50%,
+    rgba(255, 255, 255, 0.04) 55%,
+    transparent 70%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.8s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── Text block ── */
+.skeleton-text-block {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+/* ── Spacing helpers ── */
+.sk-label  { margin-bottom: 10px; }
+.sk-value  { margin-bottom: 20px; }
+.sk-badge  { margin-top: 8px; }
+.sk-dot    { flex-shrink: 0; margin-top: 2px; }
+
+/* ── Card skeleton ── */
+.skeleton-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 24px;
+  padding: 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  animation: fadeIn 0.4s ease both;
+}
+
+.skeleton-card--center {
+  align-items: center;
+  gap: 14px;
+  text-align: center;
+}
+
+/* ── Dashboard header ── */
+.skeleton-dash-header {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 48px;
+  animation: fadeIn 0.4s ease both;
+}
+
+.skeleton-dash-header-text {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ── Full dashboard ── */
+.skeleton-dashboard {
+  padding: 60px;
+  width: 100%;
+  animation: fadeIn 0.4s ease both;
+}
+
+.skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 28px;
+}
+
+/* ── Schedule skeleton ── */
+.skeleton-schedule {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.skeleton-list-item {
+  display: grid;
+  grid-template-columns: 100px 16px 1fr;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 20px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  animation: fadeIn 0.4s ease both;
+}
+
+.skeleton-list-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ── Animate in ── */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Stagger children in a skeleton-grid */
+.skeleton-grid .skeleton-card:nth-child(1) { animation-delay: 0ms;   }
+.skeleton-grid .skeleton-card:nth-child(2) { animation-delay: 80ms;  }
+.skeleton-grid .skeleton-card:nth-child(3) { animation-delay: 160ms; }
+.skeleton-grid .skeleton-card:nth-child(4) { animation-delay: 240ms; }
+
+.skeleton-schedule .skeleton-list-item:nth-child(1) { animation-delay: 0ms;   }
+.skeleton-schedule .skeleton-list-item:nth-child(2) { animation-delay: 50ms;  }
+.skeleton-schedule .skeleton-list-item:nth-child(3) { animation-delay: 100ms; }
+.skeleton-schedule .skeleton-list-item:nth-child(4) { animation-delay: 150ms; }
+.skeleton-schedule .skeleton-list-item:nth-child(5) { animation-delay: 200ms; }
+.skeleton-schedule .skeleton-list-item:nth-child(6) { animation-delay: 250ms; }

@@ -1,0 +1,164 @@
+.competitions-page {
+    min-height: 100vh;
+    padding-top: 100px;
+    background: rgba(0, 0, 0, 0);
+    color: #fff;
+    overflow-x: hidden;
+}
+
+.competitions-header {
+    text-align: center;
+    padding: 4rem 2rem;
+    position: relative;
+    z-index: 10;
+}
+
+.header-glow {
+    position: absolute;
+    top: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(82, 39, 255, 0.15) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: -1;
+}
+
+.competitions-header h1 {
+    font-size: clamp(3rem, 8vw, 6rem);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: -2px;
+    margin-bottom: 20px;
+    background: linear-gradient(to bottom, #fff 40%, rgba(255, 255, 255, 0.4));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.competitions-header p {
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.6);
+    max-width: 800px;
+    margin: 0 auto 50px;
+    line-height: 1.6;
+}
+
+.category-filter {
+    display: none;
+    /* Removed in favor of sections */
+}
+
+.competition-section {
+    padding: 2rem 0;
+    margin-bottom: 4rem;
+}
+
+.section-header {
+    max-width: 1200px;
+    margin: -100px auto 10px;
+    padding: 0 40px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.section-label {
+    color: #5227FF;
+    font-size: 0.9rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    margin-bottom: 10px;
+    display: block;
+}
+
+.section-header h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 5px;
+}
+
+.section-desc {
+    color: #d9ff00;
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+    letter-spacing: 1px;
+    opacity: 0.9;
+}
+
+.section-line {
+    width: 60px;
+    height: 4px;
+    background: #5227FF;
+    border-radius: 2px;
+}
+
+.competitions-container {
+    padding-bottom: 40px;
+    min-height: auto;
+}
+
+/* --- Mobile Mobile Premium Refinement --- */
+@media (max-width: 900px) {
+    .competitions-page {
+        padding-top: 80px;
+    }
+
+    .competitions-header {
+        padding: 4rem 1.5rem 2rem;
+    }
+
+    .competitions-header h1 {
+        font-size: 3rem;
+        letter-spacing: -1px;
+    }
+
+    .section-header {
+        margin: 0 auto 30px; /* Remove negative margin on mobile */
+        padding: 0 1.5rem;
+        align-items: center;
+        text-align: center;
+    }
+
+    .section-header h2 {
+        font-size: 2.2rem;
+    }
+
+    .section-label {
+        font-size: 0.8rem;
+        letter-spacing: 3px;
+    }
+
+    .section-line {
+        margin: 15px auto 0;
+    }
+
+    .competition-section {
+        margin-bottom: 2rem;
+        padding: 1rem 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .competitions-header h1 {
+        font-size: 2.4rem;
+    }
+
+    .competitions-header p {
+        font-size: 1rem;
+        margin-bottom: 30px;
+    }
+
+    .section-header h2 {
+        font-size: 1.8rem;
+    }
+
+    .section-desc {
+        font-size: 0.9rem;
+    }
+}

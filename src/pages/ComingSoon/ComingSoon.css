@@ -1,0 +1,159 @@
+.coming-soon-wrapper {
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    position: relative;
+    z-index: 10;
+}
+
+.coming-soon-card {
+    background: rgba(15, 15, 20, 0.4);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 32px;
+    padding: 4rem 3rem;
+    max-width: 600px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: floatIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes floatIn {
+    0% { opacity: 0; transform: translateY(40px) scale(0.95); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.cs-icon-wrapper {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 2rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+}
+
+.cs-lock-icon {
+    color: #fff;
+    z-index: 2;
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
+}
+
+.cs-glow-orb {
+    position: absolute;
+    width: 60%;
+    height: 60%;
+    background: #5227ff;
+    border-radius: 50%;
+    filter: blur(30px);
+    z-index: 1;
+    opacity: 0.8;
+    animation: pulseGlow 3s ease-in-out infinite alternate;
+}
+
+@keyframes pulseGlow {
+    0% { transform: scale(0.8); opacity: 0.5; }
+    100% { transform: scale(1.2); opacity: 0.8; }
+}
+
+.cs-title {
+    font-size: 2.5rem;
+    font-family: 'Iceland', sans-serif;
+    color: #fff;
+    margin: 0 0 1rem 0;
+    line-height: 1.1;
+    letter-spacing: 1px;
+}
+
+.cs-highlight {
+    background: linear-gradient(135deg, #a78bfa 0%, #5227ff 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 30px rgba(82, 39, 255, 0.3);
+}
+
+.cs-subtitle {
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.6);
+    line-height: 1.6;
+    margin: 0 0 3rem 0;
+    max-width: 80%;
+}
+
+.cs-progress-bar {
+    width: 100%;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+}
+
+.cs-progress-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 30%;
+    background: linear-gradient(90deg, #5227ff, #a78bfa, #5227ff);
+    background-size: 200% 100%;
+    border-radius: 10px;
+    animation: indeterminateLoading 2s infinite linear;
+}
+
+@keyframes indeterminateLoading {
+    0% { left: -30%; background-position: 100% 0; }
+    100% { left: 100%; background-position: -100% 0; }
+}
+
+/* --- Mobile Mobile Premium Refinement --- */
+@media (max-width: 768px) {
+    .coming-soon-wrapper {
+        padding: 1rem;
+    }
+
+    .coming-soon-card {
+        padding: 3rem 1.75rem;
+        border-radius: 2.5rem;
+    }
+
+    .cs-icon-wrapper {
+        width: 80px;
+        height: 80px;
+        margin-bottom: 1.5rem;
+    }
+
+    .cs-title {
+        font-size: 2rem;
+        letter-spacing: 1px;
+    }
+
+    .cs-subtitle {
+        font-size: 1rem;
+        max-width: 100%;
+        margin-bottom: 2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .cs-title {
+        font-size: 1.75rem;
+    }
+
+    .coming-soon-card {
+        padding: 2.5rem 1.25rem;
+    }
+}

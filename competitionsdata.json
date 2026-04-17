@@ -1,0 +1,1274 @@
+{
+"name": "IPL Auction",
+"meta": {
+"document_title": "Official Event Rulebook",
+"organizer": "ZEAL COLLEGE OF ENGINEERING & RESEARCH, PUNE",
+"event": "AVISHKAR ’26",
+"tagline": "WHERE CURIOSITY BECOMES CREATION"
+},
+"structure": {
+"index": [
+"Franchise Structure",
+"Team Composition",
+"Budget Rules",
+"Auction Format",
+"Post-Auction Evaluation",
+"Tie-Breaker Rules",
+"Disqualification Rules",
+"Card Rules"
+]
+},
+"franchise_structure": {
+"rules": [
+"There will be 14 total franchises.",
+"Each franchise must consist of 1 to 5 members acting as team management.",
+"One member must be designated as the Lead Bidder, who is the only person permitted to place bids.",
+"Internal discussion is allowed, but members are not allowed to interrupt other bidders or the auctioneer."
+]
+},
+"team_composition": {
+"rules": [
+"Each franchise must include exactly 12 players.",
+"Two Wicketkeepers (WK) are compulsory; failure to include them or to complete the 12-player squad will result in disqualification.",
+"There is no restriction on the number of overseas players."
+]
+},
+"budget_rules": {
+"rules": [
+"Each franchise begins with a game purse of ₹100 crore (not a real amount).",
+"Budgets cannot be exceeded under any circumstances.",
+"If a team overspends or fails to complete its 12-player squad, it will be disqualified.",
+"Loans, trades, or refunds are strictly prohibited."
+]
+},
+"auction_format": {
+"rules": [
+"The total player pool includes 170 players.",
+"To save time, the management will allot three players (having the same points) to each team at the start.",
+"Each player has a base price set by the auctioneer.",
+"The auction is a single-round event, meaning sold players are removed and unsold players are permanently eliminated.",
+"Bidders can freely call out any higher amount, as there is no fixed increment step.",
+"The auctioneer announces the player's name and base price, and confirms the final price with \"SOLD!\"."
+]
+},
+"post_auction_evaluation": {
+"rules": [
+"Player Ratings: Each player is given a pre-assigned rating out of 10, decided by the auctioneer based on their past IPL performance (2023, 2024, 2025). These ratings are final.",
+"Team Scoring: The team's total score is the sum of the ratings of its 12 players. The team with the highest combined rating wins.",
+"Verification: Checks performed after the auction confirm the team has 12 players, meets the 2WK requirement, has not exceeded the ₹100 crore budget, and that player ratings are correctly recorded."
+]
+},
+"tie_breaker_rules": {
+"rules": [
+"If teams have the same total rating, the team with the higher remaining budget will be declared the winner.",
+"If still tied, the team with more players rated 9.0 or above will win.",
+"If the tie persists, the winner will be determined by a coin toss by the auctioneer."
+]
+},
+"disqualification_rules": {
+"rules": [
+"Immediate disqualification occurs if a franchise exceeds the ₹100 crore budget, fails to complete a 12-player team, or causes repeated disruption despite prior warnings."
+]
+},
+"card_rules": {
+"rules": [
+"The Target Lock Card can be used only 2 times.",
+"When used for a player, the team gets one opportunity to bid, which must be their maximum offer.",
+"After placing this bid, the team cannot participate in further bidding for that player.",
+"If another team places a higher bid, the player is awarded to that team, and they receive double points for that particular player."
+]
+},
+"prizes": {
+"first_prize": "21,000/-",
+"second_prize": "7,000/-",
+"third_prize": "3,000/-"
+}
+}
+
+{
+"name": "Code Relay Race",
+"meta": {
+"document_title": "Official Event Rulebook",
+"organizer": "ZEAL COLLEGE OF ENGINEERING & RESEARCH, PUNE",
+"event": "AVISHKAR ’26",
+"tagline": "WHERE CURIOSITY BECOMES CREATION"
+},
+"objective": "To enhance teamwork, coding skills, and logical thinking by collaboratively completing a programming task.",
+"description": "Code Relay Race is a team-based technical game where participants solve a coding problem in a relay format. Each team member contributes by writing a part of the code within a limited time. The next member continues the code from where the previous one stopped. The aim is to complete the program correctly within the given time.",
+"team_size": "5 participants per team",
+"participation_fee": "Rs. 250/-",
+"requirements": [
+"Computer/Laptop with programming environment",
+"Timer/Stopwatch",
+"Predefined coding questions"
+],
+"rules": [],
+"procedure": [],
+"time_limit": "",
+"judging_criteria": [
+"Correctness of output",
+"Completion of code",
+"Logical approach",
+"Team coordination"
+],
+"prizes": {
+"first_prize": "Rs. 15K",
+"second_prize": "Rs. 10K",
+"third_prize": "Rs. 8K"
+},
+"outcome": "Participants will improve their coding ability, teamwork, and problem-solving skills in a fun and competitive way.",
+"conclusion": "Code Relay Race is an engaging and interactive game that promotes collaboration and enhances programming skills among participants."
+}
+
+{
+"name": "Code Relay Race",
+"meta": {
+"document_title": "Official Event Rulebook",
+"organizer": "ZEAL COLLEGE OF ENGINEERING & RESEARCH, PUNE",
+"event": "AVISHKAR ’26",
+"tagline": "WHERE CURIOSITY BECOMES CREATION"
+},
+"objective": "To enhance teamwork, coding skills, and logical thinking by collaboratively completing a programming task.",
+"description": "Code Relay Race is a team-based technical game where participants solve a coding problem in a relay format. Each team member contributes by writing a part of the code within a limited time. The next member continues the code from where the previous one stopped. The aim is to complete the program correctly within the given time.",
+"team_size": "5 participants per team",
+"participation_fee": "Rs. 250/-",
+"requirements": [
+"Computer/Laptop with programming environment",
+"Timer/Stopwatch",
+"Predefined coding questions"
+],
+"rules": [],
+"procedure": [],
+"time_limit": "",
+"judging_criteria": [
+"Correctness of output",
+"Completion of code",
+"Logical approach",
+"Team coordination"
+],
+"prizes": {
+"first_prize": "Rs. 15K",
+"second_prize": "Rs. 10K",
+"third_prize": "Rs. 8K"
+},
+"outcome": "Participants will improve their coding ability, teamwork, and problem-solving skills in a fun and competitive way.",
+"conclusion": "Code Relay Race is an engaging and interactive game that promotes collaboration and enhances programming skills among participants."
+}
+
+{
+"name": "VIBE CODING",
+"meta": {
+"document_title": "Official Event Rulebook",
+"organizer": "ZEAL COLLEGE OF ENGINEERING & RESEARCH, PUNE",
+"event": "AVISHKAR ’26",
+"tagline": "WHERE CURIOSITY BECOMES CREATION"
+},
+"description": "Vibe Coding is a unique coding event where participants solve problems or build small projects in a fun, creative, and stress-free environment. Instead of strict competitive coding, participants code with music, themes, or random challenges to maintain a “vibe”. The focus is on creativity, innovation, and enjoying the coding process.",
+"team_size": "Solo Participation",
+"registration_fee": "Rs. 100/-",
+"requirements": [
+"Laptop",
+"Coding software/environment",
+"Internet connection"
+],
+"rules": [
+"Participants can participate individually (solo participation only).",
+"Each participant can register only once.",
+"The registration fee is non-refundable.",
+"Multidisciplinary participation is encouraged.",
+"Participants must be present in the allocated area during the event.",
+"All work must be created during the competition.",
+"Participants must present their solution in the form of a working project or prototype.",
+"Projects must align with the given competition themes, prompts, or challenges.",
+"Participants can work on any solution within the given problem statements, following event guidelines.",
+"The competition will be of 4 hours, and the time limit must be strictly followed.",
+"The use of pre-existing code or projects is not allowed, except for open-source libraries, frameworks, or AI tools permitted by the organizers.",
+"All code and creative output developed during the competition must be original work of the participant.",
+"Participants cannot use code, assets, or generated content from others without proper permissions or licenses.",
+"Participants may seek help from mentors or organizers, but collaboration with other participants is not allowed.",
+"Participants must submit their project before the designated deadline.",
+"Submission must include project description, source code, presentation, and Git repository link (submission of Git repository is mandatory).",
+"Late submissions may result in penalties or disqualification.",
+"Organizers may conduct validation of code and outputs to ensure compliance with rules.",
+"Each participant must present their project to the judging panel.",
+"The presentation should demonstrate functionality, creativity, user experience, and overall vibe/innovation.",
+"Judging criteria will be communicated before the event and may include creativity,"
+],
+"procedure": [],
+"judging_criteria": [],
+"prizes": {},
+"outcome": ""
+}
+
+{
+"name": "Bridge Nova",
+"meta": {
+"document_title": "Official Event Rulebook",
+"organizer": "ZEAL COLLEGE OF ENGINEERING & RESEARCH, PUNE",
+"event": "AVISHKAR ’26",
+"tagline": "WHERE CURIOSITY BECOMES CREATION"
+},
+"description": "Bridge Nova is a technical and creative event where participants design and construct bridge models using given materials. The objective is to test structural strength, design efficiency, and innovation. Participants must ensure that their bridge can withstand maximum load while maintaining stability and optimal use of materials.",
+"team_size": "2-4 members",
+"registration_fee": "Rs. 200/-",
+"requirements": [
+"Provided materials (as per event guidelines)",
+"Basic construction tools (if allowed)",
+"Design planning"
+],
+"rules": [
+"Participants must form teams of 2 to 4 members.",
+"Each participant can be part of only one team.",
+"The registration fee is non-refundable.",
+"All team members must be present during the event.",
+"Participants must construct the bridge within the given time.",
+"Only provided materials should be used for construction.",
+"Pre-built models are strictly not allowed.",
+"Bridge dimensions must follow specified constraints.",
+"The bridge must be self-supporting.",
+"Any damage or rule violation may lead to disqualification.",
+"Participants must follow safety guidelines during construction."
+],
+"procedure": [
+"Teams are briefed about the rules and materials.",
+"Design planning phase is conducted.",
+"Construction of the bridge begins.",
+"Final bridge models are evaluated.",
+"Load testing is performed to determine strength.",
+"Results are declared based on performance."
+],
+"judging_criteria": [
+"Strength of the bridge",
+"Design efficiency",
+"Load تحمل capacity",
+"Innovation and creativity",
+"Material optimization"
+],
+"prizes": {
+"first_prize": "Rs. 12K",
+"second_prize": "Rs. 8K",
+"third_prize": "Rs. 5K"
+},
+"outcome": "Participants gain practical knowledge of structural design, teamwork, and problem-solving while applying engineering concepts in real-world scenarios."
+}
+
+{
+"name": "AlgoBid",
+"meta": {
+"document_title": "Official Event Rulebook",
+"organizer": "ZEAL COLLEGE OF ENGINEERING & RESEARCH, PUNE",
+"event": "AVISHKAR ’26",
+"tagline": "Bid Smart. Code Faster. Win Bigger."
+},
+"description": "This is a high-energy, strategy-driven competitive programming event that combines the thrill of live auctions with algorithmic problem-solving. Teams use a starting budget of $1000 Virtual Money (VM) to bid in real-time to acquire coding problems.",
+"team_size": "3 to 4 members",
+"registration_fee": "",
+"requirements": [
+"Intel Core i3 (8th Gen) / Ryzen 3 processor",
+"4 GB RAM",
+"Windows 10 / Ubuntu 20.04",
+"15-inch, 1080p screen (recommended)",
+"VS Code (pre-installed) or any available IDE",
+"Supported languages: C++, Python 3.x, Java 11+",
+"Access to whitelisted judge platform (HackerRank / Codeforces / LeetCode Custom Judge)"
+],
+"rules": [
+"Every team MUST bid on every problem.",
+"Minimum bid increment is $50 VM per raise.",
+"Teams are limited to bidding only their current available Virtual Money.",
+"Highest bidder wins the problem, and in case of a tie, the team that placed the bid fastest wins.",
+"Each team can win at most ONE problem per round, and all bids are final.",
+"Only the winning team may attempt to solve the problem.",
+"Submissions must be made through the designated platform (e.g., HackerRank / LeetCode custom judge).",
+"Scoring is binary (full points for correct, zero for incorrect), and no partial credit is awarded.",
+"All code must be written during the event window.",
+"Teams may request up to 2 hints per problem.",
+"Each hint deducts 200 points from the final score.",
+"Requests must be made in writing to the invigilator.",
+"Round 2 may involve adjusted problem difficulty and point values, or use unsolved problems from Round 1.",
+"The bidding time is reduced in Round 2 to increase pressure.",
+"Use of the internet outside the designated judge platform is prohibited.",
+"Inter-team communication, collaboration, or code similarity is prohibited.",
+"Submitting pre-written or plagiarized solutions is prohibited.",
+"Attempting to view another team's problem set or engaging in disruptive behavior is prohibited."
+],
+"procedure": [
+"The event consists of 2 rounds.",
+"Each round follows an Auction + Solve format.",
+"Each round has a total duration of 90 minutes.",
+"Auction Phase lasts 20 minutes.",
+"Solving Phase lasts 70 minutes.",
+"Teams bid on problems using Virtual Money.",
+"Winning teams solve the acquired problems to earn points."
+],
+"judging_criteria": [
+"Points earned from solved problems",
+"Hint deductions (200 points per hint, maximum 2 per problem)",
+"Final Score = Sum of points from solved problems - (200 x hints used)",
+"Earliest correct submission timestamp (tie-breaker)",
+"Fewer hints used (tie-breaker)",
+"Judge discretion (final tie-breaker)"
+],
+"prizes": {
+"first_prize": "4,000/-",
+"second_prize": "3,000/-",
+"third_prize": "2,000/-"
+},
+"outcome": "The event tests both algorithmic thinking and economic decision-making. It creates pressure and rewards teams that are strategic and disciplined, rather than just the best coders. The event rewards clarity of thought over chaos, and the winner is the best thinker."
+}
+
+{
+"name": "DevClash",
+"meta": {
+"document_title": "Official Event Rulebook",
+"organizer": "ZEAL COLLEGE OF ENGINEERING & RESEARCH, PUNE",
+"event": "AVISHKAR ’26",
+"tagline": "WHERE CURIOSITY BECOMES CREATION"
+},
+"description": "AI Hackathon & Pitching is an innovation-based technical event where participants develop Artificial Intelligence solutions for real-world problems. Teams will design, build,and present their ideas in front of judges, focusing on creativity, feasibility, and practical implementation.",
+"team_size": "3-5 members",
+"registration_fee": "Rs. 250/-",
+"duration": "6 hours",
+"requirements": [],
+"rules": [
+"Participants can form teams of 3 to 5 members.",
+"Each participant can be part of only one team.",
+"The registration fee is non-refundable.",
+"Multidisciplinary participation is encouraged.",
+"All team members must be present in the allocated area during the event.",
+"All work must be created during the hackathon.",
+"Teams must present their solution in the form of a prototype.",
+"Projects must align with the given hackathon themes or problem statements.",
+"Problem statements will be given on the spot.",
+"Teams can work on any project within the given problem statements , following event guidelines.",
+"The hackathon will be of 6 hours and time limit that must be followed.",
+"The use of pre-existing code or projects is not allowed, except for open-source libraries or frameworks.",
+"All code developed during the hackathon must be original work of the team.",
+"Participants cannot use code or assets created by others without proper permissions or licenses.",
+"Teams may seek help from mentors or organizers, but cross-team collaboration is not allowed.",
+"Teams must submit their project before the designated deadline.",
+"Submission must include project description, source code, and presentation and Git repository link (Submission of Git Repository is mandatory !).",
+"Late submissions may result in penalties or disqualification.",
+"Organizers may conduct code validation to ensure compliance with rules.",
+"Each team must present their project to the judging panel.",
+"The presentation should demonstrate functionality, features, and innovation. 22.",
+"Judging criteria will be communicated before the event and may include innovation, technical implementation, user experience, scalability, and relevance to the theme.",
+"The decision of the judges will be final.",
+"Participants must follow ethical practices and fair play.",
+"Any form of cheating, plagiarism, or unfair practices will result in immediate disqualification.",
+"Participants retain full ownership of their intellectual property. Organizers may request to use project details for promotional or showcase purposes.",
+"Teams have to share their projects publicly after the hackathon (e.g., GitHub).",
+"Participants must follow a code of conduct that promotes respect, inclusivity, and professionalism.",
+"Harassment, discrimination, or inappropriate behavior will not be tolerated.",
+"The hackathon will offer prizes for First, Second, and Third positions only.",
+"No prizes will be awarded based on individual problem statements.",
+"Prizes will include cash rewards.",
+"Any disputes will be resolved by the organizers and judging panel, and their decision will be final."
+],
+"procedure": [
+"Teams are formed and briefed.",
+"Problem statement/theme (optional) is given.",
+"Teams brainstorm and finalize their idea.",
+"They build a basic model (idea, features, business plan).",
+"Prepare a pitch deck.",
+"The final presentation is given to judges."
+],
+"judging_criteria": [
+"Innovation & originality",
+"Feasibility of idea",
+"Presentation skills",
+"Problem-solving approach",
+"Business model clarity"
+],
+"prizes": {
+"first_prize": "Rs. 20K",
+"second_prize": "Rs. 15K",
+"third_prize": "Rs. 10K"
+},
+"outcome": "Participants develop entrepreneurial thinking, teamwork, and presentation skills."
+}
+
+{
+"name": "FORGEX",
+"meta": {
+"document_title": "Official Event Rulebook",
+"organizer": "ZEAL COLLEGE OF ENGINEERING & RESEARCH, PUNE",
+"event": "AVISHKAR ’26",
+"tagline": "WHERE CURIOSITY BECOMES CREATION"
+},
+"description": "ForgeX is a multi-round programming and development competition focused on building fully functional applications within a strict time limit. The competition emphasizes practical implementation, rapid execution, and problem-solving, following a progressive elimination format across two rounds of increasing complexity.",
+"team_size": "1 or 2 participants",
+"registration_fee": "₹99 per participant/team",
+"duration": "90 minutes per round",
+"requirements": [
+"Open tech stack",
+"AI usage allowed"
+],
+"rules": [
+"Submission Format (complete project folder, source files, and a README)",
+"Tools & Languages (open choice)",
+"AI Usage Policy (AI is permitted for code generation and debugging, but submissions must be fully functional and understood by participants)",
+"Collaboration Rules (solo or duo teams only, no external collaboration)",
+"Time Rules (strictly 90 minutes per round)"
+],
+"procedure": [
+"Round 1 is an "Open Build" where participants use their own idea or a provided problem statement.",
+"Round 2 is the "Theme-Based (Final)" round, where a single common theme is revealed at the start, focusing on adaptability and depth of implementation."
+],
+"judging_criteria": [
+"Functionality (40 marks)",
+"Code Quality (20 marks)",
+"Creativity & Innovation (25 marks)",
+"Time Management (15 marks)"
+],
+"prizes": {
+"first_prize": "4,000/-",
+"second_prize": "3,000/-",
+"third_prize": "2,000/-"
+},
+"outcome": "",
+"additional_details": {
+"problem_statement": "The 90-minute timer starts immediately upon announcement. Participants must interpret the requirement, design a solution, and deliver a working project within the allotted time, with no extensions granted.",
+"scoring_system": "Details the 100 total marks available per round and specifies that the top performers advance after Round 1 and final rankings are determined in Round 2. Tie-breakers are determined first by the higher Functionality score, and second by the higher Creativity score.",
+"deliverables": "Participants must submit the complete project folder and a README file at the end of each round. Submissions must be runnable or properly documented for execution.",
+"penalties": "Lists severe violations, such as late submission, plagiarism, or external collaboration, which result in immediate DISQUALIFICATION. Minor violations like a missing README or poor documentation result in MINOR PENALTIES and score deductions.",
+"general_notes": "Eligibility (open to all students from recognized institutions), Participation (team size fixed after registration), and Environment & Resources (participants must have a working system and pre-installed tools)"
+}
+}
+
+{
+"name": "MATLAB Madness",
+"meta": {
+"document_title": "Official Event Rulebook",
+"organizer": "ZEAL COLLEGE OF ENGINEERING & RESEARCH, PUNE",
+"event": "AVISHKAR ’26",
+"tagline": ""
+},
+"description": "",
+"team_size": "",
+"registration_fee": "",
+"requirements": [
+"Participants must use only MATLAB software for the competition.",
+"No external software is allowed.",
+"The use of external storage devices, such as USBs, is prohibited.",
+"Participants are not allowed to use pre-written code."
+],
+"rules": [
+"Internet access is restricted unless specifically permitted or specified for the task.",
+"Communication between participants during competition rounds is prohibited.",
+"The use of mobile phones is not allowed unless permission is granted.",
+"All code must be written entirely during the competition period.",
+"Any form of plagiarism or copying designs and code from other participants will lead to immediate disqualification.",
+"The use of any unfair means, malpractice, or non-compliance with the rules will result in disqualification."
+],
+"procedure": [
+"Elimination Round lasts 30 minutes and requires candidates to solve 20 MCQs.",
+"Major Round is 60 minutes long, where candidates must solve 10 problem statements."
+],
+"judging_criteria": [
+"The winner is the participant who solves the maximum number of problem statements."
+],
+"prizes": {},
+"outcome": "",
+"additional_details": {
+"circuit_simulation_note": "For Circuit Simulation, Round 1 is a 30-minute MCQ session covering theory and circuit identification. The second round is a 60-minute session focused on building circuits using PROTEUS.",
+"registration_and_reporting": "Participants are required to register before the established deadline. Late entries will not be accepted. Participants must carry valid ID cards and report to the venue 15–30 minutes early.",
+"equipment_liability": "Participants must compensate the organizers for any damage caused to equipment.",
+"organizer_rights": "Organizers reserve the right to modify competition rules if it becomes necessary.",
+"judging_note": "All decisions made by the judges are final and binding."
+}
+}
+
+{
+"name": "Blind Coding",
+"meta": {
+"document_title": "Official Event Rulebook",
+"organizer": "ZEAL COLLEGE OF ENGINEERING & RESEARCH, PUNE",
+"event": "AVISHKAR ’26",
+"tagline": ""
+},
+"description": "A unique programming challenge where participants must write code without executing it or viewing any output during development. It tests syntax accuracy, logic clarity, and coding confidence.",
+"team_size": "Individual participation",
+"registration_fee": "200/-",
+"duration": "60 minutes",
+"requirements": [
+"Participants must use the provided IDE/editor.",
+"Allowed Languages: C, C++, Java, or Python."
+],
+"rules": [
+"No compilation or execution is allowed during the coding phase.",
+"Internet access, mobile phones, and external help are strictly prohibited.",
+"Code will be compiled and executed by judges after time ends.",
+"Participants will be disqualified for running code before the allowed time.",
+"Participants will be disqualified for plagiarism, using unfair means, or misbehavior."
+],
+"procedure": [
+"Participants are given 1-2 programming problems.",
+"They must write complete code without executing it.",
+"After submission, judges compile and run the code.",
+"Evaluation is based on execution results and correctness."
+],
+"judging_criteria": [
+"Correctness of output after execution",
+"Number of test cases passed",
+"Code accuracy (syntax errors reduce scores)",
+"Completeness of the logical approach"
+],
+"prizes": {
+"first_prize": "3000/-",
+"second_prize": "2000/-",
+"third_prize": "1000/-"
+},
+"outcome": "",
+"additional_details": {
+"objective": "To improve coding accuracy, syntax knowledge, and logical thinking while encouraging the writing of error-free code on the first attempt without trial-and-error.",
+"eligibility": "The competition is open to all students (Diploma, UG, or PG).",
+"registration_note": "Pre-registration is mandatory. Seats are limited based on lab capacity, and each participant is assigned a unique ID.",
+"scoring_system": "Full marks for correct solution. Partial marking for logical correctness despite minor errors. Zero marks for compilation errors.",
+"result_declaration": "Results are determined by maximum test cases passed and least errors. In case of a tie, time taken is the deciding factor.",
+"organizer_rights": "Organizers reserve the right to modify rules, change difficulty levels, and disqualify participants for misconduct."
+}
+}
+
+{
+"name": "Circle Cricket",
+"meta": {
+"document_title": "Official Event Rulebook",
+"organizer": "ZEAL COLLEGE OF ENGINEERING & RESEARCH, PUNE",
+"event": "AVISHKAR ’26",
+"tagline": ""
+},
+"description": "Circle Cricket is a fast-paced, entertaining variation of traditional cricket where players stand in a circular formation, creating a dynamic and unpredictable game.",
+"team_size": "Each team consists of 04 players.",
+"registration_fee": "200/- per team",
+"requirements": [],
+"rules": [
+"Participants must maintain fair play and sportsmanship.",
+"Arguments with organizers or the umpire are not allowed, as the umpire's decision is final.",
+"Teams or players can be disqualified for misconduct, abusive behavior, cheating, rule violations, or dangerous play.",
+"Organizers hold the final authority in disputes and reserve the right to modify rules based on ground conditions."
+],
+"procedure": [
+"The fielding team stands in a circle with one batter positioned at the center.",
+"A bowler is selected from the fielding team.",
+"Each team is allotted one innings consisting of 04 overs.",
+"Roles are rotated after the innings."
+],
+"judging_criteria": [
+"The team that has accumulated the highest number of runs at the end of the match is declared the winner."
+],
+"prizes": {
+"first_prize": "3000/-",
+"second_prize": "2000/-",
+"third_prize": "1000/-"
+},
+"outcome": "",
+"additional_details": {
+"objective": "The batting team aims to score maximum runs by hitting the ball into designated score circles, while the fielding team tries to restrict runs and get the batter out quickly.",
+"ground_setup": "The fielding team stands in a circle with one batter positioned at the center. A bowler is then selected from the fielding team.",
+"gameplay_rules": {
+"batting": "The batter hits the ball in any direction within the circle. Runs are determined by where the ball's second bump occurs. A batter is out if they miss the ball, if the ball is caught after one bump without entering a score circle, or if the ball's first bump is beyond the third circle.",
+"bowling": "Only underarm bowling is permitted. Fast or dangerous bowling is prohibited and results in 2 bonus runs for the batter. Each bowler is limited to one over.",
+"fielding": "One fielder is placed after each of the three circles. Fielders may not enter restricted circles; doing so awards the batter 1 bonus run."
+},
+"scoring_system": {
+"inside_first_circle": "4 runs",
+"between_first_and_second": "2 runs",
+"between_second_and_third": "1 run",
+"after_third_circle": "6 runs"
+},
+"registration_note": "Pre-registration is mandatory with a fee of 200/- per team. Teams are accepted on a first-come, first-served basis and must use a unique ID inspired by the "Forts of Maharashtra"."
+}
+}
+
+{
+"name": "FREE FIRE",
+"meta": {
+"document_title": "Official Event Rulebook",
+"organizer": "ZEAL COLLEGE OF ENGINEERING & RESEARCH, PUNE",
+"event": "AVISHKAR ’26",
+"tagline": ""
+},
+"description": "",
+"team_size": "Each Team must consist of 4 participants only.",
+"registration_fee": "₹250 per group (non-refundable).",
+"requirements": [
+"College ID card is compulsory during the Tournament.",
+"Carry your own charger (aslo extention if there)."
+],
+"rules": [
+"All group members must be present at or before given respective time and slot.",
+"Points calculation will be done according to Standard point system.",
+"Only registered teams will be allowed & given slot.",
+"Each group will play three matches (3 Maps-Bermuda/Purgatory/Kalahari).",
+"All other Rules will be instructed before matches.",
+"Respectful coordination should be shown towards management and co-ordinator."
+],
+"procedure": [
+"Each group will play three matches.",
+"Maps include Bermuda, Purgatory, and Kalahari.",
+"Points will be calculated according to Standard point system."
+],
+"judging_criteria": [
+"Points calculation will be done according to Standard point system."
+],
+"prizes": {
+"first_prize": "₹5000",
+"second_prize": "₹3000",
+"third_prize": "₹2000"
+},
+"outcome": "",
+"additional_details": {
+"maps": "[Bermuda/Purgatory/Kalahari].",
+"coordinators": {
+"student": [
+"Rohit Chavan (7823056055)",
+"Shubham Dawre (7276347743)"
+],
+"faculty": [
+"Prof. R. N. Khandebharad (8767493661)"
+]
+}
+}
+}
+
+{
+"name": "Spark Tank",
+"meta": {
+"document_title": "Official Event Rulebook",
+"organizer": "ZEAL COLLEGE OF ENGINEERING & RESEARCH, PUNE",
+"event": "AVISHKAR ’26",
+"tagline": ""
+},
+"description": "",
+"team_size": "Each group must consist of 1 to 4 participants only.",
+"registration_fee": "The entry fee is ₹200 per group. This fee is non-refundable.",
+"requirements": [],
+"rules": [
+"Participants must adhere to the following rules:",
+"Participants must be present during the evaluation for explanation.",
+"The PPT should be original and not copied.",
+"College ID card is compulsory during the event.",
+"The decision of the judges will be final and binding."
+],
+"procedure": [
+"The pitch presentation must include the following five mandatory sections:",
+"Title Page",
+"Idea",
+"Technical Approach",
+"Feasibility and Viability",
+"Impact and Benefits"
+],
+"judging_criteria": [
+"Relevance to the topic",
+"Creativity and presentation",
+"Clarity of explanation",
+"Technical/content accuracy",
+"Overall impact"
+],
+"prizes": {
+"first_prize": "₹3000",
+"second_prize": "₹2000",
+"third_prize": "₹1000"
+},
+"outcome": "",
+"additional_details": {
+"coordinators": {
+"student": [
+"Radhika Ghodake (9921546187)",
+"Harshita Jadhav (9356766305)",
+"Abhyudaya Jadhav (7088677452)"
+],
+"faculty": [
+"Prof. D.N Deode (8770423757)",
+"Prof. Narendra Neginhal (9970006341)"
+]
+}
+}
+}
+
+{
+"name": "Poster Presentation",
+"meta": {
+"document_title": "Official Event Rulebook",
+"organizer": "ZEAL COLLEGE OF ENGINEERING & RESEARCH, PUNE",
+"event": "AVISHKAR ’26",
+"tagline": ""
+},
+"description": "",
+"team_size": "Each group must consist of 1 or 2 participants only.",
+"registration_fee": "₹100 per group (non-refundable).",
+"requirements": [],
+"rules": [
+"Participants must be present during evaluation for explanation.",
+"Posters should be original and not copied.",
+"College ID card is compulsory during the event.",
+"The decision of judges will be final and binding."
+],
+"procedure": [
+"Posters must be prepared on A2 size or A3 size paper.",
+"The poster must include the following details:",
+"Event Name: “Avishkaar Poster Presentation Competition”",
+"Organized by: Zeal College of Engineering and Research, Pune",
+"Student Name(s)",
+"Name of College",
+"Title of the Topic",
+"Introduction / Background",
+"Main Content (Concept, Diagram, Explanation)",
+"Conclusion / Findings",
+"References (if any)"
+],
+"judging_criteria": [
+"Relevance to the topic",
+"Creativity and presentation",
+"Clarity of explanation",
+"Technical/content accuracy",
+"Overall impact"
+],
+"prizes": {
+"first_prize": "₹3000",
+"second_prize": "₹2000",
+"third_prize": "₹1000"
+},
+"outcome": "",
+"additional_details": {
+"topics": [
+"Renewable Energy Technologies (Solar, Wind, Hydro, etc.)",
+"Waste Management and Recycling Technologies",
+"Artificial Intelligence and Machine Learning Applications",
+"Electric Vehicles and Future Transportation",
+"Industry 4.0 and Smart Manufacturing",
+"Green Building Technologies",
+"Human–Machine Interaction (HMI) related topics"
+],
+"coordinators": {
+"student": [
+"Pranav Katu (9503261138)",
+"Prajakta Bhosale (8668904681)",
+"Manaswi Awate (8149496332)"
+],
+"faculty": [
+"Prof. Jay Gurav (9420696534)",
+"Prof. Snehal Dharme (8390736438)"
+]
+}
+}
+}
+
+{
+"name": "Call of Duty",
+"meta": {
+"document_title": "Official Event Rulebook",
+"organizer": "ZEAL COLLEGE OF ENGINEERING & RESEARCH, PUNE",
+"event": "AVISHKAR ’26",
+"tagline": ""
+},
+"description": "Call of Duty is a team-based E-Sports event designed to evaluate players’ coordination, strategy, and combat execution in a competitive multiplayer environment.",
+"team_size": "4 Members per Team",
+"registration_fee": "₹400 per team",
+"requirements": [
+"Players must have the game installed prior to the event.",
+"All players must bring their own mobile devices.",
+"Ensure proper internet connectivity during matches."
+],
+"rules": [
+"Each team must consist of exactly 4 members.",
+"No change in team members will be allowed after registration.",
+"One player cannot be part of multiple teams.",
+"Use of hacks, cheats, emulators, or unfair tools is strictly prohibited.",
+"Teams must join the lobby on time.",
+"Late entry may result in match forfeiture.",
+"Maintain discipline and sportsmanship throughout the event.",
+"No abusive language, cheating, or unsportsmanlike behavior.",
+"Respect all participants, coordinators, and organizers.",
+"Organizers are not responsible for technical failures on the participant’s side.",
+"The organizing committee reserves the right to modify rules if required."
+],
+"procedure": [
+"Matches will be conducted in a knockout/elimination format.",
+"Teams compete in squad-based matches.",
+"Winning teams advance to subsequent rounds until finals.",
+"Match format (e.g., Team Deathmatch / Search & Destroy) will be declared before matches.",
+"Each match may follow best-of format depending on rounds."
+],
+"judging_criteria": [
+"Winning is based on match results and progression through elimination rounds."
+],
+"prizes": {
+"first_prize": "₹10,000",
+"second_prize": "₹6,000"
+},
+"outcome": "",
+"additional_details": {
+"category": "E-Sports",
+"mode": "Team",
+"type": "Multiplayer Squad-based Combat",
+"platform": "Mobile",
+"status": "Finalised",
+"eligibility": [
+"Open to all registered participants.",
+"Each team must consist of exactly 4 members."
+],
+"disqualification_rules": [
+"Use of cheats, hacks, or unauthorized software",
+"Team member mismatch or impersonation",
+"Misconduct or violation of rules",
+"Failure to report on time"
+],
+"reporting": [
+"Teams must report before their scheduled match time.",
+"Decisions made by organizers/judges will be final.",
+"Disputes must be raised immediately after the match."
+],
+"coordinators": {
+"student": [
+"Vaibhav Bandgar – 9730906103"
+],
+"faculty": [
+"Amol Jadhav – 7020736028"
+]
+}
+}
+}
+
+
+{
+"name": "Code Ladder",
+"meta": {
+"document_title": "Official Event Rulebook",
+"organizer": "ZEAL COLLEGE OF ENGINEERING & RESEARCH, PUNE",
+"event": "AVISHKAR ’26",
+"tagline": ""
+},
+"description": "Code Ladder is an innovative physical event designed to simulate programming concepts through an interactive, game-based environment. It combines logical reasoning, teamwork, and problem-solving skills in a fun and competitive format.",
+"team_size": "4 Players per Team",
+"registration_fee": "₹250 per team",
+"requirements": [
+"Basic understanding of programming logic is recommended."
+],
+"rules": [
+"Each team must have exactly 4 members.",
+"No changes in team members after registration.",
+"A participant cannot be part of multiple teams.",
+"Teams must maintain discipline and fair play.",
+"Collaboration within the team is allowed; external help is not permitted.",
+"Respect for organizers, judges, and other participants is mandatory.",
+"Teams must arrive on time at the venue.",
+"Follow all instructions provided during the event.",
+"Organizers reserve the right to modify rules if necessary.",
+"Maintain cleanliness and discipline at the event location."
+],
+"procedure": [
+"The event will follow a ladder-based progression system.",
+"Teams will move across levels by solving coding challenges.",
+"Each level increases in difficulty.",
+"Top-performing teams advance to final stages.",
+"Teams roll dice or follow predefined movement rules (as per setup).",
+"Landing on specific blocks triggers coding/problem-solving tasks.",
+"Teams must solve the given problem within the allotted time.",
+"Correct answers allow progression; incorrect answers may result in penalties or no movement."
+],
+"judging_criteria": [
+"Accuracy of solutions",
+"Time taken to solve challenges",
+"Logical approach and problem-solving ability",
+"Team coordination and participation"
+],
+"prizes": {
+"first_prize": "₹10,000",
+"second_prize": "₹5,000",
+"third_prize": "₹3,000"
+},
+"outcome": "",
+"additional_details": {
+"category": "Physical / Play Event",
+"mode": "Team",
+"format": "Physical board-game style coding challenge",
+"nature": "Hands-on, activity-based programming",
+"eligibility": [
+"Open to all registered participants.",
+"Participants must register as a team of 4 members."
+],
+"materials": [
+"Physical game board will be provided by organizers.",
+"Coding/problem statements will be given at each stage.",
+"Required stationery or materials (if any) will be provided."
+],
+"disqualification_rules": [
+"Cheating or unfair practices",
+"External assistance during gameplay",
+"Misconduct or rule violations",
+"Failure to follow instructions"
+],
+"reporting": [
+"Teams must report before the event start time.",
+"Judges’ decisions will be final.",
+"Results will be declared after completion of all rounds."
+],
+"coordinators": {
+"student": [
+"Shreya Kad – 7517021872"
+],
+"faculty": [
+"Wrushabh Sirsat – 9325792405"
+]
+}
+}
+}
+
+{
+"name": "Shadow Fight 4",
+"meta": {
+"document_title": "Official Event Rulebook",
+"organizer": "ZEAL COLLEGE OF ENGINEERING & RESEARCH, PUNE",
+"event": "AVISHKAR ’26",
+"tagline": ""
+},
+"description": "Shadow Fight 4 is an E-Sports mobile gaming event designed to test players’ combat skills, strategy, and reflexes in a competitive environment.",
+"team_size": "Individual (1 player per entry)",
+"registration_fee": "₹150 per participant",
+"requirements": [
+"Each participant must have their own mobile device.",
+"Participants must have the game installed prior to the event."
+],
+"rules": [
+"Matches will be conducted in knockout/elimination format.",
+"Each participant will compete individually.",
+"Winners advance to the next round until the final match.",
+"Game version must be updated to the latest version.",
+"Default in-game settings will be used.",
+"Use of external tools, hacks, or mods is strictly prohibited.",
+"Players must join the match on time.",
+"Any delay beyond the allowed time may result in forfeiture.",
+"Players must follow instructions given by coordinators during matches.",
+"Players must maintain fair play and sportsmanship.",
+"Any abusive language or misconduct will not be tolerated.",
+"Respect towards opponents, coordinators, and organizers is mandatory."
+],
+"procedure": [
+"The event will be conducted in Solo mode only.",
+"Matches will be conducted in knockout/elimination format.",
+"Match format will be decided by organizers (e.g., best of 3 rounds)."
+],
+"judging_criteria": [
+"Winning is based on match progression and elimination results."
+],
+"prizes": {
+"first_prize": "₹5000",
+"second_prize": "₹3000"
+},
+"outcome": "",
+"additional_details": {
+"platform": "Mobile devices only",
+"category": "E-Sports",
+"mode": "Solo",
+"status": "Finalised",
+"registration_process": [
+"Participants must register through the official event registration platform/form.",
+"Registration is confirmed only after payment of entry fees.",
+"No on-spot registrations will be entertained (unless specified)."
+],
+"disqualification_rules": [
+"Use of cheats, hacks, or unfair means",
+"Misbehavior or violation of event rules",
+"Failure to report on time",
+"Providing false information"
+],
+"reporting": [
+"Judging panel decisions will be final."
+],
+"coordinators": {
+"student": [
+"Pranav Kulkarni – 9423162724"
+],
+"faculty": [
+"Amol Jadhav – 7020736028"
+]
+},
+"guidelines": [
+"Participants must carry their own devices and ensure sufficient battery.",
+"Internet connectivity (if required) should be stable.",
+"Organizers are not responsible for technical issues from the participant’s side.",
+"The organizing team reserves the right to modify rules if necessary."
+]
+}
+}
+
+
+{
+"name": "Param-X",
+"meta": {
+"document_title": "Official Event Rulebook",
+"organizer": "ZEAL COLLEGE OF ENGINEERING & RESEARCH, PUNE",
+"event": "AVISHKAR ’26",
+"tagline": ""
+},
+"description": "Code Ladder is an innovative physical event designed to simulate programming concepts through an interactive, game-based environment. It combines logical reasoning, teamwork, and problem-solving skills in a fun and competitive format.",
+"team_size": "Teams may consist of 2–4 members (recommended). Solo participation may be allowed if specified.",
+"registration_fee": "₹500 per team/participant (as applicable)",
+"requirements": [
+"Participants must bring their own laptops and required accessories.",
+"Ensure devices are fully charged; power arrangements may be limited."
+],
+"rules": [
+"No changes in team members after registration.",
+"A participant cannot be part of multiple teams.",
+"Participants must develop their solutions during the hackathon duration.",
+"Use of open-source libraries/tools is allowed.",
+"Pre-built projects are not permitted.",
+"Internet access may be allowed only for development purposes.",
+"Maintain professionalism and ethical behavior.",
+"Collaboration within the team is allowed; plagiarism is not.",
+"Respect mentors, judges, and fellow participants."
+],
+"procedure": [
+"The hackathon will run continuously for 10 hours.",
+"Participants will work on given problem statements/themes.",
+"Periodic mentor/judge reviews may be conducted.",
+"Final evaluation will be based on submitted projects and presentations.",
+"Problem statements will be provided at the start of the event.",
+"Themes may include real-world challenges, innovation, or domain-specific problems.",
+"Teams must choose and work within the given themes.",
+"Teams must submit their final project before the deadline.",
+"Submission may include:",
+"Source code",
+"Project report/description",
+"Presentation or demo",
+"Late submissions will not be accepted."
+],
+"judging_criteria": [
+"Innovation & creativity",
+"Problem-solving approach",
+"Technical implementation",
+"Usability and impact",
+"Presentation and demonstration"
+],
+"prizes": {
+"first_prize": "₹51,000",
+"second_prize": "₹25,000",
+"third_prize": "₹15,000"
+},
+"outcome": "",
+"additional_details": {
+"eligibility": [
+"Open to all registered participants.",
+"Participants must register as a team of 4 members.",
+"Basic understanding of programming logic is recommended."
+],
+"registration_process": [
+"Participants must register through the official platform/form.",
+"Entry is confirmed only after successful payment.",
+"Team/member details must be submitted during registration."
+],
+"disqualification_rules": [
+"Plagiarism or use of pre-built solutions",
+"Violation of rules or misconduct",
+"Submission after deadline",
+"Unfair practices"
+],
+"reporting": [
+"Participants must report before the event start time.",
+"Judging panel decisions will be final.",
+"Results will be घोषित after evaluation and presentations."
+],
+"coordinators": {
+"student": [
+"Sujal Jaju – 8010127828",
+"Arya Dandnaik – 7058308428"
+],
+"faculty": [
+"Wrushabh Sirsat – 9325792405"
+]
+},
+"guidelines": [
+"Follow event timelines strictly.",
+"Organizers reserve the right to modify rules if necessary."
+]
+}
+}
+
+{
+"name": "AlignX",
+"meta": {
+"document_title": "Official Event Rulebook",
+"organizer": "ZEAL COLLEGE OF ENGINEERING & RESEARCH, PUNE",
+"event": "AVISHKAR ’26",
+"tagline": ""
+},
+"description": "Line Follower Challenge involving autonomous robots navigating complex tracks.",
+"team_size": "Team of 4 Members",
+"registration_fee": "",
+"requirements": [
+"Autonomous robot",
+"Source code and schematic"
+],
+"rules": [
+"Robots must be completely autonomous and wireless (no Bluetooth, RF, or WiFi).",
+"Maximum weight of 3kg (5% tolerance).",
+"Robot must fit within 20cm x 20cm x 20cm.",
+"Maximum voltage must not exceed 16.8V DC.",
+"Must include fail-safe mechanism.",
+"Must support at least two autonomous speed modes ("Precision" and "Turbo").",
+"Shortcuts or skipping sections are strictly prohibited.",
+"No flammable, hazardous, or high-voltage materials allowed.",
+"All components must be securely assembled."
+],
+"procedure": [
+"Round 1: Preliminary (Timed runs on standard track) – 3 hours",
+"Round 2: Finals (Top 10 teams compete) – 2 hours",
+"Final Evaluation: Judging & Prize Distribution – 1 hour"
+],
+"judging_criteria": [
+"Accuracy & Precision – 25%",
+"Adaptability – 25%",
+"Speed and Efficiency – 20%",
+"Design and Construction – 15%",
+"Technical Implementation – 15%"
+],
+"prizes": {},
+"outcome": "",
+"additional_details": {
+"objective": "Build a fully autonomous robot to follow a thick black line on a white surface with turns, curves, intersections, and crossovers.",
+"track_details": "3cm thick black line on white background with hairpin bends, acute angles, and possible color inversions.",
+"efficiency_bonus": "Bonus points awarded for maximum distance per mAh consumed.",
+"calibration_time": "15 minutes before each round",
+"submission": [
+"Working robot",
+"Source code",
+"Schematic"
+],
+"scoring": {
+"performance_accuracy": 30,
+"speed_efficiency": 25,
+"adaptability": 20,
+"design_construction": 15,
+"code_innovation": 10,
+"total": 100
+},
+"penalties": [
+"Exceeding size/weight → Disqualification",
+"Wireless communication → Disqualification",
+"Unsafe operation → Immediate Disqualification",
+"Manual intervention → -30 points"
+]
+}
+}
+
+
+{
+"name": "Contraptions",
+"meta": {
+"document_title": "Official Event Rulebook",
+"organizer": "ZEAL COLLEGE OF ENGINEERING & RESEARCH, PUNE",
+"event": "AVISHKAR ’26",
+"tagline": ""
+},
+"description": "Energy Conversion – Hit & Drop Challenge involving chain-reaction based systems.",
+"team_size": "Exactly 4 participants",
+"registration_fee": "",
+"requirements": [
+"Custom-built contraption system",
+"Own materials"
+],
+"rules": [
+"System must include at least 3 energy conversions.",
+"Each step must automatically trigger the next.",
+"No manual interference between steps.",
+"Maximum of 3 human interventions allowed.",
+"Bottle must be hit using mechanism (no hand interaction).",
+"Bottle must drop at least 1 foot (≈30 cm).",
+"No sharing of materials.",
+"Use of waste materials is encouraged.",
+"Design must be safe and stable."
+],
+"procedure": [
+"Initial trigger starts chain reaction.",
+"Energy conversion steps execute sequentially.",
+"Bottle is hit and displaced.",
+"Final drop must occur at required distance."
+],
+"judging_criteria": [
+"Number of steps",
+"Energy conversions",
+"Innovation",
+"Execution smoothness",
+"Robustness",
+"Successful hit and drop (mandatory)"
+],
+"prizes": {},
+"outcome": "",
+"additional_details": {
+"theme": "Energy Conversion – Hit & Drop Challenge",
+"arena_size": "2m x 4m",
+"time_limit": "15 minutes",
+"max_trials": "3",
+"penalties": [
+"Extra interventions",
+"Failure to achieve 1-foot drop",
+"Unsafe design → Disqualification"
+],
+"eligibility": "Open to undergraduate students with valid ID",
+"example_flow": "Potential energy → kinetic → mechanical → elastic → bottle hit → displacement"
+}
+}
+
+
+{
+"name": "RoboRush",
+"meta": {
+"document_title": "Official Event Rulebook",
+"organizer": "ZEAL COLLEGE OF ENGINEERING & RESEARCH, PUNE",
+"event": "AVISHKAR ’26",
+"tagline": ""
+},
+"description": "Robotics competition focused on obstacle navigation, path planning, and speed optimization.",
+"team_size": "2–4 members per team",
+"registration_fee": "",
+"requirements": [
+"Remote-controlled robot",
+"Onboard power supply",
+"Processor"
+],
+"rules": [
+"Only one robot per team.",
+"Robot must not exceed 30cm x 30cm size.",
+"Maximum weight: 1–1.5 kg.",
+"Robot must not jump, fly, climb, or damage arena.",
+"No marking arena or leaving parts behind.",
+"No touching robot after track reveal.",
+"No pre-fed maps allowed."
+],
+"procedure": [
+"Round 1: Basic Level – simple track with 4 checkpoints, 3 runs, best run considered.",
+"Round 2: Advanced Level – complex track with obstacles, 3 runs, up to 5 checkpoints."
+],
+"judging_criteria": [
+"Checkpoint scoring (+10 each)",
+"Lap completion (+10)",
+"Shortest path (+5)",
+"No collisions (+5)",
+"Fastest time (+5)",
+"Best design (+5)"
+],
+"prizes": {},
+"outcome": "",
+"additional_details": {
+"objective": "Navigate from start to end with fastest and cleanest run.",
+"arena": [
+"Static and dynamic obstacles",
+"Narrow paths, dead ends, turns",
+"Variable surface conditions"
+],
+"attempts": "Maximum 3 restarts",
+"tie_breaker": [
+"More checkpoints",
+"Faster final run",
+"Fewer penalties"
+],
+"inspection": "Mandatory technical inspection before event",
+"penalties": [
+"-10 points for arena damage",
+"Disqualification for rule violations"
+]
+}
+}

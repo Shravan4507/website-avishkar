@@ -1,0 +1,115 @@
+.cropper-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3000;
+}
+
+.cropper-modal {
+    background: rgba(0, 0, 0, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0);
+    border-radius: 34px;
+    padding: 2rem;
+    width: 90%;
+    max-width: 600px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.cropper-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.cropper-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: #fff;
+    font-weight: 600;
+}
+
+.cropper-header .close-btn {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.cropper-header .close-btn:hover {
+    color: #fff;
+}
+
+.cropper-body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 20px;
+    padding: 1rem;
+    overflow: hidden;
+    min-height: 300px;
+}
+
+.cropper-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+.cropper-footer button {
+    padding: 0.8rem 1.5rem;
+    border-radius: 34px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.95rem;
+}
+
+.cropper-footer .cancel-btn {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+.cropper-footer .cancel-btn:active {
+    transform: scale(0.95);
+}
+
+.cropper-footer .save-btn {
+    background-color: rgb(230, 91, 255);
+    border: none;
+    color: #000;
+}
+
+.cropper-footer .save-btn:hover {
+    background-color: rgb(230, 91, 255);
+}
+
+.cropper-footer .save-btn:active {
+    transform: scale(0.95);
+}
+
+/* Override react-image-crop styles for premium feel */
+.ReactCrop {
+    border-radius: 12px;
+}
+
+.ReactCrop__crop-selection {
+    border: 1px solid rgb(230, 91, 255) !important;
+}
+
+.ReactCrop__drag-handle::after {
+    background-color: rgb(230, 91, 255) !important;
+}

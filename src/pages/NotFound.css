@@ -1,0 +1,56 @@
+.notfound-container {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px;
+}
+
+.notfound-content {
+  max-width: 520px;
+}
+
+.notfound-code {
+  font-family: 'Iceland', 'Ubuntu', sans-serif;
+  font-size: 10rem;
+  line-height: 1;
+  background: linear-gradient(180deg, #5227ff 0%, transparent 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 8px;
+}
+
+.notfound-title {
+  font-family: 'Iceland', 'Ubuntu', sans-serif;
+  font-size: 2.4rem;
+  color: #fff;
+  margin-bottom: 16px;
+}
+
+.notfound-subtitle {
+  font-family: 'Ubuntu', sans-serif;
+  color: rgba(255,255,255,0.45);
+  line-height: 1.7;
+  margin-bottom: 40px;
+}
+
+.notfound-btn {
+  display: inline-block;
+  padding: 14px 36px;
+  background: rgba(82,39,255,0.15);
+  border: 1px solid rgba(82,39,255,0.35);
+  color: #a78bfa;
+  text-decoration: none;
+  border-radius: 100px;
+  font-family: 'Ubuntu', sans-serif;
+  font-weight: 600;
+  transition: all 0.25s ease;
+}
+
+.notfound-btn:hover {
+  background: rgba(82,39,255,0.3);
+  color: #fff;
+}

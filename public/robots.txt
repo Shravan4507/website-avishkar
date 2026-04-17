@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+
+# Exclude private/auth routes
+Disallow: /user/
+Disallow: /admin/
+Disallow: /admin-login
+Disallow: /signup
+Disallow: /login
+
+Sitemap: https://www.avishkar.zcoer.in/sitemap.xml

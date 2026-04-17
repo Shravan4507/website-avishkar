@@ -1,0 +1,192 @@
+/* ── Bug Report Modal ── */
+
+.bug-report-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 9998;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: bugFadeIn 0.25s ease;
+}
+
+@keyframes bugFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.bug-report-modal {
+  width: 100%;
+  max-width: 480px;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 3rem;
+  padding: 2.5rem 2rem 2rem;
+  position: relative;
+  animation: bugSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes bugSlideUp {
+  from { opacity: 0; transform: translateY(30px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.bug-report-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: rgba(0, 0, 0, 0);
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.bug-report-close:active {
+  transform: scale(0.98);
+}
+
+.bug-report-header {
+  margin-bottom: 1.75rem;
+}
+
+.bug-report-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 0.4rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.bug-report-subtitle {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.75);
+  margin: 0;
+}
+
+.bug-report-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.bug-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.bug-field label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.75);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.bug-field select,
+.bug-field textarea {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.75);
+  border: none;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 2rem;
+  color: #fff;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1rem;
+  padding: 0.85rem 1rem;
+  outline: none;
+  transition: border-color 0.2s ease;
+  resize: vertical;
+}
+
+.bug-field select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.5)' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 2.5rem;
+}
+
+.bug-field select option {
+  background: #1a1030;
+  color: #fff;
+}
+
+.bug-field textarea {
+  min-height: 120px;
+}
+
+.bug-field select:focus,
+.bug-field textarea:focus {
+  border-color: rgba(82, 39, 255, 0.6);
+}
+
+.bug-submit-btn {
+  width: 100%;
+  padding: 1rem;
+  border: none;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+  background: #000;
+  color: #fff;
+  border-radius: 7rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  font-family: 'Montserrat', sans-serif;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+  margin-top: 0.5rem;
+}
+
+.bug-submit-btn:hover:not(:disabled) {
+  box-shadow: 0 8px 25px rgba(82, 39, 255, 0.35);
+}
+
+.bug-submit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.bug-submit-btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.bug-meta-note {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.3);
+  text-align: center;
+  margin-top: 0.25rem;
+}
+
+/* ── Mobile ── */
+@media (max-width: 480px) {
+  .bug-report-overlay {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .bug-report-modal {
+    max-width: 100%;
+    border-radius: 2rem 2rem 0 0;
+    padding: 2rem 1.5rem calc(2rem + env(safe-area-inset-bottom, 0px));
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+}

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--[if !mso]><!-->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <!--<![endif]-->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Inter:wght@400;500;700&display=swap');
+
+        :root {
+            --bg-outer: #f8fafc;
+            --bg-card: #ffffff;
+            --primary: #0f172a;
+            --secondary: #64748b;
+            --accent: #2563eb;
+            --border: #e2e8f0;
+            --radius-lg: 24px;
+            --radius-md: 16px;
+            --radius-pill: 100px;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f8fafc;
+            font-family: 'Inter', -apple-system, sans-serif;
+            color: #0f172a;
+        }
+
+        .email-wrapper {
+            width: 100%;
+            background-color: #f8fafc;
+            padding: 40px 20px;
+        }
+
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.03);
+        }
+
+        /* Typography */
+        .h1, .h2, .h3 { font-family: 'Outfit', sans-serif; font-weight: 800; margin: 0; }
+        .h1 { font-size: 32px; letter-spacing: -1px; }
+        .h2 { font-size: 28px; }
+        .h3 { font-size: 20px; }
+        
+        .text-sm { font-size: 13px; }
+        .text-xs { font-size: 11px; }
+        .text-muted { color: #64748b; }
+        .text-accent { color: #2563eb; }
+        .text-bold { font-weight: 700; }
+        .uppercase { text-transform: uppercase; letter-spacing: 1px; }
+
+        /* Components */
+        .header { padding: 50px 40px; border-bottom: 2px solid #f1f5f9; text-align: center; }
+        .content { padding: 50px; line-height: 1.6; }
+        .footer { padding: 40px 50px; border-top: 1px solid #f1f5f9; text-align: center; font-size: 12px; color: #94a3b8; }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 100px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 30px;
+        }
+        .badge-success { background-color: #ecfdf5; color: #047857; border: 1px solid #d1fae5; }
+        .badge-pending { background-color: #fffbeb; color: #b45309; border: 1px solid #fef3c7; }
+        .badge-failure { background-color: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
+
+        .summary-box {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 24px;
+            padding: 40px;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .details-list {
+            background-color: #ffffff;
+            border: 1px solid #f1f5f9;
+            border-radius: 20px;
+            overflow: hidden;
+            margin-bottom: 40px;
+        }
+        .details-item {
+            padding: 16px 20px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .details-item:last-child { border-bottom: none; }
+
+        .btn {
+            display: inline-block;
+            padding: 16px 40px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: transform 0.2s;
+        }
+        .btn-primary { background-color: #0f172a; color: #ffffff; }
+        .btn-accent { background-color: #2563eb; color: #ffffff; }
+
+        /* Invoice Specific */
+        .invoice-table { width: 100%; border-collapse: collapse; margin: 40px 0; }
+        .invoice-table th { text-align: left; padding: 15px 0; border-bottom: 2px solid #f1f5f9; font-size: 11px; color: #64748b; }
+        .invoice-table td { padding: 25px 0; border-bottom: 1px solid #f8fafc; }
+        
+        .total-card {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 300px;
+            margin-left: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-wrapper">
+        <div class="email-container">
+            <!-- Header -->
+            <div class="header">
+                <!-- Logo Grid -->
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 20px;">
+                    <tr>
+                        <td align="left" valign="top" width="50">
+                            <img src="https://avishkar.zcoer.in/assets/logos/A%20logo%20Black.png" alt="A" width="50" style="display: block;">
+                        </td>
+                        <td>&nbsp;</td>
+                        <td align="right" valign="top" width="140">
+                            <img src="https://avishkar.zcoer.in/assets/logos/ZCOER-Logo-Black.png" alt="ZCOER" width="140" style="display: block;">
+                        </td>
+                    </tr>
+                </table>
+
+                <!-- Center Branding -->
+                <div style="text-align: center;">
+                    <div class="text-bold uppercase" style="font-size: 11px; letter-spacing: 2px; color: #64748b; margin-bottom: 4px;">Zeal College of Engineering and Research</div>
+                    <div style="font-family: 'Outfit', sans-serif; font-style: italic; font-size: 15px; color: #94a3b8; margin-bottom: 8px;">presents</div>
+                    <img src="https://avishkar.zcoer.in/assets/logos/avishkar%20black.webp" alt="Avishkar '26" width="240" style="display: inline-block; margin: 0 auto;">
+                </div>
+            </div>
+
+            <!-- Body -->
+            <div class="content">
+                {{CONTENT_GOES_HERE}}
+            </div>
+
+            <!-- Footer -->
+            <div class="footer">
+                <div class="text-bold uppercase" style="color: #64748b; margin-bottom: 4px;">Zeal College of Engineering & Research</div>
+                <div style="margin-bottom: 25px;">Narhe, Pune, MH 411041</div>
+                
+                <div style="margin-bottom: 25px;">
+                    <a href="https://instagram.com/zeal_avishkar/" class="text-accent text-bold" style="text-decoration: none; padding: 0 10px;">Instagram</a>
+                    <a href="https://avishkar.zcoer.in" class="text-accent text-bold" style="text-decoration: none; padding: 0 10px;">Website</a>
+                </div>
+                
+                <div>
+                    Support: <a href="mailto:support.avishkarr@zealeducation.com" class="text-accent text-bold" style="text-decoration: none;">support.avishkarr@zealeducation.com</a><br>
+                    © 2026 Avishkar Tech. Pioneering Excellence.
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

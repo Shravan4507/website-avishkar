@@ -1,0 +1,288 @@
+/* Overlay & Modal */
+.virtual-pass-modal-overlay {
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  background: transparent; /*rgba(0, 0, 0, 0.9);*/
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  margin-top: 100px;
+}
+
+.virtual-pass-modal-content {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: calc(400px * var(--pass-scale, 1));
+  height: calc(680px * var(--pass-scale, 1));
+  transition: all 0.3s ease;
+}
+
+.virtual-pass-close-btn {
+  position: absolute;
+  top: 0;
+  right: 500px;
+  background: rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: none;
+  color: #fff;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 100;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.virtual-pass-close-btn:active {
+  transform: scale(0.98);
+}
+
+/* ── High Fidelity Card Shell ── */
+.virtual-pass-card {
+  width: 400px;
+  height: 680px;
+  background-image: url('../../assets/id-cards/id-card-chasis.webp');
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  position: relative;
+  border-radius: 40px;
+  overflow: hidden;
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.8), 
+              0 0 50px rgba(82, 39, 255, 0.2);
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  user-select: none;
+  transform: scale(var(--pass-scale, 1));
+  transform-origin: center center;
+  flex-shrink: 0;
+}
+
+/* ── Profile Image Section ── */
+.pass-photo-container {
+  position: absolute;
+  top: 195px;
+  left: 52px;
+  width: 175px;
+  height: 175px;
+  border-radius: 999px;
+  padding: 4px;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.pass-user-photo {
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  object-fit: cover;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+}
+
+.pass-user-initials {
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Iceland', sans-serif;
+  font-size: 6rem;
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+/* ── Name & Core Details ── */
+.pass-info-overlay {
+  position: absolute;
+  top: 385px;
+  left: 5px;
+  width: 68%; /* Precisely avoiding the right strip */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 20px;
+}
+
+.pass-name-main {
+  font-family: 'iceland', sans-serif;
+  font-size: 2.25rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin: 0;
+  text-align: center;
+  width: 100%;
+  line-height: 0.8;
+}
+
+.pass-validity {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,0.6);
+  margin-top: 65px;
+  text-align: center;
+  width: 100%;
+}
+
+/* ── Vertical Role Strip (Right Side) ── */
+.pass-vertical-strip {
+  position: absolute;
+  top: 115px;
+  right: 30px;
+  width: 82px;
+  height: 520px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+.pass-vertical-role-text {
+  transform: rotate(-90deg);
+  white-space: nowrap;
+  font-family: 'iceland', sans-serif;
+  font-size: 3.1rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  color: #000;
+  opacity: 0.8;
+}
+
+/* ── Bottom Section (Black Bar) ── */
+.pass-footer-qr {
+  position: absolute;
+  bottom: 28px;
+  left: 30px;
+  width: 85px;
+  height: 85px;
+  background: #fff;
+  padding: 5px;
+  border-radius: 2px;
+}
+
+.pass-id-number {
+  position: absolute;
+  bottom: 55px;
+  right: 22px;
+  font-family: 'iceland', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: #fff;
+}
+
+/* ── Static capture (High Res) ── */
+.virtual-pass-static-wrap {
+  position: absolute;
+  top: -9999px;
+  left: -9999px;
+  pointer-events: none;
+}
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+  :root {
+    --pass-scale: 0.825; /* Scaled to ~330px width */
+  }
+
+  /* For very small devices like iPhone SE */
+  @media (max-width: 350px) {
+    :root {
+      --pass-scale: 0.75; /* Scaled to ~300px width */
+    }
+  }
+
+  .virtual-pass-modal-overlay {
+    padding: 120px 20px 40px;
+    align-items: flex-start;
+    overflow-y: auto;
+  }
+
+  .virtual-pass-close-btn {
+    top: 25px;
+    right: 25px;
+    width: 44px;
+    height: 44px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+}
+
+/* ── QR Expansion Overlay ── */
+.qr-expansion-overlay {
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  background: rgba(0, 0, 0, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: zoom-out;
+}
+
+.qr-expansion-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  position: relative;
+}
+
+.qr-expanded-wrapper {
+  background: #fff;
+  padding: 24px;
+  border-radius: 24px;
+  box-shadow: 0 0 60px rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qr-close-btn {
+  position: absolute;
+  top: -80px;
+  right: 0;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.qr-close-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: rotate(90deg);
+}
+
+.qr-hint {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9rem;
+  letter-spacing: 2px;
+  font-weight: 600;
+  text-transform: uppercase;
+}

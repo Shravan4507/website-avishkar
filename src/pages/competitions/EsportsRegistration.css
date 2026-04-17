@@ -1,0 +1,852 @@
+/* ===========================
+   ESPORTS REGISTRATION v2
+   Theme: #5227ff (Purple)
+   Pattern: RoboKshetra member-card
+   =========================== */
+
+.esports-reg-page-v2 {
+    padding: 120px 2rem 4rem;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: radial-gradient(circle at top right, rgba(82, 39, 255, 0.04), transparent);
+}
+
+.esports-reg-page-v2.centered {
+    justify-content: center;
+}
+
+/* --- HEADER --- */
+.esports-header-v2 {
+    width: 100%;
+    max-width: 1000px;
+    margin-bottom: 4rem;
+}
+
+.nav-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.back-portal-btn {
+    background: rgba(0, 0, 0, 0);
+    color: rgba(255, 255, 255, 0.6);
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 2rem;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.back-portal-btn:active { transform: scale(0.98); }
+
+.platform-tag {
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    opacity: 0.8;
+}
+
+.main-logo-row {
+    display: flex;
+    align-items: last baseline;
+    gap: 1.5rem;
+}
+
+.game-label-large {
+    font-family: 'Iceland', sans-serif;
+    font-size: 4rem;
+    color: #fff;
+    line-height: 1;
+}
+
+.reg-text-large {
+    font-family: 'Iceland', sans-serif;
+    font-size: 4rem;
+    color: rgba(255, 255, 255, 0.92);
+    line-height: 1;
+}
+
+/* --- LAYOUT --- */
+.esports-layout-v2 {
+    width: 100%;
+    max-width: 1000px;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+/* --- SECTIONS --- */
+.es-section {
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(25px);
+    border-bottom: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 3rem;
+    padding: 3rem;
+}
+
+.es-section-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    color: #27ff39;
+}
+
+.es-section-header h3 {
+    font-family: 'Iceland', sans-serif;
+    font-size: 1.3rem;
+    letter-spacing: 2px;
+    margin: 0;
+}
+
+.es-team-input {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 3rem;
+    padding: 1.25rem 1.5rem;
+}
+
+.es-team-input input {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #fff;
+    font-size: 1.2rem;
+    font-weight: 600;
+    width: 100%;
+}
+
+.es-team-input input::placeholder {
+    color: rgba(255, 255, 255, 0.15);
+}
+
+/* --- MEMBER CARDS --- */
+.es-members-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.es-member-card {
+    background: rgba(0, 0, 0, 0.65);
+    border-bottom: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 2rem;
+    padding: 2rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.es-member-card.leader {
+    border-color: rgba(255, 255, 255, 0.3);
+    background: rgba(0, 0, 0, 0.65);
+}
+
+.es-member-card.has-error {
+    border-color: rgba(239, 68, 68, 0.3);
+    background: rgba(239, 68, 68, 0.02);
+}
+
+.es-member-index {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 3rem;
+    font-family: 'Iceland', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+    font-weight: 800;
+    color: #fff;
+    background: rgba(82, 39, 255, 0.15);
+    border: 1px solid rgba(82, 39, 255, 0.2);
+    flex-shrink: 0;
+}
+
+.es-member-inputs {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+/* --- INPUT WITH ICON --- */
+.es-input-with-icon {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 3rem;
+    padding: 0.9rem 1.2rem;
+    transition: all 0.3s ease;
+}
+
+.es-input-with-icon svg {
+    color: rgba(255, 255, 255, 0.45);
+    flex-shrink: 0;
+}
+
+.es-input-with-icon input {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #fff;
+    font-size: 0.95rem;
+    width: 100%;
+    font-weight: 500;
+}
+
+.es-input-with-icon input::placeholder {
+    color: rgba(255, 255, 255, 0.55);
+}
+
+.es-input-with-icon.avr-lookup {
+    background: rgba(82, 39, 255, 0.04);
+    border-color: rgba(82, 39, 255, 0.15);
+}
+
+.es-input-with-icon.avr-lookup:focus-within {
+    border-color: rgba(82, 39, 255, 0.4);
+    box-shadow: 0 0 20px rgba(82, 39, 255, 0.1);
+}
+
+.es-input-with-icon.avr-lookup.searching {
+    border-color: rgba(82, 39, 255, 0.4);
+}
+
+.es-input-with-icon.prefilled.readonly {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.es-input-with-icon.prefilled.readonly input {
+    cursor: not-allowed;
+}
+
+.es-input-with-icon.field-error {
+    border-color: rgba(239, 68, 68, 0.4);
+    background: rgba(239, 68, 68, 0.03);
+}
+
+.es-error-badge {
+    font-size: 0.65rem;
+    color: #ef4444;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    flex-shrink: 0;
+}
+
+/* Detail Row */
+.es-detail-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+/* --- ACTIONS SECTION --- */
+.es-actions-section {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.es-scheduling-notice {
+    background: rgba(0, 0, 0, 0.65);
+    border-bottom: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 2rem;
+    padding: 1rem;
+    display: flex;
+    gap: 1rem;
+}
+
+.es-scheduling-notice h4 {
+    color: #5227ff;
+    margin: 0 0 0.4rem 0;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+}
+
+.es-scheduling-notice p {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.8rem;
+    line-height: 1.4;
+    margin: 0;
+}
+
+.es-checkbox-row {
+    margin-top: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.es-checkbox-row input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: #5227ff;
+    cursor: pointer;
+}
+
+.es-checkbox-row label {
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* --- DEPLOY BUTTON --- */
+.es-deploy-btn {
+    background: #5227ff;
+    color: #fff;
+    padding: 1rem;
+    border-radius: 3rem;
+    font-family: 'Iceland', sans-serif;
+    font-weight: 800;
+    font-size: 1.5rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    box-shadow: 0 10px 40px rgba(82, 39, 255, 0.2);
+}
+
+.es-deploy-btn:active { transform: translateY(0) scale(0.98); }
+.es-deploy-btn:disabled { opacity: 0.5; filter: grayscale(1); }
+
+.es-disclaimer {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.3);
+    text-align: center;
+    font-style: italic;
+}
+
+/* --- PREVIEW PANEL --- */
+.es-preview-panel {
+    background: rgba(0, 0, 0, 0.65);
+    border: 1px solid rgba(82, 39, 255, 0.15);
+    border-radius: 2rem;
+    padding: 2.5rem;
+    animation: esFadeIn 0.4s ease;
+}
+
+.es-preview-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+    color: #5227ff;
+}
+
+.es-preview-header h4 {
+    font-family: 'Iceland', sans-serif;
+    font-size: 1.4rem;
+    letter-spacing: 2px;
+    margin: 0;
+}
+
+.es-preview-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.es-preview-meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.es-preview-label {
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    color: rgba(255, 255, 255, 0.35);
+    font-weight: 700;
+}
+
+.es-preview-value {
+    font-size: 1.2rem;
+    color: #fff;
+    font-weight: 600;
+}
+
+.es-preview-members {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.es-preview-member {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 1.2rem;
+    padding: 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.es-pm-rank {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    color: #5227ff;
+    letter-spacing: 1.5px;
+    font-weight: 700;
+}
+
+.es-pm-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.es-pm-name {
+    font-size: 1.05rem;
+    color: #fff;
+    font-weight: 600;
+}
+
+.es-pm-ign {
+    font-size: 0.8rem;
+    color: #27ff39;
+    font-family: 'Iceland', sans-serif;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+.es-pm-avr {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.4);
+    font-family: 'Iceland', sans-serif;
+    letter-spacing: 1px;
+}
+
+.es-payment-summary {
+    background: rgba(82, 39, 255, 0.03);
+    border: 1px solid rgba(82, 39, 255, 0.1);
+    border-radius: 1.5rem;
+    padding: 1.5rem 2rem;
+    margin-bottom: 2rem;
+}
+
+.es-summary-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.6rem 0;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.95rem;
+}
+
+.es-summary-row.total {
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    margin-top: 0.5rem;
+    padding-top: 1rem;
+    color: #5227ff;
+    font-size: 1.2rem;
+    font-weight: 800;
+    font-family: 'Iceland', sans-serif;
+    letter-spacing: 1px;
+}
+
+.es-payment-note {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.3);
+    margin-top: 0.75rem;
+    text-align: center;
+}
+
+.es-preview-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.es-edit-btn {
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.6);
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 3rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+}
+
+.es-edit-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+}
+
+/* --- SUCCESS --- */
+.es-success-card {
+    text-align: center;
+    background: rgba(0, 0, 0, 0.65);
+    border: 1px solid rgba(82, 39, 255, 0.1);
+    border-radius: 3rem;
+    padding: 4rem 3rem;
+    max-width: 550px;
+    width: 100%;
+}
+
+.es-success-icon {
+    width: 80px;
+    height: 80px;
+    background: #10b981;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    margin: 0 auto 2rem;
+}
+
+.es-success-card h1 {
+    font-family: 'Iceland', sans-serif;
+    font-size: 2.5rem;
+    color: #fff;
+    margin-bottom: 0.5rem;
+}
+
+.es-reg-id {
+    background: rgba(82, 39, 255, 0.05);
+    border: 1px solid rgba(82, 39, 255, 0.15);
+    border-radius: 1.5rem;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+}
+
+.es-reg-id .label {
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    font-weight: 700;
+}
+
+.es-reg-id .value {
+    color: #fff;
+    font-size: 1.2rem;
+    font-family: 'Iceland', sans-serif;
+    letter-spacing: 1px;
+}
+
+/* --- LOCKED OVERLAY --- */
+.registered-overlay {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 600px;
+    padding: 4rem;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 70, 85, 0.1);
+    border-radius: 3rem;
+    backdrop-filter: blur(20px);
+}
+
+.locked-icon {
+    margin-bottom: 2rem;
+    filter: drop-shadow(0 0 20px rgba(255, 70, 85, 0.4));
+}
+
+.locked-title {
+    font-family: 'Iceland', sans-serif;
+    font-size: 4rem;
+    color: #fff;
+    margin-bottom: 1rem;
+    letter-spacing: 2px;
+}
+
+.locked-text {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 1.2rem;
+    margin-bottom: 3rem;
+}
+
+/* --- ANIMATIONS --- */
+@keyframes esFadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+    animation: esFadeIn 0.5s ease both;
+}
+
+/* --- SPINNER --- */
+.loader-screen {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+.spinner {
+    animation: spin 1s linear infinite;
+    color: #5227ff;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* --- RESPONSIVE --- */
+@media (max-width: 900px) {
+    .esports-reg-page-v2 { padding: 100px 1rem 3rem; }
+    .game-label-large, .reg-text-large { font-size: 2.5rem; }
+    .main-logo-row { 
+        flex-direction: column; 
+        gap: 0; 
+        align-items: center; 
+        text-align: center;
+        width: 100%;
+    }
+    .es-section { padding: 2rem 1.5rem; border-radius: 2rem; }
+    .es-member-card { flex-direction: column; gap: 1rem; padding: 1.5rem; }
+    .es-member-index { width: 35px; height: 35px; font-size: 0.65rem; }
+    .es-detail-row { grid-template-columns: 1fr; }
+    .es-preview-panel { padding: 1.5rem; border-radius: 1.5rem; }
+    .es-preview-meta { grid-template-columns: 1fr; }
+    .es-preview-members { grid-template-columns: 1fr; }
+    .es-preview-actions { flex-direction: column; }
+    .es-edit-btn, .es-preview-actions .es-deploy-btn { width: 100%; justify-content: center; }
+    .es-success-card { padding: 2.5rem 1.5rem; border-radius: 2rem; }
+    .nav-row { flex-direction: row; justify-content: space-between; align-items: center; gap: 1rem; }
+}
+
+/* Verification Protocol & Status Indicators */
+.es-protocol-banner {
+    display: flex;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    background: rgba(82, 39, 255, 0.05);
+    border: 1px solid rgba(82, 39, 255, 0.2);
+    border-radius: 2rem;
+    margin-bottom: 2rem;
+    backdrop-filter: blur(10px);
+}
+
+.es-protocol-icon {
+    width: 44px;
+    height: 44px;
+    background: rgba(82, 39, 255, 0.1);
+    border: 1px solid rgba(82, 39, 255, 0.3);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #5227ff;
+    flex-shrink: 0;
+}
+
+.es-protocol-content h3 {
+    margin: 0 0 0.4rem 0;
+    font-size: 1.1rem;
+    color: #fff;
+    letter-spacing: 0.5px;
+}
+
+.es-protocol-content p {
+    margin: 0 0 1rem 0;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.5;
+}
+
+.es-share-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.2rem;
+    background: #5227ff;
+    color: white;
+    border: none;
+    border-radius: 3rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.es-share-btn:active {
+    transform: scale(0.98);
+}
+
+.es-form-hint {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 1.5rem;
+    padding-left: 0.5rem;
+    border-left: 2px solid #5227ff;
+}
+
+.es-status-bar {
+    margin-top: 0.75rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+}
+
+.es-status {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+}
+
+.es-status.success {
+    background: rgba(34, 197, 94, 0.1);
+    color: #22c55e;
+    border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.es-status.failure {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.es-status.info {
+    background: rgba(82, 39, 255, 0.1);
+    color: #5227ff;
+    border: 1px solid rgba(82, 39, 255, 0.2);
+}
+
+.es-input-with-icon.avr-lookup.readonly input {
+    background: rgba(82, 39, 255, 0.1);
+    cursor: default;
+}
+/* --- MONSTER THEME OVERRIDES --- */
+.esports-reg-page-v2.monster-theme {
+    background: radial-gradient(circle at top right, rgba(154, 240, 0, 0.08), transparent);
+}
+
+.monster-theme .game-label-large {
+    color: #9af000;
+}
+
+.monster-theme .es-section-header {
+    color: #9af000;
+}
+
+.monster-theme .es-status.info {
+    background: rgba(154, 240, 0, 0.1);
+    color: #9af000;
+    border-color: rgba(154, 240, 0, 0.2);
+}
+
+.monster-theme .es-input-with-icon.avr-lookup {
+    background: rgba(154, 240, 0, 0.04);
+    border-color: rgba(154, 240, 0, 0.15);
+}
+
+.monster-theme .es-input-with-icon.avr-lookup:focus-within {
+    border-color: rgba(154, 240, 0, 0.4);
+}
+
+.monster-theme .es-deploy-btn {
+    background: #9af000;
+    color: #000;
+    box-shadow: 0 10px 40px rgba(154, 240, 0, 0.2);
+}
+
+.monster-theme .es-summary-row.total {
+    color: #9af000;
+}
+
+.monster-theme .es-protocol-banner {
+    background: rgba(154, 240, 0, 0.05);
+    border-color: rgba(154, 240, 0, 0.2);
+}
+
+.monster-theme .es-protocol-icon {
+    background: rgba(154, 240, 0, 0.1);
+    border-color: rgba(154, 240, 0, 0.3);
+    color: #9af000;
+}
+
+.monster-theme .es-share-btn {
+    background: #9af000;
+    color: #000;
+}
+
+.monster-theme .es-member-index {
+    background: rgba(154, 240, 0, 0.15);
+    border-color: rgba(154, 240, 0, 0.2);
+}
+
+.monster-theme .es-checkbox-row input[type="checkbox"] {
+    accent-color: #9af000;
+}
+
+/* --- MONSTER BADGE --- */
+.monster-reg-badge {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding-left: 1.5rem;
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.powered-by-small {
+    font-size: 0.6rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.monster-small-logo {
+    height: 48px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 10px rgba(154, 240, 0, 0.3));
+}
+
+@keyframes slideRight {
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+.animate-slide-right {
+    animation: slideRight 0.6s ease forwards;
+}
+
+@media (max-width: 600px) {
+    .monster-reg-badge {
+        padding-left: 0;
+        border-left: none;
+        margin-top: 0.5rem;
+    }
+}

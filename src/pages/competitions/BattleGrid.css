@@ -1,0 +1,435 @@
+/* BattleGrid.css - Mirrored from ParamX Aethetics */
+.battle-grid-page {
+    padding: 120px 2rem 4rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    min-height: 100vh;
+}
+
+/* --- HERO --- */
+.bg-hero {
+    text-align: center;
+    margin-bottom: 8rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: fadeIn 1s ease;
+}
+
+.battle-grid-page .hero-badge {
+    background: rgba(0, 0, 0, 0);
+    color: #ff4655; /* Red Accent for BattleGrid */
+    padding: 0.5rem 1.5rem;
+    font-family: 'Iceland', sans-serif;
+    font-size: 3rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    line-height: 1.1;
+}
+
+.hero-logo {
+    max-width: 800px;
+    width: 95%;
+    height: auto;
+    margin-bottom: 2rem;
+    filter: drop-shadow(0 0 20px rgba(255, 70, 85, 0.2));
+}
+
+.hero-subtitle {
+    font-size: 1.5rem;
+    color: rgba(255, 255, 255, 0.85);
+    margin-bottom: 2rem;
+}
+
+.rk-coordinators {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-top: 2.5rem;
+}
+
+.coord-pill {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #000;
+    border: none;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+    padding: 0.6rem 1.25rem;
+    border-radius: 2rem;
+    font-size: 0.9rem;
+    color: #d9ff00;
+    backdrop-filter: blur(10px);
+}
+
+.coord-role {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #d9ff00;
+    margin-right: 0.25rem;
+    font-weight: 800;
+    opacity: 0.8;
+}
+
+.coord-icon {
+    color: #d9ff00;
+    opacity: 0.9;
+}
+
+.coord-name {
+    color: #fff;
+    font-weight: 600;
+}
+
+.coord-phone {
+    color: #fff;
+    text-decoration: none;
+    font-weight: 700;
+    transition: background 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: rgba(255, 70, 85, 0.2);
+    padding: 0.2rem 0.6rem;
+    border-radius: 100px;
+    margin-left: 0.5rem;
+}
+
+.coord-phone:hover {
+    background: #eaff4d;
+}
+
+.hero-stats {
+    display: flex;
+    gap: 4rem;
+    margin-bottom: 4rem;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+}
+
+.battle-grid-page .stat-icon {
+    width: 48px;
+    height: 48px;
+    color: #d9ff00;
+    background: rgba(217, 255, 0, 0.05);
+    border-radius: 1rem;
+    padding: 10px;
+}
+
+.stat-content {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.stat-val {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.75);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.hero-ctas {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.battle-grid-page .primary-cta {
+    background: #000;
+    color: #d9ff00;
+    padding: 1.2rem 3rem;
+    border-radius: 3.5rem;
+    font-weight: 700;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    border: none;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+    transition: all 0.3s ease;
+}
+
+
+.primary-cta:active {
+    transform: scale(0.98);
+}
+
+.primary-cta.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.secondary-cta {
+    background: #000;
+    color: #d9ff00;
+    padding: 1.2rem 2.5rem;
+    border-radius: 3.5rem;
+    font-weight: 600;
+    font-size: 1.05rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    text-decoration: none;
+    border: none;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+    transition: all 0.3s ease;
+}
+
+.secondary-cta:active {
+    transform: scale(0.98);
+}
+/* Removed hover effect to keep rulebook clean */
+
+/* --- JUDGING SECTION --- */
+.judging-preview {
+    margin-bottom: 10rem;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(20px);
+    padding: 5rem 3rem;
+    border-radius: 4rem;
+    border-bottom: 3px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6);
+}
+
+.battle-grid-page .section-label {
+    color: #d9ff00;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+}
+
+.judging-preview h2 {
+    font-size: 3rem;
+    font-family: 'Iceland', sans-serif;
+    margin-bottom: 4rem;
+    color: #fff;
+}
+
+.judging-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 2rem;
+}
+
+.judging-card {
+    background: rgb(0, 0, 0);
+    padding: 2.5rem;
+    border-radius: 2rem;
+    border: none;
+    border-bottom: 3px solid rgba(255, 255, 255, 0.3);
+    text-align: left;
+    transition: all 0.3s ease;
+}
+
+.j-icon {
+    width: 45px;
+    height: 45px;
+    background: rgba(217, 255, 0, 0.1);
+    border-radius: 0.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #d9ff00;
+    margin-bottom: 1.5rem;
+}
+
+.judging-card h3 {
+    font-size: 1.4rem;
+    color: #fff;
+    margin-bottom: 1rem;
+}
+
+.judging-card p {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.5);
+    line-height: 1.6;
+    margin-bottom: 2rem;
+}
+
+.weightage {
+    background: rgba(217, 255, 0, 0.15);
+    color: #d9ff00;
+    padding: 0.4rem 1rem;
+    border-radius: 2rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+/* --- PORTAL HEADER --- */
+.battle-grid-page .portal-header {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto 4rem;
+    background: rgba(0, 0, 0, 0.45);
+    padding: 4rem;
+    border-radius: 4rem;
+    backdrop-filter: blur(15px);
+    border-bottom: 3px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6);
+}
+
+.portal-header h2 {
+    font-size: 3rem;
+    font-family: 'Iceland', sans-serif;
+    margin-bottom: 1rem;
+}
+
+.portal-header p {
+    color: rgba(255, 255, 255, 0.6);
+    line-height: 1.6;
+}
+
+.arenas-container {
+    padding: 0 1rem;
+}
+
+/* --- RULEBOOK DROPDOWN --- */
+.rk-rulebook-dropdown-container {
+    position: relative;
+    display: inline-block;
+}
+
+.secondary-cta.active {
+    background: #111;
+    color: #d9ff00;
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.rk-rulebook-menu {
+    position: absolute;
+    top: calc(100% + 15px);
+    right: 0;
+    min-width: 280px;
+    background: rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 1.5rem;
+    padding: 1rem;
+    z-index: 1000;
+    box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.8),
+        0 0 20px rgba(217, 255, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    transform-origin: top right;
+}
+
+.rk-rb-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    color: #d9ff00;
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: 1rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.rk-rb-item:hover {
+    background: rgba(217, 255, 0, 0.1);
+    color: #fff;
+    transform: translateX(8px);
+}
+
+.rk-rb-item svg {
+    color: #d9ff00;
+    flex-shrink: 0;
+}
+
+@keyframes rbSlideUp {
+    from { 
+        opacity: 0; 
+        transform: translateY(10px) scale(0.95); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0) scale(1); 
+    }
+}
+
+.animate-slide-up {
+    animation: rbSlideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes rbSlideUpMobile {
+    from { 
+        opacity: 0; 
+        transform: translateX(-50%) translateY(10px) scale(0.95); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateX(-50%) translateY(0) scale(1); 
+    }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .rk-coordinators {
+        flex-direction: column;
+        align-items: stretch;
+        max-width: 350px;
+        margin: 2.5rem auto 0;
+        gap: 0.8rem;
+    }
+
+    .coord-pill {
+        font-size: 0.85rem;
+        padding: 0.7rem 1.25rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .coord-phone {
+        margin-left: 0.2rem;
+    }
+
+    .bg-hero { margin-bottom: 4rem; }
+    .hero-stats { flex-direction: column; gap: 2rem; }
+    .hero-ctas { flex-direction: column; width: 100%; align-items: center; }
+    .rk-rulebook-dropdown-container { width: 100%; }
+    .primary-cta, .secondary-cta { justify-content: center; width: 100% !important; }
+    .judging-preview { padding: 3rem 1.5rem; border-radius: 2rem; }
+    .portal-header { padding: 3rem 1.5rem; border-radius: 2rem; }
+
+    .rk-rulebook-menu {
+        left: 50%;
+        right: auto;
+        min-width: 260px;
+        max-width: 90vw;
+        transform: translateX(-50%);
+        animation: rbSlideUpMobile 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+    
+    .rk-rb-item:hover {
+        transform: translateX(0) scale(1.02);
+    }
+}

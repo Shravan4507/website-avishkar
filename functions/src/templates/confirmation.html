@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--[if !mso]><!-->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <!--<![endif]-->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Inter:wght@400;500;700&display=swap');
+
+        :root {
+            --bg-outer: #f8fafc;
+            --bg-card: #ffffff;
+            --primary: #0f172a;
+            --secondary: #64748b;
+            --accent: #2563eb;
+            --border: #e2e8f0;
+            --radius-lg: 24px;
+            --radius-md: 16px;
+            --radius-pill: 100px;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f8fafc;
+            font-family: 'Inter', -apple-system, sans-serif;
+            color: #0f172a;
+        }
+
+        .email-wrapper {
+            width: 100%;
+            background-color: #f8fafc;
+            padding: 40px 20px;
+        }
+
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.03);
+        }
+
+        /* Typography */
+        .h1, .h2, .h3 { font-family: 'Outfit', sans-serif; font-weight: 800; margin: 0; }
+        .h1 { font-size: 32px; letter-spacing: -1px; }
+        .h2 { font-size: 28px; }
+        .h3 { font-size: 20px; }
+        
+        .text-sm { font-size: 13px; }
+        .text-xs { font-size: 11px; }
+        .text-muted { color: #64748b; }
+        .text-accent { color: #2563eb; }
+        .text-bold { font-weight: 700; }
+        .uppercase { text-transform: uppercase; letter-spacing: 1px; }
+
+        /* Components */
+        .header { padding: 50px 40px; border-bottom: 2px solid #f1f5f9; text-align: center; }
+        .content { padding: 50px; line-height: 1.6; }
+        .footer { padding: 40px 50px; border-top: 1px solid #f1f5f9; text-align: center; font-size: 12px; color: #94a3b8; }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 100px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 30px;
+        }
+        .badge-success { background-color: #ecfdf5; color: #047857; border: 1px solid #d1fae5; }
+
+        .summary-box {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 24px;
+            padding: 40px;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .details-list {
+            background-color: #ffffff;
+            border: 1px solid #f1f5f9;
+            border-radius: 20px;
+            overflow: hidden;
+            margin-bottom: 40px;
+        }
+        .details-item {
+            padding: 16px 20px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .details-item:last-child { border-bottom: none; }
+
+        .btn {
+            display: inline-block;
+            padding: 16px 40px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .btn-primary { background-color: #0f172a; color: #ffffff; }
+    </style>
+</head>
+<body>
+    <div class="email-wrapper">
+        <div class="email-container">
+            <!-- Header -->
+            <div class="header">
+                <!-- Logo Grid -->
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 20px;">
+                    <tr>
+                        <td align="left" valign="top" width="50">
+                            <img src="https://avishkar.zcoer.in/assets/logos/A%20logo%20Black.png" alt="A" width="50" style="display: block;">
+                        </td>
+                        <td>&nbsp;</td>
+                        <td align="right" valign="top" width="140">
+                            <img src="https://avishkar.zcoer.in/assets/logos/ZCOER-Logo-Black.png" alt="ZCOER" width="140" style="display: block;">
+                        </td>
+                    </tr>
+                </table>
+
+                <!-- Center Branding -->
+                <div style="text-align: center;">
+                    <div class="text-bold uppercase" style="font-size: 11px; letter-spacing: 2px; color: #64748b; margin-bottom: 4px;">Zeal College of Engineering and Research</div>
+                    <div style="font-family: 'Outfit', sans-serif; font-style: italic; font-size: 15px; color: #94a3b8; margin-bottom: 8px;">presents</div>
+                    <img src="https://avishkar.zcoer.in/assets/logos/avishkar%20black.webp" alt="Avishkar '26" width="240" style="display: inline-block; margin: 0 auto;">
+                </div>
+            </div>
+
+            <!-- Body -->
+            <div class="content">
+                <div style="text-align: center;">
+                    <!-- Status Badge -->
+                    <div class="badge badge-success">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 5px;"><polyline points="20 6 9 17 4 12"></polyline></svg>Confirmed
+                    </div>
+                    
+                    <h2 class="h1">REGISTRATION CONFIRMED</h2>
+                    <p class="text-muted" style="margin: 10px 0 35px 0; font-size: 15px;">Your registration for <span class="text-accent text-bold">{{EVENT_NAME}}</span> is verified.</p>
+                    
+                    <!-- Pass Section -->
+                    <div class="summary-box">
+                        <p class="text-muted uppercase text-bold" style="font-size: 11px; margin-bottom: 5px;">Unique Pass ID</p>
+                        <h3 class="h1" style="font-family: 'Courier New', Courier, monospace; letter-spacing: 4px;">{{AVR_ID}}</h3>
+                        
+                        <div style="background-color: #ffffff; border-radius: 16px; padding: 25px; width: 170px; margin: 25px auto 0 auto; display: inline-block; border: 1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.02);">
+                            <img src="{{QR_CODE_URL}}" alt="Verification QR Code" width="150" style="display: block;">
+                        </div>
+                        
+                        <p class="text-muted uppercase text-bold" style="font-size: 11px; margin-top: 25px;">Present this QR code for Entry</p>
+                    </div>
+
+                    <!-- Details Table -->
+                    <div class="details-list" style="text-align: left;">
+                        <div class="details-item">
+                            <p class="text-muted uppercase text-bold" style="font-size: 10px;">Team Leader</p>
+                            <p class="text-bold" style="font-size: 16px; margin: 5px 0 0 0;">{{LEADER_NAME}}</p>
+                        </div>
+                        <div class="details-item">
+                            <p class="text-muted uppercase text-bold" style="font-size: 10px;">Registration Date</p>
+                            <p class="text-bold" style="font-size: 16px; margin: 5px 0 0 0;">{{REG_DATE}}</p>
+                        </div>
+                        <div class="details-item">
+                            <p class="text-muted uppercase text-bold" style="font-size: 10px;">Venue</p>
+                            <p class="text-bold" style="font-size: 16px; margin: 5px 0 0 0;">Zeal Pune Campus</p>
+                        </div>
+                    </div>
+
+                    <p class="text-muted" style="margin-bottom: 30px; font-size: 14px;">An official invoice is attached to this email. You can view all details in your portal.</p>
+                    
+                    <a href="{{DASHBOARD_URL}}" class="btn btn-primary">Go to Dashboard</a>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="footer">
+                <div class="text-bold uppercase" style="color: #64748b; margin-bottom: 4px;">Zeal College of Engineering & Research</div>
+                <div style="margin-bottom: 25px;">Narhe, Pune, MH 411041</div>
+                
+                <div style="margin-bottom: 25px;">
+                    <a href="https://instagram.com/zeal_avishkar/" class="text-accent text-bold" style="text-decoration: none; padding: 0 10px;">Instagram</a>
+                    <a href="https://avishkar.zcoer.in" class="text-accent text-bold" style="text-decoration: none; padding: 0 10px;">Website</a>
+                </div>
+                
+                <div>
+                    Support: <a href="mailto:support.avishkarr@zealeducation.com" class="text-accent text-bold" style="text-decoration: none;">support.avishkarr@zealeducation.com</a><br>
+                    &copy; 2026 Avishkar Tech. Pioneering Excellence.
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

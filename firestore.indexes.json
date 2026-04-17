@@ -1,0 +1,53 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "registrations",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "department", "order": "ASCENDING" },
+        { "fieldPath": "registeredAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "registrations",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "eventName", "order": "ASCENDING" },
+        { "fieldPath": "registeredAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "registrations",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userAVR", "order": "ASCENDING" },
+        { "fieldPath": "eventName", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "registrations",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "competitionHandle", "order": "ASCENDING" },
+        { "fieldPath": "registeredAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "hackathon_registrations",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "competitionHandle", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "notifications",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "targetId", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

@@ -1,0 +1,295 @@
+.gdg-page-root {
+    min-height: 100vh;
+    background: #00000000;
+    color: #fff;
+    padding-bottom: 5rem;
+    overflow-x: hidden;
+    font-family: 'Inter', sans-serif;
+}
+
+/* --- Hero Section (Maintaining User's Manual Changes) --- */
+.gdg-hero {
+    position: relative;
+    height: 80vh;
+    min-height: 600px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2rem;
+    overflow: hidden;
+    margin-bottom: 5rem;
+    margin-top: 5rem;
+    border-bottom: 2px dashed #ffffff;
+}
+
+.gdg-hero-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+}
+
+.glow-circle {
+    position: absolute;
+    width: 60vw;
+    height: 60vw;
+    border-radius: 50%;
+    filter: blur(120px);
+    opacity: 0.1;
+    animation: drift 20s infinite alternate ease-in-out;
+}
+
+@keyframes drift {
+    0%   { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(5%, 5%) scale(1.1); }
+}
+
+.hero-content {
+    position: relative;
+    z-index: 10;
+    max-width: 900px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.hero-logo {
+    height: 250px;
+    object-fit: contain;
+}
+
+.brand-label {
+    display: block;
+    font-size: 1.2rem;
+    font-weight: 800;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.hero-titles h1 {
+    font-family: 'Iceland', sans-serif;
+    font-size: clamp(4rem, 10vw, 9rem);
+    line-height: 0.8;
+    margin: 1rem 0;
+    color: #fff;
+    text-shadow: 0 0 50px rgba(255, 255, 255, 0.3);
+}
+
+.hero-desc {
+    font-size: 1.35rem;
+    color: rgba(255, 255, 255, 0.6);
+    max-width: 700px;
+    margin: 0 auto;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+/* --- Content Section --- */
+.gdg-content {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 6rem 2rem;
+}
+
+.section-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin-bottom: 6rem;
+}
+
+.section-header h2 {
+    font-family: 'Iceland', sans-serif;
+    font-size: 4rem;
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    margin-bottom: 1.5rem;
+}
+
+.header-divider {
+    width: 100px;
+    height: 5px;
+    background: #fff;
+    margin: 0 auto;
+    border-radius: 10px;
+}
+
+/* --- Neo-Brutalism Grid --- */
+.sessions-neo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+    gap: 4rem;
+    padding: 2rem;
+}
+
+.neo-card-container {
+    perspective: 1000px;
+}
+
+.neo-session-card {
+    display: block;
+    text-decoration: none;
+    background: #ffffff;
+    border: 5px solid #000;
+    border-radius: 2rem;
+    color: #000;
+    padding: 2.5rem;
+    position: relative;
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 12px 12px 0px var(--card-accent);
+}
+
+.neo-session-card:hover {
+    transform: translate(-3px, -3px);
+    box-shadow: 18px 18px 0px var(--card-accent);
+}
+
+.neo-session-card:active {
+    transform: translate(6px, 6px);
+    box-shadow: 6px 6px 0px var(--card-accent);
+}
+
+.card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.date-badge {
+    padding: 6px 16px;
+    background: #000;
+    color: #fff;
+    border-radius: 7rem;
+    font-weight: 900;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+}
+
+.time-badge {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: #000;
+    opacity: 0.6;
+    text-transform: uppercase;
+}
+
+.card-body h3 {
+    font-size: 2.2rem;
+    font-weight: 900;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+    letter-spacing: -1px;
+}
+
+.card-body p {
+    font-size: 1.1rem;
+    line-height: 1.5;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 1.5rem;
+}
+
+.card-speakers {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 2rem;
+}
+
+.speaker-chip {
+    font-size: 0.9rem;
+    color: #555;
+    font-weight: 600;
+}
+
+.speaker-chip em {
+    font-weight: 500;
+    color: #777;
+}
+
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 3px solid #000;
+    padding-top: 1.5rem;
+}
+
+.cta-text {
+    font-weight: 900;
+    text-transform: uppercase;
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+}
+
+.arrow-box {
+    width: 45px;
+    height: 45px;
+    background: #000;
+    color: #fff;
+    border-radius: 7rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease;
+}
+
+.neo-session-card:hover .arrow-box {
+    transform: translateX(5px);
+}
+
+.arrow-box svg {
+    width: 24px;
+    height: 24px;
+}
+
+/* Guidelines Footer */
+.guidelines-footer {
+    margin-top: 4rem;
+    display: flex;
+    justify-content: center;
+}
+
+.neo-note {
+    border: 3px solid #fff;
+    border-radius: 3rem;
+    padding: 1.5rem 3rem;
+    background: transparent;
+}
+
+.neo-note p {
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.9);
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+}
+
+/* Mobile Optimizations */
+@media (max-width: 768px) {
+    .gdg-hero {
+        height: 60vh;
+    }
+    .hero-logo {
+        height: 120px;
+    }
+    .sessions-neo-grid {
+        grid-template-columns: 1fr;
+        gap: 3rem;
+        padding: 0;
+    }
+    .neo-session-card {
+        padding: 1.5rem;
+        box-shadow: 8px 8px 0px var(--card-accent);
+    }
+    .card-body h3 {
+        font-size: 1.8rem;
+    }
+    .section-header h2 {
+        font-size: 2.5rem;
+    }
+}
