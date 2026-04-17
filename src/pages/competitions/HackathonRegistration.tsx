@@ -4,7 +4,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 
 import { 
     doc, collection, query, where, 
-    getDocs, getDoc 
+    getDocs, getDoc, limit
 } from 'firebase/firestore';
 import { auth, db } from '../../firebase/firebase';
 import SEO from '../../components/seo/SEO';
@@ -388,6 +388,21 @@ const HackathonRegistration: React.FC = () => {
         setSubmitting(true);
 
         try {
+            // Server-side duplicate check before initiating payment (prevents overriding HACK_ doc id and money loss)
+            if (user?.uid) {
+                const dupeQuery = query(
+                    collection(db, 'hackathon_registrations'),
+                    where('userId', '==', user.uid),
+                    limit(1)
+                );
+                const dupeSnap = await getDocs(dupeQuery);
+                if (!dupeSnap.empty) {
+                    toast.success('You are already registered for Param-X!');
+                    navigate('/user/dashboard');
+                    return;
+                }
+            }
+
             const txnid = generateTxnId("HACK");
             const amount = "500.00";
 
