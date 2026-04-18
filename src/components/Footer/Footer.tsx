@@ -64,8 +64,6 @@ function Footer() {
                                 <Link to="/" className="footer__link">Home</Link>
                                 <Link to="/workshops" className="footer__link">Workshops</Link>
                                 <Link to="/competitions" className="footer__link">Competitions</Link>
-                                
-                                <Link to="/team" className="footer__link">Team</Link>
                                 <Link to="/contact" className="footer__link">Contact</Link>
                                 <Link to="/reach-us" className="footer__link">Reach Us</Link>
                             </nav>
@@ -126,7 +124,7 @@ function Footer() {
                             <Link to="/cookies" className="footer__link">Cookies</Link>
                         </div>
                         <p className="footer__credit">
-                            Built with 🔥 by <Link to="/team">Avishkar Tech</Link>
+                            Built with ❤️ by Avishkar Tech
                         </p>
                     </div>
                 </div>
