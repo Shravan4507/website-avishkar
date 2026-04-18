@@ -372,7 +372,7 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({ forcedHandle,
         }
         // Fallback 2: department match
         if (signals && r.department && signals.depts.has(r.department)) {
-          // Multiple handles can share a department (e.g. 'Flagship'), so narrow by eventName/title
+        // Multiple handles can share a department (e.g. 'Flagship'), so narrow by eventName/title
           if (signals.depts.size === 1 || signals.titles.has(r.eventName || '')) return true;
         }
         // Fallback 3: eventName/title match
