@@ -128,6 +128,8 @@ function Footer() {
                         </div>
                         <p className="footer__credit">
                             Dev- <a href="https://instagram.com/069.f5" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'inherit' }}>069.f5</a>
+                            <br />
+                            <Link to="/fahhh" className="secret-trigger" style={{ fontSize: '0.7rem', opacity: 0.3, textDecoration: 'none', color: 'inherit', display: 'block', marginTop: '4px' }}>yo, click me</Link>
                         </p>
                     </div>
                 </div>

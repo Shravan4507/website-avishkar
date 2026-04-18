@@ -43,6 +43,7 @@ const ParamXRules = lazy(() => import('./pages/competitions/ParamXRules'));
 const Rules = lazy(() => import('./pages/rules/Rules'));
 const CheckoutSimulator = lazy(() => import('./pages/dev/CheckoutSimulator'));
 const PaymentStatus = lazy(() => import('./pages/payment/PaymentStatus'));
+const Fahhh = lazy(() => import('./pages/hidden/Fahhh'));
 
 // Lazy Loaded Legal Pages
 const Privacy = lazy(() => import('./pages/legal/Privacy'));
@@ -208,6 +209,7 @@ const LayoutManager = () => {
                   <Route path="/rules" element={<T el={<Rules />} />} />
                   <Route path="/monster-x-bgmi" element={<T el={<MonsterBgmi />} />} />
                   <Route path="/dev/checkout-test" element={<T el={<CheckoutSimulator />} />} />
+                  <Route path="/fahhh" element={<T el={<Fahhh />} />} />
 
                   {/* ── Club Detail Pages ── */}
                   <Route path="/gdgoc-zcoer"    element={<T el={<GDGClub />} />} />
