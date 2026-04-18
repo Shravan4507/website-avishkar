@@ -121,7 +121,7 @@
 
 .notification-item.success { border-left: 3px solid #00ff00; }
 .notification-item.warning { border-left: 3px solid #ffa500; }
-.notification-item.info { border-left: 3px solid #5227ff; }
+.notification-item.info { border-left: 3px solid #A0522D; }
 
 .empty-notifications {
   padding: 40px 20px;

@@ -559,7 +559,7 @@ export const RULES_DATA: Record<string, CompetitionRules> = {
         description:
             'A multi-round MATLAB competition testing participants on MCQ-based theory, problem-solving, and circuit simulation using PROTEUS. Solve complex engineering problems using the power of MATLAB and Simulink.',
         teamSize: '1–2 members',
-        fee: '₹300',
+        fee: '₹149',
         category: 'standard',
         rules: [
             'Participants must use only MATLAB software for the competition.',
@@ -805,7 +805,7 @@ export const RULES_DATA: Record<string, CompetitionRules> = {
         description:
             'A line follower challenge involving autonomous robots navigating complex tracks with hairpin bends, acute angles, and potential color inversions. Robots must support precision and turbo speed modes.',
         teamSize: '4 members per team',
-        fee: 'TBD',
+        fee: '₹499',
         category: 'flagship',
         rules: [
             'Robots must be completely autonomous and wireless.',
@@ -846,7 +846,7 @@ export const RULES_DATA: Record<string, CompetitionRules> = {
         description:
             'A robotics competition focused on obstacle navigation, path planning, and speed optimization. Navigate from start to end with the fastest and cleanest run.',
         teamSize: '2–4 members per team',
-        fee: 'TBD',
+        fee: '₹499',
         category: 'flagship',
         rules: [
             'Each squad must consist of 2 to 4 members.',
@@ -888,7 +888,7 @@ export const RULES_DATA: Record<string, CompetitionRules> = {
         tagline: 'Virtual Electronics',
         description: 'Design and simulate intricate electronic circuits flawlessly. Test your understanding of circuit theory, component behavior, and virtual prototyping.',
         teamSize: '1–2 members',
-        fee: '₹300',
+        fee: '₹149',
         category: 'standard',
         rules: [
             'Participants must use only official simulation software provided.',

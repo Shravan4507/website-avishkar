@@ -13,8 +13,8 @@
     left: -10%;
     width: 120%;
     height: 120%;
-    background: radial-gradient(circle at 10% 20%, rgba(82, 39, 255, 0.05) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(82, 39, 255, 0.05) 0%, transparent 40%);
+    background: radial-gradient(circle at 10% 20%, rgba(160, 82, 45, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(160, 82, 45, 0.05) 0%, transparent 40%);
     z-index: -1;
     pointer-events: none;
 }
@@ -43,7 +43,7 @@
     text-transform: uppercase;
     letter-spacing: 2px;
     margin-bottom: 16px;
-    border: 1px solid rgba(82, 39, 255, 0.2);
+    border: 1px solid rgba(160, 82, 45, 0.2);
 }
 
 .faq-title {
@@ -96,7 +96,7 @@
     background: rgba(0, 0, 0, 0.65);
     color: #a289ff;
     border-radius: 10px;
-    border: 1px solid rgba(82, 39, 255, 0.2);
+    border: 1px solid rgba(160, 82, 45, 0.2);
 }
 
 .faq-category-header h2 {
@@ -139,7 +139,7 @@
 
 .faq-item.active {
     background: rgba(0, 0, 0, 0.65);
-    border-color: rgba(82, 39, 255, 0.2);
+    border-color: rgba(160, 82, 45, 0.2);
     border-bottom-width: 1px;
     margin-bottom: -1px;
 }
@@ -213,7 +213,7 @@
 }
 
 .faq-cta-btn.primary {
-    background: #5227ff;
+    background: #A0522D;
     color: #fff;
 }
 

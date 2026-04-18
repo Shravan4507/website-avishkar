@@ -48,7 +48,7 @@
   border-radius: 50%;
   animation: loaderSpin 1.1s cubic-bezier(0.5, 0, 0.5, 1) infinite;
   border: 3px solid transparent;
-  border-top-color: #5227ff;
+  border-top-color: #A0522D;
 }
 
 .loader-ring div:nth-child(1) { animation-delay: -0.45s; }
@@ -84,6 +84,6 @@
   height: 48px;
   border-radius: 50%;
   border: 3px solid transparent;
-  border-top-color: #5227ff;
+  border-top-color: #A0522D;
   animation: loaderSpin 1s linear infinite;
 }

@@ -68,31 +68,6 @@ const ROBO_EVENTS = [
         rulebook: `${import.meta.env.BASE_URL}assets/rule-books/alignx.pdf`
     },
     { 
-        id: 'robomaze', 
-        label: 'ROBOMAZE', 
-        tagline: 'Autonomous Navigation Arena', 
-        prize: '₹15,000+', 
-        fee: 499,
-        type: 'TEAM', 
-        members: 4,
-        minMembers: 2, 
-        mode: 'Offline',
-        color: '#d9ff00', 
-        description: 'Think, adapt, escape. Engineer a machine that can solve complex labyrinths in record time using advanced sensor fusion and pathfinding algorithms. Engineering focus: Maze mapping, wall following, and fast turns.',
-        gradient: 'linear-gradient(135deg, #d9ff00, #000)',
-        image: `${import.meta.env.BASE_URL}assets/robokshetra/maze_solver.webp`,
-        highlights: [
-            "Autonomous Robot (No remote control)",
-            "Max Size: 30 × 30 cm",
-            "Max Weight: 1 kg",
-            "Task: Navigate maze (START → END)",
-            "Maze: Multiple paths, dead ends, checkpoints path",
-            "Goal: Reach END in minimum time",
-            "Team Size: 2–4 members",
-            "Rounds: Preliminary + Finals"
-        ]
-    },
-    { 
         id: 'roborush', 
         label: 'ROBORUSH', 
         tagline: 'Obstacle Challenge Course', 
@@ -546,8 +521,7 @@ const RoboKshetra: React.FC = () => {
                                     <div className="rk-rulebook-menu animate-slide-up">
                                         {[
                                             { label: 'AlignX (Line Follower)', file: 'alignx.pdf' },
-                                            { label: 'RoboRush (Obstacle)', file: 'roborush.pdf' },
-                                            { label: 'RoboMaze (Maze)', file: 'robomaze.pdf' }
+                                            { label: 'RoboRush (Obstacle)', file: 'roborush.pdf' }
                                         ].map((rb, idx) => (
                                                 <a 
                                                     key={idx}

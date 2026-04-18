@@ -59,8 +59,8 @@
 }
 
 .toast--info {
-  background: rgba(82, 39, 255, 0.15);
-  border-color: rgba(82, 39, 255, 0.35);
+  background: rgba(160, 82, 45, 0.15);
+  border-color: rgba(160, 82, 45, 0.35);
 }
 
 /* ── Icon ── */
@@ -79,7 +79,7 @@
 .toast--success .toast-icon { background: rgba(16,185,129,0.25); color: #34d399; }
 .toast--error   .toast-icon { background: rgba(239,68,68,0.25);  color: #f87171; }
 .toast--warning .toast-icon { background: rgba(245,158,11,0.25); color: #fbbf24; }
-.toast--info    .toast-icon { background: rgba(82,39,255,0.25);  color: #a78bfa; }
+.toast--info    .toast-icon { background: rgba(160, 82, 45,0.25);  color: #a78bfa; }
 
 /* ── Message ── */
 .toast-message {

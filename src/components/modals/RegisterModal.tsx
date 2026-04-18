@@ -94,7 +94,7 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ competition, onClose }) =
         ) : complete ? (
           <div className="modal-success">
             <div className="success-icon-wrap">
-              <CheckCircle size={60} color="#5227ff" />
+              <CheckCircle size={60} color="#A0522D" />
             </div>
             <h2>Registration Successful!</h2>
             <p>You are now registered for <strong>{competition.title}</strong>.</p>

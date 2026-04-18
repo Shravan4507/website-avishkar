@@ -411,14 +411,8 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({ forcedHandle,
         return idMap[term] || term;
       });
       result = result.filter(r => {
-        // Only apply sub-event filtering to shared generic handles that pool multiple sub-games
-        const isSharedParent = ['Battle-Grid', 'Robo-Kshetra'].includes(r.competitionHandle || '');
-        if (isSharedParent) {
-          const evt = (r.eventName || r.eventTitle || '').toLowerCase();
-          return validIds.some(vId => evt.includes(vId));
-        }
-        // Dedicated handles bypass this filter
-        return true;
+        const evt = (r.eventName || (r as any).eventTitle || '').toLowerCase();
+        return validIds.some(vId => evt.includes(vId));
       });
     }
 

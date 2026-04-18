@@ -75,14 +75,14 @@
 }
 
 .eb-btn--primary {
-  background: #5227ff;
+  background: #A0522D;
   color: #fff;
-  border-color: #5227ff;
+  border-color: #A0522D;
 }
 
 .eb-btn--primary:hover {
   background: #6b3fff;
-  box-shadow: 0 8px 24px rgba(82,39,255,0.35);
+  box-shadow: 0 8px 24px rgba(160, 82, 45,0.35);
 }
 
 .eb-btn--ghost {

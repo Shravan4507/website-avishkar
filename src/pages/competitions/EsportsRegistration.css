@@ -1,6 +1,6 @@
 /* ===========================
    ESPORTS REGISTRATION v2
-   Theme: #5227ff (Purple)
+   Theme: #A0522D (Purple)
    Pattern: RoboKshetra member-card
    =========================== */
 
@@ -10,7 +10,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    background: radial-gradient(circle at top right, rgba(82, 39, 255, 0.04), transparent);
+    background: radial-gradient(circle at top right, rgba(160, 82, 45, 0.04), transparent);
 }
 
 .esports-reg-page-v2.centered {
@@ -173,8 +173,8 @@
     letter-spacing: 1px;
     font-weight: 800;
     color: #fff;
-    background: rgba(82, 39, 255, 0.15);
-    border: 1px solid rgba(82, 39, 255, 0.2);
+    background: rgba(160, 82, 45, 0.15);
+    border: 1px solid rgba(160, 82, 45, 0.2);
     flex-shrink: 0;
 }
 
@@ -217,17 +217,17 @@
 }
 
 .es-input-with-icon.avr-lookup {
-    background: rgba(82, 39, 255, 0.04);
-    border-color: rgba(82, 39, 255, 0.15);
+    background: rgba(160, 82, 45, 0.04);
+    border-color: rgba(160, 82, 45, 0.15);
 }
 
 .es-input-with-icon.avr-lookup:focus-within {
-    border-color: rgba(82, 39, 255, 0.4);
-    box-shadow: 0 0 20px rgba(82, 39, 255, 0.1);
+    border-color: rgba(160, 82, 45, 0.4);
+    box-shadow: 0 0 20px rgba(160, 82, 45, 0.1);
 }
 
 .es-input-with-icon.avr-lookup.searching {
-    border-color: rgba(82, 39, 255, 0.4);
+    border-color: rgba(160, 82, 45, 0.4);
 }
 
 .es-input-with-icon.prefilled.readonly {
@@ -278,7 +278,7 @@
 }
 
 .es-scheduling-notice h4 {
-    color: #5227ff;
+    color: #A0522D;
     margin: 0 0 0.4rem 0;
     font-size: 0.85rem;
     letter-spacing: 1px;
@@ -301,7 +301,7 @@
 .es-checkbox-row input[type="checkbox"] {
     width: 16px;
     height: 16px;
-    accent-color: #5227ff;
+    accent-color: #A0522D;
     cursor: pointer;
 }
 
@@ -314,7 +314,7 @@
 
 /* --- DEPLOY BUTTON --- */
 .es-deploy-btn {
-    background: #5227ff;
+    background: #A0522D;
     color: #fff;
     padding: 1rem;
     border-radius: 3rem;
@@ -328,7 +328,7 @@
     align-items: center;
     justify-content: center;
     gap: 1rem;
-    box-shadow: 0 10px 40px rgba(82, 39, 255, 0.2);
+    box-shadow: 0 10px 40px rgba(160, 82, 45, 0.2);
 }
 
 .es-deploy-btn:active { transform: translateY(0) scale(0.98); }
@@ -344,7 +344,7 @@
 /* --- PREVIEW PANEL --- */
 .es-preview-panel {
     background: rgba(0, 0, 0, 0.65);
-    border: 1px solid rgba(82, 39, 255, 0.15);
+    border: 1px solid rgba(160, 82, 45, 0.15);
     border-radius: 2rem;
     padding: 2.5rem;
     animation: esFadeIn 0.4s ease;
@@ -355,7 +355,7 @@
     align-items: center;
     gap: 0.75rem;
     margin-bottom: 2rem;
-    color: #5227ff;
+    color: #A0522D;
 }
 
 .es-preview-header h4 {
@@ -411,7 +411,7 @@
 .es-pm-rank {
     font-size: 0.7rem;
     text-transform: uppercase;
-    color: #5227ff;
+    color: #A0522D;
     letter-spacing: 1.5px;
     font-weight: 700;
 }
@@ -444,8 +444,8 @@
 }
 
 .es-payment-summary {
-    background: rgba(82, 39, 255, 0.03);
-    border: 1px solid rgba(82, 39, 255, 0.1);
+    background: rgba(160, 82, 45, 0.03);
+    border: 1px solid rgba(160, 82, 45, 0.1);
     border-radius: 1.5rem;
     padding: 1.5rem 2rem;
     margin-bottom: 2rem;
@@ -463,7 +463,7 @@
     border-top: 1px solid rgba(255, 255, 255, 0.08);
     margin-top: 0.5rem;
     padding-top: 1rem;
-    color: #5227ff;
+    color: #A0522D;
     font-size: 1.2rem;
     font-weight: 800;
     font-family: 'Iceland', sans-serif;
@@ -507,7 +507,7 @@
 .es-success-card {
     text-align: center;
     background: rgba(0, 0, 0, 0.65);
-    border: 1px solid rgba(82, 39, 255, 0.1);
+    border: 1px solid rgba(160, 82, 45, 0.1);
     border-radius: 3rem;
     padding: 4rem 3rem;
     max-width: 550px;
@@ -534,8 +534,8 @@
 }
 
 .es-reg-id {
-    background: rgba(82, 39, 255, 0.05);
-    border: 1px solid rgba(82, 39, 255, 0.15);
+    background: rgba(160, 82, 45, 0.05);
+    border: 1px solid rgba(160, 82, 45, 0.15);
     border-radius: 1.5rem;
     padding: 1.5rem;
     display: flex;
@@ -611,7 +611,7 @@
 
 .spinner {
     animation: spin 1s linear infinite;
-    color: #5227ff;
+    color: #A0522D;
 }
 
 @keyframes spin {
@@ -647,8 +647,8 @@
     display: flex;
     gap: 1.5rem;
     padding: 1.5rem;
-    background: rgba(82, 39, 255, 0.05);
-    border: 1px solid rgba(82, 39, 255, 0.2);
+    background: rgba(160, 82, 45, 0.05);
+    border: 1px solid rgba(160, 82, 45, 0.2);
     border-radius: 2rem;
     margin-bottom: 2rem;
     backdrop-filter: blur(10px);
@@ -657,13 +657,13 @@
 .es-protocol-icon {
     width: 44px;
     height: 44px;
-    background: rgba(82, 39, 255, 0.1);
-    border: 1px solid rgba(82, 39, 255, 0.3);
+    background: rgba(160, 82, 45, 0.1);
+    border: 1px solid rgba(160, 82, 45, 0.3);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #5227ff;
+    color: #A0522D;
     flex-shrink: 0;
 }
 
@@ -686,7 +686,7 @@
     align-items: center;
     gap: 0.5rem;
     padding: 0.6rem 1.2rem;
-    background: #5227ff;
+    background: #A0522D;
     color: white;
     border: none;
     border-radius: 3rem;
@@ -705,7 +705,7 @@
     color: rgba(255, 255, 255, 0.5);
     margin-bottom: 1.5rem;
     padding-left: 0.5rem;
-    border-left: 2px solid #5227ff;
+    border-left: 2px solid #A0522D;
 }
 
 .es-status-bar {
@@ -740,13 +740,13 @@
 }
 
 .es-status.info {
-    background: rgba(82, 39, 255, 0.1);
-    color: #5227ff;
-    border: 1px solid rgba(82, 39, 255, 0.2);
+    background: rgba(160, 82, 45, 0.1);
+    color: #A0522D;
+    border: 1px solid rgba(160, 82, 45, 0.2);
 }
 
 .es-input-with-icon.avr-lookup.readonly input {
-    background: rgba(82, 39, 255, 0.1);
+    background: rgba(160, 82, 45, 0.1);
     cursor: default;
 }
 /* --- MONSTER THEME OVERRIDES --- */

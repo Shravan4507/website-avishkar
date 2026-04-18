@@ -48,23 +48,40 @@ function Navbar() {
       if (user) {
         setCurrentUser(user)
         try {
-          // Inject Pre-approval mapping for unregistered Admins promoted externally
+          // ── Pre-Approval Activation: runs on every login until cleared ──
+          // Handles the case where a user was pre-approved BEFORE they registered.
+          // Signup.tsx handles the registration-time case; this handles login-time.
           if (user.email) {
             const paQuery = query(collection(db, 'pre_approved_admins'), where('email', '==', user.email.toLowerCase()));
             const paSnap = await getDocs(paQuery);
             if (!paSnap.empty) {
-               const paData = paSnap.docs[0].data();
-               await setDoc(doc(db, 'admins', user.uid), {
-                  email: user.email,
-                  firstName: user.displayName?.split(' ')[0] || '',
-                  lastName: user.displayName?.split(' ').slice(1).join(' ') || '',
-                  photoURL: user.photoURL || null,
-                  roleLevel: paData.roleLevel,
-                  assignment: paData.assignment,
-                  type: paData.type,
-                  promotedAt: new Date()
-               });
-               await deleteDoc(paSnap.docs[0].ref);
+              const paData = paSnap.docs[0].data();
+
+              // Generate a proper AVR-ADM ID
+              const adminCounterRef = doc(db, 'counters', 'admin_counter');
+              const adminCounterSnap = await getDoc(adminCounterRef);
+              const nextAdmNum = ((adminCounterSnap.exists() ? adminCounterSnap.data().count : 0) || 0) + 1;
+              const avrAdmId = `AVR-ADM-${String(nextAdmNum).padStart(4, '0')}`;
+
+              const nameParts = (user.displayName || '').split(' ');
+              await setDoc(doc(db, 'admins', user.uid), {
+                firstName: nameParts[0] || '',
+                lastName: nameParts.slice(1).join(' ') || '',
+                email: user.email,
+                photoURL: user.photoURL || null,
+                avrAdmId,
+                roleLevel: paData.roleLevel || [],
+                assignment: paData.assignment || '',
+                type: paData.type || 'admin',
+                activatedAt: new Date(),
+                _activatedFromPreApproval: true,
+              });
+
+              // Increment the counter
+              await setDoc(adminCounterRef, { count: nextAdmNum }, { merge: true });
+
+              // Clean up the pre-approval record
+              await deleteDoc(paSnap.docs[0].ref);
             }
           }
 

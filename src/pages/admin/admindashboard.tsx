@@ -85,7 +85,6 @@ const COMPETITION_OPTIONS = [
   { value: 'sf4', label: "Shadow Fight 4" },
   { value: 'amongus', label: "Among Us" },
   { value: 'align-x', label: "AlignX" },
-  { value: 'robo-maze', label: "RoboMaze" },
   { value: 'robo-rush', label: "RoboRush" },
   { value: 'forge-x', label: "Forge-X" },
   { value: 'algo-bid', label: "AlgoBid" },
@@ -352,7 +351,6 @@ const AdminDashboard: React.FC = () => {
             // Flagship — Robo-Kshetra (parent + granular)
             'admin-robo-kshetra': { handle: 'Robo-Kshetra', collection: 'registrations' },
             'admin-align-x': { handle: 'Robo-Kshetra', collection: 'registrations', eventTitle: 'ALIGNX' },
-            'admin-robo-maze': { handle: 'Robo-Kshetra', collection: 'registrations', eventTitle: 'ROBOMAZE' },
             'admin-robo-rush': { handle: 'Robo-Kshetra', collection: 'registrations', eventTitle: 'ROBORUSH' },
             // Standard Competitions (handles match competitions.ts data file)
             'admin-forge-x': { handle: 'Forge-Lead', collection: 'registrations' },
@@ -1498,18 +1496,7 @@ const AdminDashboard: React.FC = () => {
               subtitle="Managing line-following robot competition entries" 
             />
           : <div>Access Denied</div>;
-      case 'robomaze_regs':
-        return (isSuper || adminProfile?.roleLevel.some(r => ['admin-robo-kshetra', 'admin-robo-maze'].includes(r)))
-          ? <RegistrationManager 
-              key="robomaze"
-              isSuper={isSuper}
-              forcedHandle="Robo-Kshetra" 
-              collectionScope="registrations"
-              eventTitleFilter="ROBOMAZE"
-              title="RoboMaze Registrations" 
-              subtitle="Managing maze solver robot competition entries" 
-            />
-          : <div>Access Denied</div>;
+
       case 'roborush_regs':
         return (isSuper || adminProfile?.roleLevel.some(r => ['admin-robo-kshetra', 'admin-robo-rush'].includes(r)))
           ? <RegistrationManager 
@@ -1856,16 +1843,6 @@ const AdminDirectoryView: React.FC<AdminDirectoryProps> = ({ currentUserId }) =>
   const [addFlagship, setAddFlagship] = useState(COMPETITION_OPTIONS[0].value);
   const [addLoading, setAddLoading] = useState(false);
 
-  const handleAvrIdChangeLocal = (val: string, setter: (v: string) => void) => {
-    let raw = val.toUpperCase();
-    if (!raw.startsWith('AVR-')) raw = 'AVR-' + raw.replace(/^AVR-?/i, '');
-    const content = raw.slice(4).replace(/[^A-Z0-9]/g, '');
-    let letters = content.slice(0, 3).replace(/[0-9]/g, '');
-    let numbers = content.slice(letters.length).replace(/[A-Z]/g, '').slice(0, 4);
-    let formatted = 'AVR-' + letters;
-    if (letters.length === 3) formatted += (numbers.length > 0 ? '-' + numbers : '');
-    setter(formatted);
-  };
 
   const refreshAdmins = async () => {
     const q = query(collection(db, 'admins'), orderBy('type', 'desc'));

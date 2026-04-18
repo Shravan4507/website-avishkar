@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { signInWithPopup } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { auth, db, googleProvider } from '../../firebase/firebase';
@@ -26,17 +26,19 @@ const Login: React.FC = () => {
   const x = useMotionValue(0);
   const slideOpacity = useTransform(x, [0, 220], [1, 0.2]);
 
+  // True when viewport is wider than 768px (desktop)
+  const [isDesktop, setIsDesktop] = useState(() => window.innerWidth > 768);
+  useEffect(() => {
+    const handleResize = () => setIsDesktop(window.innerWidth > 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const handleDragEnd = () => {
-    const isMobile = window.innerWidth <= 768;
     if (x.get() > 180) {
-      if (isMobile) {
-        handleGoogleLogin();
-      } else {
-        toast.info("Nahhh.... We are kidding! Just Click.");
-        animate(x, 0, { type: "spring", stiffness: 300, damping: 30 });
-      }
+      handleGoogleLogin();
     } else {
-      animate(x, 0, { type: "spring", stiffness: 300, damping: 30 });
+      animate(x, 0, { type: 'spring', stiffness: 300, damping: 30 });
     }
   };
 
@@ -80,30 +82,44 @@ const Login: React.FC = () => {
         <p className="login-subtitle">Student Portal • Exclusive Google Sign-in</p>
         
         <div className="auth-buttons">
-          <div className="slider-container" ref={constraintsRef}>
-            <motion.div 
-              className="slider-text"
-              style={{ opacity: slideOpacity }}
+          {isDesktop ? (
+            /* ── Desktop: full-width click button ── */
+            <button
+              className="auth-btn dark-btn google-btn"
+              onClick={handleGoogleLogin}
             >
-              Slide to Continue
-            </motion.div>
-            <motion.div
-              drag="x"
-              dragConstraints={constraintsRef}
-              dragElastic={0.1}
-              onDragEnd={handleDragEnd}
-              onTap={() => {
-                // If it's a tap (and not a slide), trigger login on desktop
-                if (x.get() < 5 && window.innerWidth > 768) {
-                  handleGoogleLogin();
-                }
-              }}
-              style={{ x }}
-              className="slider-thumb"
-            >
-              <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="auth-icon" />
-            </motion.div>
-          </div>
+              <img
+                src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                alt="Google"
+                className="auth-icon"
+              />
+              Continue with Google
+            </button>
+          ) : (
+            /* ── Mobile: slide-to-continue prank ── */
+            <div className="slider-container" ref={constraintsRef}>
+              <motion.div
+                className="slider-text"
+                style={{ opacity: slideOpacity }}
+              >
+                Slide to Continue
+              </motion.div>
+              <motion.div
+                drag="x"
+                dragConstraints={constraintsRef}
+                dragElastic={0.1}
+                onDragEnd={handleDragEnd}
+                style={{ x }}
+                className="slider-thumb"
+              >
+                <img
+                  src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                  alt="Google"
+                  className="auth-icon"
+                />
+              </motion.div>
+            </div>
+          )}
         </div>
 
       </div>

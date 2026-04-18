@@ -14,7 +14,7 @@ interface CompetitionFormProps {
 }
 
 const THEME_PRESETS = [
-  { label: 'Avishkar Purple', border: '#5227FF', gradient: 'linear-gradient(145deg, #5227FF, #000)' },
+  { label: 'Avishkar Purple', border: '#A0522D', gradient: 'linear-gradient(145deg, #A0522D, #000)' },
   { label: 'Neon Cyber Green', border: '#d9ff00', gradient: 'linear-gradient(180deg, #d9ff00, #000)' },
   { label: 'Valorant Red', border: '#ff4655', gradient: 'linear-gradient(210deg, #ff4655, #000)' },
   { label: 'Electric Blue', border: '#00f0ff', gradient: 'linear-gradient(145deg, #00f0ff, #000)' },

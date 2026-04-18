@@ -44,7 +44,7 @@
 
 .chroma-card:has(.flagship-badge) {
     border-width: 2px;
-    border-color: rgba(82, 39, 255, 0.3);
+    border-color: rgba(160, 82, 45, 0.3);
 }
 
 .chroma-card:hover {
@@ -90,7 +90,7 @@
     position: absolute;
     top: 20px;
     left: 20px;
-    background: linear-gradient(90deg, #5227FF, #7146FF);
+    background: linear-gradient(90deg, #A0522D, #CD853F);
     color: #fff;
     padding: 6px 16px;
     border-radius: 100px;
@@ -99,7 +99,7 @@
     text-transform: uppercase;
     letter-spacing: 1px;
     z-index: 5;
-    box-shadow: 0 10px 20px rgba(82, 39, 255, 0.4);
+    box-shadow: 0 10px 20px rgba(160, 82, 45, 0.4);
 }
 
 .prize-tag, .fee-tag {
@@ -443,13 +443,13 @@
 .modal-meta .dot {
     width: 4px;
     height: 4px;
-    background: #5227FF;
+    background: #A0522D;
     border-radius: 50%;
 }
 
 .modal-handle {
     font-size: 1.1rem;
-    color: #5227FF;
+    color: #A0522D;
     font-weight: 500;
 }
 
@@ -514,7 +514,7 @@
     font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 2px;
-    color: #5227FF;
+    color: #A0522D;
     font-weight: 700;
     margin-bottom: 12px;
 }

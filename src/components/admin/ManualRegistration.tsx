@@ -63,14 +63,13 @@ const BATTLE_GRID_SUBEVENTS: SubEvent[] = [
   { id: 'battlegrid_bgmi',    title: 'BGMI',              subtitle: '4+1 Squad',       parentTitle: 'Battle Grid', handle: 'Battle-Grid', department: 'Flagship', entryFee: 0, minTeamSize: 5, maxTeamSize: 5, borderColor: '#ff9800', isFlagship: true },
   { id: 'battlegrid_freefire', title: 'Free Fire',         subtitle: '4-Player Squad',  parentTitle: 'Battle Grid', handle: 'Battle-Grid', department: 'Flagship', entryFee: 250, minTeamSize: 4, maxTeamSize: 4, borderColor: '#e91e63', isFlagship: true },
   { id: 'battlegrid_codm',    title: 'CODM',              subtitle: 'Tactical 5v5',    parentTitle: 'Battle Grid', handle: 'Battle-Grid', department: 'Flagship', entryFee: 400, minTeamSize: 5, maxTeamSize: 5, borderColor: '#4caf50', isFlagship: true },
-  { id: 'battlegrid_sf4',     title: 'Shadow Fight 4',    subtitle: '1v1 Combat',      parentTitle: 'Battle Grid', handle: 'Battle-Grid', department: 'Flagship', entryFee: 99, minTeamSize: 1, maxTeamSize: 1, borderColor: '#ffeb3b', isFlagship: true },
+  { id: 'battlegrid_sf4',     title: 'Shadow Fight 4',    subtitle: '1v1 Combat',      parentTitle: 'Battle Grid', handle: 'Battle-Grid', department: 'Flagship', entryFee: 150, minTeamSize: 1, maxTeamSize: 1, borderColor: '#ffeb3b', isFlagship: true },
   { id: 'battlegrid_amongus', title: 'Among Us',          subtitle: 'Social Deduction',parentTitle: 'Battle Grid', handle: 'Battle-Grid', department: 'Flagship', entryFee: 100, minTeamSize: 1, maxTeamSize: 1, borderColor: '#00bcd4', isFlagship: true },
 ];
 
 const ROBO_KSHETRA_SUBEVENTS: SubEvent[] = [
   { id: 'robokshetra_alignx',   title: 'AlignX',   subtitle: 'Line Follower',  parentTitle: 'Robo-Kshetra', handle: 'Robo-Kshetra', department: 'Flagship', entryFee: 499, minTeamSize: 2, maxTeamSize: 4, borderColor: '#d9ff00', isFlagship: true },
   { id: 'robokshetra_roborush', title: 'RoboRush', subtitle: 'Speed Bot Race', parentTitle: 'Robo-Kshetra', handle: 'Robo-Kshetra', department: 'Flagship', entryFee: 499, minTeamSize: 2, maxTeamSize: 4, borderColor: '#d9ff00', isFlagship: true },
-  { id: 'robokshetra_robomaze', title: 'RoboMaze', subtitle: 'Maze Navigator', parentTitle: 'Robo-Kshetra', handle: 'Robo-Kshetra', department: 'Flagship', entryFee: 499, minTeamSize: 2, maxTeamSize: 4, borderColor: '#d9ff00', isFlagship: true },
 ];
 
 const ALL_SUBEVENTS = [...BATTLE_GRID_SUBEVENTS, ...ROBO_KSHETRA_SUBEVENTS];
@@ -125,8 +124,18 @@ const ManualRegistration: React.FC<ManualRegistrationProps> = ({ isSuper = false
 
   const isHackathon = selectedComp?.handle === 'ParamX-Hack';
   const isSubEvent = !!selectedSubEvent;
-  // IDs of umbrella competitions that should be replaced by sub-events
-  const UMBRELLA_IDS = ['robotron--26', 'battlegrid--26'];
+  // IDs of umbrella competitions and their stand-alone components that should be replaced by sub-events
+  const UMBRELLA_IDS = [
+    'CMP-26-FLG-ROBO-MAIN', // Robo-Kshetra '26
+    'CMP-26-FLG-ALX-002',   // AlignX stand-alone
+    'CMP-26-FLG-RBR-003',   // RoboRush stand-alone
+    'CMP-26-FLG-BAT-MAIN',  // Battle Grid stand-alone
+    'CMP-26-BTG-BGMI-001',  // BGMI
+    'CMP-26-BTG-FF-002',    // Free Fire
+    'CMP-26-BTG-CODM-003',  // CODM
+    'CMP-26-BTG-SF4-004',   // SF4
+    'CMP-26-BTG-AUS-005'    // Among Us
+  ];
 
   const allowedHandles = new Set<string>();
   const allowedEventTitles = new Set<string>();
@@ -142,7 +151,6 @@ const ManualRegistration: React.FC<ManualRegistrationProps> = ({ isSuper = false
       'admin-amongus': { handle: 'Battle-Grid', eventTitle: 'Social Deduction' },
       'admin-robo-kshetra': { handle: 'Robo-Kshetra' },
       'admin-align-x': { handle: 'Robo-Kshetra', eventTitle: 'AlignX' },
-      'admin-robo-maze': { handle: 'Robo-Kshetra', eventTitle: 'RoboMaze' },
       'admin-robo-rush': { handle: 'Robo-Kshetra', eventTitle: 'RoboRush' },
       'admin-forge-x': { handle: 'Forge-Lead', eventTitle: 'Forge-X' },
       'admin-algo-bid': { handle: 'Algo-Master', eventTitle: 'AlgoBid' },
@@ -157,7 +165,7 @@ const ManualRegistration: React.FC<ManualRegistrationProps> = ({ isSuper = false
       'admin-spark-tank': { handle: 'Spark-Lead', eventTitle: 'Spark Tank - Electro-Innovation Pitch' },
       'admin-matlab': { handle: 'Mat-Master', eventTitle: 'Matlab Madness' },
       'admin-circuit-sim': { handle: 'Circuit-Ninja', eventTitle: 'Circuit Simulation' },
-      'admin-contraptions': { handle: 'Master-Builder', eventTitle: 'Contraption Challange' },
+      'admin-contraptions': { handle: 'Master-Builder', eventTitle: 'Contraption Challenge' },
       'admin-circle-cricket': { handle: 'Cricket-Lead', eventTitle: 'Circle Cricket' },
       'admin-paper-pres': { handle: 'Research-Lead', eventTitle: 'Paper Presentation' },
       'admin-project-comp': { handle: 'Project-Master', eventTitle: 'Project Competition' },

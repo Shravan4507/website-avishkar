@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { collection, query, getDocs, orderBy, limit, deleteDoc, doc } from 'firebase/firestore';
+import { collection, query, getDocs, orderBy, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '../../firebase/firebase';
 import { useToast } from '../toast/Toast';
 import { Search, Loader2, Users, Download, Trash2 } from 'lucide-react';

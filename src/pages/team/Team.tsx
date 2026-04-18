@@ -13,8 +13,8 @@ const ALL_MEMBERS = [
         location: 'Core Leadership',
         handle: '@069.f5',
         description: 'The question isn\'t how, the question is when.',
-        borderColor: '#5227FF',
-        gradient: 'linear-gradient(145deg, #5227FF, #000)',
+        borderColor: '#A0522D',
+        gradient: 'linear-gradient(145deg, #A0522D, #000)',
         url: 'https://instagram.com/069.f5',
         socials: {
             instagram: 'https://instagram.com/069.f5',
@@ -48,8 +48,8 @@ const ALL_MEMBERS = [
         location: 'Core Leadership',
         handle: '@rohan_verma',
         description: 'Organizational expert ensuring coordination between all departments. Focused on operational excellence and resource optimization. Streamlined the internal logistics for the entire festival cycle.',
-        borderColor: '#5227FF',
-        gradient: 'linear-gradient(145deg, #5227FF, #000)',
+        borderColor: '#A0522D',
+        gradient: 'linear-gradient(145deg, #A0522D, #000)',
         url: 'https://linkedin.com/',
         socials: {
             linkedin: '#',
@@ -81,8 +81,8 @@ const ALL_MEMBERS = [
         location: 'Technical & Design',
         handle: '@ananya_design',
         description: 'Crafting the visual identity of Avishkar. Bringing aesthetic elegance and user-centric design to every digital touchpoint. Created the unique grainient branding for this year.',
-        borderColor: '#5227FF',
-        gradient: 'linear-gradient(165deg, #5227FF, #000)',
+        borderColor: '#A0522D',
+        gradient: 'linear-gradient(165deg, #A0522D, #000)',
         url: 'https://instagram.com/ananya_design',
         socials: {
             instagram: '#',
@@ -114,8 +114,8 @@ const ALL_MEMBERS = [
         location: 'Marketing & PR',
         handle: '@kritika_pr',
         description: 'Voice of the festival, managing external communications and media relations. Dedicated to building strong brand authority.',
-        borderColor: '#5227FF',
-        gradient: 'linear-gradient(225deg, #5227FF, #000)',
+        borderColor: '#A0522D',
+        gradient: 'linear-gradient(225deg, #A0522D, #000)',
         url: 'https://linkedin.com/',
         socials: {
             linkedin: '#',

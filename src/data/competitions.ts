@@ -58,8 +58,8 @@ export const COMPETITIONS_DATA: Competition[] = [
         department: 'Flagship',
         year: 2026,
         image: `${import.meta.env.BASE_URL}assets/competitions/paramx.webp`,
-        gradient: 'linear-gradient(145deg, #5227FF, #000)',
-        borderColor: '#5227FF',
+        gradient: 'linear-gradient(145deg, #A0522D, #000)',
+        borderColor: '#A0522D',
         schedule: [
             {
                 date: '2026-04-20',
@@ -72,8 +72,8 @@ export const COMPETITIONS_DATA: Competition[] = [
         registrationStart: '2026-03-01',
         registrationEnd: '2026-04-15',
         isRegistrationOpen: true,
-        entryFee: 0,
-        paymentRequired: false,
+        entryFee: 500,
+        paymentRequired: true,
         minTeamSize: 2,
         maxTeamSize: 4,
         teamRequired: true,
@@ -142,7 +142,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         status: "published",
         isFlagship: true,
         slug: 'battle-grid-26',
-        handle: 'Grid-Warrior',
+        handle: 'Battle-Grid',
         prizePool: '₹80,000+',
         url: '#'
     },
@@ -176,7 +176,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         registrationStart: '2026-03-01',
         registrationEnd: '2026-04-15',
         isRegistrationOpen: true,
-        entryFee: 1200,
+        entryFee: 499,
         paymentRequired: true,
         minTeamSize: 2,
         maxTeamSize: 4,
@@ -213,7 +213,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         registrationStart: '2026-03-01',
         registrationEnd: '2026-04-15',
         isRegistrationOpen: true,
-        entryFee: 600,
+        entryFee: 499,
         paymentRequired: true,
         minTeamSize: 2,
         maxTeamSize: 4,
@@ -225,43 +225,6 @@ export const COMPETITIONS_DATA: Competition[] = [
         isExhibition: true,
         slug: 'robo-rush-26',
         handle: 'RoboRush'
-    },
-    {
-        id: 'CMP-26-FLG-RBM-004',
-        code: 'RBM',
-        title: "RoboMaze",
-        subtitle: 'Maze Solver',
-        description: 'Intelligence meets engineering. Can your robot find the exit before the others?',
-        category: 'FLG',
-        department: 'Flagship',
-        year: 2026,
-        image: `${import.meta.env.BASE_URL}assets/competitions/robokshetra.webp`,
-        gradient: 'linear-gradient(180deg, #d9ff00, #000)',
-        borderColor: '#d9ff00',
-        schedule: [
-            {
-                date: '2026-04-21',
-                startTime: '09:00',
-                endTime: '12:00',
-                round: 'Exploration Round'
-            }
-        ],
-        venue: 'Robo Arena',
-        registrationStart: '2026-03-01',
-        registrationEnd: '2026-04-15',
-        isRegistrationOpen: true,
-        entryFee: 800,
-        paymentRequired: true,
-        minTeamSize: 2,
-        maxTeamSize: 4,
-        teamRequired: true,
-        coordinators: [
-            { name: "TBA", phone: "" }
-        ],
-        status: "published",
-        isExhibition: true,
-        slug: 'robo-maze-26',
-        handle: 'RoboMaze'
     },
     {
         id: 'CMP-26-BTG-BGMI-001',
@@ -288,7 +251,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         registrationEnd: '2026-04-15',
         isRegistrationOpen: true,
         entryFee: 0,
-        paymentRequired: true,
+        paymentRequired: false,
         minTeamSize: 4,
         maxTeamSize: 5,
         teamRequired: true,
@@ -467,8 +430,8 @@ export const COMPETITIONS_DATA: Competition[] = [
         department: 'Computer Engineering',
         year: 2026,
         image: `${import.meta.env.BASE_URL}assets/competitions/forgex.webp`,
-        gradient: 'linear-gradient(145deg, #5227FF, #000)',
-        borderColor: '#5227FF',
+        gradient: 'linear-gradient(145deg, #A0522D, #000)',
+        borderColor: '#A0522D',
         schedule: [
             {
                 date: '2026-04-21',
@@ -547,8 +510,8 @@ export const COMPETITIONS_DATA: Competition[] = [
         department: 'Information Technology',
         year: 2026,
         image: `${import.meta.env.BASE_URL}assets/competitions/codeladder.webp`,
-        gradient: 'linear-gradient(145deg, #5227FF, #000)',
-        borderColor: '#5227FF',
+        gradient: 'linear-gradient(145deg, #A0522D, #000)',
+        borderColor: '#A0522D',
         schedule: [
             {
                 date: '2026-04-21',
@@ -586,8 +549,8 @@ export const COMPETITIONS_DATA: Competition[] = [
         department: 'AI&DS',
         year: 2026,
         image: `${import.meta.env.BASE_URL}assets/competitions/iplauction.webp`,
-        gradient: 'linear-gradient(145deg, #5227FF, #000)',
-        borderColor: '#5227FF',
+        gradient: 'linear-gradient(145deg, #A0522D, #000)',
+        borderColor: '#A0522D',
         schedule: [
             {
                 date: '2026-04-21',
@@ -624,8 +587,8 @@ export const COMPETITIONS_DATA: Competition[] = [
         department: 'ECE',
         year: 2026,
         image: `${import.meta.env.BASE_URL}assets/competitions/blindcode.webp`,
-        gradient: 'linear-gradient(145deg, #5227FF, #000)',
-        borderColor: '#5227FF',
+        gradient: 'linear-gradient(145deg, #A0522D, #000)',
+        borderColor: '#A0522D',
         schedule: [
             {
                 date: '2026-04-21',
@@ -663,8 +626,8 @@ export const COMPETITIONS_DATA: Competition[] = [
         department: 'AI&ML',
         year: 2026,
         image: `${import.meta.env.BASE_URL}assets/competitions/devclash.webp`,
-        gradient: 'linear-gradient(145deg, #5227FF, #000)',
-        borderColor: '#5227FF',
+        gradient: 'linear-gradient(145deg, #A0522D, #000)',
+        borderColor: '#A0522D',
         schedule: [
             {
                 date: '2026-04-21',
@@ -741,8 +704,8 @@ export const COMPETITIONS_DATA: Competition[] = [
         department: 'AI&ML',
         year: 2026,
         image: `${import.meta.env.BASE_URL}assets/competitions/coderun.webp`,
-        gradient: 'linear-gradient(145deg, #5227FF, #000)',
-        borderColor: '#5227FF',
+        gradient: 'linear-gradient(145deg, #A0522D, #000)',
+        borderColor: '#A0522D',
         schedule: [
             {
                 date: '2026-04-21',
@@ -780,8 +743,8 @@ export const COMPETITIONS_DATA: Competition[] = [
         department: 'Civil Engineering',
         year: 2026,
         image: `${import.meta.env.BASE_URL}assets/competitions/bridgenova.webp`,
-        gradient: 'linear-gradient(145deg, #5227FF, #000)',
-        borderColor: '#5227FF',
+        gradient: 'linear-gradient(145deg, #A0522D, #000)',
+        borderColor: '#A0522D',
         schedule: [
             {
                 date: '2026-04-21',
@@ -896,8 +859,8 @@ export const COMPETITIONS_DATA: Competition[] = [
         department: 'E&TC',
         year: 2026,
         image: `${import.meta.env.BASE_URL}assets/competitions/matlab.webp`,
-        gradient: 'linear-gradient(145deg, #5227FF, #000)',
-        borderColor: '#5227FF',
+        gradient: 'linear-gradient(145deg, #A0522D, #000)',
+        borderColor: '#A0522D',
         schedule: [
             {
                 date: '2026-04-21',
@@ -910,7 +873,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         registrationStart: '2026-03-01',
         registrationEnd: '2026-04-15',
         isRegistrationOpen: true,
-        entryFee: 300,
+        entryFee: 149,
         prizePool: '6000',
         paymentRequired: true,
         minTeamSize: 1,
@@ -951,7 +914,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         registrationStart: '2026-03-01',
         registrationEnd: '2026-04-15',
         isRegistrationOpen: true,
-        entryFee: 300,
+        entryFee: 149,
         prizePool: '6000',
         paymentRequired: true,
         minTeamSize: 1,
@@ -970,7 +933,7 @@ export const COMPETITIONS_DATA: Competition[] = [
     {
         id: 'CMP-26-ME-CTC-014',
         code: 'CTC',
-        title: 'Contraption Challange',
+        title: 'Contraption Challenge',
         subtitle: 'Energy Conversion',
         description: 'Design and build intricate chain-reaction systems of energy conversion.',
         category: 'DEP',
@@ -1055,8 +1018,8 @@ export const COMPETITIONS_DATA: Competition[] = [
         department: 'General',
         year: 2026,
         image: `${import.meta.env.BASE_URL}assets/competitions/paper-presentation.png`,
-        gradient: 'linear-gradient(145deg, #5227FF, #000)',
-        borderColor: '#5227FF',
+        gradient: 'linear-gradient(145deg, #A0522D, #000)',
+        borderColor: '#A0522D',
         schedule: [
             {
                 date: '2026-04-21',

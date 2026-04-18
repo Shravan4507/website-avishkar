@@ -20,7 +20,7 @@
     transform: translateX(-50%);
     width: 600px;
     height: 400px;
-    background: radial-gradient(circle, rgba(82, 39, 255, 0.15) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(160, 82, 45, 0.15) 0%, transparent 70%);
     pointer-events: none;
     z-index: -1;
 }
@@ -66,7 +66,7 @@
 }
 
 .section-label {
-    color: #5227FF;
+    color: #A0522D;
     font-size: 0.9rem;
     font-weight: 800;
     text-transform: uppercase;
@@ -94,7 +94,7 @@
 .section-line {
     width: 60px;
     height: 4px;
-    background: #5227FF;
+    background: #A0522D;
     border-radius: 2px;
 }
 

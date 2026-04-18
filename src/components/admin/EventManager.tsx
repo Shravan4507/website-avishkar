@@ -1,14 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  doc, getDoc, setDoc, updateDoc, collection, getDocs, query, where
+  doc, getDoc, setDoc, updateDoc
 } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../../firebase/firebase';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from '../../firebase/firebase';
-import { Save, Edit3, ChevronDown, BookOpen, Users, Trophy, MapPin, ToggleLeft, ToggleRight, RefreshCw, Plus, Trash2, Info, ExternalLink, Upload, FileCheck } from 'lucide-react';
-import { COMPETITIONS_DATA } from '../../data/competitions';
+import { Save, Edit3, ChevronDown, BookOpen, Users, Trophy, MapPin, ToggleLeft, ToggleRight, RefreshCw, Plus, Trash2, Info, ExternalLink, Upload, FileCheck, Ticket } from 'lucide-react';
 import type { Competition } from '../../data/competitions';
+import { COMPETITIONS_DATA } from '../../data/competitions';
+import { RULES_DATA } from '../../data/rulesData';
 
 interface EventManagerProps {
   adminProfile: any;
@@ -272,8 +273,20 @@ const EventManager: React.FC<EventManagerProps> = ({ adminProfile, isSuper }) =>
         const isDirtyNow = dirty[key];
         const isSaving = saving === key;
 
+        const ruleData = ev.slug ? RULES_DATA[ev.slug] : null;
+
+        const parseFee = (feeStr?: string) => {
+          if (!feeStr) return undefined;
+          if (feeStr.toLowerCase() === 'free') return 0;
+          const match = feeStr.match(/\d+/);
+          return match ? parseInt(match[0], 10) : undefined;
+        };
+        const defaultFee = ev.entryFee ?? (ruleData ? parseFee(ruleData.fee) : undefined) ?? 0;
+        const fallbackPrize = ev.prizePool || (ruleData?.prizes?.first ? `First: ${ruleData.prizes.first}` : '');
+
         const description = getField(key, 'description', ev.description);
-        const prizePool = getField(key, 'prizePool', ev.prizePool || '');
+        const prizePool = getField(key, 'prizePool', fallbackPrize || '');
+        const entryFee = getField(key, 'entryFee', defaultFee);
         const venue = getField(key, 'venue', ev.venue);
         const rulebook = getField(key, 'rulebook', ev.rulebook || '');
         const rulebookComingSoon = getField(key, 'rulebookComingSoon', ev.rulebookComingSoon ?? false);
@@ -367,8 +380,8 @@ const EventManager: React.FC<EventManagerProps> = ({ adminProfile, isSuper }) =>
                   />
                 </div>
 
-                {/* Prize + Venue Row */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                {/* Prize, Venue, Entry Fee Row */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '16px' }}>
                   <div>
                     <label style={labelStyle}><Trophy size={14} /> Prize Pool</label>
                     <input
@@ -387,6 +400,16 @@ const EventManager: React.FC<EventManagerProps> = ({ adminProfile, isSuper }) =>
                       onChange={(e) => setField(key, 'venue', e.target.value)}
                       style={inputStyle}
                       placeholder="e.g. Main Lab Complex"
+                    />
+                  </div>
+                  <div>
+                    <label style={labelStyle}><Ticket size={14} /> Entry Fee</label>
+                    <input
+                      type="number"
+                      value={entryFee === 0 ? '' : entryFee}
+                      onChange={(e) => setField(key, 'entryFee', e.target.value !== '' ? parseInt(e.target.value) : 0)}
+                      style={inputStyle}
+                      placeholder="e.g. 499"
                     />
                   </div>
                 </div>

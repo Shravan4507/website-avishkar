@@ -786,7 +786,7 @@ const EsportsRegistration: React.FC = () => {
                 {/* Scheduling + Actions */}
                 <div className="es-actions-section">
                     <div className="es-scheduling-notice">
-                        <AlertTriangle size={24} style={{ flexShrink: 0, color: '#5227ff' }} />
+                        <AlertTriangle size={24} style={{ flexShrink: 0, color: '#A0522D' }} />
                         <div>
                             <h4>SCHEDULING ACCOUNTABILITY</h4>
                             <p>You are solely responsible for managing any scheduling overlaps between your registered events. The organizing committee is not liable for your participation overlaps.</p>

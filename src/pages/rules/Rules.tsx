@@ -11,7 +11,7 @@ import './Rules.css';
 /* ── Category labels & accent colours ── */
 const CATEGORY_META: Record<string, { label: string; accent: string }> = {
     flagship: { label: 'Flagship', accent: '#a78bfa' },
-    standard: { label: 'Competition', accent: '#5227ff' },
+    standard: { label: 'Competition', accent: '#A0522D' },
     general: { label: 'General', accent: '#10b981' },
 };
 
@@ -92,7 +92,7 @@ const Rules: React.FC = () => {
                     <header className="rules-detail-header">
                         <span
                             className="rules-category-pill"
-                            style={{ '--pill-accent': CATEGORY_META[activeComp.category]?.accent ?? '#5227ff' } as React.CSSProperties}
+                            style={{ '--pill-accent': CATEGORY_META[activeComp.category]?.accent ?? '#A0522D' } as React.CSSProperties}
                         >
                             {CATEGORY_META[activeComp.category]?.label ?? activeComp.category}
                         </span>
@@ -243,7 +243,7 @@ const Rules: React.FC = () => {
                             <h2 className="rules-category-title">
                                 <span
                                     className="rules-cat-dot"
-                                    style={{ background: CATEGORY_META[cat]?.accent ?? '#5227ff' }}
+                                    style={{ background: CATEGORY_META[cat]?.accent ?? '#A0522D' }}
                                 />
                                 {CATEGORY_META[cat]?.label ?? cat}
                             </h2>
@@ -253,7 +253,7 @@ const Rules: React.FC = () => {
                                         key={c.slug}
                                         className="rules-comp-card"
                                         onClick={() => handleSelect(c.slug)}
-                                        style={{ '--card-accent': CATEGORY_META[c.category]?.accent ?? '#5227ff' } as React.CSSProperties}
+                                        style={{ '--card-accent': CATEGORY_META[c.category]?.accent ?? '#A0522D' } as React.CSSProperties}
                                     >
                                         <div className="rules-comp-card-inner">
                                             <h3>{c.name}</h3>

@@ -47,9 +47,9 @@
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: var(--pill-accent, #5227ff);
-    border: 1px solid var(--pill-accent, #5227ff);
-    background: color-mix(in srgb, var(--pill-accent, #5227ff) 10%, transparent);
+    color: var(--pill-accent, #A0522D);
+    border: 1px solid var(--pill-accent, #A0522D);
+    background: color-mix(in srgb, var(--pill-accent, #A0522D) 10%, transparent);
     margin-bottom: 1.25rem;
 }
 
@@ -163,7 +163,7 @@
     content: counter(step);
     min-width: 24px;
     height: 24px;
-    background: rgba(82, 39, 255, 0.15);
+    background: rgba(160, 82, 45, 0.15);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -328,7 +328,7 @@
     transition: border-color 0.3s ease;
 }
 .rules-search-input::placeholder { color: rgba(255, 255, 255, 0.9); }
-.rules-search-input:focus { border-color: rgba(82, 39, 255, 0.5); }
+.rules-search-input:focus { border-color: rgba(160, 82, 45, 0.5); }
 
 .rules-search-clear {
     position: absolute;
@@ -392,7 +392,7 @@
     font-size: inherit;
 }
 .rules-comp-card:hover {
-    border-color: var(--card-accent, #5227ff);
+    border-color: var(--card-accent, #A0522D);
     background: rgba(0, 0, 0, 0.8);
 }
 
@@ -441,7 +441,7 @@
     transition: transform 0.3s ease, color 0.3s ease;
 }
 .rules-comp-card:hover .rules-comp-arrow {
-    color: var(--card-accent, #5227ff);
+    color: var(--card-accent, #A0522D);
     transform: rotate(-90deg) translateY(3px);
 }
 

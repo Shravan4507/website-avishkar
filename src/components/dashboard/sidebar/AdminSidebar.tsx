@@ -52,7 +52,6 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, setActiveTab, is
 
     // Flagship — Robo-Kshetra (individual events)
     { id: 'alignx_regs',    label: 'AlignX Registrations',    Icon: Cpu, visible: isSuper || hasRole('admin-robo-kshetra') || hasRole('admin-align-x') },
-    { id: 'robomaze_regs',  label: 'RoboMaze Registrations',  Icon: Cpu, visible: isSuper || hasRole('admin-robo-kshetra') || hasRole('admin-robo-maze') },
     { id: 'roborush_regs',  label: 'RoboRush Registrations',  Icon: Cpu, visible: isSuper || hasRole('admin-robo-kshetra') || hasRole('admin-robo-rush') },
 
     // Standard Competitions

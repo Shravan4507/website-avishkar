@@ -414,7 +414,7 @@
     overflow: hidden; 
     margin-bottom: 0.5rem; 
 }
-.slot-fill { height: 100%; background: linear-gradient(90deg, #5227ff, #10b981); transition: width 1s ease; }
+.slot-fill { height: 100%; background: linear-gradient(90deg, #A0522D, #10b981); transition: width 1s ease; }
 .slot-text { font-size: 0.8rem; color: rgba(255, 255, 255, 0.85); font-weight: 700; }
 
 .register-cta {
@@ -521,7 +521,7 @@
 }
 
 .modal-register-btn {
-    background: #5227ff;
+    background: #A0522D;
     color: #fff;
     border: none;
     padding: 1.2rem 3rem;
@@ -730,9 +730,9 @@
 
 .slot-fill-v {
     width: 100%;
-    background: linear-gradient(0deg, #5227ff, #10b981);
+    background: linear-gradient(0deg, #A0522D, #10b981);
     transition: height 1s ease;
-    box-shadow: 0 0 20px rgba(82,39,255,0.4);
+    box-shadow: 0 0 20px rgba(160, 82, 45,0.4);
 }
 
 .slot-info { display: flex; flex-direction: column; align-items: center; }
@@ -793,7 +793,7 @@
 .action-card { display: flex; flex-direction: column; gap: 1.25rem; }
 
 .main-register-btn {
-    background: #5227ff;
+    background: #A0522D;
     color: #fff;
     padding: 1.25rem;
     border-radius: 3rem;

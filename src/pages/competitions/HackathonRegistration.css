@@ -3,7 +3,7 @@
     min-height: 100vh;
     display: flex;
     justify-content: center;
-    background: radial-gradient(circle at top right, rgba(82, 39, 255, 0.05), transparent);
+    background: radial-gradient(circle at top right, rgba(160, 82, 45, 0.05), transparent);
 }
 
 .hackathon-reg-container {
@@ -45,13 +45,13 @@
 }
 
 .step-dot.active {
-    border-color: #5227ff;
-    color: #5227ff;
+    border-color: #A0522D;
+    color: #A0522D;
 }
 
 .step-dot.completed {
-    background: #5227ff;
-    border-color: #5227ff;
+    background: #A0522D;
+    border-color: #A0522D;
     color: #fff;
 }
 
@@ -176,8 +176,8 @@
 }
 
 .input-with-icon.avr-lookup {
-    border-color: #5227ff;
-    background: rgba(82, 39, 255, 0.05);
+    border-color: #A0522D;
+    background: rgba(160, 82, 45, 0.05);
 }
 
 .input-with-icon.avr-lookup.readonly {
@@ -187,7 +187,7 @@
 
 .input-with-icon.searching .spinner {
     animation: rotate 1s linear infinite;
-    color: #5227ff;
+    color: #A0522D;
 }
 
 .input-with-icon.prefilled {
@@ -215,7 +215,7 @@
 .form-footer.space-between { justify-content: space-between; }
 
 .primary-btn {
-    background: #5227ff;
+    background: #A0522D;
     color: #fff;
     border: none;
     padding: 1rem 2rem;
@@ -357,7 +357,7 @@
 }
 
 .payment-trigger {
-    background: linear-gradient(135deg, #5227ff 0%, #3d1cb5 100%) !important;
+    background: linear-gradient(135deg, #A0522D 0%, #3d1cb5 100%) !important;
 }
 
 .success-details {
@@ -535,8 +535,8 @@
 }
 
 .protocol-banner {
-    background: rgba(82, 39, 255, 0.1);
-    border: 1x solid rgba(82, 39, 255, 0.3);
+    background: rgba(160, 82, 45, 0.1);
+    border: 1x solid rgba(160, 82, 45, 0.3);
     border-bottom: 3px solid rgba(255, 255, 255, 0.3);
     border-radius: 3rem;
     padding: 2rem;
@@ -550,12 +550,12 @@
 .protocol-icon {
     width: 50px;
     height: 50px;
-    background: rgba(82, 39, 255, 0.2);
+    background: rgba(160, 82, 45, 0.2);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #5227ff;
+    color: #A0522D;
     flex-shrink: 0;
 }
 
@@ -591,7 +591,7 @@
 
 .share-link-btn:hover {
     background: rgba(255, 255, 255, 0.1);
-    border-color: #5227ff;
+    border-color: #A0522D;
 }
 
 /* Member Status Bar */
@@ -644,9 +644,9 @@
 
 /* Team ID Highlight Styles */
 .id-highlight {
-    background: rgba(82, 39, 255, 0.12) !important;
-    border: 2px solid rgba(82, 39, 255, 0.3) !important;
-    box-shadow: 0 0 40px rgba(82, 39, 255, 0.15);
+    background: rgba(160, 82, 45, 0.12) !important;
+    border: 2px solid rgba(160, 82, 45, 0.3) !important;
+    box-shadow: 0 0 40px rgba(160, 82, 45, 0.15);
 }
 
 .id-highlight .label {

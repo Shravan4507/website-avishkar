@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '../../firebase/firebase';
-import { Plus, Trash2, Edit2, Check, X, Eye, EyeOff, GripVertical } from 'lucide-react';
+import { Plus, Trash2, Edit2, X, Eye, EyeOff } from 'lucide-react';
 import { useToast } from '../../components/toast/Toast';
 
 interface Sponsor {

@@ -4,7 +4,7 @@ import './Schedule.css'
 import scheduleData from '../../data/schedule.json'
 
 const DEPT_COLORS: Record<string, string> = {
-  'CS':          '#5227FF',
+  'CS':          '#A0522D',
   'IT':          '#7c3aed',
   'AI&ML':       '#06b6d4',
   'AI&DS':       '#0ea5e9',
@@ -14,7 +14,6 @@ const DEPT_COLORS: Record<string, string> = {
   'Mechanical':  '#ef4444',
   'Civil':       '#84cc16',
   'R&A':         '#d9ff00',
-  'AI&DS':       '#0ea5e9',
 }
 
 const BUILDING_NAMES: Record<string, string> = {
@@ -25,7 +24,7 @@ const BUILDING_NAMES: Record<string, string> = {
 }
 
 function getDeptColor(dept: string): string {
-  return DEPT_COLORS[dept] ?? '#5227FF'
+  return DEPT_COLORS[dept] ?? '#A0522D'
 }
 
 // Parse a single location code like "A1-11" into structured info

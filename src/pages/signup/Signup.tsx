@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthState } from 'react-firebase-hooks/auth';
-import { doc, getDoc, runTransaction, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc, setDoc, deleteDoc, runTransaction, serverTimestamp, collection, query, where, getDocs } from 'firebase/firestore';
 import { auth, db } from '../../firebase/firebase';
 import Loader from '../../components/loader/Loader';
 import { useToast } from '../../components/toast/Toast';
@@ -145,6 +145,8 @@ const Signup: React.FC = () => {
     setSubmitting(true);
 
     try {
+      let generatedAvrId = '';
+
       await runTransaction(db, async (transaction) => {
         const counterRef = doc(db, "counters", "user_counter");
         const userRef = doc(db, "user", user.uid);
@@ -158,7 +160,7 @@ const Signup: React.FC = () => {
 
         const namePart = getAvroNamePart(formData.firstName);
         const seqPart = nextNumber.toString().padStart(4, '0');
-        const uniqueAvrId = `AVR-${namePart}-${seqPart}`;
+        generatedAvrId = `AVR-${namePart}-${seqPart}`;
 
         transaction.set(counterRef, { count: nextNumber }, { merge: true });
         
@@ -175,7 +177,7 @@ const Signup: React.FC = () => {
           college: formData.college,
           major: formData.major,
           passingYear: parseInt(formData.passingYear),
-          avrId: uniqueAvrId,
+          avrId: generatedAvrId,
           role: 'user',
           isProfileComplete: true,
           registeredCompetitionIds: [],
@@ -186,10 +188,60 @@ const Signup: React.FC = () => {
           updatedAt: serverTimestamp(),
           lastLoginAt: serverTimestamp()
         });
-
       });
 
-      toast.success("Welcome to Avishkar '26!");
+      // ── Pre-Approved Admin Check ──
+      // After creating the user profile, check if their email was pre-approved.
+      // If found, promote them to admin immediately and remove the pre-approval record.
+      try {
+        const preApprovedQuery = query(
+          collection(db, 'pre_approved_admins'),
+          where('email', '==', formData.email.toLowerCase().trim())
+        );
+        const preApprovedSnap = await getDocs(preApprovedQuery);
+
+        if (!preApprovedSnap.empty) {
+          const preApprovedDoc = preApprovedSnap.docs[0];
+          const preApprovedData = preApprovedDoc.data();
+
+          // Generate Admin ID from counter
+          const adminCounterRef = doc(db, 'counters', 'admin_counter');
+          const adminCounterSnap = await getDoc(adminCounterRef);
+          const nextAdmNum = (adminCounterSnap.exists() ? (adminCounterSnap.data().count || 0) : 0) + 1;
+          const avrAdmId = `AVR-ADM-${String(nextAdmNum).padStart(4, '0')}`;
+
+          // Create the admin document
+          await setDoc(doc(db, 'admins', user.uid), {
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            email: formData.email,
+            photoURL: formData.photoURL || null,
+            phone: formData.phone || null,
+            avrAdmId,
+            roleLevel: preApprovedData.roleLevel || [],
+            assignment: preApprovedData.assignment || '',
+            type: preApprovedData.type || 'admin',
+            activatedAt: serverTimestamp(),
+            _activatedFromPreApproval: true,
+          });
+
+          // Update admin counter
+          await setDoc(adminCounterRef, { count: nextAdmNum }, { merge: true });
+
+          // Delete the pre-approved record so it doesn't re-trigger
+          await deleteDoc(doc(db, 'pre_approved_admins', preApprovedDoc.id));
+
+          console.log(`[Signup] Pre-approved admin activated: ${formData.email} → ${avrAdmId}`);
+          toast.success("Welcome to Avishkar '26! Your admin access has been activated.");
+        } else {
+          toast.success("Welcome to Avishkar '26!");
+        }
+      } catch (preApprovalErr) {
+        // Non-critical: user profile is already created safely. Log and continue.
+        console.warn("[Signup] Pre-approval check failed (non-fatal):", preApprovalErr);
+        toast.success("Welcome to Avishkar '26!");
+      }
+
       navigate('/user/dashboard', { replace: true });
     } catch (error) {
       console.error("Signup Transaction Error:", error);
@@ -197,6 +249,7 @@ const Signup: React.FC = () => {
       setSubmitting(false);
     }
   };
+
 
   const handleDOBChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let val = e.target.value.replace(/\D/g, '');

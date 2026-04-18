@@ -35,7 +35,7 @@ export const initiateEasebuzzCheckout = (
             console.log("Easebuzz Response:", response);
             onResponse(response);
         },
-        theme: "#5227ff"
+        theme: "#A0522D"
     });
 };
 

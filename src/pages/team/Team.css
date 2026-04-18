@@ -32,7 +32,7 @@
     transform: translateX(-50%);
     width: 600px;
     height: 400px;
-    background: radial-gradient(circle, rgba(82, 39, 255, 0.15) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(160, 82, 45, 0.15) 0%, transparent 70%);
     pointer-events: none;
     z-index: -1;
 }

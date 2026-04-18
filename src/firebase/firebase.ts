@@ -1,9 +1,11 @@
 import { initializeApp, getApp, getApps } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { 
-  initializeFirestore, 
+  initializeFirestore,
+  getFirestore,
   persistentLocalCache, 
-  persistentMultipleTabManager 
+  persistentMultipleTabManager,
+  type Firestore
 } from "firebase/firestore";
 import { getAnalytics, isSupported } from "firebase/analytics";
 import { getStorage } from "firebase/storage";
@@ -23,15 +25,23 @@ if (!firebaseConfig.apiKey || firebaseConfig.apiKey === "undefined") {
   throw new Error("FIREBASE_CONFIG_ERROR: Missing environment variables.");
 }
 
-// HMR-Safe Firebase Initialization
+// HMR-Safe Firebase App Initialization
 const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 
-// Modern Firestore Persistence (Replacement for enableMultiTabIndexedDbPersistence)
-export const db = initializeFirestore(app, {
-  localCache: persistentLocalCache({
-    tabManager: persistentMultipleTabManager()
-  })
-});
+// HMR-Safe Firestore Initialization
+// initializeFirestore throws if called again on an already-initialized app (Vite HMR).
+// getFirestore() safely returns the existing instance in that case.
+let db: Firestore;
+try {
+  db = initializeFirestore(app, {
+    localCache: persistentLocalCache({
+      tabManager: persistentMultipleTabManager()
+    })
+  });
+} catch {
+  db = getFirestore(app);
+}
+export { db };
 
 export const auth = getAuth(app);
 export const storage = getStorage(app);
