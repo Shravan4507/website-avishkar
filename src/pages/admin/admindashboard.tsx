@@ -10,6 +10,9 @@ import { useToast } from '../../components/toast/Toast';
 import AdminSidebar from '../../components/dashboard/sidebar/AdminSidebar';
 import RegistrationManager from '../../components/admin/RegistrationManager';
 import ManualRegistration from '../../components/admin/ManualRegistration';
+import UserManager from '../../components/admin/UserManager';
+import EventManager from '../../components/admin/EventManager';
+import SponsorsManager from '../../components/admin/SponsorsManager';
 import NotificationBell from '../../components/notifications/NotificationBell';
 
 import { 
@@ -98,6 +101,7 @@ export interface AdminProfile {
   roleLevel: string[];  // e.g., ["admin-param-x", "admin-battle-grid"]
   assignment: string;   // Legacy fallback
   team?: string; // Legacy
+  per?: boolean; // Easter egg
 }
 
 interface AdminStats {
@@ -183,6 +187,13 @@ const AdminDashboard: React.FC = () => {
   
   const toast = useToast();
 
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good Morning';
+    if (hour < 18) return 'Good Afternoon';
+    return 'Good Evening';
+  };
+
   useEffect(() => {
     const fetchAdminType = async () => {
       if (!user) return;
@@ -233,7 +244,8 @@ const AdminDashboard: React.FC = () => {
             avrAdmId: data.avrAdmId || updates.avrAdmId || 'ASSIGNING...',
             type: data.type || 'admin',
             roleLevel: roles,
-            assignment: data.assignment || ''
+            assignment: data.assignment || '',
+            per: !!data.per
           };
 
           setIsSuper(localProfile.type === 'superadmin' || localProfile.roleLevel.includes('superadmin'));
@@ -764,7 +776,10 @@ const AdminDashboard: React.FC = () => {
                 </div>
                 <div className="admin-info-main">
                   <div className="admin-title-row">
-                    <h1 className="admin-welcome-text">Command Center</h1>
+                    <h1 className="admin-welcome-text">
+                      {getGreeting()}, {adminProfile?.firstName ? `${adminProfile.firstName} ${adminProfile.lastName}` : 'Commander'}
+                      {adminProfile?.per && <img src="/neko.gif" alt="" className="neko-runner" />}
+                    </h1>
                     {isSuper && <span className="admin-badge-super">SUPERADMIN</span>}
                   </div>
                   <p className="tab-subtitle-premium" style={{ margin: 0 }}>
@@ -988,16 +1003,11 @@ const AdminDashboard: React.FC = () => {
           </div>
         );
       case 'sponsors':
-        return (
-          <div className="admin-overview">
-            <h2 style={{ color: '#fff', marginBottom: '24px' }}>Sponsors & Partners</h2>
-            <div className="admin-form-card" style={{ background: 'rgba(255,255,255,0.02)', padding: '3rem', borderRadius: '24px', textAlign: 'center', border: '1px dashed rgba(255,255,255,0.1)' }}>
-              <Shield size={48} color="rgba(255,255,255,0.2)" style={{ margin: '0 auto 1rem auto' }} />
-              <h3 style={{ color: 'rgba(255,255,255,0.8)' }}>Coming Soon</h3>
-              <p style={{ color: 'rgba(255,255,255,0.4)', marginTop: '0.5rem' }}>Sponsor inquiries and partner management will appear here.</p>
-            </div>
-          </div>
-        );
+        return <SponsorsManager />;
+      case 'users':
+        return <UserManager isSuper={isSuper} />;
+      case 'event_manager':
+        return <EventManager adminProfile={adminProfile} isSuper={isSuper} />;
       case 'stall_bookings':
         return (
           <div className="tab-content animate-in">

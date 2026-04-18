@@ -7,9 +7,9 @@ export const PAGE_VISIBILITY = {
   home: true,
   workshops: true,
   competitions: true,
-  schedule: false,
+  schedule: true,
   team: true,
-  sponsors: false,
+  sponsors: true,
   contact: true,
 };
 

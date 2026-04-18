@@ -99,6 +99,22 @@ const Registration: React.FC = () => {
         }
 
         if (foundComp) {
+          const key = foundComp.slug || foundComp.id;
+          try {
+            const overrideSnap = await getDoc(doc(db, 'events_content', key));
+            if (overrideSnap.exists()) {
+              const overrides = overrideSnap.data();
+              foundComp = {
+                ...foundComp,
+                ...overrides,
+                // Ensure specific nested objects like coordinators are fully replaced if they exist in overrides
+                coordinators: overrides.coordinators || foundComp.coordinators
+              } as Competition;
+            }
+          } catch (e) {
+            console.warn(`[Registration] Failed to fetch overrides for ${key}`);
+          }
+
           setCompetition(foundComp);
           
           // 3. Initialize Squad Slates if Team Event

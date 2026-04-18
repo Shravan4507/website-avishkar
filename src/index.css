@@ -108,8 +108,9 @@ header, footer, nav {
   min-height: 100vh;
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start; /* Changed from center to allow scrolling */
   z-index: 1;
+  padding-top: 2rem;
 }
 
 /* Specific dashboard layout */

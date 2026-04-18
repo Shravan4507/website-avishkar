@@ -1,48 +1,117 @@
+import React, { useState, useEffect } from 'react'
+import { doc, getDoc } from 'firebase/firestore'
+import { db } from '../../firebase/firebase'
 import SEO from '../../components/seo/SEO'
 import './Sponsors.css'
 
-const SPONSORS_DATA = [
+interface Sponsor {
+  id: string;
+  name: string;
+  logo: string;
+  url: string;
+  category: string;
+}
+
+interface SponsorTier {
+  id: string;
+  tier: string;
+  class: string;
+  tierColor: string;
+  sponsors: Sponsor[];
+}
+
+interface SponsorsDoc {
+  isActive: boolean;
+  tiers: SponsorTier[];
+}
+
+// Fallback hardcoded data before hydration
+const FALLBACK_DATA: SponsorTier[] = [
     {
+        id: '1',
         tier: 'Title Partner',
         class: 'grid-title',
         tierColor: '#d9ff00',
         sponsors: [
-            { id: 1, name: 'Google', logo: 'https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg', url: 'https://google.com', category: 'Official Tech Partner' }
+            { id: 'g1', name: 'Google', logo: 'https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg', url: 'https://google.com', category: 'Official Tech Partner' }
         ]
     },
     {
+        id: '2',
         tier: 'Platinum Partners',
         class: 'grid-platinum',
         tierColor: '#ffffff',
         sponsors: [
-            { id: 2, name: 'Red Bull', logo: 'https://upload.wikimedia.org/wikipedia/en/thumb/5/50/Red_Bull_logo.svg/langfr-300px-Red_Bull_logo.svg.png', url: 'https://redbull.com', category: 'Official Energy Partner' },
-            { id: 3, name: 'Intel', logo: 'https://upload.wikimedia.org/wikipedia/commons/7/7d/Intel_logo_%282020%29.svg', url: 'https://intel.com', category: 'Computing Partner' }
-        ]
-    },
-    {
-        tier: 'Gold Partners',
-        class: 'grid-gold',
-        tierColor: '#FFCC00',
-        sponsors: [
-            { id: 4, name: 'Microsoft', logo: 'https://upload.wikimedia.org/wikipedia/commons/9/96/Microsoft_logo_%282012%29.svg', url: 'https://microsoft.com', category: 'Software Partner' },
-            { id: 5, name: 'Adobe', logo: 'https://upload.wikimedia.org/wikipedia/commons/8/8d/Adobe_Corporate_Logo.svg', url: 'https://adobe.com', category: 'Creative Partner' },
-            { id: 6, name: 'AWS', logo: 'https://upload.wikimedia.org/wikipedia/commons/9/93/Amazon_Web_Services_Logo.svg', url: 'https://aws.amazon.com', category: 'Cloud Partner' }
-        ]
-    },
-    {
-        tier: 'Silver Partners',
-        class: 'grid-silver',
-        tierColor: '#A8A8A8',
-        sponsors: [
-            { id: 7, name: 'Nvidia', logo: 'https://upload.wikimedia.org/wikipedia/sco/2/21/Nvidia_logo.svg', url: 'https://nvidia.com', category: 'Graphics Partner' },
-            { id: 8, name: 'Spotify', logo: 'https://upload.wikimedia.org/wikipedia/commons/1/19/Spotify_logo_with_text.svg', url: 'https://spotify.com', category: 'Music Partner' },
-            { id: 9, name: 'Github', logo: 'https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg', url: 'https://github.com', category: 'Dev Partner' },
-            { id: 10, name: 'Vercel', logo: 'https://upload.wikimedia.org/wikipedia/commons/5/5e/Vercel_logo_black.svg', url: 'https://vercel.com', category: 'Hosting Partner' }
+            { id: 'p1', name: 'Red Bull', logo: 'https://upload.wikimedia.org/wikipedia/en/thumb/5/50/Red_Bull_logo.svg/langfr-300px-Red_Bull_logo.svg.png', url: 'https://redbull.com', category: 'Official Energy Partner' },
+            { id: 'p2', name: 'Intel', logo: 'https://upload.wikimedia.org/wikipedia/commons/7/7d/Intel_logo_%282020%29.svg', url: 'https://intel.com', category: 'Computing Partner' }
         ]
     }
 ]
 
 function Sponsors() {
+    const [data, setData] = useState<SponsorsDoc | null>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const loadSponsors = async () => {
+            try {
+                const snap = await getDoc(doc(db, 'page_settings', 'sponsors'));
+                if (snap.exists()) {
+                    setData(snap.data() as SponsorsDoc);
+                } else {
+                    setData({ isActive: false, tiers: [] });
+                }
+            } catch (err) {
+                console.error(err);
+                // On error, show fallback but maybe inactive?
+                setData({ isActive: false, tiers: FALLBACK_DATA });
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadSponsors();
+    }, []);
+
+    if (loading) {
+        return (
+            <>
+                <SEO title="Our Sponsors" description="Loading Sponsors..." />
+                <main className="sponsors-page" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
+                    <div style={{ color: 'rgba(255,255,255,0.5)' }}>Loading Sponsors...</div>
+                </main>
+            </>
+        );
+    }
+
+    if (!data?.isActive) {
+        return (
+            <>
+                <SEO title="Our Sponsors" description="Coming Soon" />
+                <main className="sponsors-page" style={{ 
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '70vh', textAlign: 'center', padding: '2rem' 
+                }}>
+                    <header className="sponsors-header" style={{ marginBottom: '2rem' }}>
+                        <div className="header-glow"></div>
+                        <h1>Our Partners</h1>
+                        <p>We are currently finalizing our incredible lineup of sponsors!</p>
+                    </header>
+                    <div style={{ padding: '3rem', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '24px', maxWidth: '600px' }}>
+                        <h2 style={{ color: '#fff', marginBottom: '1rem' }}>Sponsors List Unveiling Soon</h2>
+                        <p style={{ color: 'rgba(255,255,255,0.6)', lineHeight: 1.6 }}>
+                            We are building the future together alongside world-class organizations. Stay tuned to discover the amazing partners supporting Avishkar '26.
+                        </p>
+                    </div>
+                    <section className="sponsors-cta" style={{ marginTop: '4rem', background: 'none' }}>
+                        <div className="cta-content" style={{ margin: 0, border: 'none' }}>
+                            <a href="/contact" className="become-sponsor-btn">Want to Partner With Us?</a>
+                        </div>
+                    </section>
+                </main>
+            </>
+        );
+    }
+
     return (
         <>
             <SEO 
@@ -57,8 +126,8 @@ function Sponsors() {
             </header>
 
             <div className="sponsors-container">
-                {SPONSORS_DATA.map((tier, idx) => (
-                    <section key={idx} className="sponsors-tier">
+                {data.tiers.filter(t => t.sponsors.length > 0).map((tier) => (
+                    <section key={tier.id} className="sponsors-tier">
                         <div className="tier-title">
                             <h2>{tier.tier}</h2>
                             <div className="tier-line" style={{ background: `linear-gradient(to right, ${tier.tierColor}80, transparent)` }}></div>
@@ -74,11 +143,15 @@ function Sponsors() {
                                     style={{ '--tier-color': tier.tierColor } as React.CSSProperties}
                                 >
                                     <div className="sponsor-category">{sponsor.category}</div>
-                                    <img
-                                        src={sponsor.logo}
-                                        alt={sponsor.name}
-                                        className="sponsor-logo"
-                                    />
+                                    <div style={{ height: '80px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                        <img
+                                            src={sponsor.logo}
+                                            alt={sponsor.name}
+                                            className="sponsor-logo"
+                                            style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }}
+                                            crossOrigin="anonymous"
+                                        />
+                                    </div>
                                 </a>
                             ))}
                         </div>
@@ -90,7 +163,7 @@ function Sponsors() {
                 <div className="cta-content">
                     <h2>Interested in Partnering?</h2>
                     <p>Join us in creating an unforgettable experience for thousands of students and technology enthusiasts.</p>
-                    <a href="/website-avishkar/contact" className="become-sponsor-btn">Partner With Us</a>
+                    <a href="/contact" className="become-sponsor-btn">Partner With Us</a>
                 </div>
             </section>
         </main>

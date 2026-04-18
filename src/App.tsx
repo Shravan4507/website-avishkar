@@ -25,7 +25,6 @@ const Home = lazy(() => import('./pages/home/Home'));
 const Workshops = lazy(() => import('./pages/workshops/Workshops'));
 const Competitions = lazy(() => import('./pages/competitions/Competitions'));
 const Schedule = lazy(() => import('./pages/schedule/Schedule'));
-const Team = lazy(() => import('./pages/team/Team'));
 const Contact = lazy(() => import('./pages/contact/Contact'));
 const Sponsors = lazy(() => import('./pages/sponsors/Sponsors'));
 const ComingSoon = lazy(() => import('./pages/ComingSoon/ComingSoon'));
@@ -190,7 +189,7 @@ const LayoutManager = () => {
                   <Route path="/workshops"   element={<T el={settings.workshops ? <Workshops /> : <ComingSoon pageName="Workshops" />} />} />
                   <Route path="/competitions"element={<T el={settings.competitions ? <Competitions /> : <ComingSoon pageName="Competitions" />} />} />
                   <Route path="/schedule"    element={<T el={settings.schedule ? <Schedule /> : <ComingSoon pageName="Schedule" />} />} />
-                  <Route path="/team"        element={<T el={settings.team ? <Team /> : <ComingSoon pageName="Team" />} />} />
+
                   <Route path="/sponsors"    element={<T el={settings.sponsors ? <Sponsors /> : <ComingSoon pageName="Sponsors" />} />} />
                   <Route path="/privacy"     element={<T el={<Privacy />} />} />
                   <Route path="/terms"       element={<T el={<Terms />} />} />
