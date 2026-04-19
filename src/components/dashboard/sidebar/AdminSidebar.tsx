@@ -52,6 +52,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, setActiveTab, is
 
     // Flagship — Robo-Kshetra (individual events)
     { id: 'alignx_regs',    label: 'AlignX Registrations',    Icon: Cpu, visible: isSuper || hasRole('admin-robo-kshetra') || hasRole('admin-align-x') },
+    { id: 'robomaze_regs',  label: 'RoboMaze Registrations',  Icon: Cpu, visible: isSuper || hasRole('admin-robo-kshetra') || hasRole('admin-robo-maze') },
     { id: 'roborush_regs',  label: 'RoboRush Registrations',  Icon: Cpu, visible: isSuper || hasRole('admin-robo-kshetra') || hasRole('admin-robo-rush') },
 
     // Standard Competitions
@@ -92,9 +93,10 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, setActiveTab, is
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div style={{ width: '45px', height: '45px', borderRadius: '50%', overflow: 'hidden', border: '2px solid rgba(167, 139, 250, 0.3)' }}>
              <img 
-               src={user?.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.email}`} 
+               src={user?.photoURL || `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(user?.email || 'Admin')}&backgroundColor=a78bfa`} 
                alt="User" 
                style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+               onError={(e) => { (e.target as HTMLImageElement).src = `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(adminProfile?.avrAdmId || 'A')}&backgroundColor=a78bfa`; }}
              />
           </div>
           <div>

@@ -28,6 +28,7 @@ async function applyOverrides(items: Competition[]): Promise<Competition[]> {
                     isRegistrationOpen: override.isRegistrationOpen ?? item.isRegistrationOpen,
                     status: override.status ?? item.status,
                     coordinators: override.coordinators ?? item.coordinators,
+                    entryFee: override.entryFee ?? item.entryFee,
                 };
             }
         } catch (e) { /* no override, use static */ }

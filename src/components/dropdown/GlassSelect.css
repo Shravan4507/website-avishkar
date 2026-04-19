@@ -5,6 +5,10 @@
   user-select: none;
 }
 
+.glass-select-wrapper.open {
+  z-index: 9999;
+}
+
 .glass-select-trigger {
   width: 100%;
   padding: 16px;

@@ -33,6 +33,7 @@ function Navbar() {
   const [currentUser, setCurrentUser] = useState<any>(null)
   const [userAvatar, setUserAvatar] = useState<string | null>(null)
   const [userRole, setUserRole] = useState<'user' | 'admin' | null>(null)
+  const [avatarLoadError, setAvatarLoadError] = useState(false)
   const location = useLocation()
 
   useEffect(() => {
@@ -47,6 +48,7 @@ function Navbar() {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         setCurrentUser(user)
+        setAvatarLoadError(false) // reset error state on new auth
         try {
           // ── Pre-Approval Activation: runs on every login until cleared ──
           // Handles the case where a user was pre-approved BEFORE they registered.
@@ -89,22 +91,26 @@ function Navbar() {
           const adminDoc = await getDoc(doc(db, 'admins', user.uid))
           if (adminDoc.exists()) {
             const adminData = adminDoc.data()
-            setUserAvatar(adminData.photoURL || adminData.avatar || user.photoURL)
+            // Use Firestore photo if set, otherwise always use Firebase Auth live photoURL
+            setUserAvatar(adminData.photoURL || adminData.avatar || user.photoURL || null)
             setUserRole('admin')
           } else {
             // Then check user collection
             const userDoc = await getDoc(doc(db, 'user', user.uid))
             if (userDoc.exists()) {
               const userData = userDoc.data()
-              setUserAvatar(userData.photoURL || user.photoURL)
+              // profilePhoto (custom upload) > photoURL from Firestore > Firebase Auth photoURL
+              setUserAvatar(userData.profilePhoto || userData.photoURL || user.photoURL || null)
               setUserRole('user')
             } else {
-              setUserAvatar(user.photoURL)
+              // No Firestore doc yet — use Firebase Auth photo directly
+              setUserAvatar(user.photoURL || null)
               setUserRole(null)
             }
           }
         } catch (err) {
-          setUserAvatar(user.photoURL)
+          // On any Firestore error, fall back to Firebase Auth photo
+          setUserAvatar(user.photoURL || null)
           setUserRole(null)
         }
       } else {
@@ -168,25 +174,22 @@ function Navbar() {
               }}
             >
               {(() => {
-                const finalAvatar = [userAvatar, currentUser.photoURL].find(url => url && url.trim() !== '' && (url.startsWith('http') || url.startsWith('/') || url.startsWith('data:')));
-                
+                // Priority: Firestore override > Firebase Auth photoURL
+                const finalAvatar = !avatarLoadError
+                  ? ([userAvatar, currentUser.photoURL].find(url =>
+                      url && url.trim() !== '' &&
+                      (url.startsWith('http') || url.startsWith('/') || url.startsWith('data:'))
+                    ) || null)
+                  : null;
+
                 if (finalAvatar) {
                   return (
-                    <img 
-                      src={finalAvatar} 
-                      alt="" 
-                      className="navbar__avatar-img" 
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.style.display = 'none';
-                        const parent = target.parentElement;
-                        if (parent && !parent.querySelector('.navbar__avatar-initials')) {
-                          const initials = document.createElement('div');
-                          initials.className = 'navbar__avatar-initials';
-                          initials.innerText = (currentUser.displayName || currentUser.email || 'U').charAt(0).toUpperCase();
-                          parent.appendChild(initials);
-                        }
-                      }}
+                    <img
+                      src={finalAvatar}
+                      alt=""
+                      className="navbar__avatar-img"
+                      referrerPolicy="no-referrer"
+                      onError={() => setAvatarLoadError(true)}
                     />
                   );
                 }

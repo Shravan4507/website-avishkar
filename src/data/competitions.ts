@@ -227,6 +227,43 @@ export const COMPETITIONS_DATA: Competition[] = [
         handle: 'RoboRush'
     },
     {
+        id: 'CMP-26-FLG-RBM-004',
+        code: 'RBM',
+        title: "RoboMaze",
+        subtitle: 'Line Follower Maze',
+        description: 'Design a bot capable of autonomously navigating through a complex maze. Precision and algorithmic efficiency are key to conquering the maze.',
+        category: 'FLG',
+        department: 'Flagship',
+        year: 2026,
+        image: `${import.meta.env.BASE_URL}assets/competitions/robokshetra.webp`,
+        gradient: 'linear-gradient(180deg, #d9ff00, #000)',
+        borderColor: '#d9ff00',
+        schedule: [
+            {
+                date: '2026-04-18',
+                startTime: '10:00',
+                endTime: '13:00',
+                round: 'Round 1'
+            }
+        ],
+        venue: 'Robo Arena',
+        registrationStart: '2026-03-01',
+        registrationEnd: '2026-04-15',
+        isRegistrationOpen: true,
+        entryFee: 499,
+        paymentRequired: true,
+        minTeamSize: 2,
+        maxTeamSize: 4,
+        teamRequired: true,
+        coordinators: [
+            { name: "TBA", phone: "" }
+        ],
+        status: "published",
+        isExhibition: true,
+        slug: 'robo-maze-26',
+        handle: 'RoboMaze'
+    },
+    {
         id: 'CMP-26-BTG-BGMI-001',
         code: 'BGMI',
         title: "BGMI",
@@ -563,7 +600,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         registrationStart: '2026-03-01',
         registrationEnd: '2026-04-15',
         isRegistrationOpen: true,
-        entryFee: 250,
+        entryFee: 400,
         prizePool: '31000',
         paymentRequired: true,
         minTeamSize: 1,
@@ -863,7 +900,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         borderColor: '#A0522D',
         schedule: [
             {
-                date: '2026-04-21',
+                date: '2026-04-23',
                 startTime: '10:00',
                 endTime: '13:00',
                 round: 'Simulation Round'
@@ -880,10 +917,8 @@ export const COMPETITIONS_DATA: Competition[] = [
         maxTeamSize: 2,
         teamRequired: false,
         coordinators: [
-            { name: "Pranav Achrekar", phone: "7058481186" },
-            { name: "Aadesh Bartakke", phone: "8888487529" },
             { name: "Sarvesh Vadgave", phone: "7709594746" },
-            { name: "Neel Mehata", phone: "7741022634" }
+            { name: "Neel Mehta", phone: "7741022634" }
         ],
         rulebook: `${import.meta.env.BASE_URL}assets/rule-books/matlab-madness.pdf`,
         status: "published",
@@ -904,7 +939,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         borderColor: '#d9ff00',
         schedule: [
             {
-                date: '2026-04-21',
+                date: '2026-04-23',
                 startTime: '14:00',
                 endTime: '17:00',
                 round: 'Design Round'
@@ -921,10 +956,8 @@ export const COMPETITIONS_DATA: Competition[] = [
         maxTeamSize: 2,
         teamRequired: false,
         coordinators: [
-            { name: "Saniya Jadhav", phone: "9699281400" },
-            { name: "Aadesh Bartakke", phone: "8888487529" },
             { name: "Sarvesh Vadgave", phone: "7709594746" },
-            { name: "Neel Mehata", phone: "7741022634" }
+            { name: "Neel Mehta", phone: "7741022634" }
         ],
         status: "published",
         slug: 'circuit-sim-26',
@@ -1015,14 +1048,14 @@ export const COMPETITIONS_DATA: Competition[] = [
         subtitle: 'Technical Research Showcase',
         description: 'Showcase your groundbreaking research and technical insights to a panel of expert judges.',
         category: 'GEN',
-        department: 'General',
+        department: 'E&TC',
         year: 2026,
         image: `${import.meta.env.BASE_URL}assets/competitions/paper-presentation.png`,
         gradient: 'linear-gradient(145deg, #A0522D, #000)',
         borderColor: '#A0522D',
         schedule: [
             {
-                date: '2026-04-21',
+                date: '2026-04-23',
                 startTime: '10:00',
                 endTime: '16:00',
                 round: 'Presentation'
@@ -1035,10 +1068,11 @@ export const COMPETITIONS_DATA: Competition[] = [
         entryFee: 200,
         paymentRequired: true,
         minTeamSize: 1,
-        maxTeamSize: 1,
+        maxTeamSize: 2,
         teamRequired: false,
         coordinators: [
-            { name: 'TBA', phone: '' }
+            { name: "Sarvesh Vadgave", phone: "7709594746" },
+            { name: "Neel Mehta", phone: "7741022634" }
         ],
         rulebook: `${import.meta.env.BASE_URL}assets/rule-books/paper-presentation.pdf`,
         status: "published",
@@ -1052,14 +1086,14 @@ export const COMPETITIONS_DATA: Competition[] = [
         subtitle: 'Innovation Exhibition',
         description: 'Showcase your practical skills, creativity, and real-world solutions. Present working or conceptual projects.',
         category: 'GEN',
-        department: 'General',
+        department: 'E&TC',
         year: 2026,
         image: `${import.meta.env.BASE_URL}assets/competitions/project-competition.png`,
         gradient: 'linear-gradient(145deg, #10b981, #000)',
         borderColor: '#10b981',
         schedule: [
             {
-                date: '2026-04-21',
+                date: '2026-04-23',
                 startTime: '09:00',
                 endTime: '17:00',
                 round: 'Live Demo'
@@ -1071,11 +1105,12 @@ export const COMPETITIONS_DATA: Competition[] = [
         isRegistrationOpen: true,
         entryFee: 200,
         paymentRequired: true,
-        minTeamSize: 1,
+        minTeamSize: 2,
         maxTeamSize: 4,
         teamRequired: true,
         coordinators: [
-            { name: 'TBA', phone: '' }
+            { name: "Sarvesh Vadgave", phone: "7709594746" },
+            { name: "Neel Mehta", phone: "7741022634" }
         ],
         rulebook: `${import.meta.env.BASE_URL}assets/rule-books/project-presentation.pdf`,
         status: "published",

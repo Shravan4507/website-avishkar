@@ -67,12 +67,7 @@ const BATTLE_GRID_SUBEVENTS: SubEvent[] = [
   { id: 'battlegrid_amongus', title: 'Among Us',          subtitle: 'Social Deduction',parentTitle: 'Battle Grid', handle: 'Battle-Grid', department: 'Flagship', entryFee: 100, minTeamSize: 1, maxTeamSize: 1, borderColor: '#00bcd4', isFlagship: true },
 ];
 
-const ROBO_KSHETRA_SUBEVENTS: SubEvent[] = [
-  { id: 'robokshetra_alignx',   title: 'AlignX',   subtitle: 'Line Follower',  parentTitle: 'Robo-Kshetra', handle: 'Robo-Kshetra', department: 'Flagship', entryFee: 499, minTeamSize: 2, maxTeamSize: 4, borderColor: '#d9ff00', isFlagship: true },
-  { id: 'robokshetra_roborush', title: 'RoboRush', subtitle: 'Speed Bot Race', parentTitle: 'Robo-Kshetra', handle: 'Robo-Kshetra', department: 'Flagship', entryFee: 499, minTeamSize: 2, maxTeamSize: 4, borderColor: '#d9ff00', isFlagship: true },
-];
-
-const ALL_SUBEVENTS = [...BATTLE_GRID_SUBEVENTS, ...ROBO_KSHETRA_SUBEVENTS];
+const ALL_SUBEVENTS = [...BATTLE_GRID_SUBEVENTS];
 
 /* ═══════════════════════════════════════
    Component
@@ -126,9 +121,6 @@ const ManualRegistration: React.FC<ManualRegistrationProps> = ({ isSuper = false
   const isSubEvent = !!selectedSubEvent;
   // IDs of umbrella competitions and their stand-alone components that should be replaced by sub-events
   const UMBRELLA_IDS = [
-    'CMP-26-FLG-ROBO-MAIN', // Robo-Kshetra '26
-    'CMP-26-FLG-ALX-002',   // AlignX stand-alone
-    'CMP-26-FLG-RBR-003',   // RoboRush stand-alone
     'CMP-26-FLG-BAT-MAIN',  // Battle Grid stand-alone
     'CMP-26-BTG-BGMI-001',  // BGMI
     'CMP-26-BTG-FF-002',    // Free Fire
@@ -138,6 +130,7 @@ const ManualRegistration: React.FC<ManualRegistrationProps> = ({ isSuper = false
   ];
 
   const allowedHandles = new Set<string>();
+  const fullyAllowedHandles = new Set<string>();
   const allowedEventTitles = new Set<string>();
   
   if (!isSuper && adminProfile?.roleLevel) {
@@ -147,11 +140,12 @@ const ManualRegistration: React.FC<ManualRegistrationProps> = ({ isSuper = false
       'admin-bgmi': { handle: 'Battle-Grid', eventTitle: 'BGMI' },
       'admin-freefire': { handle: 'Battle-Grid', eventTitle: 'Free Fire' },
       'admin-codm': { handle: 'Battle-Grid', eventTitle: 'CODM' },
-      'admin-sf4': { handle: 'Battle-Grid', eventTitle: 'The Duel' },
-      'admin-amongus': { handle: 'Battle-Grid', eventTitle: 'Social Deduction' },
+      'admin-sf4': { handle: 'Battle-Grid', eventTitle: 'Shadow Fight 4' },
+      'admin-amongus': { handle: 'Battle-Grid', eventTitle: 'Among Us' },
       'admin-robo-kshetra': { handle: 'Robo-Kshetra' },
-      'admin-align-x': { handle: 'Robo-Kshetra', eventTitle: 'AlignX' },
-      'admin-robo-rush': { handle: 'Robo-Kshetra', eventTitle: 'RoboRush' },
+      'admin-align-x': { handle: 'AlignX' },
+      'admin-robo-rush': { handle: 'RoboRush' },
+      'admin-robo-maze': { handle: 'RoboMaze' },
       'admin-forge-x': { handle: 'Forge-Lead', eventTitle: 'Forge-X' },
       'admin-algo-bid': { handle: 'Algo-Master', eventTitle: 'AlgoBid' },
       'admin-code-ladder': { handle: 'Code-Climber', eventTitle: 'Code Ladder' },
@@ -176,12 +170,13 @@ const ManualRegistration: React.FC<ManualRegistrationProps> = ({ isSuper = false
       'department_admin-computer-engineering': ['admin-forge-x', 'admin-algo-bid'],
       'department_admin-information-technology': ['admin-sf4', 'admin-codm', 'admin-code-ladder'],
       'department_admin-ai-ds': ['admin-ipl-auction'],
-      'department_admin-ai-ml': ['admin-dev-clash', 'admin-vibe-sprint', 'admin-code-relay'],
+      'department_admin-ai-ml': ['admin-dev-clash', 'admin-vibe-sprint', 'admin-code-relay', 'admin-bgmi'],
       'department_admin-civil-engineering': ['admin-bridge-nova'],
       'department_admin-electrical-engineering': ['admin-poster', 'admin-spark-tank', 'admin-freefire'],
-      'department_admin-e-tc-engineering': ['admin-matlab', 'admin-circuit-sim'],
+      'department_admin-e-tc-engineering': ['admin-matlab', 'admin-circuit-sim', 'admin-paper-pres', 'admin-project-comp'],
       'department_admin-ece': ['admin-blind-code', 'admin-circle-cricket', 'admin-amongus'],
       'department_admin-mechanical-engineering': ['admin-contraptions'],
+      'department_admin-robotics-and-automation': ['admin-align-x', 'admin-robo-rush', 'admin-robo-maze'],
     };
 
     let expandedRoles: string[] = [];
@@ -198,6 +193,8 @@ const ManualRegistration: React.FC<ManualRegistrationProps> = ({ isSuper = false
         allowedHandles.add(mapping.handle);
         if (mapping.eventTitle) {
           allowedEventTitles.add(mapping.eventTitle.toUpperCase());
+        } else {
+          fullyAllowedHandles.add(mapping.handle);
         }
       }
     });
@@ -209,9 +206,15 @@ const ManualRegistration: React.FC<ManualRegistrationProps> = ({ isSuper = false
     if (UMBRELLA_IDS.includes(c.id)) return false; // replaced by sub-events
     
     if (!isSuper) {
-      const upperTitle = (c.title || '').toUpperCase().trim();
-      if (!allowedHandles.has(c.handle || '') && !allowedHandles.has(c.code || '') && !allowedEventTitles.has(upperTitle)) {
-        return false;
+      const matchHandle = c.handle && allowedHandles.has(c.handle) ? c.handle : (c.code && allowedHandles.has(c.code) ? c.code : null);
+      if (!matchHandle) return false;
+      
+      if (!fullyAllowedHandles.has(matchHandle)) {
+        const upperTitle = (c.title || '').toUpperCase().trim();
+        const upperSubtitle = (c.subtitle || '').toUpperCase().trim();
+        if (!allowedEventTitles.has(upperTitle) && !allowedEventTitles.has(upperSubtitle)) {
+          return false;
+        }
       }
     }
 
@@ -224,9 +227,15 @@ const ManualRegistration: React.FC<ManualRegistrationProps> = ({ isSuper = false
   /* ── Filtered sub-events ── */
   const filteredSubEvents = ALL_SUBEVENTS.filter(se => {
     if (!isSuper) {
-      const upperTitle = (se.title || '').toUpperCase().trim();
-      if (!allowedHandles.has(se.handle || '') && !allowedEventTitles.has(upperTitle)) {
-        return false;
+      const matchHandle = se.handle && allowedHandles.has(se.handle) ? se.handle : null;
+      if (!matchHandle) return false;
+      
+      if (!fullyAllowedHandles.has(matchHandle)) {
+        const upperTitle = (se.title || '').toUpperCase().trim();
+        const upperSubtitle = (se.subtitle || '').toUpperCase().trim();
+        if (!allowedEventTitles.has(upperTitle) && !allowedEventTitles.has(upperSubtitle)) {
+          return false;
+        }
       }
     }
 

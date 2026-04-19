@@ -27,7 +27,7 @@ const technicalClubs: ChromaItem[] = [
         description: "ZCOER's premier Astronomy and Space Exploration club. Discover the cosmos, participate in stargazing sessions, and dive into the future of aerospace technology.",
         image: '/assets/logos/OrbitX/Logo-OrbitX.webp',
         location: 'ZCOER Campus',
-        date: '23–25 April',
+        date: '23–24 April',
         ctaText: 'Tap to Explore',
         borderColor: '#d9ff00',
         gradient: 'linear-gradient(135deg, rgba(217, 255, 0, 0.05), rgba(0, 0, 0, 0.95))',

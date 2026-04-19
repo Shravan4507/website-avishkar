@@ -14,11 +14,12 @@ import { generateTxnId } from '../../utils/easebuzz';
 import { fetchProblemStatements, type ProblemStatement } from '../../utils/storageUtils';
 import { 
     Check, Users, ArrowRight, ArrowLeft, Loader2, 
-    User, Mail, Phone, Building2, Fingerprint, Search, ShieldAlert, Copy
+    User, Mail, Phone, Building2, Fingerprint, Search, ShieldAlert, Copy, AlertTriangle
 } from 'lucide-react';
 import { useRegistrationGuard } from '../../hooks/useRegistrationGuard';
 import PaymentCheckout from '../../components/payment/PaymentCheckout';
 import { usePaymentCheckout } from '../../hooks/usePaymentCheckout';
+import { useScheduleConflict } from '../../hooks/useScheduleConflict';
 
 import './HackathonRegistration.css';
 
@@ -131,6 +132,7 @@ const HackathonRegistration: React.FC = () => {
 
     const [searchParams] = useSearchParams();
     const { isRegistered, eventName, loading: guardLoading } = useRegistrationGuard();
+    const scheduleOverlap = useScheduleConflict('param-x-26');
     const toast = useToast();
 
     useEffect(() => {
@@ -162,6 +164,7 @@ const HackathonRegistration: React.FC = () => {
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [lookupLoading, setLookupLoading] = useState<Record<string, boolean>>({});
     const [lookupFailed, setLookupFailed] = useState<Record<string, boolean>>({});
+    const [activeFee, setActiveFee] = useState(500);
 
 
 
@@ -233,6 +236,15 @@ const HackathonRegistration: React.FC = () => {
                             leaderSex: data.sex || '',
                         }));
 
+                    }
+                }
+
+                // Fetch CMS override for entry fee
+                const overrideSnap = await getDoc(doc(db, 'events_content', 'param-x-26'));
+                if (overrideSnap.exists()) {
+                    const data = overrideSnap.data();
+                    if (data.entryFee !== undefined) {
+                        setActiveFee(Number(data.entryFee));
                     }
                 }
             } catch (err) {
@@ -404,7 +416,7 @@ const HackathonRegistration: React.FC = () => {
             }
 
             const txnid = generateTxnId("HACK");
-            const amount = "500.00";
+            const amount = activeFee.toFixed(2);
 
             const pendingPayload = {
                 txnId: txnid,
@@ -414,7 +426,7 @@ const HackathonRegistration: React.FC = () => {
                 competitionId: formData.psId,
                 competitionHandle: 'ParamX-Hack',
                 eventName: `Param-X '26 (PS: ${formData.psId})`,
-                amount: 500,
+                amount: activeFee,
                 userId: user?.uid || '',
                 userEmail: formData.leaderEmail,
                 userName: formData.leaderName,
@@ -462,9 +474,9 @@ const HackathonRegistration: React.FC = () => {
                         formData.member3AvrId,
                         formData.member4AvrId
                     ],
-                    paymentRequired: true,
+                    paymentRequired: activeFee > 0,
                     paymentStatus: 'paid',
-                    amountPaid: 500,
+                    amountPaid: activeFee,
                     status: 'confirmed',
                     metadata: {
                         createdAt: null
@@ -474,7 +486,7 @@ const HackathonRegistration: React.FC = () => {
 
             setCheckoutOrderDetails({
                 eventName: `Param-X '26 (PS: ${formData.psId})`,
-                amount: 500,
+                amount: activeFee,
                 participantName: formData.leaderName,
                 avrId: formData.leaderAvrId
             });
@@ -547,6 +559,18 @@ const HackathonRegistration: React.FC = () => {
                                 </button>
                             </div>
                         </div>
+
+                        {scheduleOverlap.hasConflict && (
+                            <div className="protocol-banner" style={{ borderLeft: '4px solid #ff9800', background: 'rgba(255, 152, 0, 0.1)', marginTop: '1rem' }}>
+                                <div className="protocol-icon"><AlertTriangle size={20} color="#ff9800" /></div>
+                                <div className="protocol-content">
+                                    <h3 style={{ color: '#ff9800' }}>Schedule Conflict Detected</h3>
+                                    <p style={{ color: 'rgba(255,255,255,0.8)' }}>
+                                        You are already registered for <strong>{scheduleOverlap.conflictingEvents.join(', ')}</strong>, which overlaps with this event's schedule. You may proceed, but you are responsible for managing your time.
+                                    </p>
+                                </div>
+                            </div>
+                        )}
                         
                         <div className="form-section">
                             <label>Problem Statement*</label>
@@ -619,11 +643,11 @@ const HackathonRegistration: React.FC = () => {
                             <div className="payment-summary">
                                 <div className="summary-row">
                                     <span>Registration Fee</span>
-                                    <span>₹500.00</span>
+                                    <span>₹{activeFee.toFixed(2)}</span>
                                 </div>
                                 <div className="summary-row total">
                                     <span>Total Amount to Pay</span>
-                                    <span>₹500.00</span>
+                                    <span>₹{activeFee.toFixed(2)}</span>
                                 </div>
                                 <p className="payment-note">Secure payment via Easebuzz Gateway</p>
                             </div>

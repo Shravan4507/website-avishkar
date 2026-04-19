@@ -350,21 +350,23 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({ forcedHandle,
       'Battle-Grid':    { ids: ['battlegrid_', 'CMP-26-BTG', 'CMP-26-FLG-BG'], depts: ['Battle Grid'], cats: ['BTG'] },
       'Robo-Kshetra':   { ids: ['robokshetra_', 'CMP-26-FLG-ROBO', 'CMP-26-FLG-ALX', 'CMP-26-FLG-RM', 'CMP-26-FLG-RR'], depts: ['Robo-Kshetra', 'Flagship'], cats: ['FLG'] },
       'ParamX-Hack':    { ids: ['CMP-26-FLG-PRX'], depts: ['Flagship'], cats: ['FLG'] },
-      'Forge-Lead':     { ids: ['CMP-26-GEN-FGX'], depts: ['Forge-X'], cats: ['GEN'] },
-      'Algo-Master':    { ids: ['CMP-26-GEN-ALB'], depts: ['AlgoBid'], cats: ['GEN'] },
-      'Code-Climber':   { ids: ['CMP-26-GEN-CDL'], depts: ['Code Ladder'], cats: ['GEN'] },
-      'IPL-Auctioneer': { ids: ['CMP-26-GEN-IPL'], depts: ['IPL Auction'], cats: ['GEN'] },
-      'Blind-Coder':    { ids: ['CMP-26-GEN-BLC'], depts: ['Blind Code'], cats: ['GEN'] },
-      'Dev-Striker':    { ids: ['CMP-26-GEN-DVC'], depts: ['DevClash'], cats: ['GEN'] },
-      'Vibe-Lead':      { ids: ['CMP-26-GEN-VBS'], depts: ['Vibe Sprint'], cats: ['GEN'] },
-      'Relay-Coder':    { ids: ['CMP-26-GEN-CRL'], depts: ['Code Relay'], cats: ['GEN'] },
-      'Arch-Nova':      { ids: ['CMP-26-GEN-BNV'], depts: ['Bridge Nova'], cats: ['GEN'] },
-      'Paper-Lead':     { ids: ['CMP-26-DEP-PST'], depts: ['Poster'], cats: ['DEP'] },
-      'Spark-Lead':     { ids: ['CMP-26-DEP-SPK'], depts: ['Spark Tank'], cats: ['DEP'] },
-      'Mat-Master':     { ids: ['CMP-26-DEP-MTL'], depts: ['Matlab'], cats: ['DEP'] },
-      'Circuit-Ninja':  { ids: ['CMP-26-DEP-CKT'], depts: ['Circuit'], cats: ['DEP'] },
-      'Master-Builder': { ids: ['CMP-26-DEP-CNT'], depts: ['Contraptions'], cats: ['DEP'] },
-      'Cricket-Lead':   { ids: ['CMP-26-DEP-CCK'], depts: ['Circle Cricket'], cats: ['DEP'] },
+
+      // Department-specific handles — each maps to exactly one competition
+      'Forge-Lead':     { ids: ['CMP-26-CE-FGX', 'CMP-26-GEN-FGX'], depts: ['Computer Engineering', 'Forge-X'], cats: ['DEP', 'GEN'] },
+      'Algo-Master':    { ids: ['CMP-26-CE-ALB', 'CMP-26-GEN-ALB'], depts: ['Computer Engineering', 'AlgoBid'], cats: ['DEP', 'GEN'] },
+      'Code-Climber':   { ids: ['CMP-26-IT-CDL', 'CMP-26-GEN-CDL'], depts: ['Information Technology', 'Code Ladder'], cats: ['DEP', 'GEN'] },
+      'IPL-Auctioneer': { ids: ['CMP-26-ADS-IPL', 'CMP-26-GEN-IPL'], depts: ['AI&DS', 'IPL Auction'], cats: ['DEP', 'GEN'] },
+      'Blind-Coder':    { ids: ['CMP-26-ECE-BLC', 'CMP-26-GEN-BLC'], depts: ['ECE', 'Blind Code'], cats: ['DEP', 'GEN'] },
+      'Dev-Striker':    { ids: ['CMP-26-AIML-DVC', 'CMP-26-GEN-DVC'], depts: ['AI&ML', 'DevClash'], cats: ['DEP', 'GEN'] },
+      'Vibe-Lead':      { ids: ['CMP-26-AIML-VBS', 'CMP-26-GEN-VBS'], depts: ['AI&ML', 'Vibe Sprint'], cats: ['DEP', 'GEN'] },
+      'Relay-Coder':    { ids: ['CMP-26-AIML-CRL', 'CMP-26-GEN-CRL'], depts: ['AI&ML', 'Code Relay'], cats: ['DEP', 'GEN'] },
+      'Arch-Nova':      { ids: ['CMP-26-CIVIL-BNV', 'CMP-26-GEN-BNV'], depts: ['Civil Engineering', 'Bridge Nova'], cats: ['DEP', 'GEN'] },
+      'Paper-Lead':     { ids: ['CMP-26-EE-PST', 'CMP-26-DEP-PST'], depts: ['Electrical', 'Electrical Engineering', 'Poster'], cats: ['DEP'] },
+      'Spark-Lead':     { ids: ['CMP-26-EE-SPK', 'CMP-26-DEP-SPK'], depts: ['Electrical', 'Electrical Engineering', 'Spark Tank'], cats: ['DEP'] },
+      'Mat-Master':     { ids: ['CMP-26-ETC-MTL', 'CMP-26-DEP-MTL'], depts: ['E&TC', 'E&TC Engineering', 'Matlab'], cats: ['DEP'] },
+      'Circuit-Ninja':  { ids: ['CMP-26-ETC-CKT', 'CMP-26-DEP-CKT'], depts: ['E&TC', 'E&TC Engineering', 'Circuit'], cats: ['DEP'] },
+      'Master-Builder': { ids: ['CMP-26-ME-CNT', 'CMP-26-DEP-CNT'], depts: ['Mechanical', 'Mechanical Engineering', 'Contraptions'], cats: ['DEP'] },
+      'Cricket-Lead':   { ids: ['CMP-26-ECE-CCK', 'CMP-26-DEP-CCK'], depts: ['ECE', 'Circle Cricket'], cats: ['DEP'] },
       'Research-Lead':  { ids: ['CMP-26-DEP-PPR'], depts: ['Paper Presentation'], cats: ['DEP'] },
       'Project-Master': { ids: ['CMP-26-DEP-PRJ'], depts: ['Project Competition'], cats: ['DEP'] },
     };
@@ -380,39 +382,46 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({ forcedHandle,
           if (signals && r.competitionId) {
             if (signals.ids.some(prefix => r.competitionId.startsWith(prefix))) return true;
           }
-          // Fallback 2: department match (only for unique handles, skip generic ones)
-          if (signals && r.department && signals.depts.includes(r.department)) {
-            // For flagship events sharing dept "Flagship", narrow by eventName
-            if (r.department === 'Flagship') {
-              if (handle === 'ParamX-Hack' && (r.eventName || '').includes('Param-X')) return true;
-              if (handle === 'Robo-Kshetra' && (r.eventName || '').toLowerCase().includes('robo')) return true;
-              if (handle === 'Battle-Grid' && (r.eventName || '').toLowerCase().includes('battle')) return true;
-              return false;
+          // Fallback 2: department match
+          if (signals && r.department) {
+            // Normalize both strings before comparison
+            const rDeptNorm = r.department.toLowerCase().replace(/[^a-z0-9]/g, '');
+            if (signals.depts.some(d => d.toLowerCase().replace(/[^a-z0-9]/g, '') === rDeptNorm)) {
+              // For flagship events sharing dept "Flagship", narrow by eventName
+              if (r.department === 'Flagship') {
+                if (handle === 'ParamX-Hack' && (r.eventName || '').includes('Param-X')) return true;
+                if (handle === 'Robo-Kshetra' && (r.eventName || '').toLowerCase().includes('robo')) return true;
+                if (handle === 'Battle-Grid' && (r.eventName || '').toLowerCase().includes('battle')) return true;
+                return false;
+              }
+              return true;
             }
-            return true;
+          }
+          // Fallback 3: eventName contains the handle keyword (e.g. 'Forge-Lead' in eventName)
+          if (r.eventName) {
+            const evtNorm = r.eventName.toLowerCase().replace(/[^a-z0-9]/g, '');
+            const handleNorm = handle.toLowerCase().replace(/[^a-z0-9]/g, '');
+            if (evtNorm.includes(handleNorm)) return true;
           }
           return false;
         });
       });
     }
 
-    // ── Sub-event filtering (e.g. BGMI within Battle-Grid) ──
+    // ── Sub-event filtering (e.g. BGMI within Battle-Grid) ── case-insensitive
     if (eventTitleFilter) {
       const titles = Array.isArray(eventTitleFilter) ? eventTitleFilter : [eventTitleFilter];
-      const validIds = titles.map(t => {
-        const term = t.toLowerCase();
-        const idMap: Record<string, string> = {
-           'bgmi': 'bgmi', 'free fire': 'freefire',
-           'codm': 'call of duty (mobile)', 'call of duty': 'call of duty (mobile)',
-           'shadow fight 4': 'shadow-fight 4', 'sf4': 'shadow-fight 4',
-           'among us': 'among us',
-           'alignx': 'alignx', 'robomaze': 'robomaze', 'roborush': 'roborush'
-        };
-        return idMap[term] || term;
-      });
+      const normalizedTitles = titles.map(t => t.toLowerCase().replace(/[^a-z0-9]/g, ''));
+      const UMBRELLA_HANDLES = ['Battle-Grid', 'Robo-Kshetra'];
+      
       result = result.filter(r => {
-        const evt = (r.eventName || (r as any).eventTitle || '').toLowerCase();
-        return validIds.some(vId => evt.includes(vId));
+        // If the registration is NOT under a known umbrella handle, it implicitly belongs to the core handle rules
+        if (r.competitionHandle && !UMBRELLA_HANDLES.includes(r.competitionHandle)) {
+          return true;
+        }
+        
+        const evt = ((r.eventName || (r as any).eventTitle || '')).toLowerCase().replace(/[^a-z0-9]/g, '');
+        return normalizedTitles.some(t => evt.includes(t));
       });
     }
 
@@ -877,8 +886,17 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({ forcedHandle,
                     </div>
                   </td>
                   <td className="td-avr">{reg.avrId}</td>
-                  <td className="td-event">{reg.eventName}</td>
-                  <td className="td-dept">{reg.department || '—'}</td>
+                  <td className="td-event">
+                    {reg.eventName?.toUpperCase() === 'ALIGNX' ? 'AlignX' : 
+                     reg.eventName?.toUpperCase() === 'ROBORUSH' ? 'RoboRush' : 
+                     reg.eventName?.toUpperCase() === 'ROBOMAZE' ? 'RoboMaze' : 
+                     reg.eventName}
+                  </td>
+                  <td className="td-dept">
+                    {(reg.competitionHandle === 'Robo-Kshetra' || reg.department === 'Robo-Kshetra' || reg.eventName?.toUpperCase() === 'ALIGNX' || reg.eventName?.toUpperCase() === 'ROBORUSH' || reg.eventName?.toUpperCase() === 'ROBOMAZE') 
+                     ? 'Flagship' 
+                     : (reg.department || '—')}
+                  </td>
                   <td className="td-amount">
                     {reg.amountPaid > 0 ? `₹${reg.amountPaid}` : '—'}
                   </td>
@@ -993,7 +1011,10 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({ forcedHandle,
               <div className="modal-section">
                 <div className="modal-section-title"><CreditCard size={15} /> Payment & Event</div>
                 <div className="modal-grid">
-                  <DetailRow label="Event" value={detailReg.eventName} />
+                  <DetailRow label="Event" value={detailReg.eventName?.toUpperCase() === 'ALIGNX' ? 'AlignX' : 
+                                                 detailReg.eventName?.toUpperCase() === 'ROBORUSH' ? 'RoboRush' : 
+                                                 detailReg.eventName?.toUpperCase() === 'ROBOMAZE' ? 'RoboMaze' : 
+                                                 detailReg.eventName} />
                   <DetailRow label="Category" value={detailReg.category} />
                   <DetailRow label="Status" value={detailReg.paymentStatus || 'free'} />
                   <DetailRow label="Amount" value={detailReg.amountPaid ? `₹${detailReg.amountPaid}` : '₹0'} />

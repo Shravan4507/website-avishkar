@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthState } from 'react-firebase-hooks/auth';
-import { auth } from '../../firebase/firebase';
+import { auth, db } from '../../firebase/firebase';
+import { doc, getDoc } from 'firebase/firestore';
 import { useToast } from '../../components/toast/Toast';
 import SEO from '../../components/seo/SEO';
 import ChromaGrid, { type ChromaItem } from '../../components/chroma-grid/ChromaGrid';
@@ -35,6 +36,22 @@ const BattleGrid: React.FC = () => {
     const toast = useToast();
     const { isRegistered, eventName } = useRegistrationGuard();
     const [showRulebookDropdown, setShowRulebookDropdown] = useState(false);
+    const [gameFeeOverrides, setGameFeeOverrides] = useState<Record<string, number>>({});
+
+    useEffect(() => {
+        const fetchFees = async () => {
+            try {
+                const snap = await getDoc(doc(db, 'events_content', 'battle-grid-26'));
+                if (snap.exists()) {
+                    const data = snap.data();
+                    if (data.gameFees && typeof data.gameFees === 'object') {
+                        setGameFeeOverrides(data.gameFees);
+                    }
+                }
+            } catch (e) { /* silent */ }
+        };
+        fetchFees();
+    }, []);
 
 
     return (
@@ -181,7 +198,7 @@ const BattleGrid: React.FC = () => {
                             title: g.label,
                             subtitle: g.tagline,
                             image: g.image,
-                            entryFee: g.fee,
+                            entryFee: gameFeeOverrides[g.id] !== undefined ? gameFeeOverrides[g.id] : g.fee,
                             comingSoon: (g as any).comingSoon,
                             isFlagship: true,
                             borderColor: g.color,

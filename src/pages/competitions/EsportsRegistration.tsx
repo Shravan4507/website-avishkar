@@ -29,6 +29,7 @@ import {
     Hash
 } from 'lucide-react';
 import { useRegistrationGuard } from '../../hooks/useRegistrationGuard';
+import { useScheduleConflict } from '../../hooks/useScheduleConflict';
 import { generateTxnId } from '../../utils/easebuzz';
 
 import PaymentCheckout from '../../components/payment/PaymentCheckout';
@@ -39,7 +40,7 @@ import './EsportsRegistration.css';
 const GAMES = [
     { id: 'bgmi', label: 'BGMI', tagline: 'Grid-Warrior Mobile (4+1 Squad)', prize: '₹50,000', fee: 0, type: 'TEAM', members: 5, platform: 'Mobile', color: '#9af000', image: `${import.meta.env.BASE_URL}assets/esports/bgmi.webp`, rulebook: `${import.meta.env.BASE_URL}assets/rule-books/bgmi.pdf`, coordinator: 'Rohit Bayas', contactNumber: '9322708124', coordinator2: 'Omkar Wadekar', contactNumber2: '7378503893' },
     { id: 'freefire', label: 'FREE FIRE', tagline: 'Garena Battle-Royale (4-Player Squad)', prize: '₹6,000', fee: 250, type: 'TEAM', members: 4, platform: 'Mobile', color: '#e91e63', image: `${import.meta.env.BASE_URL}assets/esports/freefire.webp`, rulebook: `${import.meta.env.BASE_URL}assets/rule-books/free-fire.pdf`, coordinator: 'Rohit Chavan', contactNumber: '7823056055' },
-    { id: 'codm', label: 'CALL OF DUTY (MOBILE)', tagline: 'Tactical 5v5 Combat', prize: '₹16,000', fee: 400, type: 'TEAM', members: 5, platform: 'Mobile', color: '#4caf50', image: `${import.meta.env.BASE_URL}assets/esports/codm.webp`, rulebook: `${import.meta.env.BASE_URL}assets/rule-books/call-of-duty.pdf`, coordinator: 'Vaibhav Bandgar', contactNumber: '9730906103' },
+    { id: 'codm', label: 'CALL OF DUTY (MOBILE)', tagline: 'Tactical 5v5 Combat', prize: '₹16,000', fee: 400, type: 'TEAM', members: 5, platform: 'Mobile', color: '#4caf50', image: `${import.meta.env.BASE_URL}assets/codm.webp`, rulebook: `${import.meta.env.BASE_URL}assets/rule-books/call-of-duty.pdf`, coordinator: 'Vaibhav Bandgar', contactNumber: '9730906103' },
     { id: 'sf4', label: 'SHADOW-FIGHT 4', tagline: 'Arena 1v1 Combat', prize: '₹8,000', fee: 150, type: 'SOLO', members: 1, platform: 'Mobile', color: '#ffeb3b', image: `${import.meta.env.BASE_URL}assets/esports/sf4.webp`, rulebook: `${import.meta.env.BASE_URL}assets/rule-books/shadow-fight-4.pdf`, coordinator: 'Pranav Kulkarni', contactNumber: '9423162724' },
     { id: 'amongus', label: 'AMONG US', tagline: 'Social Deduction', prize: 'TBD', fee: 100, type: 'SOLO', members: 1, platform: 'Mobile', color: '#00bcd4', image: `${import.meta.env.BASE_URL}assets/esports/amongus.webp`, coordinator: 'Mrunali Kolte', contactNumber: '9067101314', rulebook: `${import.meta.env.BASE_URL}assets/rule-books/among-us.pdf`, coordinator2: 'Shreya Kadam', contactNumber2: '9511659631' },
 ] as const;
@@ -58,6 +59,9 @@ const EsportsRegistration: React.FC = () => {
     const [submitting, setSubmitting] = useState(false);
     const [success, setSuccess] = useState(false);
     const [ticketId, setTicketId] = useState('');
+
+    const scheduleOverlap = useScheduleConflict(selectedGame ? `battlegrid_${selectedGame}` : null);
+    
     const paymentCheckout = usePaymentCheckout();
     const [checkoutOrderDetails, setCheckoutOrderDetails] = useState<{ eventName: string; amount: number; participantName: string; avrId: string } | null>(null);
     const [showPreview, setShowPreview] = useState(false);
@@ -67,6 +71,9 @@ const EsportsRegistration: React.FC = () => {
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     const activeGame = GAMES.find(g => g.id === selectedGame);
+    // Dynamic per-game fee override from CMS — overrides static GAMES.fee
+    const [gameFeeOverrides, setGameFeeOverrides] = useState<Record<string, number>>({});
+    const activeFee = gameFeeOverrides[selectedGame] !== undefined ? gameFeeOverrides[selectedGame] : (activeGame?.fee ?? 0);
 
     // Build flat form data keys for up to 5 members
     const [formData, setFormData] = useState<Record<string, string>>({
@@ -120,6 +127,20 @@ const EsportsRegistration: React.FC = () => {
             }
         };
         loadProfile();
+
+        // Fetch per-game fee overrides from CMS
+        const fetchFees = async () => {
+            try {
+                const snap = await getDoc(doc(db, 'events_content', 'battle-grid-26'));
+                if (snap.exists()) {
+                    const data = snap.data();
+                    if (data.gameFees && typeof data.gameFees === 'object') {
+                        setGameFeeOverrides(data.gameFees);
+                    }
+                }
+            } catch (e) { /* silent */ }
+        };
+        fetchFees();
     }, [user, selectedGame, navigate]);
 
     // --- AVR Input with auto-format ---
@@ -375,7 +396,7 @@ const EsportsRegistration: React.FC = () => {
                 competitionHandle: 'Battle-Grid',
                 userAVR: formData.leaderAvrId || '',
                 allAvrIds,
-                amount: activeGame.fee,
+                amount: activeFee,
                 status: 'pending',
                 finalPayload: {
                     id: txnid,
@@ -396,7 +417,7 @@ const EsportsRegistration: React.FC = () => {
                     allAvrIds,
                     paymentRequired: true,
                     paymentStatus: 'paid',
-                    amountPaid: activeGame.fee,
+                    amountPaid: activeFee,
                     transactionId: txnid,
                     paymentMode: 'online',
                     gameId: activeGame.id,
@@ -410,7 +431,7 @@ const EsportsRegistration: React.FC = () => {
                 }
             };
             
-            if (activeGame.fee === 0) {
+            if (activeFee === 0) {
                 // Free Event bypass
                 pendingPayload.finalPayload.paymentRequired = false;
                 pendingPayload.finalPayload.paymentStatus = 'free';
@@ -429,14 +450,14 @@ const EsportsRegistration: React.FC = () => {
 
             setCheckoutOrderDetails({
                 eventName: `Battle Grid: ${activeGame.label}`,
-                amount: activeGame.fee,
+                amount: activeFee,
                 participantName: formData.leaderName || user.displayName || 'Participant',
                 avrId: formData.leaderAvrId
             });
 
             await paymentCheckout.initiatePayment({
                 txnid,
-                amount: activeGame.fee.toFixed(2),
+                amount: activeFee.toFixed(2),
                 productinfo: `BattleGrid: ${activeGame.label}`,
                 firstname: formData.leaderName || user.displayName || "Participant",
                 email: formData.leaderEmail || user.email || '',
@@ -571,6 +592,18 @@ const EsportsRegistration: React.FC = () => {
                             </button>
                         </div>
                     </div>
+
+                    {scheduleOverlap.hasConflict && (
+                        <div className="es-protocol-banner" style={{ borderLeft: '4px solid #ff9800', background: 'rgba(255, 152, 0, 0.1)', marginTop: '1rem' }}>
+                            <div className="es-protocol-icon"><AlertTriangle size={20} color="#ff9800" /></div>
+                            <div className="es-protocol-content">
+                                <h3 style={{ color: '#ff9800' }}>Schedule Conflict Detected</h3>
+                                <p style={{ color: 'rgba(255,255,255,0.8)' }}>
+                                    You are already registered for <strong>{scheduleOverlap.conflictingEvents.join(', ')}</strong>, which overlaps with this event's schedule. You may proceed, but you must manage your own schedule.
+                                </p>
+                            </div>
+                        </div>
+                    )}
 
                     <p className="es-form-hint">Ensure all members have created an account before proceeding with registration.</p>
 

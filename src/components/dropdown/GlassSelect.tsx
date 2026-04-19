@@ -70,7 +70,7 @@ const GlassSelect: React.FC<GlassSelectProps> = ({
 
   return (
     <div 
-      className={`glass-select-wrapper ${className} ${disabled ? 'disabled' : ''}`} 
+      className={`glass-select-wrapper ${className} ${disabled ? 'disabled' : ''} ${isOpen ? 'open' : ''}`} 
       style={style} 
       ref={dropdownRef}
     >

@@ -16,6 +16,7 @@ import { useRegistrationGuard } from '../../hooks/useRegistrationGuard';
 import { generateTxnId } from '../../utils/easebuzz';
 import './Registration.css';
 import { reportError, withRetry } from '../../utils/errorReport';
+import { useScheduleConflict } from '../../hooks/useScheduleConflict';
 import PaymentCheckout from '../../components/payment/PaymentCheckout';
 import { usePaymentCheckout } from '../../hooks/usePaymentCheckout';
 
@@ -44,6 +45,7 @@ const Registration: React.FC = () => {
   const [lookupFailed, setLookupFailed] = useState<Record<number, boolean>>({});
 
   const { isRegistered, eventName: registeredEventName } = useRegistrationGuard();
+  const scheduleOverlap = useScheduleConflict(competition?.id || competition?.slug || '');
 
   const isSubmittingRef = useRef(false);
   const paymentCheckout = usePaymentCheckout();
@@ -99,6 +101,20 @@ const Registration: React.FC = () => {
         }
 
         if (foundComp) {
+          // Merge CMS overrides
+          try {
+            const overrideSnap = await getDoc(doc(db, 'events_content', foundComp.slug || foundComp.id));
+            if (overrideSnap.exists()) {
+              const overrideData = overrideSnap.data();
+              foundComp = {
+                ...foundComp,
+                ...overrideData,
+                // Ensure specific numeric fields stay numeric
+                entryFee: overrideData.entryFee !== undefined ? Number(overrideData.entryFee) : foundComp.entryFee
+              };
+            }
+          } catch (e) { /* ignore */ }
+
           setCompetition(foundComp);
           
           // 3. Initialize Squad Slates if Team Event
@@ -646,6 +662,19 @@ const Registration: React.FC = () => {
             </div>
           </div>
 
+          {scheduleOverlap.hasConflict && (
+              <div className="scheduling-notice-box" style={{ background: 'rgba(255, 152, 0, 0.1)', border: '1px solid rgba(255, 152, 0, 0.3)', marginTop: '1rem', color: '#fff' }}>
+                  <div className="notice-icon">
+                      <AlertTriangle size={24} color="#ff9800" />
+                  </div>
+                  <div className="notice-text">
+                      <h4 style={{ color: '#ff9800' }}>Schedule Conflict Detected</h4>
+                      <p>
+                          You are already registered for <strong>{scheduleOverlap.conflictingEvents.join(', ')}</strong>, which overlaps with this event's schedule. You may still proceed.
+                      </p>
+                  </div>
+              </div>
+          )}
 
           {userData && (
             <div className="user-prefill-card">

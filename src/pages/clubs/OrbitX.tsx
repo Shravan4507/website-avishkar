@@ -133,7 +133,7 @@ const OrbitX: React.FC = () => {
             <div className="hero-left">
               <div className="event-badge">
                 <span className="badge-dot" />
-                LIVE EVENT • APRIL 23, 2026
+                LIVE EVENT • APRIL 23–24, 2026
               </div>
 
               <h1 className="hero-title">
@@ -141,8 +141,7 @@ const OrbitX: React.FC = () => {
               </h1>
 
               <p className="hero-subtitle">
-                Experience the total solar eclipse from the heart of our campus.
-                A rare cosmic alignment bringing science and wonder together.
+                Observe Solar Spots as well as beautiful craters of the moon from the heart of our campus!
               </p>
             </div>
 
@@ -151,7 +150,7 @@ const OrbitX: React.FC = () => {
               <div className="hero-details-vertical">
                 <div className="detail-item">
                   <span className="label">LOCATION</span>
-                  <span className="value">Zeal Institute's Main Grounds</span>
+                  <span className="value">Zeal Institute's Badminton Court</span>
                 </div>
                 <div className="detail-divider-horizontal" />
                 <div className="detail-item">
@@ -205,7 +204,7 @@ const OrbitX: React.FC = () => {
           {/* Observation Program Section - Centered Below */}
           <div className="observation-section">
             <div className="section-header">
-              <span className="section-title">OBSERVATION PROGRAM</span>
+              <span className="section-title">COSMIC OBSERVATION PROGRAM</span>
               <div className="section-line" />
             </div>
             

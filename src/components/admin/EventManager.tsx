@@ -25,12 +25,39 @@ const resolveEventKeys = (adminProfile: any, isSuper: boolean): string[] => {
 
   roles.forEach((role: string) => {
     if (role.startsWith('department_admin-')) {
-      const dept = role.replace('department_admin-', '').toLowerCase();
-      COMPETITIONS_DATA.forEach(c => {
-        if ((c.department || '').toLowerCase().includes(dept)) {
-          keys.push(c.slug || c.id);
-        }
-      });
+      const targetDepts: Record<string, string[]> = {
+        'department_admin-computer-engineering': ['computerengineering', 'computer'],
+        'department_admin-information-technology': ['it', 'informationtechnology'],
+        'department_admin-ai-ds': ['aids'],
+        'department_admin-ai-ml': ['aiml'],
+        'department_admin-civil-engineering': ['civilengineering', 'civil'],
+        'department_admin-electrical-engineering': ['electrical', 'electricalengineering'],
+        'department_admin-e-tc-engineering': ['etc', 'entc'],
+        'department_admin-ece': ['ece'],
+        'department_admin-mechanical-engineering': ['mechanical', 'mechanicalengineering'],
+        'department_admin-robotics-and-automation': ['robotics', 'roboticsandautomation'],
+      };
+      
+      const extraEventCodes: Record<string, string[]> = {
+        'department_admin-information-technology': ['sf4', 'codm'],
+        'department_admin-electrical-engineering': ['ffr'],
+        'department_admin-ece': ['aus'],
+        'department_admin-ai-ml': ['bgmi'],
+        'department_admin-robotics-and-automation': ['alx', 'rbr', 'rbm'],
+      };
+      
+      const allowedDepts = targetDepts[role] || [];
+      const allowedExtras = extraEventCodes[role] || [];
+      
+      if (allowedDepts.length > 0 || allowedExtras.length > 0) {
+        COMPETITIONS_DATA.forEach(c => {
+          const cDeptNormalized = (c.department || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+          const cCodeNormalized = (c.code || '').toLowerCase();
+          if (allowedDepts.includes(cDeptNormalized) || allowedExtras.includes(cCodeNormalized)) {
+            keys.push(c.slug || c.id);
+          }
+        });
+      }
       return;
     }
 
@@ -413,6 +440,79 @@ const EventManager: React.FC<EventManagerProps> = ({ adminProfile, isSuper }) =>
                     />
                   </div>
                 </div>
+
+                {/* Per-Game Fees (Battle Grid only) */}
+                {key === 'battle-grid-26' && (
+                  <div style={{ background: 'rgba(0,0,0,0.2)', borderRadius: '14px', padding: '16px', border: '1px solid rgba(255,158,0,0.15)' }}>
+                    <label style={{ ...labelStyle, marginBottom: '12px' }}><Ticket size={14} /> Per-Game Entry Fees (Battle Grid)</label>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '12px' }}>
+                      {[
+                        { id: 'bgmi', label: 'BGMI' },
+                        { id: 'freefire', label: 'Free Fire' },
+                        { id: 'codm', label: 'Call of Duty' },
+                        { id: 'sf4', label: 'Shadow Fight 4' },
+                        { id: 'amongus', label: 'Among Us' },
+                      ].map(game => {
+                        const gameFees = getField(key, 'gameFees', {});
+                        return (
+                          <div key={game.id}>
+                            <label style={{ ...labelStyle, fontSize: '0.75rem' }}>{game.label}</label>
+                            <input
+                              type="number"
+                              value={gameFees[game.id] ?? ''}
+                              onChange={(e) => {
+                                const currentFees = getField(key, 'gameFees', {});
+                                setField(key, 'gameFees', {
+                                  ...currentFees,
+                                  [game.id]: e.target.value !== '' ? parseInt(e.target.value) : undefined
+                                });
+                              }}
+                              style={inputStyle}
+                              placeholder="e.g. 150"
+                            />
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '0.75rem', marginTop: '10px' }}>Leave blank to use the default static fee. Changes reflect on the UI card immediately after saving.</p>
+                  </div>
+                )}
+
+                {/* Per-Game Fees (Robo Kshetra only) */}
+                {key === 'robotron-26' && (
+                  <div style={{ background: 'rgba(0,0,0,0.2)', borderRadius: '14px', padding: '16px', border: '1px solid rgba(217,255,0,0.15)' }}>
+                    <label style={{ ...labelStyle, marginBottom: '12px' }}><Ticket size={14} /> Per-Game Entry Fees (Robo-Kshetra)</label>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '12px' }}>
+                      {[
+                        { id: 'alignx', label: 'AlignX' },
+                        { id: 'robomaze', label: 'RoboMaze' },
+                        { id: 'roborush', label: 'RoboRush' },
+                        { id: 'trailblazer', label: 'Trailblazer' },
+                      ].map(game => {
+                        const gameFees = getField(key, 'gameFees', {});
+                        return (
+                          <div key={game.id}>
+                            <label style={{ ...labelStyle, fontSize: '0.75rem' }}>{game.label}</label>
+                            <input
+                              type="number"
+                              value={gameFees[game.id] ?? ''}
+                              onChange={(e) => {
+                                const currentFees = getField(key, 'gameFees', {});
+                                setField(key, 'gameFees', {
+                                  ...currentFees,
+                                  [game.id]: e.target.value !== '' ? parseInt(e.target.value) : undefined
+                                });
+                              }}
+                              style={inputStyle}
+                              placeholder="e.g. 499"
+                            />
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '0.75rem', marginTop: '10px' }}>Leave blank to use the default static fee. Changes reflect on the UI card immediately after saving.</p>
+                  </div>
+                )}
 
                 {/* Rulebook Section */}
                 <div style={{ background: 'rgba(0,0,0,0.2)', borderRadius: '14px', padding: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>

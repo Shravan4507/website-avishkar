@@ -100,8 +100,16 @@ const COMPETITION_OPTIONS = [
   { value: 'matlab', label: "Matlab" },
   { value: 'circuit-sim', label: "Circuit Simulation" },
   { value: 'contraptions', label: "Contraptions" },
+  { value: 'robo-maze', label: "RoboMaze" },
   { value: 'circle-cricket', label: "Circle Cricket" },
   { value: 'paper-pres', label: "Paper Presentation" }
+];
+
+// Workshop options
+const WORKSHOP_OPTIONS = [
+  { value: 'solar-spot', label: 'OrbitX — Solar Spot' },
+  { value: 'orbitx', label: 'OrbitX — All Events' },
+  { value: 'gdgoc', label: 'GDGOC — All Events' },
 ];
 
 const SCANNER_ROLE_OPTIONS = [
@@ -153,6 +161,53 @@ const AdminDashboard: React.FC = () => {
     eventBreakdown: []
   });
 
+  const handleMergeRoboticsData = async () => {
+    try {
+      toast.info("Merging ghost robotics data...");
+      
+      const q = query(collection(db, 'registrations'));
+      const snap = await getDocs(q);
+      
+      let updated = 0;
+      
+      for(const docSnap of snap.docs) {
+        const data = docSnap.data();
+        let name = (data.eventName || data.competitionTitle || '').toLowerCase();
+        let currentHandle = (data.competitionHandle || '').toLowerCase();
+        
+        let newHandle = '';
+        let newName = '';
+        
+        if (name.includes('align') || currentHandle === 'alignx') {
+          newHandle = 'AlignX';
+          newName = 'AlignX';
+        } else if (name.includes('rush') || currentHandle === 'roborush') {
+          newHandle = 'RoboRush';
+          newName = 'RoboRush';
+        } else if (name.includes('maze') || currentHandle === 'robomaze') {
+          newHandle = 'RoboMaze';
+          newName = 'RoboMaze';
+        }
+        
+        if (newHandle) {
+          if (data.competitionHandle !== newHandle || data.eventName !== newName || data.department !== 'Flagship') {
+            await updateDoc(docSnap.ref, {
+              competitionHandle: newHandle,
+              eventName: newName,
+              department: 'Flagship'
+            });
+            updated++;
+          }
+        }
+      }
+      
+      toast.success(`Successfully normalized ${updated} rogue Robotics registrations to Flagship standard!`);
+    } catch (e) {
+      console.error(e);
+      toast.error("Data merge failed. See console.");
+    }
+  };
+
 
   const [volunteerAvrId, setVolunteerAvrId] = useState('');
   const [scannerRole, setScannerRole] = useState(SCANNER_ROLE_OPTIONS[0].value);
@@ -163,6 +218,7 @@ const AdminDashboard: React.FC = () => {
   const [adminDepartment, setAdminDepartment] = useState(DEPARTMENT_OPTIONS[0]);
   const [adminCoreTeam, setAdminCoreTeam] = useState(CORE_TEAM_OPTIONS[0]);
   const [adminFlagship, setAdminFlagship] = useState(COMPETITION_OPTIONS[0].value);
+  const [adminWorkshop, setAdminWorkshop] = useState(WORKSHOP_OPTIONS[0].value);
   const [promotingLoading, setPromotingLoading] = useState(false);
 
   // Helper for auto-formatting AVR-ID: AVR-XXX-0000
@@ -338,20 +394,21 @@ const AdminDashboard: React.FC = () => {
           // Regular admin sees restricted stats
           const roles = currentProfile.roleLevel || [];
           
-          const roleMapping: Record<string, { handle: string, collection: string, eventTitle?: string }> = {
+          const roleMapping: Record<string, { handle: string, collection: string, eventTitle?: string, fallbackHandles?: { handle: string, eventTitle?: string }[] }> = {
             // Flagship — ParamX
             'admin-param-x': { handle: 'ParamX-Hack', collection: 'hackathon_registrations' },
             // Flagship — Battle Grid (parent + granular)
             'admin-battle-grid': { handle: 'Battle-Grid', collection: 'registrations' },
             'admin-bgmi': { handle: 'Battle-Grid', collection: 'registrations', eventTitle: 'BGMI' },
-            'admin-freefire': { handle: 'Battle-Grid', collection: 'registrations', eventTitle: 'FREE FIRE' },
-            'admin-codm': { handle: 'Battle-Grid', collection: 'registrations', eventTitle: 'CALL OF DUTY (MOBILE)' },
-            'admin-sf4': { handle: 'Battle-Grid', collection: 'registrations', eventTitle: 'SHADOW-FIGHT 4' },
-            'admin-amongus': { handle: 'Battle-Grid', collection: 'registrations', eventTitle: 'AMONG US' },
-            // Flagship — Robo-Kshetra (parent + granular)
+            'admin-freefire': { handle: 'Battle-Grid', collection: 'registrations', eventTitle: 'Free Fire' },
+            'admin-codm': { handle: 'Battle-Grid', collection: 'registrations', eventTitle: 'CODM' },
+            'admin-sf4': { handle: 'Battle-Grid', collection: 'registrations', eventTitle: 'Shadow Fight 4' },
+            'admin-amongus': { handle: 'Battle-Grid', collection: 'registrations', eventTitle: 'Among Us' },
+            // Flagship — Robo-Kshetra (granular events separated previously)
             'admin-robo-kshetra': { handle: 'Robo-Kshetra', collection: 'registrations' },
-            'admin-align-x': { handle: 'Robo-Kshetra', collection: 'registrations', eventTitle: 'ALIGNX' },
-            'admin-robo-rush': { handle: 'Robo-Kshetra', collection: 'registrations', eventTitle: 'ROBORUSH' },
+            'admin-align-x': { handle: 'AlignX', collection: 'registrations', fallbackHandles: [{ handle: 'Robo-Kshetra', eventTitle: 'AlignX' }] },
+            'admin-robo-rush': { handle: 'RoboRush', collection: 'registrations', fallbackHandles: [{ handle: 'Robo-Kshetra', eventTitle: 'RoboRush' }] },
+            'admin-robo-maze': { handle: 'RoboMaze', collection: 'registrations', fallbackHandles: [{ handle: 'Robo-Kshetra', eventTitle: 'RoboMaze' }] },
             // Standard Competitions (handles match competitions.ts data file)
             'admin-forge-x': { handle: 'Forge-Lead', collection: 'registrations' },
             'admin-algo-bid': { handle: 'Algo-Master', collection: 'registrations' },
@@ -374,17 +431,17 @@ const AdminDashboard: React.FC = () => {
             'workshop-solar-spot': { handle: 'OrbitX-Solar', collection: 'registrations' },
           };
 
-          // Map department explicitly to node configurations to isolate their counts
-          const DEPARTMENT_EVENT_HANDLES: Record<string, string[]> = {
-            'department_admin-computer-engineering': ['Forge-Lead', 'Algo-Master'],
-            'department_admin-information-technology': ['Battle-Grid', 'Code-Climber'], // Note: Includes shared E-Sports
-            'department_admin-ai-ds': ['IPL-Auctioneer'],
-            'department_admin-ai-ml': ['Dev-Striker', 'Vibe-Lead', 'Relay-Coder'],
-            'department_admin-civil-engineering': ['Arch-Nova'],
-            'department_admin-electrical-engineering': ['Paper-Lead', 'Spark-Lead', 'Battle-Grid'], // Note: Includes shared E-Sports
-            'department_admin-e-tc-engineering': ['Mat-Master', 'Circuit-Ninja'],
-            'department_admin-ece': ['Blind-Coder', 'Cricket-Lead', 'Battle-Grid'], // Note: Includes shared E-Sports
-            'department_admin-mechanical-engineering': ['Master-Builder'],
+          const DEPARTMENT_PSEUDO_ROLES: Record<string, string[]> = {
+            'department_admin-computer-engineering': ['admin-forge-x', 'admin-algo-bid'],
+            'department_admin-information-technology': ['admin-sf4', 'admin-codm', 'admin-code-ladder'],
+            'department_admin-ai-ds': ['admin-ipl-auction'],
+            'department_admin-ai-ml': ['admin-dev-clash', 'admin-vibe-sprint', 'admin-code-relay', 'admin-bgmi'],
+            'department_admin-civil-engineering': ['admin-bridge-nova'],
+            'department_admin-electrical-engineering': ['admin-poster', 'admin-spark-tank', 'admin-freefire'],
+            'department_admin-e-tc-engineering': ['admin-matlab', 'admin-circuit-sim', 'admin-paper-pres', 'admin-project-comp'],
+            'department_admin-ece': ['admin-blind-code', 'admin-circle-cricket', 'admin-amongus'],
+            'department_admin-mechanical-engineering': ['admin-contraptions'],
+            'department_admin-robotics-and-automation': ['admin-align-x', 'admin-robo-rush', 'admin-robo-maze'],
           };
 
           // Per-event label mapping for display
@@ -418,31 +475,59 @@ const AdminDashboard: React.FC = () => {
           
           let expandedRoles = [...roles];
           roles.forEach((r) => {
-            if (DEPARTMENT_EVENT_HANDLES[r]) {
-              // Create pseudo-roles to tap into roleMapping safely
-              DEPARTMENT_EVENT_HANDLES[r].forEach(h => {
-                const pseudo = Object.keys(roleMapping).find(k => roleMapping[k].handle === h);
-                if (pseudo) expandedRoles.push(pseudo);
-              });
+            if (DEPARTMENT_PSEUDO_ROLES[r]) {
+              expandedRoles.push(...DEPARTMENT_PSEUDO_ROLES[r]);
             }
           });
 
           for (const role of expandedRoles) {
             const mapping = roleMapping[role];
-            if (mapping && !countedHandles.has(`${mapping.collection}:${mapping.handle}`)) {
-              countedHandles.add(`${mapping.collection}:${mapping.handle}`);
-              const q = query(
-                collection(db, mapping.collection), 
-                where('competitionHandle', '==', mapping.handle)
-              );
-              const snap = await getCountFromServer(q);
-              const count = snap.data().count;
-              totalRegsCount += count;
-              eventBreakdown.push({
-                label: HANDLE_LABELS[mapping.handle] || mapping.handle,
-                count,
-                handle: mapping.handle
-              });
+            if (mapping) {
+              const uniqueKey = mapping.eventTitle ? `${mapping.collection}:${mapping.handle}:${mapping.eventTitle}` : `${mapping.collection}:${mapping.handle}`;
+              if (!countedHandles.has(uniqueKey)) {
+                countedHandles.add(uniqueKey);
+                
+                let count = 0;
+                
+                const executeCountQuery = async (qHandle: string, qTitle?: string) => {
+                  let subCount = 0;
+                  const filterQuery = query(
+                    collection(db, mapping.collection), 
+                    where('competitionHandle', '==', qHandle)
+                  );
+                  
+                  if (qTitle) {
+                    const snap = await getDocs(filterQuery);
+                    snap.forEach(d => {
+                      const data = d.data();
+                      const eTitle = (data.competitionTitle || data.eventName || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+                      const mTitle = qTitle.toLowerCase().replace(/[^a-z0-9]/g, '');
+                      if (eTitle && mTitle && (eTitle === mTitle || eTitle.includes(mTitle) || mTitle.includes(eTitle))) {
+                        subCount++;
+                      }
+                    });
+                  } else {
+                    const snap = await getCountFromServer(filterQuery);
+                    subCount = snap.data().count;
+                  }
+                  return subCount;
+                };
+
+                count += await executeCountQuery(mapping.handle, mapping.eventTitle);
+                
+                if (mapping.fallbackHandles) {
+                  for (const fb of mapping.fallbackHandles) {
+                    count += await executeCountQuery(fb.handle, fb.eventTitle);
+                  }
+                }
+                
+                totalRegsCount += count;
+                eventBreakdown.push({
+                  label: mapping.eventTitle ? mapping.eventTitle : (HANDLE_LABELS[mapping.handle] || mapping.handle),
+                  count,
+                  handle: uniqueKey
+                });
+              }
             }
           }
 
@@ -568,6 +653,8 @@ const AdminDashboard: React.FC = () => {
       compositeRole = `core_team-${adminCoreTeam.toLowerCase()}`;
     } else if (adminRoleType === 'competition_admin') {
       compositeRole = `competition_admin-${adminFlagship}`;
+    } else if (adminRoleType === 'workshop_admin') {
+      compositeRole = `workshop-${adminWorkshop}`;
     } else {
       compositeRole = 'superadmin';
     }
@@ -875,7 +962,11 @@ const AdminDashboard: React.FC = () => {
             <div className="admin-header-card" style={{ marginBottom: '2rem' }}>
               <div className="admin-profile-flex">
                 <div className="admin-avatar-wrapper">
-                  <img src={user?.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.email}`} alt="Admin Avatar" />
+                  <img 
+                    src={user?.photoURL || `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(user?.email || 'Admin')}&backgroundColor=a78bfa`} 
+                    alt="Admin Avatar" 
+                    onError={(e) => { (e.target as HTMLImageElement).src = `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(adminProfile?.avrAdmId || 'A')}&backgroundColor=a78bfa`; }}
+                  />
                 </div>
                 <div className="admin-info-main">
                   <div className="admin-title-row">
@@ -885,8 +976,17 @@ const AdminDashboard: React.FC = () => {
                   <p className="tab-subtitle-premium" style={{ margin: 0 }}>
                     Welcome back, <span style={{ color: '#fff', fontWeight: 700 }}>{user?.email}</span>
                   </p>
-                  <div className="admin-id-pill" style={{ marginTop: '0.5rem' }}>
-                    Admin ID: <span>{adminProfile?.avrAdmId || 'ASSIGNING...'}</span>
+                  <div className="admin-id-pill" style={{ marginTop: '0.5rem', display: 'flex', gap: '10px', alignItems: 'center' }}>
+                    <span>Admin ID: <span>{adminProfile?.avrAdmId || 'ASSIGNING...'}</span></span>
+                    {isSuper && (
+                      <button 
+                        onClick={handleMergeRoboticsData}
+                        title="Normalize Legacy Robotics Data"
+                        style={{ border: 'none', background: 'rgba(255, 60, 60, 0.1)', color: '#ff3c3c', fontSize: '10px', padding: '2px 6px', borderRadius: '4px', cursor: 'pointer', fontWeight: 600 }}
+                      >
+                        Merge DB
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -1085,6 +1185,7 @@ const AdminDashboard: React.FC = () => {
                         onChange={(val: string) => setAdminRoleType(val)}
                         options={[
                           { label: 'Department Admin', value: 'department_admin' },
+                          { label: 'Workshop Admin', value: 'workshop_admin' },
                           { label: 'Competition Admin', value: 'competition_admin' },
                           { label: 'Core Team', value: 'core_team' },
                           { label: 'Superadmin', value: 'superadmin' }
@@ -1094,7 +1195,7 @@ const AdminDashboard: React.FC = () => {
                     </div>
                     <div className="form-group" style={{ marginBottom: 0 }}>
                       <label style={{ color: '#e2e8f0', marginBottom: '8px', display: 'block', fontSize: '0.9rem', fontWeight: 600 }}>
-                        {adminRoleType === 'department_admin' ? 'Department' : adminRoleType === 'core_team' ? 'Team' : adminRoleType === 'competition_admin' ? 'Competition' : 'Scope'}
+                        {adminRoleType === 'department_admin' ? 'Department' : adminRoleType === 'core_team' ? 'Team' : adminRoleType === 'competition_admin' ? 'Competition' : adminRoleType === 'workshop_admin' ? 'Workshop' : 'Scope'}
                       </label>
                       {adminRoleType === 'department_admin' && (
                         <GlassSelect 
@@ -1122,6 +1223,14 @@ const AdminDashboard: React.FC = () => {
                       )}
                       {adminRoleType === 'superadmin' && (
                         <input disabled value="All Access" style={{ width: '100%', padding: '14px 16px', borderRadius: '12px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(167, 139, 250, 0.3)', color: '#888', outline: 'none', fontFamily: 'inherit', fontSize: '0.95rem' }} />
+                      )}
+                      {adminRoleType === 'workshop_admin' && (
+                        <GlassSelect
+                          value={adminWorkshop}
+                          onChange={(val: string) => setAdminWorkshop(val)}
+                          options={WORKSHOP_OPTIONS}
+                          style={{ width: '100%' }}
+                        />
                       )}
                     </div>
                   </div>
@@ -1376,15 +1485,16 @@ const AdminDashboard: React.FC = () => {
         
         if (!isSuper && isDeptAdmin) {
           const DEPARTMENT_EVENT_MAPPING: Record<string, { handles: string[], specificEvents?: string[] }> = {
-            'department_admin-computer-engineering': { handles: ['Forge-Lead', 'Algo-Master', 'Code-Climber'] },
-            'department_admin-information-technology': { handles: ['Battle-Grid', 'Code-Climber'], specificEvents: ['sf4', 'codm'] },
+            'department_admin-computer-engineering': { handles: ['Forge-Lead', 'Algo-Master'] },
+            'department_admin-information-technology': { handles: ['Battle-Grid', 'Code-Climber'], specificEvents: ['Shadow Fight 4', 'CODM'] },
             'department_admin-ai-ds': { handles: ['IPL-Auctioneer'] },
-            'department_admin-ai-ml': { handles: ['Dev-Striker', 'Vibe-Lead', 'Relay-Coder'] },
+            'department_admin-ai-ml': { handles: ['Dev-Striker', 'Vibe-Lead', 'Relay-Coder', 'Battle-Grid'], specificEvents: ['BGMI'] },
             'department_admin-civil-engineering': { handles: ['Arch-Nova'] },
-            'department_admin-electrical-engineering': { handles: ['Paper-Lead', 'Spark-Lead', 'Battle-Grid'], specificEvents: ['free fire'] },
-            'department_admin-e-tc-engineering': { handles: ['Mat-Master', 'Circuit-Ninja'] },
-            'department_admin-ece': { handles: ['Blind-Coder', 'Cricket-Lead', 'Battle-Grid'], specificEvents: ['among us'] },
+            'department_admin-electrical-engineering': { handles: ['Paper-Lead', 'Spark-Lead', 'Battle-Grid'], specificEvents: ['Free Fire'] },
+            'department_admin-e-tc-engineering': { handles: ['Mat-Master', 'Circuit-Ninja', 'Research-Lead', 'Project-Master'] },
+            'department_admin-ece': { handles: ['Blind-Coder', 'Cricket-Lead', 'Battle-Grid'], specificEvents: ['Among Us'] },
             'department_admin-mechanical-engineering': { handles: ['Master-Builder'] },
+            'department_admin-robotics-and-automation': { handles: ['AlignX', 'RoboRush', 'RoboMaze', 'Robo-Kshetra'], specificEvents: ['AlignX', 'RoboRush', 'RoboMaze'] },
           };
 
           const activeDeptRole = adminProfile?.roleLevel?.find((r: string) => r.startsWith('department_admin')) || '';
@@ -1497,6 +1607,18 @@ const AdminDashboard: React.FC = () => {
             />
           : <div>Access Denied</div>;
 
+      case 'robomaze_regs':
+        return (isSuper || adminProfile?.roleLevel.some(r => ['admin-robo-kshetra', 'admin-robo-maze'].includes(r)))
+          ? <RegistrationManager 
+              key="robomaze"
+              isSuper={isSuper}
+              forcedHandle="Robo-Kshetra" 
+              collectionScope="registrations"
+              eventTitleFilter="ROBOMAZE"
+              title="RoboMaze Registrations" 
+              subtitle="Managing autonomous maze solver competition entries" 
+            />
+          : <div>Access Denied</div>;
       case 'roborush_regs':
         return (isSuper || adminProfile?.roleLevel.some(r => ['admin-robo-kshetra', 'admin-robo-rush'].includes(r)))
           ? <RegistrationManager 
@@ -1841,6 +1963,7 @@ const AdminDirectoryView: React.FC<AdminDirectoryProps> = ({ currentUserId }) =>
   const [addDept, setAddDept] = useState(DEPARTMENT_OPTIONS[0]);
   const [addCoreTeam, setAddCoreTeam] = useState(CORE_TEAM_OPTIONS[0]);
   const [addFlagship, setAddFlagship] = useState(COMPETITION_OPTIONS[0].value);
+  const [addWorkshop, setAddWorkshop] = useState(WORKSHOP_OPTIONS[0].value);
   const [addLoading, setAddLoading] = useState(false);
 
 
@@ -1871,6 +1994,7 @@ const AdminDirectoryView: React.FC<AdminDirectoryProps> = ({ currentUserId }) =>
     if (addRoleType === 'department_admin') compositeRole = `department_admin-${addDept.toLowerCase().replace(/[^a-z]/g, '-')}`;
     else if (addRoleType === 'core_team') compositeRole = `core_team-${addCoreTeam.toLowerCase().replace(/[^a-z]/g, '-')}`;
     else if (addRoleType === 'competition_admin') compositeRole = `admin-${addFlagship}`;
+    else if (addRoleType === 'workshop_admin') compositeRole = `workshop-${addWorkshop}`;
     else compositeRole = 'superadmin';
 
     setAddLoading(true);
@@ -2006,6 +2130,7 @@ const AdminDirectoryView: React.FC<AdminDirectoryProps> = ({ currentUserId }) =>
                 onChange={(val: string) => setAddRoleType(val)}
                 options={[
                   { label: 'Department Admin', value: 'department_admin' },
+                  { label: 'Workshop Admin', value: 'workshop_admin' },
                   { label: 'Competition Admin', value: 'competition_admin' },
                   { label: 'Core Team', value: 'core_team' },
                   { label: 'Superadmin', value: 'superadmin' }
@@ -2015,7 +2140,7 @@ const AdminDirectoryView: React.FC<AdminDirectoryProps> = ({ currentUserId }) =>
             </div>
             <div>
               <label style={{ color: '#e2e8f0', marginBottom: '6px', display: 'block', fontSize: '0.82rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                {addRoleType === 'department_admin' ? 'Department' : addRoleType === 'core_team' ? 'Team' : addRoleType === 'competition_admin' ? 'Competition' : 'Scope'}
+                {addRoleType === 'department_admin' ? 'Department' : addRoleType === 'core_team' ? 'Team' : addRoleType === 'competition_admin' ? 'Competition' : addRoleType === 'workshop_admin' ? 'Workshop' : 'Scope'}
               </label>
               {addRoleType === 'department_admin' && (
                 <GlassSelect value={addDept} onChange={(v: string) => setAddDept(v)} options={DEPARTMENT_OPTIONS.map(d => ({ label: d, value: d }))} style={{ width: '100%' }} />
@@ -2028,6 +2153,9 @@ const AdminDirectoryView: React.FC<AdminDirectoryProps> = ({ currentUserId }) =>
               )}
               {addRoleType === 'superadmin' && (
                 <input disabled value="All Access" style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(167,139,250,0.25)', color: '#888', outline: 'none', fontFamily: 'inherit', fontSize: '0.95rem' }} />
+              )}
+              {addRoleType === 'workshop_admin' && (
+                <GlassSelect value={addWorkshop} onChange={(v: string) => setAddWorkshop(v)} options={WORKSHOP_OPTIONS} style={{ width: '100%' }} />
               )}
             </div>
           </div>
@@ -2051,7 +2179,11 @@ const AdminDirectoryView: React.FC<AdminDirectoryProps> = ({ currentUserId }) =>
           <div key={admin.id} className="admin-profile-card">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
               <div className="admin-avatar-wrapper" style={{ width: '52px', height: '52px' }}>
-                <img src={admin.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${admin.email}`} alt="Avatar" />
+                <img 
+                  src={admin.photoURL || `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(admin.email || 'A')}&backgroundColor=a78bfa`} 
+                  alt="Avatar" 
+                  onError={(e) => { (e.target as HTMLImageElement).src = `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(admin.avrAdmId || 'A')}&backgroundColor=a78bfa`; }}
+                />
               </div>
               <span className={`badge-premium ${admin.type === 'superadmin' ? 'badge-superadmin' : 'badge-flagship'}`}>
                 {getRoleBadgeLabel(admin)}

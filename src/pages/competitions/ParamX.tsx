@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { collection, onSnapshot } from 'firebase/firestore';
+import { collection, onSnapshot, getDoc, doc } from 'firebase/firestore';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth, db } from '../../firebase/firebase';
 import { useToast } from '../../components/toast/Toast';
@@ -35,7 +35,7 @@ const ParamX: React.FC = () => {
     const [selectedDomain, setSelectedDomain] = useState('All');
     const [isDownloading, setIsDownloading] = useState(false);
     const { isRegistered, eventName } = useRegistrationGuard();
-    const compData = COMPETITIONS_DATA.find(c => c.slug === 'param-x-26');
+    const [compData, setCompData] = useState(COMPETITIONS_DATA.find(c => c.slug === 'param-x-26'));
 
     // Iris State
     const [irisOpen, setIrisOpen] = useState(false);
@@ -85,6 +85,28 @@ const ParamX: React.FC = () => {
             });
             setCounts(newCounts);
         });
+        
+        const fetchOverride = async () => {
+            try {
+                const snap = await getDoc(doc(db, 'events_content', 'param-x-26'));
+                if (snap.exists()) {
+                    const override = snap.data();
+                    setCompData(prev => prev ? {
+                        ...prev,
+                        description: override.description ?? prev.description,
+                        prizePool: override.prizePool ?? prev.prizePool,
+                        venue: override.venue ?? prev.venue,
+                        rulebook: override.rulebook ?? prev.rulebook,
+                        rulebookComingSoon: override.rulebookComingSoon ?? prev.rulebookComingSoon,
+                        isRegistrationOpen: override.isRegistrationOpen ?? prev.isRegistrationOpen,
+                        status: override.status ?? prev.status,
+                        coordinators: override.coordinators ?? prev.coordinators,
+                        entryFee: override.entryFee ?? prev.entryFee,
+                    } : undefined);
+                }
+            } catch (e) {}
+        };
+        fetchOverride();
 
         return () => unsubscribe();
     }, []);
@@ -260,7 +282,9 @@ const ParamX: React.FC = () => {
 
                 {/* <h1>Param-X '26</h1> */}
 
-                <p className="hero-subtitle">The Ultimate 10-Hour Innovation Marathon</p>
+                <p className="hero-subtitle" style={{ maxWidth: '800px', margin: '0 auto 2rem', lineHeight: '1.6' }}>
+                    {compData?.description || "The Ultimate 10-Hour Innovation Marathon"}
+                </p>
 
                 <div className="hero-stats">
                     <div className="stat-item">
@@ -273,14 +297,14 @@ const ParamX: React.FC = () => {
                     <div className="stat-item">
                         <Trophy className="stat-icon" />
                         <div className="stat-content">
-                            <span className="stat-val">₹1,00,000+</span>
+                            <span className="stat-val">{compData?.prizePool || '₹1,00,000+'}</span>
                             <span className="stat-label">Prize Pool</span>
                         </div>
                     </div>
                     <div className="stat-item">
                         <CreditCard className="stat-icon" />
                         <div className="stat-content">
-                            <span className="stat-val">₹500</span>
+                            <span className="stat-val">₹{compData?.entryFee || '500'}</span>
                             <span className="stat-label">Entry Fee</span>
                         </div>
                     </div>

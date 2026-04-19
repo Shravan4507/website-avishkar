@@ -37,6 +37,7 @@ import { useRegistrationGuard } from '../../hooks/useRegistrationGuard';
 import { generateTxnId } from '../../utils/easebuzz';
 import PaymentCheckout from '../../components/payment/PaymentCheckout';
 import { usePaymentCheckout } from '../../hooks/usePaymentCheckout';
+import { useScheduleConflict } from '../../hooks/useScheduleConflict';
 import './RoboKshetra.css';
 
 // --- ROBO_EVENTS logic ---
@@ -66,6 +67,29 @@ const ROBO_EVENTS = [
             "Rounds: Preliminary + Finals"
         ],
         rulebook: `${import.meta.env.BASE_URL}assets/rule-books/alignx.pdf`
+    },
+    { 
+        id: 'robomaze', 
+        label: 'ROBOMAZE', 
+        tagline: 'Autonomous Maze Solver', 
+        prize: '₹20,000+', 
+        fee: 499,
+        type: 'TEAM', 
+        members: 4,
+        minMembers: 1, 
+        mode: 'Offline',
+        color: '#d9ff00', 
+        description: 'Think, adapt, escape. Engineer a machine that can solve complex labyrinths in record time using advanced sensor fusion. Focus: PID control, maze mapping algorithms, and rapid locomotion.',
+        gradient: 'linear-gradient(135deg, #d9ff00, #000)',
+        image: `${import.meta.env.BASE_URL}assets/robokshetra/maze_solver.webp`,
+        highlights: [
+            "Autonomous Robot (No Bluetooth/manual control)",
+            "Size Limit: 20 × 20 × 20 cm",
+            "Max Voltage: 16.8V",
+            "Task: Solve maze in shortest time",
+            "Rounds: Mapping Round + Speed Run"
+        ],
+        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/robomaze.pdf`
     },
     { 
         id: 'roborush', 
@@ -111,8 +135,27 @@ const RoboKshetra: React.FC = () => {
     const [checkoutOrderDetails, setCheckoutOrderDetails] = useState<{ eventName: string; amount: number; participantName: string; avrId: string } | null>(null);
 
     const { isRegistered, eventName: registeredEventName } = useRegistrationGuard();
+    const scheduleOverlap = useScheduleConflict(selectedEvent ? `robokshetra_${selectedEvent}` : null);
+
+    const [gameFeeOverrides, setGameFeeOverrides] = useState<Record<string, number>>({});
+
+    useEffect(() => {
+        const fetchFees = async () => {
+            try {
+                const snap = await getDoc(doc(db, 'events_content', 'robotron-26'));
+                if (snap.exists()) {
+                    const data = snap.data();
+                    if (data.gameFees && typeof data.gameFees === 'object') {
+                        setGameFeeOverrides(data.gameFees);
+                    }
+                }
+            } catch (e) { /* silent */ }
+        };
+        fetchFees();
+    }, []);
 
     const activeEvent = ROBO_EVENTS.find(e => e.id === selectedEvent);
+    const activeFee = activeEvent ? (gameFeeOverrides[activeEvent.id] !== undefined ? gameFeeOverrides[activeEvent.id] : activeEvent.fee) : 0;
 
     const calculateAge = (dob: string) => {
         if (!dob) return 0;
@@ -380,7 +423,7 @@ const RoboKshetra: React.FC = () => {
                 competitionHandle: 'Robo-Kshetra',
                 userAVR: formData.leaderAvrId || '',
                 allAvrIds,
-                amount: activeEvent.fee,
+                amount: activeFee,
                 status: 'pending',
                 finalPayload: {
                     id: txnid,
@@ -401,7 +444,7 @@ const RoboKshetra: React.FC = () => {
                     allAvrIds,
                     paymentRequired: true,
                     paymentStatus: 'paid',
-                    amountPaid: activeEvent.fee,
+                    amountPaid: activeFee,
                     transactionId: txnid,
                     paymentMode: 'online',
                     status: 'confirmed',
@@ -415,14 +458,14 @@ const RoboKshetra: React.FC = () => {
 
             setCheckoutOrderDetails({
                 eventName: `Robo-Kshetra: ${activeEvent.label}`,
-                amount: activeEvent.fee,
+                amount: activeFee,
                 participantName: formData.leaderName || user.displayName || 'Participant',
                 avrId: formData.leaderAvrId
             });
 
             await paymentCheckout.initiatePayment({
                 txnid,
-                amount: activeEvent.fee.toFixed(2),
+                amount: activeFee.toFixed(2),
                 productinfo: `RK26: ${activeEvent.label}`,
                 firstname: formData.leaderName || user.displayName || "Participant",
                 email: formData.leaderEmail || user.email || '',
@@ -603,7 +646,7 @@ const RoboKshetra: React.FC = () => {
                                 image: event.image,
                                 borderColor: event.color,
                                 slug: event.id,
-                                entryFee: event.fee,
+                                entryFee: gameFeeOverrides[event.id] !== undefined ? gameFeeOverrides[event.id] : event.fee,
                                 handle: event.type,
                                 location: `${event.members}P | ${event.mode}`,
                                 description: (
@@ -871,6 +914,26 @@ const RoboKshetra: React.FC = () => {
                                     </div>
                                 </div>
 
+                                {scheduleOverlap.hasConflict && (
+                                    <div className="scheduling-notice-card" style={{ 
+                                        background: 'rgba(255, 152, 0, 0.05)', 
+                                        border: '1px solid rgba(255, 152, 0, 0.2)',
+                                        borderRadius: '2rem',
+                                        padding: '1rem',
+                                        marginBottom: '1.5rem',
+                                        display: 'flex',
+                                        gap: '1rem'
+                                    }}>
+                                        <AlertTriangle size={24} color="#ff9800" style={{ flexShrink: 0 }} />
+                                        <div>
+                                            <h4 style={{ color: '#ff9800', margin: '0 0 0.4rem 0', fontSize: '0.85rem', letterSpacing: '1px' }}>SCHEDULE CONFLICT DETECTED</h4>
+                                            <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.8rem', lineHeight: '1.4', margin: 0 }}>
+                                                You are already registered for <strong>{scheduleOverlap.conflictingEvents.join(', ')}</strong>, which takes place at the same time. You may proceed, but you must manage your own schedule.
+                                            </p>
+                                        </div>
+                                    </div>
+                                )}
+
                                 {!showPreview ? (
                                     <>
                                         <button 
@@ -916,11 +979,11 @@ const RoboKshetra: React.FC = () => {
                                         <div className="rk-payment-summary">
                                             <div className="rk-summary-row">
                                                 <span>Registration Fee</span>
-                                                <span>₹{activeEvent?.fee.toFixed(2)}</span>
+                                                <span>₹{activeFee.toFixed(2)}</span>
                                             </div>
                                             <div className="rk-summary-row total">
                                                 <span>Total Payable</span>
-                                                <span>₹{activeEvent?.fee.toFixed(2)}</span>
+                                                <span>₹{activeFee.toFixed(2)}</span>
                                             </div>
                                             <p className="rk-payment-note">Secure payment via Easebuzz Gateway</p>
                                         </div>
