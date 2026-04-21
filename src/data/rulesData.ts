@@ -266,11 +266,11 @@ export const RULES_DATA: Record<string, CompetitionRules> = {
         tagline: 'Express Your Vibe',
         description:
             'A fusion of creativity and speed. Express your coding style and approach in a unique, time-pressured challenge where vibe and velocity collide.',
-        teamSize: 'Solo participation',
+        teamSize: '2 members',
         fee: '₹100',
         category: 'standard',
         rules: [
-            'Solo participation only.',
+            'Teams must consist of exactly 2 members.',
             'All code must be written during the event window.',
             'Pre-built code or templates are not permitted.',
             'Participants must use the provided development environment.',

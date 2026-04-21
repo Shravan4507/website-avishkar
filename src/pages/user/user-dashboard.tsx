@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import DashboardSkeleton from '../../components/common/DashboardSkeleton';
 import NotificationBell from '../../components/notifications/NotificationBell';
 import { useToast } from '../../components/toast/Toast';
-import { Award, FileText, BookOpen, Download, Camera, Video, Loader2, CloudUpload, Zap } from 'lucide-react';
+import { Award, FileText, BookOpen, Download, Camera, Video, Loader2, CloudUpload, Zap, UserPlus, Search as SearchIcon, Check } from 'lucide-react';
 import VirtualPass from '../../components/VirtualPass/VirtualPass';
 import { generateInvoice } from '../../utils/InvoiceGenerator';
 import { useCache } from '../../hooks/useCache';
@@ -74,6 +74,15 @@ const UserDashboard: React.FC = () => {
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [isAvatarExpanded, setIsAvatarExpanded] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+
+  // Teammate add
+  const [isAddTeamModalOpen, setIsAddTeamModalOpen] = useState(false);
+  const [selectedReg, setSelectedReg] = useState<any>(null);
+  const [teammateAvr, setTeammateAvr] = useState('');
+  const [teammateData, setTeammateData] = useState<any>(null);
+  const [lookupLoading, setLookupLoading] = useState(false);
+  const [isUpdatingTeam, setIsUpdatingTeam] = useState(false);
+  const [addTeammateError, setAddTeammateError] = useState('');
 
   const getHighResUrl = (url?: string) => {
     if (!url) return '';
@@ -328,6 +337,77 @@ const UserDashboard: React.FC = () => {
     }
   };
 
+  // Add Teammate logic
+  useEffect(() => {
+    const handleTeammateLookup = async (avrToLookup: string) => {
+      setLookupLoading(true);
+      setAddTeammateError('');
+      setTeammateData(null);
+      try {
+        const q = query(collection(db, "user"), where("avrId", "==", avrToLookup));
+        const snap = await getDocs(q);
+        if (!snap.empty) {
+          const tData = snap.docs[0].data();
+          if (tData.avrId === userData?.avrId) {
+              setAddTeammateError("Cannot add yourself");
+          } else {
+              setTeammateData(tData);
+          }
+        } else {
+          setAddTeammateError("User not found");
+        }
+      } catch (e) {
+        console.error(e);
+        setAddTeammateError("Network Error");
+      } finally {
+        setLookupLoading(false);
+      }
+    };
+
+    if (teammateAvr.length >= 9) {
+      handleTeammateLookup(teammateAvr);
+    } else {
+      setTeammateData(null);
+      setAddTeammateError('');
+    }
+  }, [teammateAvr, userData?.avrId]);
+
+  const submitAddTeammate = async () => {
+    if (!selectedReg || !teammateData) return;
+    setIsUpdatingTeam(true);
+    try {
+      const regDocRef = doc(db, "registrations", selectedReg.id);
+      
+      const newAllAvrIds = [...(selectedReg.allAvrIds || [selectedReg.leaderAvrId]), teammateData.avrId];
+      const newAllEmails = [...(selectedReg.allEmails || [selectedReg.leaderEmail]), teammateData.email];
+
+      await updateDoc(regDocRef, {
+        member1Name: teammateData.firstName + " " + teammateData.lastName,
+        member1Email: teammateData.email,
+        member1Phone: teammateData.whatsappNumber || teammateData.phone || '',
+        member1AvrId: teammateData.avrId,
+        allAvrIds: newAllAvrIds,
+        allEmails: newAllEmails,
+        updatedAt: serverTimestamp()
+      });
+      toast.success("Teammate added successfully!");
+      setIsAddTeamModalOpen(false);
+      setTeammateAvr('');
+      setTeammateData(null);
+      window.location.reload(); 
+    } catch (e) {
+      console.error(e);
+      toast.error("Failed to add teammate.");
+    } finally {
+      setIsUpdatingTeam(false);
+    }
+  };
+
+  const handleOpenAddMember = (reg: any) => {
+    setSelectedReg(reg);
+    setIsAddTeamModalOpen(true);
+  };
+
 
 
   if (authLoading || (!userData && !authLoading)) {
@@ -491,6 +571,18 @@ const UserDashboard: React.FC = () => {
                             </button>
                           </div>
                         )}
+
+                        {reg.eventName === 'Vibe Sprint' && reg.leaderEmail === user?.email && !reg.member1Name && (
+                          <div className="reg-hackathon-actions" style={{marginTop: '10px', display: 'flex', justifyContent: 'flex-start'}}>
+                            <button 
+                              className="user-edit-profile-btn" 
+                              style={{ width: 'auto', padding: '0.4rem 0.8rem', fontSize: '0.85rem' }} 
+                              onClick={() => handleOpenAddMember(reg)}
+                            >
+                               <UserPlus size={16} style={{marginRight: '6px'}}/> Add Teammate
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
 
@@ -627,6 +719,63 @@ const UserDashboard: React.FC = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* --- ADD TEAMMATE MODAL --- */}
+      {isAddTeamModalOpen && (
+        <div className="user-modal-overlay">
+          <div className="user-modal-card">
+            <div className="user-modal-header">
+              <h2>Add Teammate</h2>
+              <button className="user-close-btn" onClick={() => setIsAddTeamModalOpen(false)}>&times;</button>
+            </div>
+            <div style={{ padding: '1.5rem' }}>
+              <p style={{ marginBottom: '1rem', color: '#ccc', fontSize: '0.9rem' }}>
+                You registered for <strong>{selectedReg?.eventName}</strong> solo. Enter your teammate's AVR ID below to add them to your registration.
+              </p>
+              
+              <div className="user-form-group">
+                <label>Teammate AVR ID</label>
+                <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                  <SearchIcon size={16} color="#aaa" style={{ position: 'absolute', left: '10px' }} />
+                  <input 
+                    type="text" 
+                    placeholder="AVR-XXX-0000"
+                    value={teammateAvr}
+                    onChange={(e) => setTeammateAvr(e.target.value.toUpperCase())}
+                    style={{ paddingLeft: '35px', width: '100%', paddingRight: '35px' }}
+                  />
+                  {lookupLoading && <Loader2 size={16} className="spinner" style={{ position: 'absolute', right: '10px', color: '#a78bfa' }} />}
+                  {teammateData && !lookupLoading && <Check size={16} color="#10b981" style={{ position: 'absolute', right: '10px' }} />}
+                </div>
+                {addTeammateError && <span style={{ color: '#ef4444', fontSize: '0.8rem', marginTop: '4px', display: 'block' }}>{addTeammateError}</span>}
+              </div>
+
+              {teammateData && (
+                <div style={{ background: 'rgba(167, 139, 250, 0.1)', padding: '1rem', borderRadius: '8px', border: '1px solid rgba(167, 139, 250, 0.3)', marginTop: '1rem' }}>
+                  <p style={{ margin: 0, color: '#fff', fontSize: '0.95rem' }}>
+                    <strong>{teammateData.firstName} {teammateData.lastName}</strong>
+                  </p>
+                  <p style={{ margin: '4px 0 0 0', color: '#a78bfa', fontSize: '0.85rem' }}>
+                    {teammateData.college}
+                  </p>
+                </div>
+              )}
+
+              <div className="user-modal-footer" style={{ marginTop: '1.5rem', padding: 0 }}>
+                 <button type="button" className="user-cancel-btn" onClick={() => setIsAddTeamModalOpen(false)}>Cancel</button>
+                 <button 
+                   type="button" 
+                   className="user-save-btn" 
+                   disabled={!teammateData || isUpdatingTeam}
+                   onClick={submitAddTeammate}
+                 >
+                   {isUpdatingTeam ? 'Adding...' : 'Confirm Addition'}
+                 </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

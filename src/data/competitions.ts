@@ -681,9 +681,9 @@ export const COMPETITIONS_DATA: Competition[] = [
         entryFee: 100,
         prizePool: '10000',
         paymentRequired: true,
-        minTeamSize: 1,
-        maxTeamSize: 1,
-        teamRequired: false,
+        minTeamSize: 2,
+        maxTeamSize: 2,
+        teamRequired: true,
         coordinators: [
             { name: "M Venkat Chandrakat Babu", phone: "8788675249" },
             { name: "Varad Gaurav", phone: "7887323956" }
