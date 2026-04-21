@@ -33,6 +33,7 @@ export interface ChromaItem {
     rulebook?: string;
     rulebookComingSoon?: boolean;
     noModal?: boolean;
+    isRegistrationOpen?: boolean;
 }
 
 export interface ChromaGridProps {
@@ -294,6 +295,7 @@ export const ChromaGrid: React.FC<ChromaGridProps> = ({
                         {c.prizePool && <div className="prize-tag">Prize: {c.prizePool}</div>}
                         {(c.entryFee ?? 0) > 0 && <div className="fee-tag">Fee: ₹{c.entryFee}</div>}
                         {c.comingSoon && <div className="coming-soon-badge">COMING SOON</div>}
+                        {c.isRegistrationOpen === false && <div className="coming-soon-badge" style={{background: '#ef4444', color: '#fff', border: '1px solid #ef4444'}}>FULL</div>}
                     </div>
                     <footer className="chroma-info">
                         <h3 className="name">{c.title}</h3>
@@ -366,6 +368,10 @@ export const ChromaGrid: React.FC<ChromaGridProps> = ({
                                         selectedMember.comingSoon ? (
                                             <button className="register-btn disabled" disabled>
                                                 Coming Soon
+                                            </button>
+                                        ) : selectedMember.isRegistrationOpen === false ? (
+                                            <button className="register-btn disabled" style={{background: '#ef4444', color: '#fff', border: 'none'}} disabled>
+                                                Registrations Full
                                             </button>
                                         ) : isRegistered ? (
                                             <button className="register-btn disabled" disabled title={`Already registered for ${registeredEventName}`}>
