@@ -71,7 +71,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         venue: 'Main Lab Complex',
         registrationStart: '2026-03-01',
         registrationEnd: '2026-04-15',
-        isRegistrationOpen: true,
+        isRegistrationOpen: false,
         entryFee: 500,
         paymentRequired: true,
         minTeamSize: 2,
@@ -104,7 +104,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         venue: 'Robo Arena',
         registrationStart: '2026-03-01',
         registrationEnd: '2026-04-15',
-        isRegistrationOpen: true,
+        isRegistrationOpen: false,
         paymentRequired: false,
         minTeamSize: 2,
         maxTeamSize: 4,
@@ -143,7 +143,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         isFlagship: true,
         slug: 'battle-grid-26',
         handle: 'Battle-Grid',
-        prizePool: '₹80,000+',
+        prizePool: '₹30,000+',
         url: '#'
     },
     {
@@ -340,45 +340,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         slug: 'free-fire-26',
         handle: 'FreeFire'
     },
-    {
-        id: 'CMP-26-BTG-CODM-003',
-        code: 'CODM',
-        title: "CODM",
-        subtitle: 'Call of Duty Mobile',
-        description: 'Strategic military combat in the mobile arena.',
-        category: 'BTG',
-        department: 'Battle Grid',
-        year: 2026,
-        image: `${import.meta.env.BASE_URL}assets/competitions/battlegrid.webp`,
-        gradient: 'linear-gradient(210deg, #ff4655, #000)',
-        borderColor: '#ff4655',
-        schedule: [
-            {
-                date: '2026-04-22',
-                startTime: '14:00',
-                endTime: '19:00',
-                round: 'Multiplayer Duel'
-            }
-        ],
-        venue: 'E-Sports Arena',
-        registrationStart: '2026-03-01',
-        registrationEnd: '2026-04-15',
-        isRegistrationOpen: true,
-        entryFee: 400,
-        prizePool: '16000',
-        paymentRequired: true,
-        minTeamSize: 4,
-        maxTeamSize: 5,
-        teamRequired: true,
-        coordinators: [
-            { name: "Vaibhav Bandgar", phone: "9730906103" },
-            { name: "Sujal Jaju", phone: "8010127828" }
-        ],
-        status: "published",
-        isExhibition: true,
-        slug: 'codm-26',
-        handle: 'CODM'
-    },
+
     {
         id: 'CMP-26-BTG-SF4-004',
         code: 'SF4',

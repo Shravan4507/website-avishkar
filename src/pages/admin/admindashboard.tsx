@@ -13,6 +13,7 @@ import ManualRegistration from '../../components/admin/ManualRegistration';
 import UserManager from '../../components/admin/UserManager';
 import SponsorsManager from '../../components/admin/SponsorsManager';
 import EventManager from '../../components/admin/EventManager';
+import NotificationManager from '../../components/admin/NotificationManager';
 import NotificationBell from '../../components/notifications/NotificationBell';
 
 import { 
@@ -305,9 +306,19 @@ const AdminDashboard: React.FC = () => {
             await updateDoc(adminRef, updates);
           }
 
-          const roles = Array.isArray(data.roleLevel) 
-            ? data.roleLevel.map((r: string) => r.toLowerCase()) 
-            : (data.roleLevel ? [data.roleLevel.toLowerCase()] : []);
+          // Normalize roles: always use hyphens (legacy records may have spaces)
+          const roles = Array.isArray(data.roleLevel)
+            ? data.roleLevel.map((r: string) => r.toLowerCase().trim().replace(/\s+/g, '-'))
+            : (data.roleLevel ? [data.roleLevel.toLowerCase().trim().replace(/\s+/g, '-')] : []);
+
+          // Fallback 1: synthesize from 'assignment' field if roleLevel is empty
+          if (roles.length === 0 && data.assignment) {
+            roles.push(data.assignment.toLowerCase().trim().replace(/\s+/g, '-'));
+          }
+          // Fallback 2: superadmin type always has 'superadmin' role
+          if (data.type === 'superadmin' && !roles.includes('superadmin')) {
+            roles.push('superadmin');
+          }
 
           const localProfile: AdminProfile = {
             id: adminSnap.id,
@@ -348,7 +359,16 @@ const AdminDashboard: React.FC = () => {
           let attended = 0;
           let totalUsersCount = null;
 
+          // Per-event breakdown (populated for superadmin only)
+          let superBreakdown = new Map<string, { label: string; count: number; handle: string }>();
+
           if (isSuperUser) {
+            // Pre-fill superBreakdown with all events to guarantee 0-registration events are visible
+            COMPETITIONS_DATA.forEach(comp => {
+              if (comp.handle) superBreakdown.set(comp.handle, { label: comp.title, count: 0, handle: comp.handle });
+            });
+            superBreakdown.set('OrbitX-Solar', { label: 'Solar Spot Observation', count: 0, handle: 'OrbitX-Solar' });
+
             // Superadmins additionally get revenue and users
             const userSnap = await getCountFromServer(collection(db, "user"));
             totalUsersCount = userSnap.data().count;
@@ -367,6 +387,49 @@ const AdminDashboard: React.FC = () => {
                 free++;
               }
               if (data.isAttended) attended++;
+
+              // Align completely with RegistrationManager's logic
+              let trueHandle = data.competitionHandle || 'unknown';
+              const umbrellaHandles = ['Battle-Grid', 'Robo-Kshetra'];
+
+              // Engine identical to RegistrationManager
+              const dashboard_HANDLE_SIGNALS: Record<string, { ids: string[]; depts: string[]; titles: string[] }> = {
+                'BGMI':           { ids: ['CMP-26-BTG-BGMI'], depts: ['Battle Grid', 'Esports'], titles: ['bgmi'] },
+                'FreeFire':       { ids: ['CMP-26-BTG-FF'], depts: ['Battle Grid', 'Esports'], titles: ['freefire'] },
+                'CODM':           { ids: ['CMP-26-BTG-CODM'], depts: ['Battle Grid', 'Esports'], titles: ['codm', 'callofduty'] },
+                'ShadowFight4':   { ids: ['CMP-26-BTG-SF4'], depts: ['Battle Grid', 'Esports'], titles: ['shadowfight4', 'sf4'] },
+                'AmongUs':        { ids: ['CMP-26-BTG-AUS'], depts: ['Battle Grid', 'Esports'], titles: ['amongus'] },
+                'AlignX':         { ids: ['CMP-26-FLG-ALX'], depts: ['Robo-Kshetra'], titles: ['alignx'] },
+                'RoboRush':       { ids: ['CMP-26-FLG-RBR'], depts: ['Robo-Kshetra'], titles: ['roborush'] },
+                'RoboMaze':       { ids: ['CMP-26-FLG-RBM'], depts: ['Robo-Kshetra'], titles: ['robomaze'] },
+                'OrbitX-Solar':   { ids: ['orbitx_solar'], depts: ['OrbitX'], titles: ['solarspot', 'orbitxsolar', 'solar'] }
+              };
+
+              // If it's a generic umbrella or unknown, funnel it through the strict mapping engine
+              if (umbrellaHandles.includes(trueHandle) || trueHandle === 'unknown') {
+                 for (const [keyHandle, rules] of Object.entries(dashboard_HANDLE_SIGNALS)) {
+                    // 1: Check IDs
+                    if (data.competitionId && rules.ids.some(prefix => data.competitionId.startsWith(prefix))) {
+                       trueHandle = keyHandle;
+                       break;
+                    }
+                    // 2: Check Titles
+                    if (data.eventName) {
+                       const evtNorm = data.eventName.toLowerCase().replace(/[^a-z0-9]/g, '');
+                       if (rules.titles.some(t => evtNorm.includes(t))) {
+                          trueHandle = keyHandle;
+                          break;
+                       }
+                    }
+                 }
+              }
+
+              const cur = superBreakdown.get(trueHandle);
+              if (cur) {
+                cur.count++;
+              } else if (trueHandle !== 'unknown') {
+                superBreakdown.set(trueHandle, { label: data.eventName || trueHandle, count: 1, handle: trueHandle });
+              }
             });
 
             hackDocs.forEach(d => {
@@ -378,8 +441,26 @@ const AdminDashboard: React.FC = () => {
                 free++;
               }
               if (data.isAttended) attended++;
+
+              // Hackathon breakdown: group ALL under unified Param-X
+              const psHandle = 'ParamX-Hack';
+              const cur = superBreakdown.get(psHandle);
+              if (cur) {
+                cur.count++;
+              } else {
+                superBreakdown.set(psHandle, { label: "Param-X '26", count: 1, handle: psHandle });
+              }
             });
           }
+
+            // Eradicate structural categories so they never display as true competitive events
+            superBreakdown.delete('Battle-Grid');
+            superBreakdown.delete('Robo-Kshetra');
+
+            const eventBreakdown: { label: string; count: number; handle: string }[] =
+              isSuperUser
+                ? Array.from(superBreakdown.values()).sort((a, b) => b.count - a.count)
+                : [];
 
           setStats({
             totalUsers: totalUsersCount,
@@ -388,7 +469,7 @@ const AdminDashboard: React.FC = () => {
             paidCount: isSuperUser ? paid : null,
             freeCount: isSuperUser ? free : null,
             attendedCount: isSuperUser ? attended : null,
-            eventBreakdown: []
+            eventBreakdown
           });
         } else if (currentProfile) {
           // Regular admin sees restricted stats
@@ -648,11 +729,12 @@ const AdminDashboard: React.FC = () => {
     // Build the composite roleLevel
     let compositeRole = '';
     if (adminRoleType === 'department_admin') {
-      compositeRole = `department_admin-${adminDepartment.toLowerCase()}`;
+      // Always use hyphens — prevents space-vs-hyphen mismatch in lookups
+      compositeRole = `department_admin-${adminDepartment.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
     } else if (adminRoleType === 'core_team') {
-      compositeRole = `core_team-${adminCoreTeam.toLowerCase()}`;
+      compositeRole = `core_team-${adminCoreTeam.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
     } else if (adminRoleType === 'competition_admin') {
-      compositeRole = `competition_admin-${adminFlagship}`;
+      compositeRole = `admin-${adminFlagship}`;
     } else if (adminRoleType === 'workshop_admin') {
       compositeRole = `workshop-${adminWorkshop}`;
     } else {
@@ -955,6 +1037,28 @@ const AdminDashboard: React.FC = () => {
   };
 
   const renderContent = () => {
+    // ─── Department Admin tab access helper ───────────────────────
+    const deptAdminRole = adminProfile?.roleLevel?.find((r: string) => r.startsWith('department_admin')) || '';
+    const DEPT_TO_TABS: Record<string, string[]> = {
+      'department_admin-computer-engineering':       ['forgex_regs', 'algobid_regs'],
+      'department_admin-information-technology':     ['sf4_regs', 'codm_regs', 'codeladder_regs'],
+      'department_admin-ai-ds':                      ['iplauction_regs'],
+      'department_admin-ai-ml':                      ['devclash_regs', 'vibesprint_regs', 'coderelay_regs', 'bgmi_regs'],
+      'department_admin-civil-engineering':          ['bridgenova_regs'],
+      'department_admin-electrical-engineering':     ['poster_regs', 'sparktank_regs', 'freefire_regs'],
+      'department_admin-e-tc-engineering':           ['matlab_regs', 'circuitsim_regs', 'paper_regs', 'project_regs'],
+      'department_admin-ece':                        ['blindcode_regs', 'cricket_regs', 'amongus_regs'],
+      'department_admin-mechanical-engineering':     ['contraption_regs'],
+      'department_admin-robotics-and-automation':    ['alignx_regs', 'roborush_regs', 'robomaze_regs'],
+    };
+    const deptVisibleTabs = new Set<string>(DEPT_TO_TABS[deptAdminRole] || []);
+    // canViewTab: superadmin always yes, or dept admin for their assigned tabs, or explicit admin-* role
+    const canViewTab = (tabId: string, explicitRole?: string): boolean =>
+      isSuper ||
+      deptVisibleTabs.has(tabId) ||
+      (explicitRole ? adminProfile?.roleLevel?.includes(explicitRole) ?? false : false);
+    // ──────────────────────────────────────────────────────────────
+
     switch (activeTab) {
       case 'overview':
         return (
@@ -1073,14 +1177,23 @@ const AdminDashboard: React.FC = () => {
               )}
             </div>
 
-            {/* Event-wise breakdown for dept/competition admins */}
-            {!isSuper && stats.eventBreakdown && stats.eventBreakdown.length > 0 && (
+            {/* Event-wise breakdown — shown for all admin types */}
+            {stats.eventBreakdown && stats.eventBreakdown.length > 0 && (
               <div className="admin-stat-premium" style={{ marginTop: '2rem', padding: '1.5rem 2rem' }}>
                 <div className="stat-label-row" style={{ marginBottom: '1.2rem' }}>
                   <Ticket size={20} color="#a78bfa" />
-                  <span style={{ fontWeight: 700, fontSize: '0.85rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)' }}>Event-wise Registrations</span>
+                  <span style={{ fontWeight: 700, fontSize: '0.85rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)' }}>
+                    {isSuper ? 'Registration Breakdown by Event' : 'Event-wise Registrations'}
+                  </span>
+                  <span style={{ marginLeft: 'auto', fontSize: '0.75rem', color: 'rgba(255,255,255,0.3)' }}>
+                    {stats.eventBreakdown.length} events
+                  </span>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: isSuper ? 'repeat(auto-fill, minmax(280px, 1fr))' : '1fr',
+                  gap: '10px'
+                }}>
                   {stats.eventBreakdown.map((ev) => (
                     <div key={ev.handle} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: 'rgba(167,139,250,0.06)', borderRadius: '10px', border: '1px solid rgba(167,139,250,0.1)' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -1245,6 +1358,8 @@ const AdminDashboard: React.FC = () => {
         );
       case 'sponsors':
         return <SponsorsManager />;
+      case 'notifications':
+        return <NotificationManager />;
       case 'stall_bookings':
         return (
           <div className="tab-content animate-in">
@@ -1534,64 +1649,24 @@ const AdminDashboard: React.FC = () => {
             /> 
           : <div>Access Denied</div>;
       case 'bgmi_regs':
-        return (isSuper || adminProfile?.roleLevel.some(r => ['admin-battle-grid', 'admin-bgmi'].includes(r)))
-          ? <RegistrationManager 
-              key="bgmi"
-              isSuper={isSuper}
-              forcedHandle="Battle-Grid" 
-              collectionScope="registrations"
-              eventTitleFilter="BGMI"
-              title="BGMI Registrations" 
-              subtitle="Managing BGMI arena entries" 
-            />
+        return canViewTab('bgmi_regs', 'admin-bgmi') || adminProfile?.roleLevel?.includes('admin-battle-grid')
+          ? <RegistrationManager key="bgmi" isSuper={isSuper} forcedHandle="Battle-Grid" collectionScope="registrations" eventTitleFilter="BGMI" title="BGMI Registrations" subtitle="Managing BGMI arena entries" />
           : <div>Access Denied</div>;
       case 'freefire_regs':
-        return (isSuper || adminProfile?.roleLevel.some(r => ['admin-battle-grid', 'admin-freefire', 'admin-free-fire'].includes(r)))
-          ? <RegistrationManager 
-              key="freefire"
-              isSuper={isSuper}
-              forcedHandle="Battle-Grid" 
-              collectionScope="registrations"
-              eventTitleFilter="FREE FIRE"
-              title="Free Fire Registrations" 
-              subtitle="Managing Free Fire arena entries" 
-            />
+        return canViewTab('freefire_regs', 'admin-freefire') || adminProfile?.roleLevel?.includes('admin-battle-grid')
+          ? <RegistrationManager key="freefire" isSuper={isSuper} forcedHandle="Battle-Grid" collectionScope="registrations" eventTitleFilter="FREE FIRE" title="Free Fire Registrations" subtitle="Managing Free Fire arena entries" />
           : <div>Access Denied</div>;
       case 'codm_regs':
-        return (isSuper || adminProfile?.roleLevel.some(r => ['admin-battle-grid', 'admin-codm'].includes(r)))
-          ? <RegistrationManager 
-              key="codm"
-              isSuper={isSuper}
-              forcedHandle="Battle-Grid" 
-              collectionScope="registrations"
-              eventTitleFilter="CALL OF DUTY (MOBILE)"
-              title="COD Mobile Registrations" 
-              subtitle="Managing Call of Duty Mobile arena entries" 
-            />
+        return canViewTab('codm_regs', 'admin-codm') || adminProfile?.roleLevel?.includes('admin-battle-grid')
+          ? <RegistrationManager key="codm" isSuper={isSuper} forcedHandle="Battle-Grid" collectionScope="registrations" eventTitleFilter={["CALL OF DUTY", "CODM"]} title="COD Mobile Registrations" subtitle="Managing Call of Duty Mobile arena entries" />
           : <div>Access Denied</div>;
       case 'sf4_regs':
-        return (isSuper || adminProfile?.roleLevel.some(r => ['admin-battle-grid', 'admin-sf4', 'admin-shadow-fight-4'].includes(r)))
-          ? <RegistrationManager 
-              key="sf4"
-              isSuper={isSuper}
-              forcedHandle="Battle-Grid" 
-              collectionScope="registrations"
-              eventTitleFilter="SHADOW-FIGHT 4"
-              title="Shadow Fight 4 Registrations" 
-              subtitle="Managing Shadow Fight 4 arena entries" 
-            />
+        return canViewTab('sf4_regs', 'admin-sf4') || adminProfile?.roleLevel?.includes('admin-battle-grid')
+          ? <RegistrationManager key="sf4" isSuper={isSuper} forcedHandle="Battle-Grid" collectionScope="registrations" eventTitleFilter="SHADOW-FIGHT 4" title="Shadow Fight 4 Registrations" subtitle="Managing Shadow Fight 4 arena entries" />
           : <div>Access Denied</div>;
       case 'amongus_regs':
-        return (isSuper || adminProfile?.roleLevel.some(r => ['admin-battle-grid', 'admin-amongus'].includes(r)))
-          ? <RegistrationManager 
-              key="amongus"
-              isSuper={isSuper}
-              forcedHandle="Battle-Grid" 
-              collectionScope="registrations"
-              eventTitleFilter="AMONG US"
-              title="Among Us Registrations" 
-              subtitle="Managing Among Us arena entries" 
-            />
+        return canViewTab('amongus_regs', 'admin-amongus') || adminProfile?.roleLevel?.includes('admin-battle-grid')
+          ? <RegistrationManager key="amongus" isSuper={isSuper} forcedHandle="Battle-Grid" collectionScope="registrations" eventTitleFilter="AMONG US" title="Among Us Registrations" subtitle="Managing Among Us arena entries" />
           : <div>Access Denied</div>;
       // Robo-Kshetra individual events
       case 'alignx_regs':
@@ -1632,73 +1707,73 @@ const AdminDashboard: React.FC = () => {
             />
           : <div>Access Denied</div>;
 
-      // Standard Competitions (handles from competitions.ts data file)
+      // Standard Competitions — also accessible by department admin for their assigned events
       case 'forgex_regs':
-        return (isSuper || adminProfile?.roleLevel.includes('admin-forge-x'))
+        return canViewTab('forgex_regs', 'admin-forge-x')
           ? <RegistrationManager key="forge-x" isSuper={isSuper} forcedHandle="Forge-Lead" collectionScope="registrations" title="Forge-X Registrations" subtitle="Managing build competition registrations" />
           : <div>Access Denied</div>;
       case 'algobid_regs':
-        return (isSuper || adminProfile?.roleLevel.includes('admin-algo-bid'))
+        return canViewTab('algobid_regs', 'admin-algo-bid')
           ? <RegistrationManager key="algo-bid" isSuper={isSuper} forcedHandle="Algo-Master" collectionScope="registrations" title="AlgoBid Registrations" subtitle="Managing algorithm auction registrations" />
           : <div>Access Denied</div>;
       case 'codeladder_regs':
-        return (isSuper || adminProfile?.roleLevel.includes('admin-code-ladder'))
+        return canViewTab('codeladder_regs', 'admin-code-ladder')
           ? <RegistrationManager key="code-ladder" isSuper={isSuper} forcedHandle="Code-Climber" collectionScope="registrations" title="Code Ladder Registrations" subtitle="Managing coding ladder registrations" />
           : <div>Access Denied</div>;
       case 'iplauction_regs':
-        return (isSuper || adminProfile?.roleLevel.includes('admin-ipl-auction'))
+        return canViewTab('iplauction_regs', 'admin-ipl-auction')
           ? <RegistrationManager key="ipl-auction" isSuper={isSuper} forcedHandle="IPL-Auctioneer" collectionScope="registrations" title="IPL Auction Registrations" subtitle="Managing IPL auction registrations" />
           : <div>Access Denied</div>;
       case 'blindcode_regs':
-        return (isSuper || adminProfile?.roleLevel.includes('admin-blind-code'))
+        return canViewTab('blindcode_regs', 'admin-blind-code')
           ? <RegistrationManager key="blind-code" isSuper={isSuper} forcedHandle="Blind-Coder" collectionScope="registrations" title="Blind Code Registrations" subtitle="Managing blind coding registrations" />
           : <div>Access Denied</div>;
       case 'devclash_regs':
-        return (isSuper || adminProfile?.roleLevel.includes('admin-dev-clash'))
+        return canViewTab('devclash_regs', 'admin-dev-clash')
           ? <RegistrationManager key="dev-clash" isSuper={isSuper} forcedHandle="Dev-Striker" collectionScope="registrations" title="DevClash Registrations" subtitle="Managing AI hackathon registrations" />
           : <div>Access Denied</div>;
       case 'vibesprint_regs':
-        return (isSuper || adminProfile?.roleLevel.includes('admin-vibe-sprint'))
+        return canViewTab('vibesprint_regs', 'admin-vibe-sprint')
           ? <RegistrationManager key="vibe-sprint" isSuper={isSuper} forcedHandle="Vibe-Lead" collectionScope="registrations" title="Vibe Sprint Registrations" subtitle="Managing vibe coding registrations" />
           : <div>Access Denied</div>;
       case 'coderelay_regs':
-        return (isSuper || adminProfile?.roleLevel.includes('admin-code-relay'))
+        return canViewTab('coderelay_regs', 'admin-code-relay')
           ? <RegistrationManager key="code-relay" isSuper={isSuper} forcedHandle="Relay-Coder" collectionScope="registrations" title="Code Relay Registrations" subtitle="Managing relay coding registrations" />
           : <div>Access Denied</div>;
       case 'bridgenova_regs':
-        return (isSuper || adminProfile?.roleLevel.includes('admin-bridge-nova'))
+        return canViewTab('bridgenova_regs', 'admin-bridge-nova')
           ? <RegistrationManager key="bridge-nova" isSuper={isSuper} forcedHandle="Arch-Nova" collectionScope="registrations" title="Bridge Nova Registrations" subtitle="Managing bridge building registrations" />
           : <div>Access Denied</div>;
       case 'poster_regs':
-        return (isSuper || adminProfile?.roleLevel.includes('admin-poster'))
+        return canViewTab('poster_regs', 'admin-poster')
           ? <RegistrationManager key="poster" isSuper={isSuper} forcedHandle="Paper-Lead" collectionScope="registrations" title="Poster Presentation Registrations" subtitle="Managing poster presentation registrations" />
           : <div>Access Denied</div>;
       case 'sparktank_regs':
-        return (isSuper || adminProfile?.roleLevel.includes('admin-spark-tank'))
+        return canViewTab('sparktank_regs', 'admin-spark-tank')
           ? <RegistrationManager key="spark-tank" isSuper={isSuper} forcedHandle="Spark-Lead" collectionScope="registrations" title="Spark Tank Registrations" subtitle="Managing Spark Tank registrations" />
           : <div>Access Denied</div>;
       case 'matlab_regs':
-        return (isSuper || adminProfile?.roleLevel.includes('admin-matlab'))
+        return canViewTab('matlab_regs', 'admin-matlab')
           ? <RegistrationManager key="matlab" isSuper={isSuper} forcedHandle="Mat-Master" collectionScope="registrations" title="Matlab Madness Registrations" subtitle="Managing Matlab competition registrations" />
           : <div>Access Denied</div>;
       case 'circuitsim_regs':
-        return (isSuper || adminProfile?.roleLevel.includes('admin-circuit-sim'))
+        return canViewTab('circuitsim_regs', 'admin-circuit-sim')
           ? <RegistrationManager key="circuit-sim" isSuper={isSuper} forcedHandle="Circuit-Ninja" collectionScope="registrations" title="Circuit Simulation Registrations" subtitle="Managing circuit simulation registrations" />
           : <div>Access Denied</div>;
       case 'contraption_regs':
-        return (isSuper || adminProfile?.roleLevel.includes('admin-contraptions'))
+        return canViewTab('contraption_regs', 'admin-contraptions')
           ? <RegistrationManager key="contraptions" isSuper={isSuper} forcedHandle="Master-Builder" collectionScope="registrations" title="Contraptions Registrations" subtitle="Managing contraptions challenge registrations" />
           : <div>Access Denied</div>;
       case 'cricket_regs':
-        return (isSuper || adminProfile?.roleLevel.includes('admin-circle-cricket'))
+        return canViewTab('cricket_regs', 'admin-circle-cricket')
           ? <RegistrationManager key="circle-cricket" isSuper={isSuper} forcedHandle="Cricket-Lead" collectionScope="registrations" title="Circle Cricket Registrations" subtitle="Managing circle cricket registrations" />
           : <div>Access Denied</div>;
       case 'paper_regs':
-        return (isSuper || adminProfile?.roleLevel.includes('admin-paper-pres'))
+        return canViewTab('paper_regs', 'admin-paper-pres')
           ? <RegistrationManager key="paper-pres" isSuper={isSuper} forcedHandle="Research-Lead" collectionScope="registrations" title="Paper Presentation Registrations" subtitle="Managing paper presentation registrations" />
           : <div>Access Denied</div>;
       case 'project_regs':
-        return (isSuper || adminProfile?.roleLevel.includes('admin-project-comp'))
+        return canViewTab('project_regs', 'admin-project-comp')
           ? <RegistrationManager key="project-comp" isSuper={isSuper} forcedHandle="Project-Master" collectionScope="registrations" title="Project Competition Registrations" subtitle="Managing project competition registrations" />
           : <div>Access Denied</div>;
 

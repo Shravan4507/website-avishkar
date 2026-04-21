@@ -40,7 +40,6 @@ import './EsportsRegistration.css';
 const GAMES = [
     { id: 'bgmi', label: 'BGMI', tagline: 'Grid-Warrior Mobile (4+1 Squad)', prize: '₹50,000', fee: 0, type: 'TEAM', members: 5, platform: 'Mobile', color: '#9af000', image: `${import.meta.env.BASE_URL}assets/esports/bgmi.webp`, rulebook: `${import.meta.env.BASE_URL}assets/rule-books/bgmi.pdf`, coordinator: 'Rohit Bayas', contactNumber: '9322708124', coordinator2: 'Omkar Wadekar', contactNumber2: '7378503893' },
     { id: 'freefire', label: 'FREE FIRE', tagline: 'Garena Battle-Royale (4-Player Squad)', prize: '₹6,000', fee: 250, type: 'TEAM', members: 4, platform: 'Mobile', color: '#e91e63', image: `${import.meta.env.BASE_URL}assets/esports/freefire.webp`, rulebook: `${import.meta.env.BASE_URL}assets/rule-books/free-fire.pdf`, coordinator: 'Rohit Chavan', contactNumber: '7823056055' },
-    { id: 'codm', label: 'CALL OF DUTY (MOBILE)', tagline: 'Tactical 5v5 Combat', prize: '₹16,000', fee: 400, type: 'TEAM', members: 5, platform: 'Mobile', color: '#4caf50', image: `${import.meta.env.BASE_URL}assets/codm.webp`, rulebook: `${import.meta.env.BASE_URL}assets/rule-books/call-of-duty.pdf`, coordinator: 'Vaibhav Bandgar', contactNumber: '9730906103' },
     { id: 'sf4', label: 'SHADOW-FIGHT 4', tagline: 'Arena 1v1 Combat', prize: '₹8,000', fee: 150, type: 'SOLO', members: 1, platform: 'Mobile', color: '#ffeb3b', image: `${import.meta.env.BASE_URL}assets/esports/sf4.webp`, rulebook: `${import.meta.env.BASE_URL}assets/rule-books/shadow-fight-4.pdf`, coordinator: 'Pranav Kulkarni', contactNumber: '9423162724' },
     { id: 'amongus', label: 'AMONG US', tagline: 'Social Deduction', prize: 'TBD', fee: 100, type: 'SOLO', members: 1, platform: 'Mobile', color: '#00bcd4', image: `${import.meta.env.BASE_URL}assets/esports/amongus.webp`, coordinator: 'Mrunali Kolte', contactNumber: '9067101314', rulebook: `${import.meta.env.BASE_URL}assets/rule-books/among-us.pdf`, coordinator2: 'Shreya Kadam', contactNumber2: '9511659631' },
 ] as const;
@@ -299,15 +298,6 @@ const EsportsRegistration: React.FC = () => {
                     }
                 }
 
-                if (activeGame.id === 'codm') {
-                    const codmId = formData[`${m}CodmId`];
-                    if (!ign) newErrors[`${m}Ign`] = "IGN Required";
-                    if (!codmId) {
-                        newErrors[`${m}CodmId`] = "ID Required";
-                    } else if (!/^\d+$/.test(codmId)) {
-                        newErrors[`${m}CodmId`] = "Must be numeric";
-                    }
-                }
 
                 if (activeGame.id === 'sf4') {
                     const sf4Id = formData[`${m}Sf4Id`];
@@ -671,20 +661,7 @@ const EsportsRegistration: React.FC = () => {
                                         </div>
                                     </div>
                                 )}
-                                {activeGame?.id === 'codm' && (
-                                    <div className="es-detail-row">
-                                        <div className={`es-input-with-icon prefilled editable ${errors.leaderIgn ? 'field-error' : ''}`}>
-                                            <Gamepad2 size={16} />
-                                            <input type="text" name="leaderIgn" value={formData.leaderIgn || ''} onChange={handleInputChange} placeholder="In-game Name" />
-                                            {errors.leaderIgn && <span className="es-error-badge">{errors.leaderIgn}</span>}
-                                        </div>
-                                        <div className={`es-input-with-icon prefilled editable ${errors.leaderCodmId ? 'field-error' : ''}`}>
-                                            <Hash size={16} />
-                                            <input type="text" name="leaderCodmId" value={formData.leaderCodmId || ''} onChange={handleInputChange} placeholder="CODM Player UID" />
-                                            {errors.leaderCodmId && <span className="es-error-badge">{errors.leaderCodmId}</span>}
-                                        </div>
-                                    </div>
-                                )}
+
                                 {activeGame?.id === 'sf4' && (
                                     <div className="es-detail-row">
                                         <div className={`es-input-with-icon prefilled editable ${errors.leaderIgn ? 'field-error' : ''}`}>
@@ -796,20 +773,7 @@ const EsportsRegistration: React.FC = () => {
                                             </div>
                                         </div>
                                     )}
-                                    {activeGame?.id === 'codm' && (
-                                        <div className="es-detail-row">
-                                            <div className={`es-input-with-icon prefilled editable ${errors[`${id}Ign`] ? 'field-error' : ''}`}>
-                                                <Gamepad2 size={16} />
-                                                <input type="text" name={`${id}Ign`} value={formData[`${id}Ign`] || ''} onChange={handleInputChange} placeholder="In-game Name" />
-                                                {errors[`${id}Ign`] && <span className="es-error-badge">{errors[`${id}Ign`]}</span>}
-                                            </div>
-                                            <div className={`es-input-with-icon prefilled editable ${errors[`${id}CodmId`] ? 'field-error' : ''}`}>
-                                                <Hash size={16} />
-                                                <input type="text" name={`${id}CodmId`} value={formData[`${id}CodmId`] || ''} onChange={handleInputChange} placeholder="CODM Player UID" />
-                                                {errors[`${id}CodmId`] && <span className="es-error-badge">{errors[`${id}CodmId`]}</span>}
-                                            </div>
-                                        </div>
-                                    )}
+
                                 </div>
                             </div>
                         ))}
@@ -879,9 +843,7 @@ const EsportsRegistration: React.FC = () => {
                                             {activeGame?.id === 'freefire' && formData[`${m}Ign`] && (
                                                 <span className="es-pm-ign">{formData[`${m}Ign`]} | {formData[`${m}FfId`]}</span>
                                             )}
-                                            {activeGame?.id === 'codm' && formData[`${m}Ign`] && (
-                                                <span className="es-pm-ign">{formData[`${m}Ign`]} | {formData[`${m}CodmId`]}</span>
-                                            )}
+
                                             {activeGame?.id === 'sf4' && formData[`${m}Ign`] && (
                                                 <span className="es-pm-ign">{formData[`${m}Ign`]} | {formData[`${m}Sf4Id`]}</span>
                                             )}

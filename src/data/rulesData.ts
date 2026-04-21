@@ -26,56 +26,6 @@ export interface CompetitionRules {
 export const RULES_DATA: Record<string, CompetitionRules> = {
     // ── Flagships ──
 
-    'param-x-26': {
-        slug: 'param-x-26',
-        name: "Param-X '26",
-        tagline: 'The Premier Hackathon',
-        description:
-            'Param-X is a 10-hour hackathon where participants can choose any topic from any domain for their innovation. Teams develop solutions end-to-end — from ideation to final presentation — with periodic mentor and judge reviews throughout.',
-        teamSize: '4 members',
-        fee: '₹500 per team',
-        duration: '10 hours',
-        category: 'flagship',
-        rules: [
-            'No changes in team members after registration.',
-            'A participant cannot be part of multiple teams.',
-            'Participants must develop their solutions during the hackathon duration.',
-            'Use of open-source libraries/tools is allowed.',
-            'Pre-built projects are not permitted.',
-            'Internet access may be allowed only for development purposes.',
-            'Maintain professionalism and ethical behavior.',
-            'Collaboration within the team is allowed; plagiarism is not.',
-            'Respect mentors, judges, and fellow participants.',
-        ],
-        procedure: [
-            'The hackathon will run continuously for 10 hours.',
-            'Participants can choose any topic from any domain.',
-            'Periodic mentor/judge reviews may be conducted.',
-            'Final evaluation will be based on submitted projects and presentations.',
-            'Any participant can choose any topic from any domain. It is not necessary that students must select topics only from their own domain—for example, IT students are not restricted to choosing only IT-related topics.',
-            'Teams must submit their final project before the deadline.',
-            'Submission includes: Source code, Project report/description, Presentation or demo.',
-            'Late submissions will not be accepted.',
-        ],
-        judgingCriteria: [
-            'Innovation & creativity',
-            'Problem-solving approach',
-            'Technical implementation',
-            'Usability and impact',
-            'Presentation and demonstration',
-        ],
-        prizes: {
-            first: '₹51,000',
-            second: '₹25,000',
-            third: '₹15,000',
-        },
-        coordinators: {
-            student: ['Sujal Jaju – 8010127828', 'Arya Dandnaik – 7058308428'],
-            faculty: ['Wrushabh Sirsat – 9325792405'],
-        },
-        rulebookPath: `${import.meta.env.BASE_URL}assets/rule-books/param-x.pdf`,
-        rulebookComingSoon: false
-    },
 
     // ── Standard Competitions ──
 
@@ -718,45 +668,7 @@ export const RULES_DATA: Record<string, CompetitionRules> = {
         rulebookComingSoon: false
     },
 
-    'codm': {
-        slug: 'codm',
-        name: 'Call of Duty Mobile',
-        tagline: 'Tactical Squad Combat',
-        description:
-            `A team-based E-Sports event designed to evaluate players' coordination, strategy, and combat execution in a competitive CODM multiplayer environment.`,
-        teamSize: '5 members per team',
-        fee: '₹400 per team',
-        category: 'flagship',
-        rules: [
-            'Each team must consist of exactly 5 members.',
-            'Original AVR-IDs are mandatory for match entry validation.',
-            'No change in team members after registration.',
-            'Strict Zero-Tolerance policy for third-party hacks or scripts.',
-            'No Emulators/PC players. Pure Mobile/Tablet gameplay only.',
-            'Admins may request screen-sharing or live POV during matches.',
-            'Maintain discipline and sportsmanship throughout.',
-            'No abusive language, cheating, or unsportsmanlike behavior.',
-        ],
-        procedure: [
-            'Lobby IDs shared via Discord 15 minutes before the drop-time.',
-            'Matches are conducted in a knockout/elimination format.',
-            'Winning teams advance until finals.',
-            'Match format follows standard competitive squad rules.',
-            'Grid Marshall (Admin) decision is final.',
-        ],
-        judgingCriteria: [
-            'Winning is based on match results and elimination progression.',
-        ],
-        prizes: {
-            first: '₹10,000',
-            second: '₹6,000',
-        },
-        coordinators: {
-            student: ['Vaibhav Bandgar – 9730906103'],
-        },
-        rulebookPath: `${import.meta.env.BASE_URL}assets/rule-books/call-of-duty.pdf`,
-        rulebookComingSoon: false
-    },
+
 
     'sf4': {
         slug: 'sf4',
@@ -798,89 +710,6 @@ export const RULES_DATA: Record<string, CompetitionRules> = {
 
     // ── Robotics (Robo-Kshetra sub-events) ──
 
-    'alignx': {
-        slug: 'alignx',
-        name: 'AlignX',
-        tagline: 'Line Follower Challenge',
-        description:
-            'A line follower challenge involving autonomous robots navigating complex tracks with hairpin bends, acute angles, and potential color inversions. Robots must support precision and turbo speed modes.',
-        teamSize: '4 members per team',
-        fee: '₹499',
-        category: 'flagship',
-        rules: [
-            'Robots must be completely autonomous and wireless.',
-            'Bot must fit within 20cm × 20cm × 20cm (Weight < 3kg).',
-            'Original AVR-IDs are mandatory for all members.',
-            'Must support at least two speed modes: "Precision" and "Turbo".',
-            'Unauthorized remote assistance leads to immediate disqualification.',
-            'No flammable, hazardous, or high-voltage materials allowed.',
-            'Safety protocols must be followed strictly in the arena.',
-        ],
-        procedure: [
-            'Round 1: Mechanical Scrutiny & Tech-Check.',
-            'Round 2: Qualification Heats (Speed & Accuracy).',
-            'Round 3: The Grand Arena - Head-to-Head / Timed Labyrinth.',
-            '15 minutes calibration time before each round.',
-            'Arena Marshal\'s decision is final and binding.',
-        ],
-        judgingCriteria: [
-            'Accuracy & Precision – 25%',
-            'Adaptability – 25%',
-            'Speed and Efficiency – 20%',
-            'Design and Construction – 15%',
-            'Technical Implementation – 15%',
-        ],
-        prizes: {
-            first: '₹10,000',
-            second: '₹6,000',
-            third: '₹3,000',
-        },
-        rulebookPath: `${import.meta.env.BASE_URL}assets/rule-books/alignx.pdf`,
-        rulebookComingSoon: false
-    },
-
-    'roborush': {
-        slug: 'roborush',
-        name: 'RoboRush',
-        tagline: 'Navigate. Optimize. Dominate.',
-        description:
-            'A robotics competition focused on obstacle navigation, path planning, and speed optimization. Navigate from start to end with the fastest and cleanest run.',
-        teamSize: '2–4 members per team',
-        fee: '₹499',
-        category: 'flagship',
-        rules: [
-            'Each squad must consist of 2 to 4 members.',
-            'Bot must not exceed 30cm × 30cm (Weight < 1.5kg).',
-            'Original AVR-IDs are mandatory for all members.',
-            'Robot must not jump, fly, climb, or damage the arena.',
-            'No marking the arena or leaving parts behind.',
-            'No touching robot after track reveal.',
-            'Unauthorized remote assistance leads to disqualification.',
-        ],
-        procedure: [
-            'Round 1: Preliminary Scrutiny.',
-            'Round 2: Obstacle Navigation & Path Planning.',
-            'Round 3: Velocity Optimization Run.',
-            'Mandatory technical inspection before the event.',
-            'Arena Marshal\'s decision is final and binding.',
-        ],
-        judgingCriteria: [
-            'Checkpoint scoring: +10 each',
-            'Lap completion: +10',
-            'Shortest path: +5',
-            'No collisions: +5',
-            'Fastest time: +5',
-            'Best design: +5',
-            'Penalty: −10 for arena damage',
-        ],
-        prizes: {
-            first: '₹10,000',
-            second: '₹6,000',
-            third: '₹3,000',
-        },
-        rulebookPath: `${import.meta.env.BASE_URL}assets/rule-books/roborush.pdf`,
-        rulebookComingSoon: false
-    },
 
     'circuit-simulation': {
         slug: 'circuit-simulation',

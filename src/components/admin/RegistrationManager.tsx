@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import {
-  collection, query, getDocs, orderBy, doc, updateDoc, deleteDoc,
+  collection, query, onSnapshot, orderBy, doc, updateDoc, deleteDoc,
   setDoc, serverTimestamp, runTransaction
 } from 'firebase/firestore';
 import { db } from '../../firebase/firebase';
@@ -130,25 +130,30 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({ forcedHandle,
   const [editReg, setEditReg] = useState<Registration | null>(null);
   const [saving, setSaving] = useState(false);
 
-  /* ────────────────── Fetch ────────────────── */
+  /* ────────────────── Fetch (Realtime) ────────────────── */
   useEffect(() => {
-    const fetch = async () => {
-      setLoading(true);
+    setLoading(true);
+
+    let regsDocs: any[] = [];
+    let hackDocs: any[] = [];
+    let pendingDocs: any[] = [];
+
+    let regsReady = false;
+    let hackReady = false;
+    let pendingReady = false;
+
+    const shouldFetchRegs = collectionScope === 'both' || collectionScope === 'registrations';
+    const shouldFetchHack = collectionScope === 'both' || collectionScope === 'hackathon';
+
+    if (!shouldFetchRegs) regsReady = true;
+    if (!shouldFetchHack) hackReady = true;
+
+    const processData = () => {
+      if (!regsReady || !hackReady || !pendingReady) return;
       try {
-        // SOLUTION A: Fetch ALL registrations — filter client-side in useMemo.
-        // Server-side where('competitionHandle') was hiding documents with empty/missing handles.
-        const regsQuery = query(collection(db, 'registrations'), orderBy('registeredAt', 'desc'));
-        const hackQuery = query(collection(db, 'hackathon_registrations'), orderBy('createdAt', 'desc'));
-        const pendingQuery = query(collection(db, 'pending_registrations'), orderBy('createdAt', 'desc'));
-
-        const shouldFetchRegs = collectionScope === 'both' || collectionScope === 'registrations';
-        const shouldFetchHack = collectionScope === 'both' || collectionScope === 'hackathon';
-
-        const [regSnap, hackSnap, pendingSnap] = await Promise.all([
-          shouldFetchRegs ? getDocs(regsQuery) : Promise.resolve({ docs: [] }),
-          shouldFetchHack ? getDocs(hackQuery) : Promise.resolve({ docs: [] }),
-          getDocs(pendingQuery).catch(() => ({ docs: [] }))
-        ]);
+        const regSnap = { docs: regsDocs };
+        const hackSnap = { docs: hackDocs };
+        const pendingSnap = { docs: pendingDocs };
 
         const standardRegs = regSnap.docs.map(d => {
           const data = d.data();
@@ -174,6 +179,8 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({ forcedHandle,
             teamSize: data.teamSize || data.memberCount || (data.squad ? data.squad.length : 1),
             // Default to 'ParamX-Hack' if missing but eventName indicates a Param-X hackathon
             competitionHandle: data.competitionHandle || ((data.eventName || data.eventTitle || '').includes('Param-X') ? 'ParamX-Hack' : ''),
+            registeredAt: data.registeredAt || data.createdAt || data.timestamp || data.metadata?.createdAt,
+            paymentStatus: (data.paymentStatus || 'free').toLowerCase(), // normalize to lowercase
             _collection: 'registrations',
           } as Registration;
 
@@ -328,13 +335,34 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({ forcedHandle,
         setRegistrations([...confirmedRegs, ...Array.from(pendingMap.values())]);
       } catch (err) {
         console.error(err);
-        toast.error('Failed to load registrations.');
+        toast.error('Failed to parse registrations.');
       } finally {
         setLoading(false);
       }
     };
-    fetch();
-  }, []);
+
+    const regsQuery = query(collection(db, 'registrations'), orderBy('registeredAt', 'desc'));
+    const hackQuery = query(collection(db, 'hackathon_registrations'), orderBy('createdAt', 'desc'));
+    const pendingQuery = query(collection(db, 'pending_registrations'), orderBy('createdAt', 'desc'));
+
+    const unsubs: (() => void)[] = [];
+
+    if (shouldFetchRegs) {
+      unsubs.push(onSnapshot(regsQuery, (snap) => {
+        regsDocs = snap.docs; regsReady = true; processData();
+      }, (e) => { console.error('Regs fetch error:', e); regsReady = true; processData(); }));
+    }
+    if (shouldFetchHack) {
+      unsubs.push(onSnapshot(hackQuery, (snap) => {
+        hackDocs = snap.docs; hackReady = true; processData();
+      }, (e) => { console.error('Hack fetch error:', e); hackReady = true; processData(); }));
+    }
+    unsubs.push(onSnapshot(pendingQuery, (snap) => {
+      pendingDocs = snap.docs; pendingReady = true; processData();
+    }, (e) => { console.error('Pending fetch error:', e); pendingReady = true; processData(); }));
+
+    return () => unsubs.forEach(u => u());
+  }, [collectionScope, toast]);
 
   /* ────────────────── Derived Data ────────────────── */
   const uniqueEvents = useMemo(() => ['All', ...new Set(registrations.map(r => r.eventName).filter(Boolean))], [registrations]);
@@ -346,29 +374,32 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({ forcedHandle,
 
     // ── Handle-based filtering (now client-side with multi-signal matching) ──
     // Maps forcedHandle → all possible identifiers that a registration could have
-    const HANDLE_SIGNALS: Record<string, { ids: string[]; depts: string[]; cats: string[] }> = {
-      'Battle-Grid':    { ids: ['battlegrid_', 'CMP-26-BTG', 'CMP-26-FLG-BG'], depts: ['Battle Grid'], cats: ['BTG'] },
-      'Robo-Kshetra':   { ids: ['robokshetra_', 'CMP-26-FLG-ROBO', 'CMP-26-FLG-ALX', 'CMP-26-FLG-RM', 'CMP-26-FLG-RR'], depts: ['Robo-Kshetra', 'Flagship'], cats: ['FLG'] },
-      'ParamX-Hack':    { ids: ['CMP-26-FLG-PRX'], depts: ['Flagship'], cats: ['FLG'] },
+    const HANDLE_SIGNALS: Record<string, { ids: string[]; depts: string[]; cats: string[]; titles: string[] }> = {
+      'Battle-Grid':    { ids: ['battlegrid_', 'CMP-26-BTG', 'CMP-26-FLG-BG'], depts: ['Battle Grid'], cats: ['BTG'], titles: ['battlegrid'] },
+      'Robo-Kshetra':   { ids: ['robokshetra_', 'CMP-26-FLG-ROBO', 'CMP-26-FLG-ALX', 'CMP-26-FLG-RBM', 'CMP-26-FLG-RBR'], depts: ['Robo-Kshetra', 'Flagship'], cats: ['FLG'], titles: ['robo', 'alignx'] },
+      'ParamX-Hack':    { ids: ['CMP-26-FLG-PRX'], depts: ['Flagship'], cats: ['FLG'], titles: ['paramx'] },
 
       // Department-specific handles — each maps to exactly one competition
-      'Forge-Lead':     { ids: ['CMP-26-CE-FGX', 'CMP-26-GEN-FGX'], depts: ['Computer Engineering', 'Forge-X'], cats: ['DEP', 'GEN'] },
-      'Algo-Master':    { ids: ['CMP-26-CE-ALB', 'CMP-26-GEN-ALB'], depts: ['Computer Engineering', 'AlgoBid'], cats: ['DEP', 'GEN'] },
-      'Code-Climber':   { ids: ['CMP-26-IT-CDL', 'CMP-26-GEN-CDL'], depts: ['Information Technology', 'Code Ladder'], cats: ['DEP', 'GEN'] },
-      'IPL-Auctioneer': { ids: ['CMP-26-ADS-IPL', 'CMP-26-GEN-IPL'], depts: ['AI&DS', 'IPL Auction'], cats: ['DEP', 'GEN'] },
-      'Blind-Coder':    { ids: ['CMP-26-ECE-BLC', 'CMP-26-GEN-BLC'], depts: ['ECE', 'Blind Code'], cats: ['DEP', 'GEN'] },
-      'Dev-Striker':    { ids: ['CMP-26-AIML-DVC', 'CMP-26-GEN-DVC'], depts: ['AI&ML', 'DevClash'], cats: ['DEP', 'GEN'] },
-      'Vibe-Lead':      { ids: ['CMP-26-AIML-VBS', 'CMP-26-GEN-VBS'], depts: ['AI&ML', 'Vibe Sprint'], cats: ['DEP', 'GEN'] },
-      'Relay-Coder':    { ids: ['CMP-26-AIML-CRL', 'CMP-26-GEN-CRL'], depts: ['AI&ML', 'Code Relay'], cats: ['DEP', 'GEN'] },
-      'Arch-Nova':      { ids: ['CMP-26-CIVIL-BNV', 'CMP-26-GEN-BNV'], depts: ['Civil Engineering', 'Bridge Nova'], cats: ['DEP', 'GEN'] },
-      'Paper-Lead':     { ids: ['CMP-26-EE-PST', 'CMP-26-DEP-PST'], depts: ['Electrical', 'Electrical Engineering', 'Poster'], cats: ['DEP'] },
-      'Spark-Lead':     { ids: ['CMP-26-EE-SPK', 'CMP-26-DEP-SPK'], depts: ['Electrical', 'Electrical Engineering', 'Spark Tank'], cats: ['DEP'] },
-      'Mat-Master':     { ids: ['CMP-26-ETC-MTL', 'CMP-26-DEP-MTL'], depts: ['E&TC', 'E&TC Engineering', 'Matlab'], cats: ['DEP'] },
-      'Circuit-Ninja':  { ids: ['CMP-26-ETC-CKT', 'CMP-26-DEP-CKT'], depts: ['E&TC', 'E&TC Engineering', 'Circuit'], cats: ['DEP'] },
-      'Master-Builder': { ids: ['CMP-26-ME-CNT', 'CMP-26-DEP-CNT'], depts: ['Mechanical', 'Mechanical Engineering', 'Contraptions'], cats: ['DEP'] },
-      'Cricket-Lead':   { ids: ['CMP-26-ECE-CCK', 'CMP-26-DEP-CCK'], depts: ['ECE', 'Circle Cricket'], cats: ['DEP'] },
-      'Research-Lead':  { ids: ['CMP-26-DEP-PPR'], depts: ['Paper Presentation'], cats: ['DEP'] },
-      'Project-Master': { ids: ['CMP-26-DEP-PRJ'], depts: ['Project Competition'], cats: ['DEP'] },
+      'Forge-Lead':     { ids: ['CMP-26-CS-FGX', 'CMP-26-CE-FGX', 'CMP-26-GEN-FGX'], depts: ['Computer Engineering', 'Forge-X'], cats: ['DEP', 'GEN'], titles: ['forgex', 'forge'] },
+      'Algo-Master':    { ids: ['CMP-26-CS-ALB', 'CMP-26-CE-ALB', 'CMP-26-GEN-ALB'], depts: ['Computer Engineering', 'AlgoBid'], cats: ['DEP', 'GEN'], titles: ['algobid', 'algo'] },
+      'Code-Climber':   { ids: ['CMP-26-IT-CDL', 'CMP-26-GEN-CDL'], depts: ['Information Technology', 'Code Ladder'], cats: ['DEP', 'GEN'], titles: ['codeladder'] },
+      'IPL-Auctioneer': { ids: ['CMP-26-AD-IPL', 'CMP-26-ADS-IPL', 'CMP-26-GEN-IPL'], depts: ['AI&DS', 'IPL Auction'], cats: ['DEP', 'GEN'], titles: ['iplau', 'ipl'] },
+      'Blind-Coder':    { ids: ['CMP-26-EC-BCC', 'CMP-26-ECE-BLC', 'CMP-26-GEN-BLC'], depts: ['ECE', 'Blind Code', 'Electronics'], cats: ['DEP', 'GEN'], titles: ['blindcode', 'blind'] },
+      'Dev-Striker':    { ids: ['CMP-26-AM-DVC', 'CMP-26-AIML-DVC', 'CMP-26-GEN-DVC'], depts: ['AI&ML', 'DevClash'], cats: ['DEP', 'GEN'], titles: ['devclash', 'dev'] },
+      'Vibe-Lead':      { ids: ['CMP-26-AM-VSP', 'CMP-26-AIML-VBS', 'CMP-26-GEN-VBS'], depts: ['AI&ML', 'Vibe Sprint'], cats: ['DEP', 'GEN'], titles: ['vibesprint', 'vibe'] },
+      'Relay-Coder':    { ids: ['CMP-26-AM-CRR', 'CMP-26-AIML-CRL', 'CMP-26-GEN-CRL'], depts: ['AI&ML', 'Code Run', 'Code Relay'], cats: ['DEP', 'GEN'], titles: ['coderun', 'relay'] },
+      'Arch-Nova':      { ids: ['CMP-26-CE-BRN', 'CMP-26-CIVIL-BNV', 'CMP-26-GEN-BNV'], depts: ['Civil Engineering', 'Bridge Nova'], cats: ['DEP', 'GEN'], titles: ['bridgenova', 'bridge'] },
+      'Paper-Lead':     { ids: ['CMP-26-EE-PPT', 'CMP-26-EE-PST', 'CMP-26-DEP-PST'], depts: ['Electrical', 'Electrical Engineering', 'Poster'], cats: ['DEP'], titles: ['poster'] },
+      'Spark-Lead':     { ids: ['CMP-26-EE-SPT', 'CMP-26-EE-SPK', 'CMP-26-DEP-SPK'], depts: ['Electrical', 'Electrical Engineering', 'Spark Tank'], cats: ['DEP'], titles: ['sparktank', 'spark'] },
+      'Mat-Master':     { ids: ['CMP-26-EC-MTM', 'CMP-26-ETC-MTL', 'CMP-26-DEP-MTL'], depts: ['E&TC', 'E&TC Engineering', 'Matlab'], cats: ['DEP'], titles: ['matlab'] },
+      'Circuit-Ninja':  { ids: ['CMP-26-EC-CTS', 'CMP-26-ETC-CKT', 'CMP-26-DEP-CKT'], depts: ['E&TC', 'E&TC Engineering', 'Circuit'], cats: ['DEP'], titles: ['circuit'] },
+      'Master-Builder': { ids: ['CMP-26-ME-CTC', 'CMP-26-ME-CNT', 'CMP-26-DEP-CNT'], depts: ['Mechanical', 'Mechanical Engineering', 'Contraptions'], cats: ['DEP'], titles: ['contraption'] },
+      'Cricket-Lead':   { ids: ['CMP-26-EC-CCK', 'CMP-26-ECE-CCK', 'CMP-26-DEP-CCK'], depts: ['ECE', 'Circle Cricket', 'Electronics'], cats: ['DEP'], titles: ['cricket'] },
+      'Research-Lead':  { ids: ['CMP-26-GEN-PPR'], depts: ['Paper Presentation'], cats: ['DEP'], titles: ['paperpres', 'paper'] },
+      'Project-Master': { ids: ['CMP-26-GEN-PRJ'], depts: ['Project Competition'], cats: ['DEP'], titles: ['project'] },
+
+      // Workshop & Addons
+      'OrbitX-Solar':   { ids: ['orbitx_solar'], depts: ['OrbitX Club'], cats: ['OrbitX Club Event'], titles: ['solarspot', 'orbitxsolar'] },
     };
 
     if (forcedHandle) {
@@ -382,26 +413,28 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({ forcedHandle,
           if (signals && r.competitionId) {
             if (signals.ids.some(prefix => r.competitionId.startsWith(prefix))) return true;
           }
-          // Fallback 2: department match
+          // Fallback 2: eventName semantic mapping
+          if (signals && r.eventName) {
+            const evtNorm = r.eventName.toLowerCase().replace(/[^a-z0-9]/g, '');
+            if (signals.titles.some(t => evtNorm.includes(t))) return true;
+          }
+          // Fallback 3: department match ONLY IF eventName doesn't explicitly belong to another event
           if (signals && r.department) {
-            // Normalize both strings before comparison
             const rDeptNorm = r.department.toLowerCase().replace(/[^a-z0-9]/g, '');
             if (signals.depts.some(d => d.toLowerCase().replace(/[^a-z0-9]/g, '') === rDeptNorm)) {
-              // For flagship events sharing dept "Flagship", narrow by eventName
-              if (r.department === 'Flagship') {
-                if (handle === 'ParamX-Hack' && (r.eventName || '').includes('Param-X')) return true;
-                if (handle === 'Robo-Kshetra' && (r.eventName || '').toLowerCase().includes('robo')) return true;
-                if (handle === 'Battle-Grid' && (r.eventName || '').toLowerCase().includes('battle')) return true;
-                return false;
+              if (r.eventName) {
+                const evtNorm = r.eventName.toLowerCase().replace(/[^a-z0-9]/g, '');
+                if (signals.titles.some(t => evtNorm.includes(t))) return true;
+                // If it's flagship, umbrella check
+                if (r.department === 'Flagship') {
+                  if (handle === 'ParamX-Hack' && evtNorm.includes('paramx')) return true;
+                  if (handle === 'Robo-Kshetra' && evtNorm.includes('robo')) return true;
+                  if (handle === 'Battle-Grid' && evtNorm.includes('battle')) return true;
+                }
+                return false; // Dept matched, but eventName didn't align. Prevent bleed-over.
               }
-              return true;
+              return true; // No eventName to check, just assume true based on dept (legacy)
             }
-          }
-          // Fallback 3: eventName contains the handle keyword (e.g. 'Forge-Lead' in eventName)
-          if (r.eventName) {
-            const evtNorm = r.eventName.toLowerCase().replace(/[^a-z0-9]/g, '');
-            const handleNorm = handle.toLowerCase().replace(/[^a-z0-9]/g, '');
-            if (evtNorm.includes(handleNorm)) return true;
           }
           return false;
         });
@@ -437,7 +470,14 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({ forcedHandle,
     if (filterEvent !== 'All') result = result.filter(r => r.eventName === filterEvent);
     if (filterDept !== 'All') result = result.filter(r => r.department === filterDept);
     if (filterCollege !== 'All') result = result.filter(r => r.userCollege === filterCollege);
-    if (filterPayment !== 'All') result = result.filter(r => r.paymentStatus === filterPayment.toLowerCase());
+    if (filterPayment !== 'All') {
+      const p = filterPayment.toLowerCase();
+      result = result.filter(r => {
+        const rp = (r.paymentStatus || '').toLowerCase();
+        if (p === 'paid') return rp === 'paid' || rp === 'success';
+        return rp === p;
+      });
+    }
     if (filterAttendance !== 'All') result = result.filter(r => filterAttendance === 'Attended' ? r.isAttended : !r.isAttended);
 
     // Sort

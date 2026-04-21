@@ -9,6 +9,7 @@ import Navbar from './components/Navbar/Navbar';
 import Footer from './components/Footer/Footer';
 import ErrorBoundary from './components/ErrorBoundary';
 import { ToastProvider } from './components/toast/Toast';
+import NotificationBar from './components/NotificationBar/NotificationBar';
 import PageSkeleton from './components/common/PageSkeleton';
 import DashboardSkeleton from './components/common/DashboardSkeleton';
 import PWAReloadPrompt from './components/pwa/PWAReloadPrompt';
@@ -177,6 +178,7 @@ const LayoutManager = () => {
       </div>
 
       <div className="app-container">
+        {location.pathname === '/' && <NotificationBar />}
         <Navbar />
 
         <main className={isDashboard ? "dashboard-layout" : "content"}>

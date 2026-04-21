@@ -37,25 +37,9 @@ const MOBILE_BREAKPOINT = 768;
 
 const cardData: BentoCardProps[] = [
   {
-    color: '#080410',
-    title: "Param-X '26",
-    description: '10-Hour Hackathon. Build the future and claim the throne.',
-    label: 'Flagship Event',
-    image: 'assets/competitions/paramx.webp',
-    link: '/param-x'
-  },
-  {
-    color: '#0F1205',
-    title: "Robo-Kshetra",
-    description: 'Robotic combat, RoboRush, and Maze solving battles.',
-    label: 'Flagship Event',
-    image: 'assets/competitions/robokshetra.webp',
-    link: '/robo-kshetra'
-  },
-  {
     color: '#140505',
     title: "Battle Grid",
-    description: 'E-Sports Arena featuring BGMI, Free Fire, CODM & SF4.',
+    description: 'E-Sports Arena featuring BGMI, Free Fire & SF4.',
     label: 'Flagship Event',
     image: 'assets/competitions/battlegrid.webp',
     link: '/battle-grid'
