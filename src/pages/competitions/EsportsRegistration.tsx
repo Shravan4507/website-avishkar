@@ -51,7 +51,8 @@ const EsportsRegistration: React.FC = () => {
     const [user] = useAuthState(auth);
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
-    const selectedGame = searchParams.get('game') as GameId;
+    const gameParam = searchParams.get('game');
+    const selectedGame = gameParam as GameId;
     const toast = useToast();
     const { isRegistered, eventName, loading: guardLoading } = useRegistrationGuard();
 
@@ -105,9 +106,14 @@ const EsportsRegistration: React.FC = () => {
             return;
         }
 
+<<<<<<< HEAD
         const gameId = selectedGame.toLowerCase();
         if (gameId === 'sf4' || gameId === 'codm' || gameId === 'shadowfight4') {
             toast.error("Registrations for this arena are closed.");
+=======
+        if (gameParam === 'sf4' || gameParam === 'codm' || gameParam === 'algobid') {
+            toast.error("Registrations for this event are closed.");
+>>>>>>> 94ada4b (Close registrations for CODM, Param-X, Shadow Fight, Code Ladder, AlgoBid, and Forge-X)
             navigate('/battle-grid', { replace: true });
             return;
         }
