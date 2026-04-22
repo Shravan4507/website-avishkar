@@ -286,7 +286,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         venue: 'E-Sports Arena',
         registrationStart: '2026-03-01',
         registrationEnd: '2026-04-15',
-        isRegistrationOpen: true,
+        isRegistrationOpen: false,
         entryFee: 0,
         paymentRequired: false,
         minTeamSize: 4,
@@ -417,6 +417,43 @@ export const COMPETITIONS_DATA: Competition[] = [
         isExhibition: true,
         slug: 'among-us-26',
         handle: 'AmongUs'
+    },
+    {
+        id: 'CMP-26-BTG-CODM-003',
+        code: 'CODM',
+        title: "COD Mobile",
+        subtitle: 'Tactical Combat',
+        description: 'Elite 5v5 tactical combat. Deploy your squad and dominate the field.',
+        category: 'BTG',
+        department: 'Battle Grid',
+        year: 2026,
+        image: `${import.meta.env.BASE_URL}assets/competitions/battlegrid.webp`,
+        gradient: 'linear-gradient(210deg, #ff4655, #000)',
+        borderColor: '#ff4655',
+        schedule: [
+            {
+                date: '2026-04-22',
+                startTime: '10:00',
+                endTime: '18:00',
+                round: 'Finals'
+            }
+        ],
+        venue: 'E-Sports Arena',
+        registrationStart: '2026-03-01',
+        registrationEnd: '2026-04-15',
+        isRegistrationOpen: false,
+        entryFee: 400,
+        prizePool: '10000',
+        paymentRequired: true,
+        minTeamSize: 5,
+        maxTeamSize: 5,
+        teamRequired: true,
+        coordinators: [
+            { name: "Dhanraj Funde", phone: "9370304023" }
+        ],
+        status: "published",
+        slug: 'codm-26',
+        handle: 'CODM'
     },
     {
         id: 'CMP-26-BTG-CODM-003',
@@ -754,7 +791,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         venue: 'Civil Dept',
         registrationStart: '2026-03-01',
         registrationEnd: '2026-04-15',
-        isRegistrationOpen: true,
+        isRegistrationOpen: false,
         entryFee: 150,
         prizePool: '11000',
         paymentRequired: true,

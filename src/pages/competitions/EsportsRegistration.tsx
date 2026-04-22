@@ -106,14 +106,9 @@ const EsportsRegistration: React.FC = () => {
             return;
         }
 
-<<<<<<< HEAD
         const gameId = selectedGame.toLowerCase();
         if (gameId === 'sf4' || gameId === 'codm' || gameId === 'shadowfight4') {
             toast.error("Registrations for this arena are closed.");
-=======
-        if (gameParam === 'sf4' || gameParam === 'codm' || gameParam === 'algobid') {
-            toast.error("Registrations for this event are closed.");
->>>>>>> 94ada4b (Close registrations for CODM, Param-X, Shadow Fight, Code Ladder, AlgoBid, and Forge-X)
             navigate('/battle-grid', { replace: true });
             return;
         }
