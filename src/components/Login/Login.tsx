@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { signInWithPopup } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { auth, db, googleProvider } from '../../firebase/firebase';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useToast } from '../toast/Toast';
 import Loader from '../loader/Loader';
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
@@ -19,9 +19,14 @@ const avishkarLogo = `${import.meta.env.BASE_URL}assets/logos/avishkar-white.web
  */
 const Login: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const toast = useToast();
   const [isRedirecting, setIsRedirecting] = useState(false);
   
+  // The page the user originally tried to visit before being redirected to login
+  const from = (location.state as any)?.from?.pathname || null;
+  const fromSearch = (location.state as any)?.from?.search || '';
+
   const constraintsRef = useRef(null);
   const x = useMotionValue(0);
   const slideOpacity = useTransform(x, [0, 220], [1, 0.2]);
@@ -54,8 +59,9 @@ const Login: React.FC = () => {
       if (userDoc.exists()) {
         const data = userDoc.data();
         if (data?.avrId) {
-          toast.success('Welcome back to your dashboard!');
-          navigate('/user/dashboard', { replace: true });
+          toast.success('Welcome back!');
+          // Redirect to originally intended page, or dashboard as fallback
+          navigate(from ? `${from}${fromSearch}` : '/user/dashboard', { replace: true });
         } else {
           navigate('/signup', { replace: true });
         }

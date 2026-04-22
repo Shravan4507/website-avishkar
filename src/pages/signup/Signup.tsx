@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { doc, getDoc, setDoc, deleteDoc, runTransaction, serverTimestamp, collection, query, where, getDocs } from 'firebase/firestore';
 import { auth, db } from '../../firebase/firebase';
@@ -18,6 +18,10 @@ const majorOptions = majors.map(m => ({ label: m, value: m }));
 const Signup: React.FC = () => {
   const [user, authLoading] = useAuthState(auth);
   const navigate = useNavigate();
+  const location = useLocation();
+  // The page the user originally tried to visit before being redirected here
+  const from = (location.state as any)?.from?.pathname || null;
+  const fromSearch = (location.state as any)?.from?.search || '';
   
   const [formData, setFormData] = useState({
     firstName: '',
@@ -242,7 +246,7 @@ const Signup: React.FC = () => {
         toast.success("Welcome to Avishkar '26!");
       }
 
-      navigate('/user/dashboard', { replace: true });
+      navigate(from ? `${from}${fromSearch}` : '/user/dashboard', { replace: true });
     } catch (error) {
       console.error("Signup Transaction Error:", error);
       toast.error("Registration failed. Please try again.");

@@ -41,6 +41,7 @@ const GAMES = [
     { id: 'bgmi', label: 'BGMI', tagline: 'Grid-Warrior Mobile (4+1 Squad)', prize: '₹50,000', fee: 0, type: 'TEAM', members: 5, platform: 'Mobile', color: '#9af000', image: `${import.meta.env.BASE_URL}assets/esports/bgmi.webp`, rulebook: `${import.meta.env.BASE_URL}assets/rule-books/bgmi.pdf`, coordinator: 'Rohit Bayas', contactNumber: '9322708124', coordinator2: 'Omkar Wadekar', contactNumber2: '7378503893' },
     { id: 'freefire', label: 'FREE FIRE', tagline: 'Garena Battle-Royale (4-Player Squad)', prize: '₹6,000', fee: 250, type: 'TEAM', members: 4, platform: 'Mobile', color: '#e91e63', image: `${import.meta.env.BASE_URL}assets/esports/freefire.webp`, rulebook: `${import.meta.env.BASE_URL}assets/rule-books/free-fire.pdf`, coordinator: 'Rohit Chavan', contactNumber: '7823056055' },
     { id: 'sf4', label: 'SHADOW-FIGHT 4', tagline: 'Arena 1v1 Combat', prize: '₹8,000', fee: 150, type: 'SOLO', members: 1, platform: 'Mobile', color: '#ffeb3b', image: `${import.meta.env.BASE_URL}assets/esports/sf4.webp`, rulebook: `${import.meta.env.BASE_URL}assets/rule-books/shadow-fight-4.pdf`, coordinator: 'Pranav Kulkarni', contactNumber: '9423162724' },
+    { id: 'codm', label: 'COD MOBILE', tagline: 'Tactical 5v5 Combat', prize: '₹10,000', fee: 400, type: 'TEAM', members: 5, platform: 'Mobile', color: '#4caf50', image: `${import.meta.env.BASE_URL}assets/competitions/codm.webp`, coordinator: 'Dhanraj Funde', contactNumber: '9370304023' },
     { id: 'amongus', label: 'AMONG US', tagline: 'Social Deduction', prize: 'TBD', fee: 100, type: 'SOLO', members: 1, platform: 'Mobile', color: '#00bcd4', image: `${import.meta.env.BASE_URL}assets/esports/amongus.webp`, coordinator: 'Mrunali Kolte', contactNumber: '9067101314', rulebook: `${import.meta.env.BASE_URL}assets/rule-books/among-us.pdf`, coordinator2: 'Shreya Kadam', contactNumber2: '9511659631' },
 ] as const;
 
@@ -69,10 +70,10 @@ const EsportsRegistration: React.FC = () => {
     const [lookupFailed, setLookupFailed] = useState<Record<string, boolean>>({});
     const [errors, setErrors] = useState<Record<string, string>>({});
 
-    const activeGame = GAMES.find(g => g.id === selectedGame);
+    const activeGame = GAMES.find(g => g.id.toLowerCase() === selectedGame?.toLowerCase());
     // Dynamic per-game fee override from CMS — overrides static GAMES.fee
     const [gameFeeOverrides, setGameFeeOverrides] = useState<Record<string, number>>({});
-    const activeFee = gameFeeOverrides[selectedGame] !== undefined ? gameFeeOverrides[selectedGame] : (activeGame?.fee ?? 0);
+    const activeFee = selectedGame && gameFeeOverrides[selectedGame] !== undefined ? gameFeeOverrides[selectedGame] : (activeGame?.fee ?? 0);
 
     // Build flat form data keys for up to 5 members
     const [formData, setFormData] = useState<Record<string, string>>({
@@ -100,6 +101,13 @@ const EsportsRegistration: React.FC = () => {
             return;
         }
         if (!selectedGame) {
+            navigate('/battle-grid', { replace: true });
+            return;
+        }
+
+        const gameId = selectedGame.toLowerCase();
+        if (gameId === 'sf4' || gameId === 'codm' || gameId === 'shadowfight4') {
+            toast.error("Registrations for this arena are closed.");
             navigate('/battle-grid', { replace: true });
             return;
         }
@@ -802,11 +810,14 @@ const EsportsRegistration: React.FC = () => {
                     {!showPreview ? (
                         <>
                             <button 
-                                className="es-deploy-btn"
-                                disabled={submitting || (activeGame?.type === 'TEAM' && !formData.teamName)}
+                                className={`es-deploy-btn ${(activeGame?.id === 'sf4' || activeGame?.id === 'codm' || selectedGame?.toLowerCase() === 'shadowfight4') ? 'disabled' : ''}`}
+                                disabled={submitting || (activeGame?.type === 'TEAM' && !formData.teamName) || activeGame?.id === 'sf4' || activeGame?.id === 'codm' || selectedGame?.toLowerCase() === 'shadowfight4'}
                                 onClick={handleReview}
                             >
-                                REVIEW {activeGame?.type === 'TEAM' ? 'SQUAD' : 'ENTRY'} & {activeGame?.fee === 0 ? 'REGISTER' : 'PAY'}
+                                {(activeGame?.id === 'sf4' || activeGame?.id === 'codm' || selectedGame?.toLowerCase() === 'shadowfight4') 
+                                    ? 'REGISTRATIONS CLOSED' 
+                                    : `REVIEW ${activeGame?.type === 'TEAM' ? 'SQUAD' : 'ENTRY'} & ${activeGame?.fee === 0 ? 'REGISTER' : 'PAY'}`
+                                }
                                 <ArrowRight size={20} />
                             </button>
                             <p className="es-disclaimer">Verify your details before proceeding to payment.</p>
@@ -872,8 +883,12 @@ const EsportsRegistration: React.FC = () => {
                                 <button className="es-edit-btn" onClick={() => setShowPreview(false)}>
                                     <ArrowLeft size={16} /> Edit Details
                                 </button>
-                                <button className="es-deploy-btn" onClick={handlePayNow} disabled={submitting}>
-                                    {submitting ? <Loader2 className="animate-spin" /> : (activeGame?.fee === 0 ? 'CONFIRM REGISTRATION' : 'PAY NOW')}
+                                <button 
+                                    className={`es-deploy-btn ${(activeGame?.id === 'sf4' || activeGame?.id === 'codm' || selectedGame?.toLowerCase() === 'shadowfight4') ? 'disabled' : ''}`} 
+                                    onClick={handlePayNow} 
+                                    disabled={submitting || activeGame?.id === 'sf4' || activeGame?.id === 'codm' || selectedGame?.toLowerCase() === 'shadowfight4'}
+                                >
+                                    {submitting ? <Loader2 className="animate-spin" /> : (activeGame?.id === 'sf4' || activeGame?.id === 'codm' || selectedGame?.toLowerCase() === 'shadowfight4') ? 'ARENA CLOSED' : (activeGame?.fee === 0 ? 'CONFIRM REGISTRATION' : 'PAY NOW')}
                                     {!submitting && <ArrowRight size={20} />}
                                 </button>
                             </div>

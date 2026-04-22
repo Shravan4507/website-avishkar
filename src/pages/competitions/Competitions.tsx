@@ -133,7 +133,11 @@ function Competitions() {
                                 navigate('/battle-grid');
                             } else if (item.slug === 'robotron-26') {
                                 navigate('/robo-kshetra');
+                            } else if (selectedSlug === item.slug) {
+                                // Register Now button clicked from inside the modal — navigate to registration
+                                navigate(`/register/${item.slug}`);
                             } else {
+                                // First click on card — open the modal
                                 setSelectedSlug(item.slug);
                             }
                         }}

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Html5Qrcode } from 'html5-qrcode';
-import { collection, query, where, getDocs, updateDoc, doc, serverTimestamp, getDoc, and } from 'firebase/firestore';
+import { collection, query, where, getDocs, updateDoc, doc, serverTimestamp, getDoc, and, onSnapshot, orderBy, limit } from 'firebase/firestore';
 import { db, auth } from '../../firebase/firebase';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { useNavigate } from 'react-router-dom';
@@ -42,14 +42,14 @@ const VolunteerScanner: React.FC = () => {
   const navigate = useNavigate();
   const toast = useToast();
   const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
-  
+
   // Scanner State
   const [scanMode, setScanMode] = useState<string>('gate');
-  const [availableEvents, setAvailableEvents] = useState<{label: string, value: string}[]>([]);
+  const [availableEvents, setAvailableEvents] = useState<{ label: string, value: string }[]>([]);
   const [scannedUser, setScannedUser] = useState<ScannedUser | null>(null);
   const [scanStatus, setScanStatus] = useState<'idle' | 'success' | 'error' | 'already_scanned'>('idle');
   const [statusMessage, setStatusMessage] = useState<string>('');
-  
+
   // App State
   const [isProcessing, setIsProcessing] = useState(false);
   const [manualId, setManualId] = useState('');
@@ -63,7 +63,7 @@ const VolunteerScanner: React.FC = () => {
   const [cameras, setCameras] = useState<{ id: string, label: string }[]>([]);
   const [selectedCameraId, setSelectedCameraId] = useState<string>('');
   const [isScanning, setIsScanning] = useState(false);
-  
+
   const html5QrCodeRef = useRef<Html5Qrcode | null>(null);
   const scanModeRef = useRef(scanMode);
   const historyRef = useRef<HTMLDivElement>(null);
@@ -71,7 +71,7 @@ const VolunteerScanner: React.FC = () => {
   // Load History & Mode Caches
   useEffect(() => {
     scanModeRef.current = scanMode;
-    
+
     // Load local cache count
     const local = localStorage.getItem(`scanner_data_${scanMode}`);
     setLocalDataCount(local ? JSON.parse(local).length : 0);
@@ -109,7 +109,7 @@ const VolunteerScanner: React.FC = () => {
         if (!authLoading) navigate('/login');
         return;
       }
-      
+
       try {
         let authorized = false;
         let scannerRole = '';
@@ -119,7 +119,7 @@ const VolunteerScanner: React.FC = () => {
           authorized = true;
           scannerRole = 'superadmin';
         }
-        
+
         if (!authorized) {
           const uDoc = await getDoc(doc(db, "user", user.uid));
           if (uDoc.exists()) {
@@ -130,7 +130,7 @@ const VolunteerScanner: React.FC = () => {
             }
           }
         }
-        
+
         if (!authorized) {
           toast.error("Unauthorized access.");
           navigate('/user/dashboard');
@@ -157,6 +157,66 @@ const VolunteerScanner: React.FC = () => {
     fetchAuth();
   }, [user, authLoading, navigate]);
 
+  // 1b. Real-time Activity Sync
+  useEffect(() => {
+    if (!user || !isAuthorized || !scanMode) return;
+
+    let q;
+    const currentMode = scanMode;
+
+    if (currentMode === 'gate') {
+      q = query(
+        collection(db, "user"),
+        where("scannedBy", "==", user.uid),
+        where("gateCheckIn", "!=", null),
+        orderBy("gateCheckIn", "desc"),
+        limit(20)
+      );
+    } else {
+      const colName = currentMode === 'param-x' ? "hackathon_registrations" : "registrations";
+
+      // Listen for all attendance marked by this user in this mode
+      q = query(
+        collection(db, colName),
+        where("scannedBy", "==", user.uid),
+        where("isAttended", "==", true),
+        orderBy("scannedAt", "desc"),
+        limit(20)
+      );
+    }
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const dbItems: HistoryItem[] = snapshot.docs.map(doc => {
+        const data = doc.data();
+        const timestamp = data.scannedAt || data.gateCheckIn;
+        const date = timestamp?.toDate() || new Date();
+
+        return {
+          avrId: data.avrId || data.userAVR || (data.allAvrIds ? data.allAvrIds[0] : 'N/A'),
+          name: `${data.firstName || ''} ${data.lastName || ''}`.trim() || data.teamName || 'Team Member',
+          timestamp: date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+          status: 'success' as const,
+          mode: currentMode
+        };
+      });
+
+      setScanHistory(prev => {
+        const duplicates = prev.filter(h => h.status === 'duplicate');
+        const combined = [...dbItems];
+        duplicates.forEach(dup => {
+          if (!combined.some(c => c.avrId === dup.avrId)) {
+            combined.push(dup);
+          }
+        });
+        return combined.slice(0, 50);
+      });
+    }, (err) => {
+      console.error("Snapshot error:", err);
+    });
+
+    return () => unsubscribe();
+  }, [user, isAuthorized, scanMode]);
+
   // 2. Camera detection
   useEffect(() => {
     if (!isAuthorized) return;
@@ -164,14 +224,14 @@ const VolunteerScanner: React.FC = () => {
       if (devices && devices.length) {
         const deviceList = devices.map(d => ({ id: d.id, label: d.label }));
         setCameras(deviceList);
-        
+
         // Default to back camera (usually contains "back", "environment", or is the last one)
-        const backCamera = deviceList.find(d => 
-          d.label.toLowerCase().includes('back') || 
+        const backCamera = deviceList.find(d =>
+          d.label.toLowerCase().includes('back') ||
           d.label.toLowerCase().includes('environment') ||
           d.label.toLowerCase().includes('rear')
         );
-        
+
         setSelectedCameraId(backCamera ? backCamera.id : deviceList[deviceList.length - 1].id);
       }
     }).catch(err => {
@@ -206,7 +266,7 @@ const VolunteerScanner: React.FC = () => {
         selectedCameraId,
         { fps: 10, qrbox: { width: 250, height: 250 }, aspectRatio: 1.0 },
         handleScan,
-        () => {}
+        () => { }
       );
       setIsScanning(true);
     } catch (err) {
@@ -288,7 +348,7 @@ const VolunteerScanner: React.FC = () => {
         el.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
     }, 100);
-    
+
     // Clear highlight after 2s
     setTimeout(() => setHighlightedId(null), 2500);
   };
@@ -299,7 +359,7 @@ const VolunteerScanner: React.FC = () => {
     try {
       setIsProcessing(true);
       const result = decryptAndVerifyQR(decodedText.trim());
-      
+
       // Deprecated eventId pre-validation removed; the backend registration query effectively handles validation securely.
       await processAvrId(result.avrId);
     } catch (err: any) {
@@ -319,7 +379,7 @@ const VolunteerScanner: React.FC = () => {
       const gateData = localStorage.getItem('scanner_data_gate');
       const offlineEntries = modeData ? JSON.parse(modeData) : [];
       const offlineUsers = gateData ? JSON.parse(gateData) : [];
-      
+
       let targetDoc: any = null;
       let targetUser: any = offlineUsers.find((u: any) => u.avrId === avrId);
 
@@ -337,7 +397,7 @@ const VolunteerScanner: React.FC = () => {
         targetDoc = targetUser;
       } else {
         const validEvents = getValidEventNames(currentMode);
-        targetDoc = offlineEntries.find((r: any) => 
+        targetDoc = offlineEntries.find((r: any) =>
           (validEvents.includes(r.eventName) || currentMode === 'param-x') &&
           (r.userAVR === avrId || (r.allAvrIds && r.allAvrIds.includes(avrId)))
         );
@@ -356,13 +416,13 @@ const VolunteerScanner: React.FC = () => {
           // Check all confirmed registrations for the user
           const q1 = query(collection(db, "registrations"), and(where("userAVR", "==", avrId), where("status", "==", "confirmed")));
           const q2 = query(collection(db, "registrations"), and(where("allAvrIds", "array-contains", avrId), where("status", "==", "confirmed")));
-          
+
           const [snap1, snap2] = await Promise.all([getDocs(q1), getDocs(q2)]);
           const allDocs = [...snap1.docs, ...snap2.docs];
-          
+
           const validEvents = getValidEventNames(currentMode);
           const matchedDoc = allDocs.find(d => validEvents.includes(d.data().eventName));
-          
+
           if (matchedDoc) targetDoc = { id: matchedDoc.id, ...matchedDoc.data() };
         }
       }
@@ -376,7 +436,10 @@ const VolunteerScanner: React.FC = () => {
       const name = targetUser ? `${targetUser.firstName} ${targetUser.lastName}` : (targetDoc.firstName ? `${targetDoc.firstName} ${targetDoc.lastName}` : 'Team Member');
 
       if (currentMode === 'gate') {
-        if (isOnline) await updateDoc(doc(db, "user", targetDoc.id || targetDoc.uid), { gateCheckIn: serverTimestamp() });
+        if (isOnline) await updateDoc(doc(db, "user", targetDoc.id || targetDoc.uid), {
+          gateCheckIn: serverTimestamp(),
+          scannedBy: user!.uid
+        });
         else {
           targetDoc.gateCheckIn = new Date().toISOString();
           localStorage.setItem('scanner_data_gate', JSON.stringify(offlineUsers));
@@ -397,7 +460,11 @@ const VolunteerScanner: React.FC = () => {
         }
         if (isOnline) {
           const colName = currentMode === 'param-x' ? "hackathon_registrations" : "registrations";
-          await updateDoc(doc(db, colName, targetDoc.id), { isAttended: true, scannedAt: serverTimestamp() });
+          await updateDoc(doc(db, colName, targetDoc.id), {
+            isAttended: true,
+            scannedAt: serverTimestamp(),
+            scannedBy: user!.uid
+          });
         } else {
           targetDoc.isAttended = true;
           localStorage.setItem(`scanner_data_${currentMode}`, JSON.stringify(offlineEntries));
@@ -406,7 +473,6 @@ const VolunteerScanner: React.FC = () => {
         setScannedUser(targetUser || targetDoc);
         setScanStatus('success');
         setStatusMessage('ACCESS GRANTED');
-        addToHistory(avrId, name, 'success');
       }
     } catch (err) {
       console.error(err);
@@ -452,7 +518,7 @@ const VolunteerScanner: React.FC = () => {
           </div>
         </div>
       </header>
-      
+
       <main className="scanner-main-content">
         <div className="scanner-container">
           <div className="scanner-top-row">
@@ -464,16 +530,16 @@ const VolunteerScanner: React.FC = () => {
               </div>
               <div className="camera-controls">
                 <div style={{ flex: 1 }}>
-                  <GlassSelect 
-                    options={cameras.length ? cameras.map(c => ({ value: c.id, label: c.label || `Camera ${cameras.indexOf(c) + 1}` })) : [{ value: '', label: 'No Camera Found' }]} 
-                    value={selectedCameraId} 
+                  <GlassSelect
+                    options={cameras.length ? cameras.map(c => ({ value: c.id, label: c.label || `Camera ${cameras.indexOf(c) + 1}` })) : [{ value: '', label: 'No Camera Found' }]}
+                    value={selectedCameraId}
                     onChange={async (id) => {
                       const wasScanning = isScanning;
                       if (wasScanning) await stopScanning();
                       setSelectedCameraId(id);
                       if (wasScanning) setTimeout(() => startScanning(), 100);
-                    }} 
-                    disabled={false} 
+                    }}
+                    disabled={false}
                   />
                 </div>
                 <button className={`start-stop-btn ${isScanning ? 'stop' : 'start'}`} onClick={toggleCamera}>
@@ -481,13 +547,13 @@ const VolunteerScanner: React.FC = () => {
                   {isScanning ? 'Stop' : 'Start'}
                 </button>
                 {cameras.length > 1 && (
-                  <button 
-                    className="camera-switch-btn" 
+                  <button
+                    className="camera-switch-btn"
                     onClick={async () => {
                       const currentIndex = cameras.findIndex(c => c.id === selectedCameraId);
                       const nextIndex = (currentIndex + 1) % cameras.length;
                       const nextId = cameras[nextIndex].id;
-                      
+
                       const wasScanning = isScanning;
                       if (wasScanning) await stopScanning();
                       setSelectedCameraId(nextId);
@@ -502,7 +568,7 @@ const VolunteerScanner: React.FC = () => {
               <div className="scanner-manual-input">
                 <div style={{ display: 'flex', gap: '10px', marginBottom: '1rem' }}>
                   <div style={{ flex: 1 }}><GlassSelect options={availableEvents} value={scanMode} onChange={setScanMode} /></div>
-                  <button 
+                  <button
                     className="sync-btn"
                     onClick={syncLocalData}
                     disabled={syncLoading}
@@ -523,7 +589,7 @@ const VolunteerScanner: React.FC = () => {
             </div>
             <div className="scanner-right-col">
               <div className={`scan-status-card ${scanStatus}`}>
-                {scanStatus === 'idle' && <div className="idle-state"><Camera size={64} opacity={0.1} /><p>Awaiting detection for<br/><strong style={{ color: '#a78bfa' }}>{SCANNER_ROLE_OPTIONS.find(o => o.value === scanMode)?.label || scanMode}</strong></p></div>}
+                {scanStatus === 'idle' && <div className="idle-state"><Camera size={64} opacity={0.1} /><p>Awaiting detection for<br /><strong style={{ color: '#a78bfa' }}>{SCANNER_ROLE_OPTIONS.find(o => o.value === scanMode)?.label || scanMode}</strong></p></div>}
                 {scanStatus === 'success' && scannedUser && (
                   <div className="animate-in">
                     <div className="status-icon success"><CheckCircle size={40} /></div>
@@ -558,8 +624,8 @@ const VolunteerScanner: React.FC = () => {
               ) : (
                 <div className="history-table">
                   {scanHistory.map((item) => (
-                    <div 
-                      key={`${item.avrId}-${item.timestamp}`} 
+                    <div
+                      key={`${item.avrId}-${item.timestamp}`}
                       id={`history-${item.avrId}`}
                       className={`history-row ${item.status} ${highlightedId === item.avrId ? 'blink' : ''}`}
                     >

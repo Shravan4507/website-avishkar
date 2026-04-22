@@ -66,7 +66,7 @@ const UserProtectedRoutes = () => {
   }
 
   // Not logged in
-  if (!user) return <Navigate to="/login" replace />;
+  if (!user) return <Navigate to="/login" state={{ from: location }} replace />;
 
   // If Admin, they shouldn't be here (EXCEPT for the scanner)
   if (role === 'admin' && location.pathname !== '/user/scanner') {
@@ -75,7 +75,7 @@ const UserProtectedRoutes = () => {
 
   // If User with NO AVR ID trying to access dashboard -> /signup
   if (role === 'user' && !hasAvrId && location.pathname !== '/signup') {
-    return <Navigate to="/signup" replace />;
+    return <Navigate to="/signup" state={{ from: location }} replace />;
   }
 
   // If User WITH AVR ID trying to access /signup -> /user/dashboard

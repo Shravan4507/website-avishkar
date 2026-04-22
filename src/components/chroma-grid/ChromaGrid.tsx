@@ -396,6 +396,7 @@ export const ChromaGrid: React.FC<ChromaGridProps> = ({
                                                     `/register/${selectedMember.slug || encodeURIComponent(selectedMember.title)}`
                                                 } 
                                                 className="register-btn"
+                                                onClick={() => closePortal()}
                                             >
                                                 Register Now
                                             </Link>

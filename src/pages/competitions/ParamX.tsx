@@ -202,8 +202,8 @@ const ParamX: React.FC = () => {
 
                             <div className="action-card">
                                 <button 
-                                    className={`main-register-btn ${((counts[selectedPS.id] || 0) >= MAX_SLOTS) || isRegistered ? 'disabled' : ''}`}
-                                    disabled={(counts[selectedPS.id] || 0) >= MAX_SLOTS || isRegistered}
+                                    className={`main-register-btn ${((counts[selectedPS.id] || 0) >= MAX_SLOTS) || isRegistered || compData?.isRegistrationOpen === false ? 'disabled' : ''}`}
+                                    disabled={(counts[selectedPS.id] || 0) >= MAX_SLOTS || isRegistered || compData?.isRegistrationOpen === false}
                                     onClick={() => {
                                         if (!user) {
                                             toast.error("Authentication required to register.");
@@ -213,7 +213,7 @@ const ParamX: React.FC = () => {
                                         navigate(`/hackathon-register?psId=${selectedPS.id}`);
                                     }}
                                 >
-                                    {(counts[selectedPS.id] || 0) >= MAX_SLOTS ? 'Registration Closed' : (isRegistered ? 'Already Registered' : 'Register for this PS')}
+                                    {compData?.isRegistrationOpen === false ? 'Registration Closed' : (counts[selectedPS.id] || 0) >= MAX_SLOTS ? 'Registration Closed' : (isRegistered ? 'Already Registered' : 'Register for this PS')}
                                 </button>
 
                                 <button 
@@ -312,7 +312,11 @@ const ParamX: React.FC = () => {
 
 
                 <div className="hero-ctas">
-                    {isRegistered ? (
+                    {compData?.isRegistrationOpen === false ? (
+                        <button className="primary-cta disabled" disabled title="Registrations are closed for this event.">
+                            Registrations Closed <ShieldAlert size={18} />
+                        </button>
+                    ) : isRegistered ? (
                         <button className="primary-cta disabled" disabled title={`You are already registered for ${eventName}`}>
                             Registered: {eventName} <ShieldAlert size={18} />
                         </button>
@@ -442,7 +446,7 @@ const ParamX: React.FC = () => {
                     <tbody>
                         {filteredProblems.map((ps, idx) => {
                             const currentCount = counts[ps.id] || 0;
-                            const isFull = currentCount >= MAX_SLOTS;
+                            const isFull = currentCount >= MAX_SLOTS || compData?.isRegistrationOpen === false;
 
                             return (
                                 <tr key={ps.id} className="ps-row" onClick={() => setSearchParams({ problem: ps.id })}>
@@ -495,7 +499,7 @@ const ParamX: React.FC = () => {
             <div className="mobile-only ps-card-list">
                 {filteredProblems.map((ps) => {
                     const currentCount = counts[ps.id] || 0;
-                    const isFull = currentCount >= MAX_SLOTS;
+                    const isFull = currentCount >= MAX_SLOTS || compData?.isRegistrationOpen === false;
 
                     return (
                         <div key={ps.id} className="ps-mobile-card" onClick={() => setSearchParams({ problem: ps.id })}>

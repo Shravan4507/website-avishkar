@@ -117,6 +117,7 @@ const Registration: React.FC = () => {
 
           setCompetition(foundComp);
           
+
           // 3. Initialize Squad Slates if Team Event
           if ((foundComp.maxTeamSize || 1) > 1) {
             const slotsCount = (foundComp.maxTeamSize || 1) - 1;
@@ -676,7 +677,21 @@ const Registration: React.FC = () => {
               </div>
           )}
 
-          {userData && (
+          {competition.isRegistrationOpen === false && (
+              <div className="scheduling-notice-box" style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', marginTop: '1rem', color: '#fff' }}>
+                  <div className="notice-icon">
+                      <ShieldAlert size={24} color="#ef4444" />
+                  </div>
+                  <div className="notice-text">
+                      <h4 style={{ color: '#ef4444' }}>REGISTRATIONS CLOSED</h4>
+                      <p>
+                          We are no longer accepting entries for <strong>{competition.title}</strong>. The arena is currently at maximum capacity.
+                      </p>
+                  </div>
+              </div>
+          )}
+
+          {userData && competition.isRegistrationOpen !== false && (
             <div className="user-prefill-card">
               <div className="prefill-header">
                 <ShieldCheck size={16} /> DATA VERIFIED & SECURED
@@ -828,6 +843,14 @@ const Registration: React.FC = () => {
                <div className="already-registered-banner">
                  <CheckCircle size={20} /> Identity confirmed. You are registered.
                </div>
+            ) : competition.isRegistrationOpen === false ? (
+              <button 
+                className="btn-register-submit disabled" 
+                style={{ background: '#ef4444', color: '#fff', border: 'none', cursor: 'not-allowed' }}
+                disabled
+              >
+                Registrations Full
+              </button>
             ) : (
               <button 
                 className="btn-register-submit" 
