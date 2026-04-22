@@ -64,12 +64,12 @@ export default function NotificationBar() {
 
   useEffect(() => {
     if (loaded && !dismissed && announcements.length > 0) {
-      document.documentElement.style.setProperty('--navbar-push', '38px');
+      document.documentElement.classList.add('has-notification-bar');
     } else {
-      document.documentElement.style.removeProperty('--navbar-push');
+      document.documentElement.classList.remove('has-notification-bar');
     }
     return () => {
-      document.documentElement.style.removeProperty('--navbar-push');
+      document.documentElement.classList.remove('has-notification-bar');
     };
   }, [loaded, dismissed, announcements.length]);
 

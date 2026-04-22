@@ -115,9 +115,11 @@ function Competitions() {
                         radius={400}
                         damping={0.5}
                         fadeOut={0.8}
-                        columns={3}
+                        columns={Math.min(3, flagshipCompetitions.length) || 3}
                         isRegistered={isRegistered}
                         registeredEventName={eventName}
+                        selectedItemSlug={selectedSlug}
+                        onModalClose={() => setSelectedSlug(undefined)}
                         disableModal={true}
                         onItemClick={(item) => {
                             if (item.comingSoon) {

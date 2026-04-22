@@ -14,6 +14,7 @@ import UserManager from '../../components/admin/UserManager';
 import SponsorsManager from '../../components/admin/SponsorsManager';
 import EventManager from '../../components/admin/EventManager';
 import NotificationManager from '../../components/admin/NotificationManager';
+import VolunteerManager from '../../components/admin/VolunteerManager';
 import NotificationBell from '../../components/notifications/NotificationBell';
 
 import { 
@@ -308,8 +309,8 @@ const AdminDashboard: React.FC = () => {
 
           // Normalize roles: always use hyphens (legacy records may have spaces)
           const roles = Array.isArray(data.roleLevel)
-            ? data.roleLevel.map((r: string) => r.toLowerCase().trim().replace(/\s+/g, '-'))
-            : (data.roleLevel ? [data.roleLevel.toLowerCase().trim().replace(/\s+/g, '-')] : []);
+            ? data.roleLevel.filter(Boolean).map((r: string) => r?.toLowerCase()?.trim()?.replace(/\s+/g, '-'))
+            : (data.roleLevel ? [data.roleLevel?.toLowerCase()?.trim()?.replace(/\s+/g, '-')] : []);
 
           // Fallback 1: synthesize from 'assignment' field if roleLevel is empty
           if (roles.length === 0 && data.assignment) {
@@ -343,8 +344,8 @@ const AdminDashboard: React.FC = () => {
     const fetchStats = async (profile?: AdminProfile) => {
       try {
         const currentProfile = profile || adminProfile;
-        const isSuperUser = profile ? (profile.type === 'superadmin' || profile.roleLevel.includes('superadmin')) : isSuper;
-        const isCoreTeam = currentProfile?.roleLevel?.some((r: string) => r.startsWith('core_team') || r === 'competition_admin') || false;
+        const isSuperUser = profile ? (profile.type === 'superadmin' || profile.roleLevel?.includes('superadmin')) : isSuper;
+        const isCoreTeam = currentProfile?.roleLevel?.some((r: string) => r?.startsWith('core_team') || r === 'competition_admin') || false;
         
         if (isSuperUser || isCoreTeam) {
           // Broad scope admins see global registration counts
@@ -409,13 +410,13 @@ const AdminDashboard: React.FC = () => {
               if (umbrellaHandles.includes(trueHandle) || trueHandle === 'unknown') {
                  for (const [keyHandle, rules] of Object.entries(dashboard_HANDLE_SIGNALS)) {
                     // 1: Check IDs
-                    if (data.competitionId && rules.ids.some(prefix => data.competitionId.startsWith(prefix))) {
+                    if (data.competitionId && rules.ids.some(prefix => String(data.competitionId).startsWith(prefix))) {
                        trueHandle = keyHandle;
                        break;
                     }
                     // 2: Check Titles
                     if (data.eventName) {
-                       const evtNorm = data.eventName.toLowerCase().replace(/[^a-z0-9]/g, '');
+                       const evtNorm = String(data.eventName).toLowerCase().replace(/[^a-z0-9]/g, '');
                        if (rules.titles.some(t => evtNorm.includes(t))) {
                           trueHandle = keyHandle;
                           break;
@@ -581,7 +582,7 @@ const AdminDashboard: React.FC = () => {
                     const snap = await getDocs(filterQuery);
                     snap.forEach(d => {
                       const data = d.data();
-                      const eTitle = (data.competitionTitle || data.eventName || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+                      const eTitle = String(data.competitionTitle || data.eventName || '').toLowerCase().replace(/[^a-z0-9]/g, '');
                       const mTitle = qTitle.toLowerCase().replace(/[^a-z0-9]/g, '');
                       if (eTitle && mTitle && (eTitle === mTitle || eTitle.includes(mTitle) || mTitle.includes(eTitle))) {
                         subCount++;
@@ -1038,7 +1039,7 @@ const AdminDashboard: React.FC = () => {
 
   const renderContent = () => {
     // ─── Department Admin tab access helper ───────────────────────
-    const deptAdminRole = adminProfile?.roleLevel?.find((r: string) => r.startsWith('department_admin')) || '';
+    const deptAdminRole = adminProfile?.roleLevel?.find((r: string) => r?.startsWith('department_admin')) || '';
     const DEPT_TO_TABS: Record<string, string[]> = {
       'department_admin-computer-engineering':       ['forgex_regs', 'algobid_regs'],
       'department_admin-information-technology':     ['sf4_regs', 'codm_regs', 'codeladder_regs'],
@@ -1360,6 +1361,8 @@ const AdminDashboard: React.FC = () => {
         return <SponsorsManager />;
       case 'notifications':
         return <NotificationManager />;
+      case 'volunteers':
+        return <VolunteerManager />;
       case 'stall_bookings':
         return (
           <div className="tab-content animate-in">
@@ -1594,7 +1597,7 @@ const AdminDashboard: React.FC = () => {
           </div>
         );
       case 'registrations': {
-        const isDeptAdmin = adminProfile?.roleLevel?.some((r: string) => r.startsWith('department_admin')) || false;
+        const isDeptAdmin = adminProfile?.roleLevel?.some((r: string) => r?.startsWith('department_admin')) || false;
         let forcedHandles: string[] | undefined = undefined;
         let specificEvents: string[] | undefined = undefined;
         
@@ -1612,7 +1615,7 @@ const AdminDashboard: React.FC = () => {
             'department_admin-robotics-and-automation': { handles: ['AlignX', 'RoboRush', 'RoboMaze', 'Robo-Kshetra'], specificEvents: ['AlignX', 'RoboRush', 'RoboMaze'] },
           };
 
-          const activeDeptRole = adminProfile?.roleLevel?.find((r: string) => r.startsWith('department_admin')) || '';
+          const activeDeptRole = adminProfile?.roleLevel?.find((r: string) => r?.startsWith('department_admin')) || '';
           const mapping = DEPARTMENT_EVENT_MAPPING[activeDeptRole];
           if (mapping) {
             forcedHandles = mapping.handles;
@@ -1630,7 +1633,7 @@ const AdminDashboard: React.FC = () => {
         />;
       }
       case 'manual_entry': {
-        const canManualRegister = isSuper || (adminProfile?.roleLevel && adminProfile.roleLevel.some((r: string) => r.startsWith('admin-') || r.startsWith('workshop-') || r.startsWith('department_admin-') || r === 'competition_admin'));
+        const canManualRegister = isSuper || (adminProfile?.roleLevel && adminProfile.roleLevel.some((r: string) => r?.startsWith('admin-') || r?.startsWith('workshop-') || r?.startsWith('department_admin-') || r === 'competition_admin'));
         return canManualRegister ? <ManualRegistration isSuper={isSuper} adminProfile={adminProfile} /> : <div style={{ color: 'white' }}>Access Denied</div>;
       }
       case 'search':
@@ -1638,7 +1641,7 @@ const AdminDashboard: React.FC = () => {
       case 'admins':
         return isSuper ? <AdminDirectoryView currentUserId={user?.uid} /> : <div>Access Denied</div>;
       case 'hackathon_regs':
-        return (isSuper || adminProfile?.roleLevel.includes('admin-param-x') || adminProfile?.roleLevel.includes('flagship_admin-paramx--26'))
+        return (isSuper || adminProfile?.roleLevel?.includes('admin-param-x') || adminProfile?.roleLevel?.includes('flagship_admin-paramx--26'))
           ? <RegistrationManager 
               key="paramx-hack"
               isSuper={isSuper}
@@ -1670,7 +1673,7 @@ const AdminDashboard: React.FC = () => {
           : <div>Access Denied</div>;
       // Robo-Kshetra individual events
       case 'alignx_regs':
-        return (isSuper || adminProfile?.roleLevel.some(r => ['admin-robo-kshetra', 'admin-align-x'].includes(r)))
+        return (isSuper || adminProfile?.roleLevel?.some(r => ['admin-robo-kshetra', 'admin-align-x'].includes(r)))
           ? <RegistrationManager 
               key="alignx"
               isSuper={isSuper}
@@ -1683,7 +1686,7 @@ const AdminDashboard: React.FC = () => {
           : <div>Access Denied</div>;
 
       case 'robomaze_regs':
-        return (isSuper || adminProfile?.roleLevel.some(r => ['admin-robo-kshetra', 'admin-robo-maze'].includes(r)))
+        return (isSuper || adminProfile?.roleLevel?.some(r => ['admin-robo-kshetra', 'admin-robo-maze'].includes(r)))
           ? <RegistrationManager 
               key="robomaze"
               isSuper={isSuper}
@@ -1695,7 +1698,7 @@ const AdminDashboard: React.FC = () => {
             />
           : <div>Access Denied</div>;
       case 'roborush_regs':
-        return (isSuper || adminProfile?.roleLevel.some(r => ['admin-robo-kshetra', 'admin-robo-rush'].includes(r)))
+        return (isSuper || adminProfile?.roleLevel?.some(r => ['admin-robo-kshetra', 'admin-robo-rush'].includes(r)))
           ? <RegistrationManager 
               key="roborush"
               isSuper={isSuper}
@@ -1779,7 +1782,7 @@ const AdminDashboard: React.FC = () => {
 
       // Workshop
       case 'orbitx_regs':
-        return (isSuper || adminProfile?.roleLevel.includes('workshop-solar-spot'))
+        return (isSuper || adminProfile?.roleLevel?.includes('workshop-solar-spot'))
           ? <RegistrationManager 
               key="orbitx-solar"
               isSuper={isSuper}

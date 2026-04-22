@@ -233,6 +233,7 @@ function Navbar() {
               to={tab.path} 
               className={`mobile-menu__tab ${location.pathname === tab.path ? 'mobile-menu__tab--active' : ''}`}
               onMouseEnter={() => PRELOAD_MAP[tab.path]?.()}
+              onClick={() => setIsMobileMenuOpen(false)}
             >
               {tab.label}
             </Link>
@@ -245,14 +246,16 @@ function Navbar() {
                 const path = userRole === 'admin' ? '/admin/dashboard' : '/user/dashboard';
                 PRELOAD_MAP[path]?.();
               }}
+              onClick={() => setIsMobileMenuOpen(false)}
             >
               Dashboard
             </Link>
           ) : (
             <Link 
               to="/login" 
-              className={`mobile-menu__tab ${location.pathname === '/login' ? 'navbar__tab--active' : ''}`}
+              className={`mobile-menu__tab ${location.pathname === '/login' ? 'mobile-menu__tab--active' : ''}`}
               onMouseEnter={() => PRELOAD_MAP['/login']?.()}
+              onClick={() => setIsMobileMenuOpen(false)}
             >
               Login
             </Link>

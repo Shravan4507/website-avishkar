@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Html5Qrcode } from 'html5-qrcode';
-import { collection, query, where, getDocs, updateDoc, doc, serverTimestamp, getDoc, or, and } from 'firebase/firestore';
+import { collection, query, where, getDocs, updateDoc, doc, serverTimestamp, getDoc, and } from 'firebase/firestore';
 import { db, auth } from '../../firebase/firebase';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { useNavigate } from 'react-router-dom';
@@ -300,13 +300,7 @@ const VolunteerScanner: React.FC = () => {
       setIsProcessing(true);
       const result = decryptAndVerifyQR(decodedText.trim());
       
-      if (scanModeRef.current !== 'gate' && result.eventId && result.eventId !== scanModeRef.current) {
-        setScanStatus('already_scanned'); 
-        setStatusMessage(`PASS FOR ${result.eventId.toUpperCase()}`);
-        setScannedUser({ firstName: result.firstName, lastName: result.lastName, avrId: result.avrId } as any);
-        setIsProcessing(false);
-        return;
-      }
+      // Deprecated eventId pre-validation removed; the backend registration query effectively handles validation securely.
       await processAvrId(result.avrId);
     } catch (err: any) {
       setScanStatus('error');
@@ -329,8 +323,25 @@ const VolunteerScanner: React.FC = () => {
       let targetDoc: any = null;
       let targetUser: any = offlineUsers.find((u: any) => u.avrId === avrId);
 
-      if (currentMode === 'gate') targetDoc = targetUser;
-      else targetDoc = offlineEntries.find((r: any) => r.userAVR === avrId || (r.allAvrIds && r.allAvrIds.includes(avrId)));
+      // Map roles to actual event names stored in DB
+      const getValidEventNames = (mode: string) => {
+        if (mode === 'battle-grid') return ['BGMI', 'Free Fire', 'Shadow Fight 4', 'Among Us', 'Battle Grid \'26'];
+        if (mode === 'robo-kshetra') return ['AlignX', 'RoboRush', 'RoboMaze', 'Robo-Kshetra \'26'];
+        if (mode === 'forge-x') return ['Forge-X'];
+        if (mode === 'algo-bid') return ['AlgoBid'];
+        if (mode === 'code-ladder') return ['Code Ladder'];
+        return [mode]; // fallback
+      };
+
+      if (currentMode === 'gate') {
+        targetDoc = targetUser;
+      } else {
+        const validEvents = getValidEventNames(currentMode);
+        targetDoc = offlineEntries.find((r: any) => 
+          (validEvents.includes(r.eventName) || currentMode === 'param-x') &&
+          (r.userAVR === avrId || (r.allAvrIds && r.allAvrIds.includes(avrId)))
+        );
+      }
 
       if (!targetDoc && isOnline) {
         if (currentMode === 'gate') {
@@ -342,9 +353,17 @@ const VolunteerScanner: React.FC = () => {
           const snap = await getDocs(q);
           if (!snap.empty) targetDoc = { id: snap.docs[0].id, ...snap.docs[0].data() };
         } else {
-          const q = query(collection(db, "registrations"), and(where("eventName", "==", currentMode), where("status", "==", "confirmed"), or(where("userAVR", "==", avrId), where("allAvrIds", "array-contains", avrId))));
-          const snap = await getDocs(q);
-          if (!snap.empty) targetDoc = { id: snap.docs[0].id, ...snap.docs[0].data() };
+          // Check all confirmed registrations for the user
+          const q1 = query(collection(db, "registrations"), and(where("userAVR", "==", avrId), where("status", "==", "confirmed")));
+          const q2 = query(collection(db, "registrations"), and(where("allAvrIds", "array-contains", avrId), where("status", "==", "confirmed")));
+          
+          const [snap1, snap2] = await Promise.all([getDocs(q1), getDocs(q2)]);
+          const allDocs = [...snap1.docs, ...snap2.docs];
+          
+          const validEvents = getValidEventNames(currentMode);
+          const matchedDoc = allDocs.find(d => validEvents.includes(d.data().eventName));
+          
+          if (matchedDoc) targetDoc = { id: matchedDoc.id, ...matchedDoc.data() };
         }
       }
 

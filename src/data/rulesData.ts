@@ -381,43 +381,6 @@ export const RULES_DATA: Record<string, CompetitionRules> = {
         rulebookPath: `${import.meta.env.BASE_URL}assets/rule-books/bridge-nova.pdf`,
     },
 
-    'code-relay': {
-        slug: 'code-relay',
-        name: 'Code Relay Race',
-        tagline: 'Relay. Code. Conquer.',
-        description:
-            'A team-based technical game where participants solve a coding problem in a relay format. Each team member contributes by writing a part of the code within a limited time. The next member continues the code from where the previous one stopped.',
-        teamSize: '5 members per team',
-        fee: '₹250',
-        category: 'standard',
-        rules: [
-            'Each team member writes a portion of the code in sequence.',
-            'Time limits are strictly enforced for each relay leg.',
-            'No verbal or written communication between members during their turns.',
-            'Only one member can code at a time.',
-            'All code must be original and written during the event.',
-        ],
-        procedure: [
-            'A coding problem is provided to the team.',
-            'Each member gets a fixed time slot to write their portion.',
-            'The next member continues from where the previous one stopped.',
-            'The team must complete the program correctly within the total time.',
-            'Final code is evaluated for correctness and completeness.',
-        ],
-        judgingCriteria: [
-            'Correctness of output',
-            'Completion of code',
-            'Logical approach',
-            'Team coordination',
-        ],
-        prizes: {
-            first: '₹15,000',
-            second: '₹10,000',
-            third: '₹8,000',
-        },
-        rulebookPath: `${import.meta.env.BASE_URL}assets/rule-books/code-relay.pdf`,
-    },
-
     'poster-presentation': {
         slug: 'poster-presentation',
         name: 'Poster Presentation',
@@ -502,87 +465,7 @@ export const RULES_DATA: Record<string, CompetitionRules> = {
         rulebookPath: `${import.meta.env.BASE_URL}assets/rule-books/spark-tank.pdf`,
     },
 
-    'matlab-madness': {
-        slug: 'matlab-madness',
-        name: 'MATLAB Madness',
-        tagline: 'Simulate. Compute. Dominate.',
-        description:
-            'A multi-round MATLAB competition testing participants on MCQ-based theory, problem-solving, and circuit simulation using PROTEUS. Solve complex engineering problems using the power of MATLAB and Simulink.',
-        teamSize: '1–2 members',
-        fee: '₹149',
-        category: 'standard',
-        rules: [
-            'Participants must use only MATLAB software for the competition.',
-            'No external software is allowed.',
-            'The use of external storage devices (USBs) is prohibited.',
-            'Participants are not allowed to use pre-written code.',
-            'Internet access is restricted unless specifically permitted.',
-            'Communication between participants during rounds is prohibited.',
-            'Mobile phones are not allowed unless permission is granted.',
-            'All code must be written entirely during the competition period.',
-            'Plagiarism or copying code will lead to immediate disqualification.',
-        ],
-        procedure: [
-            'Elimination Round: 30 minutes, 20 MCQs.',
-            'Major Round: 60 minutes, 10 problem statements to solve.',
-            'For Circuit Simulation track: Round 1 is a 30-minute MCQ session on theory and circuit identification.',
-            'Circuit Simulation Round 2: 60-minute session building circuits using PROTEUS.',
-        ],
-        judgingCriteria: [
-            'Maximum number of problem statements solved',
-            'Accuracy of solutions',
-            'Time taken as tie-breaker',
-        ],
-        prizes: {
-            first: '₹5,000',
-            second: '₹3,000',
-            third: '₹2,000',
-        },
-        rulebookPath: `${import.meta.env.BASE_URL}assets/rule-books/matlab-madness.pdf`,
-    },
 
-    'contraptions-challenge': {
-        slug: 'contraptions-challenge',
-        name: 'Contraptions Challenge',
-        tagline: 'Energy Conversion – Hit & Drop',
-        description:
-            'Design and build intricate chain-reaction systems of energy conversion. Create complex sequences to perform simple tasks — a bottle hit and drop — with maximum precision, innovation, and robustness.',
-        teamSize: 'Exactly 4 participants',
-        fee: '₹150',
-        category: 'standard',
-        rules: [
-            'System must include at least 3 energy conversions.',
-            'Each step must automatically trigger the next.',
-            'No manual interference between steps.',
-            'Maximum of 3 human interventions allowed.',
-            'Bottle must be hit using mechanism — no hand interaction.',
-            'Bottle must drop at least 1 foot (≈30 cm).',
-            'No sharing of materials between teams.',
-            'Use of waste materials is encouraged.',
-            'Design must be safe and stable.',
-        ],
-        procedure: [
-            'Initial trigger starts the chain reaction.',
-            'Energy conversion steps execute sequentially.',
-            'Bottle is hit and displaced by the mechanism.',
-            'Final drop must occur at the required distance.',
-            'Arena size: 2m × 4m. Time limit: 15 minutes. Max 3 trials.',
-        ],
-        judgingCriteria: [
-            'Number of steps',
-            'Energy conversions used',
-            'Innovation',
-            'Execution smoothness',
-            'Robustness',
-            'Successful hit and drop (mandatory)',
-        ],
-        prizes: {
-            first: '₹5,000',
-            second: '₹3,000',
-            third: '₹2,000',
-        },
-        rulebookPath: `${import.meta.env.BASE_URL}assets/rule-books/contraptions.pdf`,
-    },
 
     // ── Circle Cricket (Ghost — no card yet) ──
 

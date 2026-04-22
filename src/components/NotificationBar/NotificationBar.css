@@ -2,6 +2,16 @@
 /*  NOTIFICATION BAR — Scrolling Announcement Ticker  */
 /* ═══════════════════════════════════════════════════ */
 
+:root.has-notification-bar {
+  --navbar-push: 38px;
+}
+
+@media (max-width: 768px) {
+  :root.has-notification-bar {
+    --navbar-push: 34px;
+  }
+}
+
 .notification-bar {
   position: fixed;
   top: 0;

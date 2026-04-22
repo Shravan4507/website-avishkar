@@ -376,7 +376,6 @@ export const COMPETITIONS_DATA: Competition[] = [
             { name: "Sujal Jaju", phone: "8010127828" }
         ],
         status: "published",
-        isExhibition: true,
         slug: 'shadow-fight-4-26',
         handle: 'ShadowFight4'
     },
@@ -544,8 +543,8 @@ export const COMPETITIONS_DATA: Competition[] = [
         title: 'IPL Auction',
         subtitle: 'Strategic Bidding',
         description: "Experience the adrenaline of the player auction in this high-stakes cricket simulation.",
-        category: 'DEP',
-        department: 'AI&DS',
+        category: 'FLG',
+        department: 'Flagship',
         year: 2026,
         image: `${import.meta.env.BASE_URL}assets/competitions/iplauction.webp`,
         gradient: 'linear-gradient(145deg, #A0522D, #000)',
@@ -573,6 +572,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         ],
         rulebook: `${import.meta.env.BASE_URL}assets/rule-books/ipl-auction.pdf`,
         status: "published",
+        isFlagship: true,
         slug: 'ipl-auction-26',
         handle: 'IPL-Auctioneer'
     },
@@ -693,45 +693,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         slug: 'vibe-sprint-26',
         handle: 'Vibe-Lead'
     },
-    {
-        id: 'CMP-26-AM-CRR-008',
-        code: 'CRR',
-        title: 'Code Run',
-        subtitle: 'Relay. Code. Conquer.',
-        description: 'A team-based relay coding challenge where each member writes a part of the code.',
-        category: 'DEP',
-        department: 'AI&ML',
-        year: 2026,
-        image: `${import.meta.env.BASE_URL}assets/competitions/coderun.webp`,
-        gradient: 'linear-gradient(145deg, #A0522D, #000)',
-        borderColor: '#A0522D',
-        schedule: [
-            {
-                date: '2026-04-21',
-                startTime: '15:00',
-                endTime: '18:00',
-                round: 'Relay Sprint'
-            }
-        ],
-        venue: 'AI&ML Labs',
-        registrationStart: '2026-03-01',
-        registrationEnd: '2026-04-15',
-        isRegistrationOpen: true,
-        entryFee: 250,
-        prizePool: '10000',
-        paymentRequired: true,
-        minTeamSize: 5,
-        maxTeamSize: 5,
-        teamRequired: true,
-        coordinators: [
-            { name: "Parth Shinde", phone: "9168906630" },
-            { name: "Varad Gaurav", phone: "7887323956" }
-        ],
-        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/code-relay.pdf`,
-        status: "published",
-        slug: 'code-relay-26',
-        handle: 'Relay-Coder'
-    },
+
     {
         id: 'CMP-26-CE-BRN-009',
         code: 'BRN',
@@ -848,45 +810,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         slug: 'spark-tank-26',
         handle: 'Spark-Lead'
     },
-    {
-        id: 'CMP-26-EC-MTM-012',
-        code: 'MTM',
-        title: 'Matlab Madness',
-        subtitle: 'Mathematical Computing',
-        description: 'Solve complex engineering problems using the power of Matlab and Simulink.',
-        category: 'DEP',
-        department: 'E&TC',
-        year: 2026,
-        image: `${import.meta.env.BASE_URL}assets/competitions/matlab.webp`,
-        gradient: 'linear-gradient(145deg, #A0522D, #000)',
-        borderColor: '#A0522D',
-        schedule: [
-            {
-                date: '2026-04-23',
-                startTime: '10:00',
-                endTime: '13:00',
-                round: 'Simulation Round'
-            }
-        ],
-        venue: 'E&TC Labs',
-        registrationStart: '2026-03-01',
-        registrationEnd: '2026-04-15',
-        isRegistrationOpen: true,
-        entryFee: 149,
-        prizePool: '6000',
-        paymentRequired: true,
-        minTeamSize: 1,
-        maxTeamSize: 2,
-        teamRequired: false,
-        coordinators: [
-            { name: "Sarvesh Vadgave", phone: "7709594746" },
-            { name: "Neel Mehta", phone: "7741022634" }
-        ],
-        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/matlab-madness.pdf`,
-        status: "published",
-        slug: 'matlab-madness-26',
-        handle: 'Mat-Master'
-    },
+
     {
         id: 'CMP-26-EC-CTS-013',
         code: 'CTS',
@@ -925,45 +849,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         slug: 'circuit-sim-26',
         handle: 'Circuit-Ninja'
     },
-    {
-        id: 'CMP-26-ME-CTC-014',
-        code: 'CTC',
-        title: 'Contraption Challenge',
-        subtitle: 'Energy Conversion',
-        description: 'Design and build intricate chain-reaction systems of energy conversion.',
-        category: 'DEP',
-        department: 'Mechanical',
-        year: 2026,
-        image: `${import.meta.env.BASE_URL}assets/competitions/contraption.webp`,
-        gradient: 'linear-gradient(135deg, #ff9800, #000)',
-        borderColor: '#ff9800',
-        schedule: [
-            {
-                date: '2026-04-21',
-                startTime: '09:00',
-                endTime: '18:00',
-                round: 'Final Assembly'
-            }
-        ],
-        venue: 'Mechanical Workshop',
-        registrationStart: '2026-03-01',
-        registrationEnd: '2026-04-15',
-        isRegistrationOpen: true,
-        entryFee: 150,
-        prizePool: '6000',
-        paymentRequired: true,
-        minTeamSize: 4,
-        maxTeamSize: 4,
-        teamRequired: true,
-        coordinators: [
-            { name: "Swapnil Gole", phone: "7058855414" },
-            { name: "Trupti doiphode", phone: "9309206369" }
-        ],
-        rulebook: `${import.meta.env.BASE_URL}assets/rule-books/contraptions.pdf`,
-        status: "published",
-        slug: 'contraptions-26',
-        handle: 'Master-Builder'
-    },
+
     {
         id: 'CMP-26-EC-CCK-015',
         code: 'CCK',

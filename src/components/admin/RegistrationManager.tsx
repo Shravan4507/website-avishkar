@@ -178,9 +178,9 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({ forcedHandle,
             teamName: data.teamName || '',
             teamSize: data.teamSize || data.memberCount || (data.squad ? data.squad.length : 1),
             // Default to 'ParamX-Hack' if missing but eventName indicates a Param-X hackathon
-            competitionHandle: data.competitionHandle || ((data.eventName || data.eventTitle || '').includes('Param-X') ? 'ParamX-Hack' : ''),
+            competitionHandle: data.competitionHandle || (String(data.eventName || data.eventTitle || '').includes('Param-X') ? 'ParamX-Hack' : ''),
             registeredAt: data.registeredAt || data.createdAt || data.timestamp || data.metadata?.createdAt,
-            paymentStatus: (data.paymentStatus || 'free').toLowerCase(), // normalize to lowercase
+            paymentStatus: String(data.paymentStatus || 'free').toLowerCase(), // normalize to lowercase
             _collection: 'registrations',
           } as Registration;
 
@@ -411,19 +411,19 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({ forcedHandle,
           if (r.competitionHandle === handle) return true;
           // Fallback 1: competitionId starts with any known prefix
           if (signals && r.competitionId) {
-            if (signals.ids.some(prefix => r.competitionId.startsWith(prefix))) return true;
+            if (signals.ids.some(prefix => String(r.competitionId).startsWith(prefix))) return true;
           }
           // Fallback 2: eventName semantic mapping
           if (signals && r.eventName) {
-            const evtNorm = r.eventName.toLowerCase().replace(/[^a-z0-9]/g, '');
+            const evtNorm = String(r.eventName).toLowerCase().replace(/[^a-z0-9]/g, '');
             if (signals.titles.some(t => evtNorm.includes(t))) return true;
           }
           // Fallback 3: department match ONLY IF eventName doesn't explicitly belong to another event
           if (signals && r.department) {
-            const rDeptNorm = r.department.toLowerCase().replace(/[^a-z0-9]/g, '');
+            const rDeptNorm = String(r.department).toLowerCase().replace(/[^a-z0-9]/g, '');
             if (signals.depts.some(d => d.toLowerCase().replace(/[^a-z0-9]/g, '') === rDeptNorm)) {
               if (r.eventName) {
-                const evtNorm = r.eventName.toLowerCase().replace(/[^a-z0-9]/g, '');
+                const evtNorm = String(r.eventName).toLowerCase().replace(/[^a-z0-9]/g, '');
                 if (signals.titles.some(t => evtNorm.includes(t))) return true;
                 // If it's flagship, umbrella check
                 if (r.department === 'Flagship') {
@@ -453,7 +453,7 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({ forcedHandle,
           return true;
         }
         
-        const evt = ((r.eventName || (r as any).eventTitle || '')).toLowerCase().replace(/[^a-z0-9]/g, '');
+        const evt = String(r.eventName || (r as any).eventTitle || '').toLowerCase().replace(/[^a-z0-9]/g, '');
         return normalizedTitles.some(t => evt.includes(t));
       });
     }
@@ -461,10 +461,10 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({ forcedHandle,
     if (searchTerm.trim()) {
       const term = searchTerm.toLowerCase();
       result = result.filter(r =>
-        r.userName?.toLowerCase().includes(term) ||
-        r.userEmail?.toLowerCase().includes(term) ||
-        r.avrId?.toLowerCase().includes(term) ||
-        r.transactionId?.toLowerCase().includes(term)
+        String(r.userName || '').toLowerCase().includes(term) ||
+        String(r.userEmail || '').toLowerCase().includes(term) ||
+        String(r.avrId || '').toLowerCase().includes(term) ||
+        String(r.transactionId || '').toLowerCase().includes(term)
       );
     }
     if (filterEvent !== 'All') result = result.filter(r => r.eventName === filterEvent);
@@ -473,7 +473,7 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({ forcedHandle,
     if (filterPayment !== 'All') {
       const p = filterPayment.toLowerCase();
       result = result.filter(r => {
-        const rp = (r.paymentStatus || '').toLowerCase();
+        const rp = String(r.paymentStatus || '').toLowerCase();
         if (p === 'paid') return rp === 'paid' || rp === 'success';
         return rp === p;
       });

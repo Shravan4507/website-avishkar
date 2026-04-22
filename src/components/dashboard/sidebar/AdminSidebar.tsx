@@ -26,12 +26,12 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, setActiveTab, is
   };
 
   const hasRole = (role: string) => adminProfile?.roleLevel?.includes(role);
-  const isDeptAdmin = adminProfile?.roleLevel?.some((r: string) => r.startsWith('department_admin')) || false;
-  const isCoreTeam = adminProfile?.roleLevel?.some((r: string) => r.startsWith('core_team')) || false;
-  const isCompAdmin = adminProfile?.roleLevel?.some((r: string) => r.startsWith('admin-') || r === 'competition_admin') || false;
+  const isDeptAdmin = adminProfile?.roleLevel?.some((r: string) => r?.startsWith('department_admin')) || false;
+  const isCoreTeam = adminProfile?.roleLevel?.some((r: string) => r?.startsWith('core_team')) || false;
+  const isCompAdmin = adminProfile?.roleLevel?.some((r: string) => r?.startsWith('admin-') || r === 'competition_admin') || false;
 
   // Compute which event tabs this department admin can see
-  const deptRole = adminProfile?.roleLevel?.find((r: string) => r.startsWith('department_admin')) || '';
+  const deptRole = adminProfile?.roleLevel?.find((r: string) => r?.startsWith('department_admin')) || '';
   const DEPT_TO_TABS: Record<string, string[]> = {
     'department_admin-computer-engineering':       ['forgex_regs', 'algobid_regs'],
     'department_admin-information-technology':     ['sf4_regs', 'codm_regs', 'codeladder_regs'],
@@ -100,6 +100,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, setActiveTab, is
     { id: 'email_tester',  label: 'Email Tester',     Icon: Mail, visible: isSuper },
     { id: 'support',       label: 'Support Tickets',  Icon: Users, visible: isSuper || adminProfile?.assignment === 'core_team-support-team' || hasRole('core_team-support-team') },
     { id: 'admins',        label: 'Admin Directory',  Icon: Shield, visible: isSuper },
+    { id: 'volunteers',    label: 'Volunteer Ops',    Icon: UserPlus, visible: isSuper },
     { id: 'users',         label: 'Manage Users',     Icon: Users, visible: isSuper || adminProfile?.assignment === 'core_team-registration-team' || hasRole('core_team-registration-team') },
   ];
 
