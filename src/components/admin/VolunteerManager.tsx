@@ -123,12 +123,12 @@ export default function VolunteerManager() {
 
   const exportExcel = () => {
     const data = volunteers.map(v => ({
-      'AVR ID': v.staffType === 'admin' ? v.avrAdmId : v.avrId,
-      'Name': `${v.firstName || ''} ${v.lastName || ''}`.trim() || v.email.split('@')[0],
-      'Email': v.email,
-      'Phone': v.phone || 'N/A',
+      'AVR ID': v.staffType === 'admin' ? (v.avrAdmId || '') : (v.avrId || ''),
+      'Name': `${String(v.firstName || '')} ${String(v.lastName || '')}`.trim() || String(v.email || '').split('@')[0],
+      'Email': String(v.email || ''),
+      'Phone': String(v.phone || 'N/A'),
       'Role': v.staffType === 'admin' ? 'Admin' : 'Volunteer',
-      'Scanner Access': v.staffType === 'admin' ? 'All Access' : (v.scannerRole || 'gate')
+      'Scanner Access': v.staffType === 'admin' ? 'All Access' : (String(v.scannerRole || 'gate'))
     }));
     const ws = XLSX.utils.json_to_sheet(data);
     const wb = XLSX.utils.book_new();
@@ -188,14 +188,14 @@ export default function VolunteerManager() {
       const isAdmin = v.staffType === 'admin';
       const parsedRole = isAdmin ? (
         v.roleLevel?.includes('superadmin') ? 'SUPER ADMIN' : 
-        v.roleLevel?.some((r: string) => r.startsWith('department_admin')) ? 'DEPARTMENT HEAD' :
-        v.roleLevel?.some((r: string) => r.startsWith('core_team')) ? 'CORE TEAM' : 'EVENT CO-ORDINATOR'
+        v.roleLevel?.some((r: string) => String(r).startsWith('department_admin')) ? 'DEPARTMENT HEAD' :
+        v.roleLevel?.some((r: string) => String(r).startsWith('core_team')) ? 'CORE TEAM' : 'EVENT CO-ORDINATOR'
       ) : 'VOLUNTEER';
 
       const modeLabel = isAdmin ? 'ALL ACCESS / GLOBAL' : (SCANNER_ROLE_OPTIONS.find(o => o.value === v.scannerRole)?.label || 'GATE SCANNER');
       const displayId = isAdmin ? (v.avrAdmId || v.avrId) : v.avrId;
-      const fName = (v.firstName || v.email?.split('@')[0] || 'V').toUpperCase();
-      const lName = (v.lastName || '').toUpperCase();
+      const fName = String(v.firstName || v.email?.split('@')[0] || 'V').toUpperCase();
+      const lName = String(v.lastName || '').toUpperCase();
 
       html += `
         <div class="id-card">
@@ -223,13 +223,16 @@ export default function VolunteerManager() {
     }, 1000);
   };
 
-  const filteredVols = volunteers.filter(v => 
-    v.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    v.lastName?.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    v.avrId?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    v.avrAdmId?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    v.email?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredVols = volunteers.filter(v => {
+    const q = searchQuery.toLowerCase();
+    return (
+      String(v.firstName || '').toLowerCase().includes(q) || 
+      String(v.lastName || '').toLowerCase().includes(q) || 
+      String(v.avrId || '').toLowerCase().includes(q) ||
+      String(v.avrAdmId || '').toLowerCase().includes(q) ||
+      String(v.email || '').toLowerCase().includes(q)
+    );
+  });
 
   return (
     <div className="admin-tab-section animate-in">
