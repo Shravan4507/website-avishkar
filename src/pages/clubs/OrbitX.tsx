@@ -46,7 +46,7 @@ const OrbitX: React.FC = () => {
   useEffect(() => {
     // Add class to body to remove global footer margin/styles for this page
     document.body.classList.add('orbitx-layout-active');
-    
+
     // Set event date for Cosmic Window (April 23, 2026 - Solar Start at 2:00 PM)
     const eventDate = new Date('April 23, 2026 14:00:00').getTime();
 
@@ -67,8 +67,8 @@ const OrbitX: React.FC = () => {
     }, 1000);
 
     return () => {
-        clearInterval(timer);
-        document.body.classList.remove('orbitx-layout-active');
+      clearInterval(timer);
+      document.body.classList.remove('orbitx-layout-active');
     };
   }, []);
 
@@ -80,7 +80,7 @@ const OrbitX: React.FC = () => {
       }
       try {
         const q = query(
-          collection(db, "registrations"), 
+          collection(db, "registrations"),
           where("userId", "==", user.uid),
           where("competitionId", "==", "orbitx_solar"),
           limit(1)
@@ -106,25 +106,25 @@ const OrbitX: React.FC = () => {
 
   return (
     <PageTransition>
-      <SEO 
+      <SEO
         title="OrbitX Club | Solar Spot Observation - Avishkar '26"
         description="Join OrbitX Club for an exclusive Solar Spot Observation event. Experience the cosmos with professional solar equipment and expert guidance."
       />
-      
+
       <div className="orbitx-page" style={{ backgroundColor: '#000' }}>
         {/* Background Orb - Fixed focal point throughout the page */}
         <div className="orbitx-orb-bg">
-          <Orb 
-            hue={0} 
-            hoverIntensity={0.5} 
-            rotateOnHover={true} 
+          <Orb
+            hue={0}
+            hoverIntensity={0.5}
+            rotateOnHover={true}
             autoCycle={true}
             logoSrc="/assets/logos/OrbitX/Logo-OrbitX.webp"
           />
         </div>
 
         {/* Main Content: Solar Spot Info */}
-        <motion.div 
+        <motion.div
           className="orbitx-content"
           initial={{ opacity: 0, filter: 'blur(20px)', scale: 0.95 }}
           animate={{ opacity: 1, filter: 'blur(0px)', scale: 1 }}
@@ -171,8 +171,8 @@ const OrbitX: React.FC = () => {
               </div>
 
               <div className="hero-actions-vertical">
-                <button 
-                  className={`primary-button ${isAlreadyRegistered ? 'registered' : ''}`} 
+                <button
+                  className={`primary-button ${isAlreadyRegistered ? 'registered' : ''}`}
                   onClick={handleRegisterClick}
                   disabled={isAlreadyRegistered || registrationsClosed}
                 >
@@ -209,10 +209,10 @@ const OrbitX: React.FC = () => {
               <span className="section-title">COSMIC OBSERVATION PROGRAM</span>
               <div className="section-line" />
             </div>
-            
+
             <div className="observation-list">
               {observations.map((obs, index) => (
-                <motion.div 
+                <motion.div
                   key={index}
                   className="observation-card"
                   onClick={() => setSelectedObsIndex(index)}
@@ -244,19 +244,19 @@ const OrbitX: React.FC = () => {
         {/* Observation Detail Overlay */}
         <AnimatePresence>
           {selectedObsIndex !== null && (
-            <motion.div 
+            <motion.div
               className="observation-overlay"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.4 }}
             >
-              <motion.div 
+              <motion.div
                 className="overlay-backdrop"
                 onClick={() => setSelectedObsIndex(null)}
               />
-              
-              <motion.div 
+
+              <motion.div
                 className="overlay-container"
                 initial={{ opacity: 0, y: 50, scale: 0.9 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -281,7 +281,7 @@ const OrbitX: React.FC = () => {
                       </div>
                     )}
                   </div>
-                  
+
                   <div className="overlay-body">
                     <div className="decoration-line-vertical" />
                     <p className="overlay-description">

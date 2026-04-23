@@ -40,7 +40,7 @@ function Competitions() {
     const navigate = useNavigate();
     const { isRegistered, eventName } = useRegistrationGuard();
 
-    const hiddenSlugs = ['param-x-26', 'robotron-26'];
+    const hiddenSlugs = ['param-x-26', 'robotron-26', 'codm-26'];
 
     const [flagshipCompetitions, setFlagshipCompetitions] = useState<Competition[]>(
         COMPETITIONS_DATA.filter((item: any) => item.isFlagship && !hiddenSlugs.includes(item.slug))
@@ -54,7 +54,7 @@ function Competitions() {
         const fetchAndMerge = async () => {
             try {
                 // Apply Firestore overrides to static data
-                const hiddenSlugs = ['param-x-26', 'robotron-26'];
+                const hiddenSlugs = ['param-x-26', 'robotron-26', 'codm-26'];
                 const flagshipRaw = COMPETITIONS_DATA.filter((item: any) => item.isFlagship && !hiddenSlugs.includes(item.slug));
                 const regularRaw = COMPETITIONS_DATA.filter((item: any) => !item.isFlagship && !item.isExhibition && !hiddenSlugs.includes(item.slug));
 
