@@ -3,6 +3,24 @@ import SEO from '../../components/seo/SEO'
 import './Schedule.css'
 import scheduleData from '../../data/schedule.json'
 
+interface ScheduleEvent {
+  srNo: number | string;
+  department: string;
+  name: string;
+  slot1: string;
+  slot2: string;
+  break: string;
+  location: string;
+  note?: string;
+}
+
+interface ScheduleDay {
+  label: string;
+  date: string;
+  dayName?: string;
+  events: ScheduleEvent[];
+}
+
 const DEPT_COLORS: Record<string, string> = {
   'CS':          '#A0522D',
   'IT':          '#7c3aed',
@@ -128,7 +146,7 @@ function LocationCell({ location }: LocationCellProps) {
 
 function Schedule() {
   const [activeDay, setActiveDay] = useState(0)
-  const currentDay = scheduleData[activeDay] as typeof scheduleData[0] & { dayName?: string }
+  const currentDay = scheduleData[activeDay] as ScheduleDay
 
   const formatDate = (dateStr: string) => {
     const d = new Date(dateStr + 'T00:00:00')
@@ -152,7 +170,7 @@ function Schedule() {
 
         {/* ── Day Tabs ── */}
         <div className="sched-tabs">
-          {scheduleData.map((day: any, idx: number) => (
+          {(scheduleData as ScheduleDay[]).map((day, idx) => (
             <button
               key={idx}
               className={`sched-tab ${activeDay === idx ? 'active' : ''} ${day.label === 'Standby' ? 'standby-tab' : ''}`}
@@ -174,19 +192,19 @@ function Schedule() {
           </div>
           <div className="stat-chip">
             <span className="stat-num">
-              {[...new Set(currentDay.events.map((e: any) => e.department))].length}
+              {[...new Set(currentDay.events.map((e) => e.department))].length}
             </span>
             <span className="stat-label">Departments</span>
           </div>
           <div className="stat-chip">
             <span className="stat-num">
-              {[...new Set(currentDay.events.flatMap((e: any) => e.location.split(',').map((s: string) => s.trim())))].length}
+              {[...new Set(currentDay.events.flatMap((e) => e.location.split(',').map((s) => s.trim())))].length}
             </span>
             <span className="stat-label">Venues</span>
           </div>
-          {(currentDay as any).dayName && (
+          {currentDay.dayName && (
             <div className="stat-chip day-name-chip">
-              <span className="stat-label day-name-text">{(currentDay as any).dayName}</span>
+              <span className="stat-label day-name-text">{currentDay.dayName}</span>
             </div>
           )}
         </div>
@@ -223,7 +241,7 @@ function Schedule() {
               </tr>
             </thead>
             <tbody>
-              {currentDay.events.map((ev: any, idx: number) => {
+              {currentDay.events.map((ev, idx) => {
                 const color = getDeptColor(ev.department)
                 const isStandby = ev.note === '*Standby'
                 const isZone = ev.note === '*Zone'

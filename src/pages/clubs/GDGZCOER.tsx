@@ -146,9 +146,9 @@ const GDGZCOER: React.FC = () => {
                                 transition={{ delay: idx * 0.1 }}
                             >
                                 <a 
-                                    href={session.link} 
-                                    target="_blank" 
-                                    rel="noopener noreferrer" 
+                                    href="#"
+                                    onClick={(e) => e.preventDefault()}
+                                    aria-disabled="true"
                                     className="neo-session-card"
                                     style={{ '--card-accent': session.color } as React.CSSProperties}
                                 >
@@ -171,7 +171,7 @@ const GDGZCOER: React.FC = () => {
                                     </div>
 
                                     <div className="card-footer">
-                                        <span className="cta-text">Register Now</span>
+                                        <span className="cta-text">Registration Full</span>
                                         <div className="arrow-box">
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
                                                 <path d="M5 12h14M12 5l7 7-7 7" />

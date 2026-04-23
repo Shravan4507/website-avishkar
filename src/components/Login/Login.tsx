@@ -24,8 +24,8 @@ const Login: React.FC = () => {
   const [isRedirecting, setIsRedirecting] = useState(false);
   
   // The page the user originally tried to visit before being redirected to login
-  const from = (location.state as any)?.from?.pathname || null;
-  const fromSearch = (location.state as any)?.from?.search || '';
+  const from = (location.state as { from?: { pathname: string; search?: string } } | null)?.from?.pathname || null;
+  const fromSearch = (location.state as { from?: { pathname: string; search?: string } } | null)?.from?.search || '';
 
   const constraintsRef = useRef(null);
   const x = useMotionValue(0);

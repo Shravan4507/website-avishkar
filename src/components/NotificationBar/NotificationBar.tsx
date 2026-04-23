@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
+import { collection, query, where, orderBy, onSnapshot, type Timestamp } from 'firebase/firestore';
 import { db } from '../../firebase/firebase';
 import { Bell, X } from 'lucide-react';
 import './NotificationBar.css';
@@ -9,7 +9,7 @@ interface Announcement {
   text: string;
   priority: number;
   active: boolean;
-  createdAt: any;
+  createdAt: Timestamp | null;
 }
 
 export default function NotificationBar() {
@@ -44,6 +44,20 @@ export default function NotificationBar() {
         id: 'static-2',
         text: 'Users can register for multiple events according to the schedule. Please check the schedule first!',
         priority: 99,
+        active: true,
+        createdAt: null,
+      },
+      {
+        id: 'static-3',
+        text: 'Postponed events will be refunded within 7 to 10 days by the Avishkar team.',
+        priority: 98,
+        active: true,
+        createdAt: null,
+      },
+      {
+        id: 'static-4',
+        text: 'On-spot registrations are currently open for select events. Please check event-wise availability before proceeding.',
+        priority: 97,
         active: true,
         createdAt: null,
       }

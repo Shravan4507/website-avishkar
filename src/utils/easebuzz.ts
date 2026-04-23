@@ -5,8 +5,21 @@
 
 declare global {
     interface Window {
-        EasebuzzCheckout: any;
+        EasebuzzCheckout: new (key: string, env: string) => {
+            initiatePayment(options: {
+                access_key: string;
+                onResponse: (response: EasebuzzResponse) => void;
+                theme: string;
+            }): void;
+        };
     }
+}
+
+export interface EasebuzzResponse {
+    status: string;
+    txnid?: string;
+    amount?: string;
+    [key: string]: unknown;
 }
 
 /**
@@ -19,7 +32,7 @@ declare global {
 export const initiateEasebuzzCheckout = (
     key: string,
     accessKey: string,
-    onResponse: (response: any) => void,
+    onResponse: (response: EasebuzzResponse) => void,
     env: 'test' | 'prod' = 'prod'
 ): void => {
     if (!window.EasebuzzCheckout) {
@@ -31,7 +44,7 @@ export const initiateEasebuzzCheckout = (
 
     easebuzzCheckout.initiatePayment({
         access_key: accessKey,
-        onResponse: (response: any) => {
+        onResponse: (response: EasebuzzResponse) => {
             console.log("Easebuzz Response:", response);
             onResponse(response);
         },

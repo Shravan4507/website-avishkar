@@ -109,6 +109,7 @@ function Competitions() {
                     <ChromaGrid
                         items={flagshipCompetitions.map(c => ({
                             ...c,
+                            isRegistrationOpen: false,
                             coordinator: c.coordinators?.[0]?.name,
                             contactNumber: c.coordinators?.[0]?.phone
                         }))}
@@ -157,6 +158,7 @@ function Competitions() {
                         <ChromaGrid
                             items={regularCompetitions.map(c => ({
                                 ...c,
+                                isRegistrationOpen: false,
                                 coordinator: c.coordinators?.[0]?.name,
                                 contactNumber: c.coordinators?.[0]?.phone
                             }))}

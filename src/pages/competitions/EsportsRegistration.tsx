@@ -48,6 +48,7 @@ const GAMES = [
 type GameId = typeof GAMES[number]['id'];
 
 const EsportsRegistration: React.FC = () => {
+    const registrationsClosed = true;
     const [user] = useAuthState(auth);
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
@@ -159,8 +160,8 @@ const EsportsRegistration: React.FC = () => {
         if (!val.startsWith("AVR-")) val = "AVR-";
 
         const raw = val.slice(4).replace(/[^A-Z0-9]/g, '');
-        let letters = raw.slice(0, 3).replace(/[0-9]/g, '');
-        let numbers = raw.slice(letters.length).replace(/[A-Z]/g, '').slice(0, 4);
+        const letters = raw.slice(0, 3).replace(/[0-9]/g, '');
+        const numbers = raw.slice(letters.length).replace(/[A-Z]/g, '').slice(0, 4);
 
         let formatted = "AVR-" + letters;
 
@@ -251,6 +252,10 @@ const EsportsRegistration: React.FC = () => {
     // --- Validate & Preview ---
     const handleReview = () => {
         if (!user || !activeGame) return;
+        if (registrationsClosed) {
+            toast.error("Registrations are full for this competition.");
+            return;
+        }
 
         const newErrors: Record<string, string> = {};
 
@@ -347,6 +352,10 @@ const EsportsRegistration: React.FC = () => {
     // --- Pay Now ---
     const handlePayNow = async () => {
         if (!user || !activeGame) return;
+        if (registrationsClosed) {
+            toast.error("Registrations are full for this competition.");
+            return;
+        }
 
         // Server-side duplicate check before we even initiate payment
         const dupeQuery = query(
@@ -603,6 +612,15 @@ const EsportsRegistration: React.FC = () => {
                             </div>
                         </div>
                     )}
+                    {registrationsClosed && (
+                        <div className="es-protocol-banner" style={{ borderLeft: '4px solid #ef4444', background: 'rgba(239, 68, 68, 0.1)', marginTop: '1rem' }}>
+                            <div className="es-protocol-icon"><ShieldAlert size={20} color="#ef4444" /></div>
+                            <div className="es-protocol-content">
+                                <h3 style={{ color: '#ef4444' }}>Registrations Full</h3>
+                                <p style={{ color: 'rgba(255,255,255,0.8)' }}>This competition is closed for new entries.</p>
+                            </div>
+                        </div>
+                    )}
 
                     <p className="es-form-hint">Ensure all members have created an account before proceeding with registration.</p>
 
@@ -811,11 +829,11 @@ const EsportsRegistration: React.FC = () => {
                     {!showPreview ? (
                         <>
                             <button 
-                                className={`es-deploy-btn ${(activeGame?.id === 'sf4' || activeGame?.id === 'codm' || selectedGame?.toLowerCase() === 'shadowfight4') ? 'disabled' : ''}`}
-                                disabled={submitting || (activeGame?.type === 'TEAM' && !formData.teamName) || activeGame?.id === 'sf4' || activeGame?.id === 'codm' || selectedGame?.toLowerCase() === 'shadowfight4'}
+                                className={`es-deploy-btn ${(registrationsClosed || activeGame?.id === 'sf4' || activeGame?.id === 'codm' || selectedGame?.toLowerCase() === 'shadowfight4') ? 'disabled' : ''}`}
+                                disabled={submitting || (activeGame?.type === 'TEAM' && !formData.teamName) || registrationsClosed || activeGame?.id === 'sf4' || activeGame?.id === 'codm' || selectedGame?.toLowerCase() === 'shadowfight4'}
                                 onClick={handleReview}
                             >
-                                {(activeGame?.id === 'sf4' || activeGame?.id === 'codm' || selectedGame?.toLowerCase() === 'shadowfight4') 
+                                {(registrationsClosed || activeGame?.id === 'sf4' || activeGame?.id === 'codm' || selectedGame?.toLowerCase() === 'shadowfight4') 
                                     ? 'REGISTRATIONS CLOSED' 
                                     : `REVIEW ${activeGame?.type === 'TEAM' ? 'SQUAD' : 'ENTRY'} & ${activeGame?.fee === 0 ? 'REGISTER' : 'PAY'}`
                                 }
@@ -885,11 +903,11 @@ const EsportsRegistration: React.FC = () => {
                                     <ArrowLeft size={16} /> Edit Details
                                 </button>
                                 <button 
-                                    className={`es-deploy-btn ${(activeGame?.id === 'sf4' || activeGame?.id === 'codm' || selectedGame?.toLowerCase() === 'shadowfight4') ? 'disabled' : ''}`} 
+                                    className={`es-deploy-btn ${(registrationsClosed || activeGame?.id === 'sf4' || activeGame?.id === 'codm' || selectedGame?.toLowerCase() === 'shadowfight4') ? 'disabled' : ''}`} 
                                     onClick={handlePayNow} 
-                                    disabled={submitting || activeGame?.id === 'sf4' || activeGame?.id === 'codm' || selectedGame?.toLowerCase() === 'shadowfight4'}
+                                    disabled={submitting || registrationsClosed || activeGame?.id === 'sf4' || activeGame?.id === 'codm' || selectedGame?.toLowerCase() === 'shadowfight4'}
                                 >
-                                    {submitting ? <Loader2 className="animate-spin" /> : (activeGame?.id === 'sf4' || activeGame?.id === 'codm' || selectedGame?.toLowerCase() === 'shadowfight4') ? 'ARENA CLOSED' : (activeGame?.fee === 0 ? 'CONFIRM REGISTRATION' : 'PAY NOW')}
+                                    {submitting ? <Loader2 className="animate-spin" /> : (registrationsClosed || activeGame?.id === 'sf4' || activeGame?.id === 'codm' || selectedGame?.toLowerCase() === 'shadowfight4') ? 'ARENA CLOSED' : (activeGame?.fee === 0 ? 'CONFIRM REGISTRATION' : 'PAY NOW')}
                                     {!submitting && <ArrowRight size={20} />}
                                 </button>
                             </div>

@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { auth, db } from '../../firebase/firebase'
-import { onAuthStateChanged } from 'firebase/auth'
+import { onAuthStateChanged, type User } from 'firebase/auth'
 import { doc, getDoc, collection, query, where, getDocs, setDoc, deleteDoc } from 'firebase/firestore'
 import { X } from 'lucide-react'
 const logo = `${import.meta.env.BASE_URL}assets/logos/avishkar-icon.webp?v=2`
@@ -15,7 +15,7 @@ const TABS = [
   { label: 'Competitions', path: '/competitions' },
 ] as const
 
-const PRELOAD_MAP: Record<string, () => Promise<any>> = {
+const PRELOAD_MAP: Record<string, () => Promise<unknown>> = {
   '/': () => import('../../pages/home/Home'),
   '/workshops': () => import('../../pages/workshops/Workshops'),
   '/schedule': () => import('../../pages/schedule/Schedule'),
@@ -30,7 +30,7 @@ const PRELOAD_MAP: Record<string, () => Promise<any>> = {
 function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const [currentUser, setCurrentUser] = useState<any>(null)
+  const [currentUser, setCurrentUser] = useState<User | null>(null)
   const [userAvatar, setUserAvatar] = useState<string | null>(null)
   const [userRole, setUserRole] = useState<'user' | 'admin' | null>(null)
   const [avatarLoadError, setAvatarLoadError] = useState(false)
@@ -108,7 +108,7 @@ function Navbar() {
               setUserRole(null)
             }
           }
-        } catch (err) {
+        } catch {
           // On any Firestore error, fall back to Firebase Auth photo
           setUserAvatar(user.photoURL || null)
           setUserRole(null)
@@ -123,8 +123,12 @@ function Navbar() {
   }, [])
 
   // Close mobile menu when route changes
+  const prevPathnameRef = useRef(location.pathname)
   useEffect(() => {
-    setIsMobileMenuOpen(false)
+    if (prevPathnameRef.current !== location.pathname) {
+      prevPathnameRef.current = location.pathname
+      setIsMobileMenuOpen(false)
+    }
   }, [location.pathname])
 
   const leftTabs = TABS.slice(0, 3)

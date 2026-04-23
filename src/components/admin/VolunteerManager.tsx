@@ -8,11 +8,32 @@ import * as XLSX from 'xlsx';
 const SCANNER_ROLE_OPTIONS = [
   { value: 'gate', label: 'Gate Entry Scanner' },
   { value: 'param-x', label: 'Param-X Scanner' },
-  { value: 'battle-grid', label: 'Battle Grid Scanner' },
-  { value: 'robo-kshetra', label: 'Robo-Kshetra Scanner' },
+  { value: 'bgmi', label: 'BGMI Scanner' },
+  { value: 'freefire', label: 'Free Fire Scanner' },
+  { value: 'codm', label: 'COD Mobile Scanner' },
+  { value: 'sf4', label: 'Shadow Fight 4 Scanner' },
+  { value: 'amongus', label: 'Among Us Scanner' },
+  { value: 'alignx', label: 'AlignX Scanner' },
+  { value: 'roborush', label: 'RoboRush Scanner' },
+  { value: 'robomaze', label: 'RoboMaze Scanner' },
   { value: 'forge-x', label: 'Forge-X Scanner' },
   { value: 'algo-bid', label: 'Algo-Bid Scanner' },
-  { value: 'code-ladder', label: 'Code-Ladder Scanner' }
+  { value: 'code-ladder', label: 'Code-Ladder Scanner' },
+  { value: 'ipl-auction', label: 'IPL Auction Scanner' },
+  { value: 'blind-code', label: 'Blind Code Scanner' },
+  { value: 'dev-clash', label: 'Dev Clash Scanner' },
+  { value: 'vibe-sprint', label: 'Vibe Sprint Scanner' },
+  { value: 'code-relay', label: 'Code Relay Scanner' },
+  { value: 'bridge-nova', label: 'Bridge Nova Scanner' },
+  { value: 'poster', label: 'Poster Scanner' },
+  { value: 'spark-tank', label: 'Spark Tank Scanner' },
+  { value: 'matlab', label: 'Matlab Scanner' },
+  { value: 'circuit-sim', label: 'Circuit Sim Scanner' },
+  { value: 'contraption', label: 'Contraption Scanner' },
+  { value: 'circle-cricket', label: 'Circle Cricket Scanner' },
+  { value: 'paper-pres', label: 'Paper Presentation Scanner' },
+  { value: 'project-comp', label: 'Project Competition Scanner' },
+  { value: 'orbitx-solar', label: 'OrbitX Solar Workshop Scanner' }
 ];
 
 export default function VolunteerManager() {

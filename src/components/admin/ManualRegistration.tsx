@@ -179,7 +179,7 @@ const ManualRegistration: React.FC<ManualRegistrationProps> = ({ isSuper = false
       'department_admin-robotics-and-automation': ['admin-align-x', 'admin-robo-rush', 'admin-robo-maze'],
     };
 
-    let expandedRoles: string[] = [];
+    const expandedRoles: string[] = [];
     adminProfile.roleLevel.forEach((role: string) => {
       expandedRoles.push(role);
       if (DEPARTMENT_PSEUDO_ROLES[role]) {

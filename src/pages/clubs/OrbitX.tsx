@@ -19,6 +19,7 @@ interface TimeLeft {
 }
 
 const OrbitX: React.FC = () => {
+  const registrationsClosed = true;
   const navigate = useNavigate();
   const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -94,6 +95,7 @@ const OrbitX: React.FC = () => {
   }, [user]);
 
   const handleRegisterClick = () => {
+    if (registrationsClosed) return;
     if (!user) {
       navigate('/login?redirect=/orbitx-zcoer');
       return;
@@ -172,9 +174,9 @@ const OrbitX: React.FC = () => {
                 <button 
                   className={`primary-button ${isAlreadyRegistered ? 'registered' : ''}`} 
                   onClick={handleRegisterClick}
-                  disabled={isAlreadyRegistered}
+                  disabled={isAlreadyRegistered || registrationsClosed}
                 >
-                  <span>{isAlreadyRegistered ? 'ALREADY SLOTTED' : 'RESERVE YOUR SPOT'}</span>
+                  <span>{registrationsClosed ? 'REGISTRATIONS FULL' : (isAlreadyRegistered ? 'ALREADY SLOTTED' : 'RESERVE YOUR SPOT')}</span>
                 </button>
 
                 <div className="countdown-container">

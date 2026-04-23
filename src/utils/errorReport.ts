@@ -7,7 +7,7 @@ export interface ErrorMetadata {
   component?: string;
   action?: string;
   severity?: 'low' | 'medium' | 'high' | 'critical';
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /**
@@ -23,7 +23,7 @@ export const notifyError = (message: string) => {
 /**
  * The standard way to report errors across the Avishkar '26 portal.
  */
-export const reportError = (error: any, metadata: ErrorMetadata = {}) => {
+export const reportError = (error: unknown, metadata: ErrorMetadata = {}) => {
   const errorMsg = error instanceof Error ? error.message : String(error);
   
   // 1. Log with rich metadata for developers

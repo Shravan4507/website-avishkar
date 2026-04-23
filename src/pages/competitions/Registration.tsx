@@ -22,6 +22,7 @@ import { usePaymentCheckout } from '../../hooks/usePaymentCheckout';
 
 
 const Registration: React.FC = () => {
+  const registrationsClosed = true;
   const { slug } = useParams<{ slug: string }>();
   const [user, authLoading] = useAuthState(auth);
   const navigate = useNavigate();
@@ -185,8 +186,8 @@ const Registration: React.FC = () => {
     }
 
     const raw = val.slice(4).replace(/[^A-Z0-9]/g, '');
-    let letters = raw.slice(0, 3).replace(/[0-9]/g, '');
-    let numbers = raw.slice(letters.length).replace(/[A-Z]/g, '').slice(0, 4);
+    const letters = raw.slice(0, 3).replace(/[0-9]/g, '');
+    const numbers = raw.slice(letters.length).replace(/[A-Z]/g, '').slice(0, 4);
 
     let formatted = "AVR-" + letters;
 
@@ -488,7 +489,7 @@ const Registration: React.FC = () => {
 
   /** Main registration handler — routes to paid or free flow */
   const handleRegister = async () => {
-    if (!competition || !userData || alreadyRegistered || isSubmittingRef.current) return;
+    if (!competition || !userData || alreadyRegistered || isSubmittingRef.current || registrationsClosed || competition.isRegistrationOpen === false) return;
     
     if (!accountabilityAccepted) {
       toast.error("Please acknowledge the scheduling policy.");
@@ -677,7 +678,7 @@ const Registration: React.FC = () => {
               </div>
           )}
 
-          {competition.isRegistrationOpen === false && (
+          {(registrationsClosed || competition.isRegistrationOpen === false) && (
               <div className="scheduling-notice-box" style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', marginTop: '1rem', color: '#fff' }}>
                   <div className="notice-icon">
                       <ShieldAlert size={24} color="#ef4444" />
@@ -691,7 +692,7 @@ const Registration: React.FC = () => {
               </div>
           )}
 
-          {userData && competition.isRegistrationOpen !== false && (
+          {userData && !registrationsClosed && competition.isRegistrationOpen !== false && (
             <div className="user-prefill-card">
               <div className="prefill-header">
                 <ShieldCheck size={16} /> DATA VERIFIED & SECURED
@@ -843,7 +844,7 @@ const Registration: React.FC = () => {
                <div className="already-registered-banner">
                  <CheckCircle size={20} /> Identity confirmed. You are registered.
                </div>
-            ) : competition.isRegistrationOpen === false ? (
+            ) : (registrationsClosed || competition.isRegistrationOpen === false) ? (
               <button 
                 className="btn-register-submit disabled" 
                 style={{ background: '#ef4444', color: '#fff', border: 'none', cursor: 'not-allowed' }}

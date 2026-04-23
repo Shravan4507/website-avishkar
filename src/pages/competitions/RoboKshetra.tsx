@@ -245,8 +245,8 @@ const RoboKshetra: React.FC = () => {
         }
 
         const raw = val.slice(4).replace(/[^A-Z0-9]/g, '');
-        let letters = raw.slice(0, 3).replace(/[0-9]/g, '');
-        let numbers = raw.slice(letters.length).replace(/[A-Z]/g, '').slice(0, 4);
+        const letters = raw.slice(0, 3).replace(/[0-9]/g, '');
+        const numbers = raw.slice(letters.length).replace(/[A-Z]/g, '').slice(0, 4);
 
         let formatted = "AVR-" + letters;
 

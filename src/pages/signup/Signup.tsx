@@ -20,8 +20,8 @@ const Signup: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   // The page the user originally tried to visit before being redirected here
-  const from = (location.state as any)?.from?.pathname || null;
-  const fromSearch = (location.state as any)?.from?.search || '';
+  const from = (location.state as { from?: { pathname: string; search?: string } } | null)?.from?.pathname || null;
+  const fromSearch = (location.state as { from?: { pathname: string; search?: string } } | null)?.from?.search || '';
   
   const [formData, setFormData] = useState({
     firstName: '',
@@ -114,7 +114,7 @@ const Signup: React.FC = () => {
       return false;
     }
 
-    const [_, d, m, y] = dobMatch.map(Number);
+    const [_match, d, m, y] = dobMatch.map(Number);
     const birthDate = new Date(y, m - 1, d);
     const today = new Date();
     let age = today.getFullYear() - birthDate.getFullYear();

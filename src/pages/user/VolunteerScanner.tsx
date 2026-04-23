@@ -11,6 +11,27 @@ import { decryptAndVerifyQR } from '../../utils/qrCrypto';
 import GlassSelect from '../../components/dropdown/GlassSelect';
 import './VolunteerScanner.css';
 
+interface AdminData {
+  roleLevel?: string[];
+  type?: string;
+}
+
+interface OfflineEntry {
+  id?: string;
+  uid?: string;
+  avrId?: string;
+  userAVR?: string;
+  allAvrIds?: string[];
+  eventName?: string;
+  isAttended?: boolean;
+  firstName?: string;
+  lastName?: string;
+  teamName?: string;
+  role?: string;
+  scannerRole?: string;
+  [key: string]: unknown;
+}
+
 interface ScannedUser {
   id: string;
   firstName: string;
@@ -30,12 +51,107 @@ interface HistoryItem {
 const SCANNER_ROLE_OPTIONS = [
   { value: 'gate', label: 'Gate Entry' },
   { value: 'param-x', label: 'Param-X' },
-  { value: 'battle-grid', label: 'Battle Grid' },
-  { value: 'robo-kshetra', label: 'Robo-Kshetra' },
+  { value: 'bgmi', label: 'BGMI' },
+  { value: 'freefire', label: 'Free Fire' },
+  { value: 'codm', label: 'COD Mobile' },
+  { value: 'sf4', label: 'Shadow Fight 4' },
+  { value: 'amongus', label: 'Among Us' },
+  { value: 'alignx', label: 'AlignX' },
+  { value: 'roborush', label: 'RoboRush' },
+  { value: 'robomaze', label: 'RoboMaze' },
   { value: 'forge-x', label: 'Forge-X' },
   { value: 'algo-bid', label: 'Algo-Bid' },
-  { value: 'code-ladder', label: 'Code-Ladder' }
+  { value: 'code-ladder', label: 'Code Ladder' },
+  { value: 'ipl-auction', label: 'IPL Auction' },
+  { value: 'blind-code', label: 'Blind Code Challenge' },
+  { value: 'dev-clash', label: 'Dev Clash' },
+  { value: 'vibe-sprint', label: 'Vibe Sprint' },
+  { value: 'code-relay', label: 'Code Relay' },
+  { value: 'bridge-nova', label: 'Bridge Nova' },
+  { value: 'poster', label: 'Poster Presentation' },
+  { value: 'spark-tank', label: 'Spark Tank' },
+  { value: 'matlab', label: 'Matlab Madness' },
+  { value: 'circuit-sim', label: 'Circuit Simulation' },
+  { value: 'contraption', label: 'Contraption Challenge' },
+  { value: 'circle-cricket', label: 'Circle Cricket' },
+  { value: 'paper-pres', label: 'Paper Presentation' },
+  { value: 'project-comp', label: 'Project Competition' },
+  { value: 'orbitx-solar', label: 'Solar Spot Observation (Workshop)' }
 ];
+
+const SCAN_MODE_EVENT_NAMES: Record<string, string[]> = {
+  'bgmi': ['BGMI'],
+  'freefire': ['Free Fire'],
+  'codm': ['COD Mobile', 'CODM'],
+  'sf4': ['Shadow Fight 4', 'Shadow-Fight 4'],
+  'amongus': ['Among Us'],
+  'alignx': ['AlignX'],
+  'roborush': ['RoboRush'],
+  'robomaze': ['RoboMaze'],
+  'forge-x': ['Forge-X'],
+  'algo-bid': ['AlgoBid'],
+  'code-ladder': ['Code Ladder'],
+  'ipl-auction': ['IPL Auction'],
+  'blind-code': ['Blind Code Challenge'],
+  'dev-clash': ['Dev Clash'],
+  'vibe-sprint': ['Vibe Sprint'],
+  'code-relay': ['Code Relay'],
+  'bridge-nova': ['Bridge Nova'],
+  'poster': ['Poster Presentation'],
+  'spark-tank': ['Spark Tank - Electro-Innovation Pitch'],
+  'matlab': ['Matlab Madness'],
+  'circuit-sim': ['Circuit Simulation'],
+  'contraption': ['Contraption Challenge'],
+  'circle-cricket': ['Circle Cricket'],
+  'paper-pres': ['Paper Presentation'],
+  'project-comp': ['Project Competition'],
+  'orbitx-solar': ['Solar Spot Observation']
+};
+
+const ADMIN_ROLE_TO_SCAN_MODES: Record<string, string[]> = {
+  'admin-param-x': ['param-x'],
+  'admin-bgmi': ['bgmi'],
+  'admin-freefire': ['freefire'],
+  'admin-codm': ['codm'],
+  'admin-sf4': ['sf4'],
+  'admin-amongus': ['amongus'],
+  'admin-align-x': ['alignx'],
+  'admin-robo-rush': ['roborush'],
+  'admin-robo-maze': ['robomaze'],
+  'admin-forge-x': ['forge-x'],
+  'admin-algo-bid': ['algo-bid'],
+  'admin-code-ladder': ['code-ladder'],
+  'admin-ipl-auction': ['ipl-auction'],
+  'admin-blind-code': ['blind-code'],
+  'admin-dev-clash': ['dev-clash'],
+  'admin-vibe-sprint': ['vibe-sprint'],
+  'admin-code-relay': ['code-relay'],
+  'admin-bridge-nova': ['bridge-nova'],
+  'admin-poster': ['poster'],
+  'admin-spark-tank': ['spark-tank'],
+  'admin-matlab': ['matlab'],
+  'admin-circuit-sim': ['circuit-sim'],
+  'admin-contraptions': ['contraption'],
+  'admin-circle-cricket': ['circle-cricket'],
+  'admin-paper-pres': ['paper-pres'],
+  'admin-project-comp': ['project-comp'],
+  'workshop-solar-spot': ['orbitx-solar'],
+  'admin-battle-grid': ['bgmi', 'freefire', 'codm', 'sf4', 'amongus'],
+  'admin-robo-kshetra': ['alignx', 'roborush', 'robomaze']
+};
+
+const DEPT_ROLE_TO_SCAN_MODES: Record<string, string[]> = {
+  'department_admin-computer-engineering': ['forge-x', 'algo-bid'],
+  'department_admin-information-technology': ['sf4', 'codm', 'code-ladder'],
+  'department_admin-ai-ds': ['ipl-auction'],
+  'department_admin-ai-ml': ['dev-clash', 'vibe-sprint', 'code-relay', 'bgmi'],
+  'department_admin-civil-engineering': ['bridge-nova'],
+  'department_admin-electrical-engineering': ['poster', 'spark-tank', 'freefire'],
+  'department_admin-e-tc-engineering': ['matlab', 'circuit-sim', 'paper-pres', 'project-comp'],
+  'department_admin-ece': ['blind-code', 'circle-cricket', 'amongus'],
+  'department_admin-mechanical-engineering': ['contraption'],
+  'department_admin-robotics-and-automation': ['alignx', 'roborush', 'robomaze']
+};
 
 const VolunteerScanner: React.FC = () => {
   const [user, authLoading] = useAuthState(auth);
@@ -112,12 +228,28 @@ const VolunteerScanner: React.FC = () => {
 
       try {
         let authorized = false;
-        let scannerRole = '';
+        let allowedModes: string[] = [];
 
         const adminDoc = await getDoc(doc(db, "admins", user.uid));
         if (adminDoc.exists()) {
-          authorized = true;
-          scannerRole = 'superadmin';
+          const adminData = adminDoc.data() as AdminData;
+          const roleLevel: string[] = adminData.roleLevel || [];
+          const isSuperAdmin = roleLevel.includes('superadmin') || adminData.type === 'superadmin';
+
+          if (isSuperAdmin) {
+            authorized = true;
+            allowedModes = SCANNER_ROLE_OPTIONS.map(o => o.value);
+          } else {
+            const modeSet = new Set<string>();
+            roleLevel.forEach((role) => {
+              (ADMIN_ROLE_TO_SCAN_MODES[role] || []).forEach((m) => modeSet.add(m));
+              (DEPT_ROLE_TO_SCAN_MODES[role] || []).forEach((m) => modeSet.add(m));
+            });
+            if (modeSet.size > 0) {
+              authorized = true;
+              allowedModes = Array.from(modeSet);
+            }
+          }
         }
 
         if (!authorized) {
@@ -126,7 +258,7 @@ const VolunteerScanner: React.FC = () => {
             const data = uDoc.data();
             if (data.role === 'volunteer') {
               authorized = true;
-              scannerRole = data.scannerRole || 'gate';
+              allowedModes = [data.scannerRole || 'gate'];
             }
           }
         }
@@ -139,14 +271,9 @@ const VolunteerScanner: React.FC = () => {
 
         setIsAuthorized(true);
 
-        if (scannerRole === 'superadmin') {
-          setAvailableEvents(SCANNER_ROLE_OPTIONS);
-          setScanMode('gate');
-        } else {
-          const roleOption = SCANNER_ROLE_OPTIONS.find(o => o.value === scannerRole);
-          setAvailableEvents([roleOption || { value: scannerRole, label: scannerRole.toUpperCase() }]);
-          setScanMode(scannerRole);
-        }
+        const filteredOptions = SCANNER_ROLE_OPTIONS.filter(o => allowedModes.includes(o.value));
+        setAvailableEvents(filteredOptions);
+        setScanMode(filteredOptions[0]?.value || 'gate');
 
       } catch (err) {
         console.error(err);
@@ -308,10 +435,12 @@ const VolunteerScanner: React.FC = () => {
         if (isHackathon) {
           q = query(collection(db, collectionName), where("status", "==", "confirmed"));
         } else {
-          q = query(collection(db, collectionName), where("eventName", "==", scanMode));
+          q = query(collection(db, collectionName), where("status", "==", "confirmed"));
         }
         const snap = await getDocs(q);
-        const data = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const allData = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        const validEvents = SCAN_MODE_EVENT_NAMES[scanMode] || [];
+        const data = isHackathon ? allData : allData.filter((r: OfflineEntry) => validEvents.includes(r.eventName ?? ''));
         localStorage.setItem(`scanner_data_${scanMode}`, JSON.stringify(data));
         setLocalDataCount(data.length);
       }
@@ -380,27 +509,17 @@ const VolunteerScanner: React.FC = () => {
       const offlineEntries = modeData ? JSON.parse(modeData) : [];
       const offlineUsers = gateData ? JSON.parse(gateData) : [];
 
-      let targetDoc: any = null;
-      let targetUser: any = offlineUsers.find((u: any) => u.avrId === avrId);
-
-      // Map roles to actual event names stored in DB
-      const getValidEventNames = (mode: string) => {
-        if (mode === 'battle-grid') return ['BGMI', 'Free Fire', 'Shadow Fight 4', 'Among Us', 'Battle Grid \'26'];
-        if (mode === 'robo-kshetra') return ['AlignX', 'RoboRush', 'RoboMaze', 'Robo-Kshetra \'26'];
-        if (mode === 'forge-x') return ['Forge-X'];
-        if (mode === 'algo-bid') return ['AlgoBid'];
-        if (mode === 'code-ladder') return ['Code Ladder'];
-        return [mode]; // fallback
-      };
+      let targetDoc: OfflineEntry | null = null;
+      const targetUser: OfflineEntry | undefined = offlineUsers.find((u: OfflineEntry) => u.avrId === avrId);
 
       if (currentMode === 'gate') {
-        targetDoc = targetUser;
+        targetDoc = targetUser ?? null;
       } else {
-        const validEvents = getValidEventNames(currentMode);
-        targetDoc = offlineEntries.find((r: any) =>
-          (validEvents.includes(r.eventName) || currentMode === 'param-x') &&
+        const validEvents = SCAN_MODE_EVENT_NAMES[currentMode] || [];
+        targetDoc = offlineEntries.find((r: OfflineEntry) =>
+          (validEvents.includes(r.eventName ?? '') || currentMode === 'param-x') &&
           (r.userAVR === avrId || (r.allAvrIds && r.allAvrIds.includes(avrId)))
-        );
+        ) ?? null;
       }
 
       if (!targetDoc && isOnline) {
@@ -420,7 +539,7 @@ const VolunteerScanner: React.FC = () => {
           const [snap1, snap2] = await Promise.all([getDocs(q1), getDocs(q2)]);
           const allDocs = [...snap1.docs, ...snap2.docs];
 
-          const validEvents = getValidEventNames(currentMode);
+          const validEvents = SCAN_MODE_EVENT_NAMES[currentMode] || [];
           const matchedDoc = allDocs.find(d => validEvents.includes(d.data().eventName));
 
           if (matchedDoc) targetDoc = { id: matchedDoc.id, ...matchedDoc.data() };
@@ -436,7 +555,7 @@ const VolunteerScanner: React.FC = () => {
       const name = targetUser ? `${targetUser.firstName} ${targetUser.lastName}` : (targetDoc.firstName ? `${targetDoc.firstName} ${targetDoc.lastName}` : 'Team Member');
 
       if (currentMode === 'gate') {
-        if (isOnline) await updateDoc(doc(db, "user", targetDoc.id || targetDoc.uid), {
+        if (isOnline) await updateDoc(doc(db, "user", (targetDoc.id || targetDoc.uid)!), {
           gateCheckIn: serverTimestamp(),
           scannedBy: user!.uid
         });
@@ -445,7 +564,7 @@ const VolunteerScanner: React.FC = () => {
           localStorage.setItem('scanner_data_gate', JSON.stringify(offlineUsers));
           toast.info("Offline Gate Scan Marked!");
         }
-        setScannedUser(targetDoc);
+        setScannedUser(targetDoc as ScannedUser);
         setScanStatus('success');
         setStatusMessage('GATE ENTRY GRANTED');
         addToHistory(avrId, name, 'success');
@@ -453,24 +572,25 @@ const VolunteerScanner: React.FC = () => {
         if (targetDoc.isAttended) {
           setScanStatus('already_scanned');
           setStatusMessage('ALREADY SCANNED');
-          setScannedUser(targetUser || targetDoc);
+          setScannedUser((targetUser || targetDoc) as ScannedUser);
           addToHistory(avrId, name, 'duplicate');
           handleDuplicateInteraction(avrId);
           return;
         }
         if (isOnline) {
           const colName = currentMode === 'param-x' ? "hackathon_registrations" : "registrations";
-          await updateDoc(doc(db, colName, targetDoc.id), {
+          await updateDoc(doc(db, colName, targetDoc.id!), {
             isAttended: true,
             scannedAt: serverTimestamp(),
-            scannedBy: user!.uid
+            scannedBy: user!.uid,
+            certificateEligible: true
           });
         } else {
           targetDoc.isAttended = true;
           localStorage.setItem(`scanner_data_${currentMode}`, JSON.stringify(offlineEntries));
           toast.info("Offline Attendance Marked!");
         }
-        setScannedUser(targetUser || targetDoc);
+        setScannedUser((targetUser || targetDoc) as ScannedUser);
         setScanStatus('success');
         setStatusMessage('ACCESS GRANTED');
       }

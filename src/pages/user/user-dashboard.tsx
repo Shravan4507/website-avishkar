@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
-import { doc, getDoc, updateDoc, onSnapshot, serverTimestamp, query, collection, getDocs, where } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, onSnapshot, serverTimestamp, query, collection, getDocs, where, type Timestamp } from 'firebase/firestore';
 import { auth, db, storage } from '../../firebase/firebase';
 import { ref, uploadString, getDownloadURL } from 'firebase/storage';
 import { useNavigate } from 'react-router-dom';
@@ -12,7 +12,44 @@ import VirtualPass from '../../components/VirtualPass/VirtualPass';
 import { generateInvoice } from '../../utils/InvoiceGenerator';
 import { useCache } from '../../hooks/useCache';
 import ImageCropper from '../../components/image-cropper/ImageCropper';
+import { jsPDF } from 'jspdf';
 import './user-dashboard.css';
+
+interface Registration {
+  id: string;
+  eventName: string;
+  category?: string;
+  teamId?: string;
+  teamName?: string;
+  leaderName?: string;
+  leaderEmail?: string;
+  leaderAvrId?: string;
+  avrId?: string;
+  psId?: string;
+  paymentId?: string;
+  isAttended?: boolean;
+  isHackathon?: boolean;
+  allAvrIds?: string[];
+  allEmails?: string[];
+  member1Name?: string;
+  createdAt?: Timestamp;
+  status?: string;
+  paymentStatus?: string;
+  userId?: string;
+  userEmail?: string;
+  userAVR?: string;
+  [key: string]: unknown;
+}
+
+interface TeammateData {
+  avrId: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  college?: string;
+  whatsappNumber?: string;
+  phone?: string;
+}
 
 
 interface UserProfile {
@@ -38,7 +75,7 @@ interface UserProfile {
   isProfileComplete: boolean;
 
   metadata: {
-    createdAt: any;
+    createdAt: Timestamp | null;
   };
 
   // Additional fields for UI / Extensions
@@ -61,7 +98,7 @@ const UserDashboard: React.FC = () => {
   
   const [userData, setUserData] = useState<UserProfile | null>(null);
   const [cachedPhoto, setCachedPhoto] = useCache<string>('user_pfp', '', 'local');
-  const [myRegistrations, setMyRegistrations] = useState<any[]>([]);
+  const [myRegistrations, setMyRegistrations] = useState<Registration[]>([]);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isPassOpen, setIsPassOpen] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
@@ -77,9 +114,9 @@ const UserDashboard: React.FC = () => {
 
   // Teammate add
   const [isAddTeamModalOpen, setIsAddTeamModalOpen] = useState(false);
-  const [selectedReg, setSelectedReg] = useState<any>(null);
+  const [selectedReg, setSelectedReg] = useState<Registration | null>(null);
   const [teammateAvr, setTeammateAvr] = useState('');
-  const [teammateData, setTeammateData] = useState<any>(null);
+  const [teammateData, setTeammateData] = useState<TeammateData | null>(null);
   const [lookupLoading, setLookupLoading] = useState(false);
   const [isUpdatingTeam, setIsUpdatingTeam] = useState(false);
   const [addTeammateError, setAddTeammateError] = useState('');
@@ -188,6 +225,60 @@ const UserDashboard: React.FC = () => {
     }
   };
 
+  const handleDownloadCertificate = (reg: Registration) => {
+    if (!userData) return;
+    if (!reg?.isAttended) {
+      toast.info("Certificate will be available after attendance is marked.");
+      return;
+    }
+
+    const pdf = new jsPDF('landscape', 'mm', 'a4');
+    const participantName = `${userData.firstName} ${userData.lastName}`.trim();
+    const eventName = reg.eventName || 'Avishkar Event';
+    const issueDate = new Date().toLocaleDateString();
+
+    pdf.setFillColor(12, 7, 27);
+    pdf.rect(0, 0, 297, 210, 'F');
+
+    pdf.setDrawColor(167, 139, 250);
+    pdf.setLineWidth(2);
+    pdf.rect(8, 8, 281, 194);
+
+    pdf.setTextColor(196, 181, 253);
+    pdf.setFont('helvetica', 'bold');
+    pdf.setFontSize(28);
+    pdf.text("AAVISHKAR '26", 148.5, 35, { align: 'center' });
+
+    pdf.setFontSize(18);
+    pdf.text('PARTICIPATION CERTIFICATE', 148.5, 50, { align: 'center' });
+
+    pdf.setTextColor(255, 255, 255);
+    pdf.setFont('helvetica', 'normal');
+    pdf.setFontSize(14);
+    pdf.text('This is to certify that', 148.5, 78, { align: 'center' });
+
+    pdf.setFont('helvetica', 'bold');
+    pdf.setFontSize(26);
+    pdf.text(participantName.toUpperCase(), 148.5, 94, { align: 'center' });
+
+    pdf.setFont('helvetica', 'normal');
+    pdf.setFontSize(14);
+    pdf.text('has successfully participated in', 148.5, 110, { align: 'center' });
+
+    pdf.setFont('helvetica', 'bold');
+    pdf.setFontSize(20);
+    pdf.text(eventName, 148.5, 124, { align: 'center' });
+
+    pdf.setFont('helvetica', 'normal');
+    pdf.setFontSize(12);
+    pdf.text(`AVR ID: ${userData.avrId}`, 40, 175);
+    pdf.text(`Date of Issue: ${issueDate}`, 220, 175);
+
+    const safeEvent = String(eventName).replace(/[^a-z0-9]+/gi, '_');
+    pdf.save(`Avishkar26_Certificate_${safeEvent}.pdf`);
+    toast.success(`Certificate downloaded for ${eventName}`);
+  };
+
   useEffect(() => {
     if (!user && !authLoading) {
       navigate('/login');
@@ -243,44 +334,61 @@ const UserDashboard: React.FC = () => {
         try {
           // 1. Fetch User Profile to get AVR ID
           const uSnap = await getDoc(doc(db, "user", user.uid));
-          const avrId = uSnap.data()?.avrId;
+          const avrId = uSnap.data()?.avrId || '';
 
-          // Standard registrations (Check userEmail OR allAvrIds)
-          const qLeader = query(collection(db, "registrations"), where("userEmail", "==", user.email));
-          const snapLeader = await getDocs(qLeader);
-          
-          let memberRegs: any[] = [];
+          const isFinalizedRegistration = (reg: Registration) => {
+            const status = String(reg?.status || '').toLowerCase();
+            const paymentStatus = String(reg?.paymentStatus || '').toLowerCase();
+            return status === 'confirmed' || ['paid', 'success', 'free'].includes(paymentStatus);
+          };
+
+          const runQuerySafe = async (q: Parameters<typeof getDocs>[0]) => {
+            try {
+              const snap = await getDocs(q);
+              return snap.docs.map(d => ({ id: d.id, ...(d.data() as Record<string, unknown>) })) as Registration[];
+            } catch {
+              return [];
+            }
+          };
+
+          // Standard registrations (leader/member/manual/backfilled variations)
+          const standardQueries = [
+            query(collection(db, "registrations"), where("userId", "==", user.uid)),
+            query(collection(db, "registrations"), where("userEmail", "==", user.email)),
+          ];
           if (avrId) {
-            const qMember = query(collection(db, "registrations"), where("allAvrIds", "array-contains", avrId));
-            const snapMember = await getDocs(qMember);
-            memberRegs = snapMember.docs.map(d => ({ id: d.id, ...d.data() }));
+            standardQueries.push(query(collection(db, "registrations"), where("leaderAvrId", "==", avrId)));
+            standardQueries.push(query(collection(db, "registrations"), where("userAVR", "==", avrId)));
+            standardQueries.push(query(collection(db, "registrations"), where("allAvrIds", "array-contains", avrId)));
           }
 
-          const leaderRegs = snapLeader.docs.map(d => ({ id: d.id, ...d.data() }));
-          
-          // Combine and deduplicate by document ID
-          const combinedRegs = [...leaderRegs, ...memberRegs];
-          const uniqueRegs = Array.from(new Map(combinedRegs.map(item => [item.id, item])).values());
+          const standardResults = await Promise.all(standardQueries.map(runQuerySafe));
+          const uniqueRegs = Array.from(
+            new Map(standardResults.flat().map(item => [item.id, item])).values()
+          ).filter(isFinalizedRegistration);
 
-          // Param-X / Hackathon registrations (Check leaderEmail OR allAvrIds OR allEmails)
-          const qH1 = query(collection(db, "hackathon_registrations"), where("leaderEmail", "==", user.email));
-          const snapH1 = await getDocs(qH1);
-          
-          let hMemberRegs: any[] = [];
+          // Param-X / Hackathon registrations (leader/member variations)
+          const hackQueries = [
+            query(collection(db, "hackathon_registrations"), where("userId", "==", user.uid)),
+            query(collection(db, "hackathon_registrations"), where("leaderEmail", "==", user.email)),
+          ];
           if (avrId) {
-            const qH2 = query(collection(db, "hackathon_registrations"), where("allAvrIds", "array-contains", avrId));
-            const snapH2 = await getDocs(qH2);
-            hMemberRegs = snapH2.docs.map(d => ({ id: d.id, ...d.data() }));
+            hackQueries.push(query(collection(db, "hackathon_registrations"), where("leaderAvrId", "==", avrId)));
+            hackQueries.push(query(collection(db, "hackathon_registrations"), where("userAVR", "==", avrId)));
+            hackQueries.push(query(collection(db, "hackathon_registrations"), where("allAvrIds", "array-contains", avrId)));
           }
 
-          const hLeaderRegs = snapH1.docs.map(d => ({ id: d.id, ...d.data() }));
-          const combinedHRegs = [...hLeaderRegs, ...hMemberRegs].map(reg => ({
-            ...reg,
-            eventName: 'Param-X Hackathon',
-            category: 'Tech / Hackathon',
-            isHackathon: true
-          }));
-          const uniqueHRegs = Array.from(new Map(combinedHRegs.map(item => [item.id, item])).values());
+          const hackResults = await Promise.all(hackQueries.map(runQuerySafe));
+          const uniqueHRegs = Array.from(
+            new Map(hackResults.flat().map(item => [item.id, item])).values()
+          )
+            .filter(isFinalizedRegistration)
+            .map(reg => ({
+              ...reg,
+              eventName: 'Param-X Hackathon',
+              category: 'Tech / Hackathon',
+              isHackathon: true
+            }));
 
           setMyRegistrations([...uniqueRegs, ...uniqueHRegs]);
         } catch (e) {
@@ -313,7 +421,7 @@ const UserDashboard: React.FC = () => {
       await auth.signOut();
       toast.info("Logged out successfully.");
       navigate('/login');
-    } catch (e) {
+    } catch {
       toast.error("Logout failed.");
     }
   };
@@ -330,7 +438,7 @@ const UserDashboard: React.FC = () => {
       });
       toast.success("Profile updated successfully!");
       setIsEditModalOpen(false);
-    } catch (error) {
+    } catch {
       toast.error("Failed to update profile.");
     } finally {
       setIsSaving(false);
@@ -351,13 +459,12 @@ const UserDashboard: React.FC = () => {
           if (tData.avrId === userData?.avrId) {
               setAddTeammateError("Cannot add yourself");
           } else {
-              setTeammateData(tData);
+              setTeammateData(tData as TeammateData);
           }
         } else {
           setAddTeammateError("User not found");
         }
-      } catch (e) {
-        console.error(e);
+      } catch {
         setAddTeammateError("Network Error");
       } finally {
         setLookupLoading(false);
@@ -403,7 +510,7 @@ const UserDashboard: React.FC = () => {
     }
   };
 
-  const handleOpenAddMember = (reg: any) => {
+  const handleOpenAddMember = (reg: Registration) => {
     setSelectedReg(reg);
     setIsAddTeamModalOpen(true);
   };
@@ -415,6 +522,7 @@ const UserDashboard: React.FC = () => {
   }
 
   if (!userData) return null;
+  const attendedRegistrations = myRegistrations.filter((reg) => reg.isAttended === true);
 
   return (
     <div className="user-dashboard-page">
@@ -549,13 +657,13 @@ const UserDashboard: React.FC = () => {
                               className="invoice-download-btn" 
                               title="Download Invoice"
                               onClick={() => generateInvoice({
-                                teamName: reg.teamName,
-                                leaderName: reg.leaderName,
-                                leaderEmail: reg.leaderEmail,
-                                avrId: reg.leaderAvrId || reg.avrId,
-                                psId: reg.psId,
-                                psTitle: reg.psId, 
-                                paymentId: reg.paymentId,
+                                teamName: reg.teamName ?? '',
+                                leaderName: reg.leaderName ?? '',
+                                leaderEmail: reg.leaderEmail ?? '',
+                                avrId: reg.leaderAvrId ?? reg.avrId ?? '',
+                                psId: reg.psId ?? '',
+                                psTitle: reg.psId ?? '',
+                                paymentId: reg.paymentId ?? '',
                                 date: reg.createdAt?.toDate ? reg.createdAt.toDate().toLocaleDateString() : new Date().toLocaleDateString(),
                                 amount: "500.00"
                               })}
@@ -568,6 +676,18 @@ const UserDashboard: React.FC = () => {
                               onClick={() => navigate('/param-x/upload')}
                             >
                               <CloudUpload size={18} />
+                            </button>
+                          </div>
+                        )}
+
+                        {reg.isAttended && (
+                          <div className="reg-hackathon-actions" style={{ marginTop: '10px', display: 'flex', justifyContent: 'flex-start' }}>
+                            <button
+                              className="invoice-download-btn"
+                              title="Download Participation Certificate"
+                              onClick={() => handleDownloadCertificate(reg)}
+                            >
+                              <FileText size={18} />
                             </button>
                           </div>
                         )}
@@ -616,11 +736,20 @@ const UserDashboard: React.FC = () => {
                     <p>Coming soon</p>
                   </div>
                 </button>
-                <button className="download-card disabled-card" onClick={() => toast.info("Certificates will be available after the event.")}>
+                <button
+                  className={`download-card ${attendedRegistrations.length === 0 ? 'disabled-card' : ''}`}
+                  onClick={() => {
+                    if (attendedRegistrations.length === 0) {
+                      toast.info("Certificate will be available after your attendance is marked.");
+                      return;
+                    }
+                    handleDownloadCertificate(attendedRegistrations[0]);
+                  }}
+                >
                   <div className="dl-icon"><FileText size={24} /></div>
                   <div className="dl-info">
                     <h3>Certificates</h3>
-                    <p>Available post-event</p>
+                    <p>{attendedRegistrations.length > 0 ? `Download (${attendedRegistrations.length} ready)` : 'Available after attendance'}</p>
                   </div>
                 </button>
                 <button className="download-card disabled-card" onClick={() => toast.info("Workshop content will be uploaded soon.")}>

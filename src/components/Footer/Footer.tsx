@@ -5,13 +5,26 @@ const avishkarLogo = `${import.meta.env.BASE_URL}assets/logos/avishkar-white.web
 
 import './Footer.css'
 
+interface NetworkInformation extends EventTarget {
+    downlink: number;
+    addEventListener(type: 'change', listener: () => void): void;
+    removeEventListener(type: 'change', listener: () => void): void;
+}
+
+interface NavigatorWithConnection extends Navigator {
+    connection?: NetworkInformation;
+    mozConnection?: NetworkInformation;
+    webkitConnection?: NetworkInformation;
+}
+
 function Footer() {
     const { openBugReport } = useBugReport();
     const [speed, setSpeed] = useState<number | null>(null);
     const [isOnline, setIsOnline] = useState(navigator.onLine);
 
     useEffect(() => {
-        const connection = (navigator as any).connection || (navigator as any).mozConnection || (navigator as any).webkitConnection;
+        const nav = navigator as NavigatorWithConnection;
+        const connection = nav.connection || nav.mozConnection || nav.webkitConnection;
         
         const updateSpeed = () => {
             if (connection) {

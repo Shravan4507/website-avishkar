@@ -35,9 +35,9 @@ const UserProtectedRoutes = () => {
           setRole('admin');
           return;
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         // permission-denied or any other error means not an admin — fall through to user check
-        console.warn("[UserProtectedRoutes] Admin check failed (expected for non-admins):", err?.code);
+        console.warn("[UserProtectedRoutes] Admin check failed (expected for non-admins):", (err as { code?: string })?.code);
       }
 
       // 2. Check User status
@@ -50,8 +50,8 @@ const UserProtectedRoutes = () => {
           setRole('user');
           setHasAvrId(false);
         }
-      } catch (err: any) {
-        console.warn("[UserProtectedRoutes] User profile check failed:", err?.code);
+      } catch (err: unknown) {
+        console.warn("[UserProtectedRoutes] User profile check failed:", (err as { code?: string })?.code);
         // Default to 'user' so they can proceed to signup
         setRole('user');
         setHasAvrId(false);

@@ -11,7 +11,7 @@ export const isLowSpecDevice = (): boolean => {
   const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
   // 3. Check for low memory (if supported)
-  const memory = (navigator as any).deviceMemory;
+  const memory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
   if (memory && memory < 3) return true;
 
   // 4. Check for low CPU cores

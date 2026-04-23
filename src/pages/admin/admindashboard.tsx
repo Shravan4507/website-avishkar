@@ -174,8 +174,8 @@ const AdminDashboard: React.FC = () => {
       
       for(const docSnap of snap.docs) {
         const data = docSnap.data();
-        let name = (data.eventName || data.competitionTitle || '').toLowerCase();
-        let currentHandle = (data.competitionHandle || '').toLowerCase();
+        const name = (data.eventName || data.competitionTitle || '').toLowerCase();
+        const currentHandle = (data.competitionHandle || '').toLowerCase();
         
         let newHandle = '';
         let newName = '';
@@ -232,8 +232,8 @@ const AdminDashboard: React.FC = () => {
     
     // Structure: AVR-[3 letters]-[4 numbers]
     const content = raw.slice(4).replace(/[^A-Z0-9]/g, "");
-    let letters = content.slice(0, 3).replace(/[0-9]/g, "");
-    let numbers = content.slice(letters.length).replace(/[A-Z]/g, "").slice(0, 4);
+    const letters = content.slice(0, 3).replace(/[0-9]/g, "");
+    const numbers = content.slice(letters.length).replace(/[A-Z]/g, "").slice(0, 4);
     
     let formatted = "AVR-" + letters;
     if (letters.length === 3) {
@@ -349,11 +349,6 @@ const AdminDashboard: React.FC = () => {
         
         if (isSuperUser || isCoreTeam) {
           // Broad scope admins see global registration counts
-          const [regSnapCount, hackSnapCount] = await Promise.all([
-            getCountFromServer(collection(db, "registrations")),
-            getCountFromServer(collection(db, "hackathon_registrations"))
-          ]);
-
           let revenue = 0;
           let paid = 0;
           let free = 0;
@@ -361,7 +356,7 @@ const AdminDashboard: React.FC = () => {
           let totalUsersCount = null;
 
           // Per-event breakdown (populated for superadmin only)
-          let superBreakdown = new Map<string, { label: string; count: number; handle: string }>();
+          const superBreakdown = new Map<string, { label: string; count: number; handle: string }>();
 
           if (isSuperUser) {
             // Pre-fill superBreakdown with all events to guarantee 0-registration events are visible
@@ -379,8 +374,31 @@ const AdminDashboard: React.FC = () => {
               getDocs(collection(db, "hackathon_registrations"))
             ]);
 
+            const isFinalizedMainRegistration = (data: any) => {
+              const status = String(data.status || '').toLowerCase();
+              const paymentStatus = String(data.paymentStatus || '').toLowerCase();
+              return (
+                status === 'confirmed' ||
+                paymentStatus === 'paid' ||
+                paymentStatus === 'success' ||
+                paymentStatus === 'free'
+              );
+            };
+
+            const isFinalizedHackathonRegistration = (data: any) => {
+              const status = String(data.status || '').toLowerCase();
+              const paymentStatus = String(data.paymentStatus || '').toLowerCase();
+              return (
+                status === 'confirmed' ||
+                paymentStatus === 'paid' ||
+                paymentStatus === 'success' ||
+                paymentStatus === 'free'
+              );
+            };
+
             regsDocs.forEach(d => {
               const data = d.data();
+              if (!isFinalizedMainRegistration(data)) return;
               if (data.paymentStatus === 'success' || data.paymentStatus === 'paid') {
                 revenue += (data.amountPaid || 0);
                 paid++;
@@ -397,8 +415,8 @@ const AdminDashboard: React.FC = () => {
               const dashboard_HANDLE_SIGNALS: Record<string, { ids: string[]; depts: string[]; titles: string[] }> = {
                 'BGMI':           { ids: ['CMP-26-BTG-BGMI'], depts: ['Battle Grid', 'Esports'], titles: ['bgmi'] },
                 'FreeFire':       { ids: ['CMP-26-BTG-FF'], depts: ['Battle Grid', 'Esports'], titles: ['freefire'] },
-                'CODM':           { ids: ['CMP-26-BTG-CODM'], depts: ['Battle Grid', 'Esports'], titles: ['codm', 'callofduty'] },
-                'ShadowFight4':   { ids: ['CMP-26-BTG-SF4'], depts: ['Battle Grid', 'Esports'], titles: ['shadowfight4', 'sf4'] },
+                'CODM':           { ids: ['CMP-26-BTG-CODM'], depts: ['Battle Grid', 'Esports'], titles: ['codm', 'callofduty', 'codmobile'] },
+                'ShadowFight4':   { ids: ['CMP-26-BTG-SF4'], depts: ['Battle Grid', 'Esports'], titles: ['shadowfight4', 'shadowfight', 'sf4'] },
                 'AmongUs':        { ids: ['CMP-26-BTG-AUS'], depts: ['Battle Grid', 'Esports'], titles: ['amongus'] },
                 'AlignX':         { ids: ['CMP-26-FLG-ALX'], depts: ['Robo-Kshetra'], titles: ['alignx'] },
                 'RoboRush':       { ids: ['CMP-26-FLG-RBR'], depts: ['Robo-Kshetra'], titles: ['roborush'] },
@@ -435,6 +453,7 @@ const AdminDashboard: React.FC = () => {
 
             hackDocs.forEach(d => {
               const data = d.data();
+              if (!isFinalizedHackathonRegistration(data)) return;
               if (data.status === 'confirmed') {
                 revenue += (data.amountPaid || data.amount || 0);
                 paid++;
@@ -465,7 +484,7 @@ const AdminDashboard: React.FC = () => {
 
           setStats({
             totalUsers: totalUsersCount,
-            totalRegistrations: regSnapCount.data().count + hackSnapCount.data().count,
+            totalRegistrations: eventBreakdown.reduce((sum, ev) => sum + ev.count, 0),
             totalRevenue: isSuperUser ? revenue : null,
             paidCount: isSuperUser ? paid : null,
             freeCount: isSuperUser ? free : null,
@@ -555,7 +574,7 @@ const AdminDashboard: React.FC = () => {
           const countedHandles = new Set<string>(); // Avoid double-counting same handle
           const eventBreakdown: { label: string; count: number; handle: string }[] = [];
           
-          let expandedRoles = [...roles];
+          const expandedRoles = [...roles];
           roles.forEach((r) => {
             if (DEPARTMENT_PSEUDO_ROLES[r]) {
               expandedRoles.push(...DEPARTMENT_PSEUDO_ROLES[r]);
@@ -951,7 +970,7 @@ const AdminDashboard: React.FC = () => {
       for (const regDoc of regsSnap.docs) {
         const regData = regDoc.data();
         let needsUpdate = false;
-        let updates: any = {};
+        const updates: any = {};
 
         // 1. Repair Handles (Independent of User Profile resolving)
         let fixedHandle = regData.competitionHandle || '';

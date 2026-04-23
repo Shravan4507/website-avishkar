@@ -24,10 +24,11 @@ const AdminProtectedRoutes = () => {
       try {
         const adminDoc = await getDoc(doc(db, "admins", user.uid));
         setIsAdmin(adminDoc.exists());
-      } catch (err: any) {
+      } catch (err: unknown) {
         // Permission denied = not an admin (rule requires being in admins collection to read it)
         // Any error here should be treated as "not admin" to avoid blank loading screens
-        console.warn("[AdminProtectedRoutes] Could not verify admin status:", err?.code || err?.message);
+        const e = err as { code?: string; message?: string };
+        console.warn("[AdminProtectedRoutes] Could not verify admin status:", e?.code || e?.message);
         setIsAdmin(false);
       }
     };

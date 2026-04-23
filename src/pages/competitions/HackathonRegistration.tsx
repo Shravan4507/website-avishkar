@@ -126,6 +126,7 @@ const MemberField: React.FC<MemberFieldProps> = ({
 
 
 const HackathonRegistration: React.FC = () => {
+    const registrationsClosed = true;
 
     const navigate = useNavigate();
     const [user] = useAuthState(auth);
@@ -272,8 +273,8 @@ const HackathonRegistration: React.FC = () => {
         }
 
         const raw = val.slice(4).replace(/[^A-Z0-9]/g, '');
-        let letters = raw.slice(0, 3).replace(/[0-9]/g, '');
-        let numbers = raw.slice(letters.length).replace(/[A-Z]/g, '');
+        const letters = raw.slice(0, 3).replace(/[0-9]/g, '');
+        const numbers = raw.slice(letters.length).replace(/[A-Z]/g, '');
 
         let formatted = "AVR-" + letters;
         
@@ -390,6 +391,10 @@ const HackathonRegistration: React.FC = () => {
     };
 
     const handleNext = async () => {
+        if (registrationsClosed) {
+            toast.error("Registrations are full for this competition.");
+            return;
+        }
         if (step === 1) {
             const isValid = await validateStep1();
             if (isValid) setStep(2);
@@ -397,6 +402,10 @@ const HackathonRegistration: React.FC = () => {
     };
 
     const handlePayment = async () => {
+        if (registrationsClosed) {
+            toast.error("Registrations are full for this competition.");
+            return;
+        }
         setSubmitting(true);
 
         try {
@@ -571,6 +580,15 @@ const HackathonRegistration: React.FC = () => {
                                 </div>
                             </div>
                         )}
+                        {registrationsClosed && (
+                            <div className="protocol-banner" style={{ borderLeft: '4px solid #ef4444', background: 'rgba(239, 68, 68, 0.1)', marginTop: '1rem' }}>
+                                <div className="protocol-icon"><ShieldAlert size={20} color="#ef4444" /></div>
+                                <div className="protocol-content">
+                                    <h3 style={{ color: '#ef4444' }}>Registrations Full</h3>
+                                    <p style={{ color: 'rgba(255,255,255,0.8)' }}>This competition is closed for new entries.</p>
+                                </div>
+                            </div>
+                        )}
                         
                         <div className="form-section">
                             <label>Problem Statement*</label>
@@ -603,8 +621,8 @@ const HackathonRegistration: React.FC = () => {
                         </div>
 
                         <footer className="form-footer">
-                            <button className="primary-btn" onClick={handleNext} disabled={submitting}>
-                                {submitting ? <Loader2 className="spinner" /> : <>Match Details <ArrowRight size={18} /></>}
+                            <button className="primary-btn" onClick={handleNext} disabled={submitting || registrationsClosed}>
+                                {registrationsClosed ? 'REGISTRATIONS FULL' : (submitting ? <Loader2 className="spinner" /> : <>Match Details <ArrowRight size={18} /></>)}
                             </button>
                         </footer>
                     </div>
@@ -654,8 +672,8 @@ const HackathonRegistration: React.FC = () => {
                         </div>
                         <footer className="form-footer space-between">
                             <button className="secondary-btn" onClick={() => setStep(1)}><ArrowLeft size={18} /> Edit Team</button>
-                            <button className="primary-btn payment-trigger" onClick={handlePayment} disabled={submitting}>
-                                {submitting ? <Loader2 className="spinner" /> : <>Proceed to Payment <ArrowRight size={18} /></>}
+                            <button className="primary-btn payment-trigger" onClick={handlePayment} disabled={submitting || registrationsClosed}>
+                                {registrationsClosed ? 'REGISTRATIONS FULL' : (submitting ? <Loader2 className="spinner" /> : <>Proceed to Payment <ArrowRight size={18} /></>)}
                             </button>
 
                         </footer>

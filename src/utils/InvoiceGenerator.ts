@@ -28,7 +28,7 @@ const compileTemplate = (template: string, data: InvoiceData): string => {
     let result = template;
     
     // Explicit mapping for Invoice Template
-    const map: any = {
+    const map: Record<string, string> = {
         '{{BILL_ID}}': data.billId || `INV-${data.paymentId?.slice(-6).toUpperCase()}`,
         '{{ISSUE_DATE}}': data.issueDate || data.date,
         '{{USER_NAME}}': data.leaderName,
