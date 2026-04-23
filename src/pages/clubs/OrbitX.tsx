@@ -19,7 +19,7 @@ interface TimeLeft {
 }
 
 const OrbitX: React.FC = () => {
-  const registrationsClosed = true;
+  const registrationsClosed = false;
   const navigate = useNavigate();
   const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [isModalOpen, setIsModalOpen] = useState(false);
