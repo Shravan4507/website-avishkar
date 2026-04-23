@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Html5Qrcode } from 'html5-qrcode';
-import { collection, query, where, getDocs, updateDoc, doc, serverTimestamp, getDoc, and, onSnapshot, orderBy, limit } from 'firebase/firestore';
+import { collection, query, where, getDocs, updateDoc, doc, serverTimestamp, getDoc, onSnapshot, orderBy, limit } from 'firebase/firestore';
 import { db, auth } from '../../firebase/firebase';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { useNavigate } from 'react-router-dom';
@@ -252,13 +252,16 @@ const VolunteerScanner: React.FC = () => {
           }
         }
 
-        if (!authorized) {
-          const uDoc = await getDoc(doc(db, "user", user.uid));
-          if (uDoc.exists()) {
-            const data = uDoc.data();
-            if (data.role === 'volunteer') {
-              authorized = true;
-              allowedModes = [data.scannerRole || 'gate'];
+        const uDoc = await getDoc(doc(db, "user", user.uid));
+        if (uDoc.exists()) {
+          const data = uDoc.data();
+          if (data.role === 'volunteer') {
+            authorized = true;
+            if (data.scannerRole && !allowedModes.includes(data.scannerRole)) {
+              allowedModes.push(data.scannerRole);
+            }
+            if (allowedModes.length === 0) {
+              allowedModes.push('gate');
             }
           }
         }
@@ -422,6 +425,12 @@ const VolunteerScanner: React.FC = () => {
     }
     setSyncLoading(true);
     try {
+      const isFinalized = (data: any) => {
+        const status = String(data.status || '').toLowerCase();
+        const paymentStatus = String(data.paymentStatus || '').toLowerCase();
+        return status === 'confirmed' || ['paid', 'success', 'free'].includes(paymentStatus);
+      };
+
       if (scanMode === 'gate') {
         const q = query(collection(db, "user"));
         const snap = await getDocs(q);
@@ -431,16 +440,14 @@ const VolunteerScanner: React.FC = () => {
       } else {
         const isHackathon = scanMode === 'param-x';
         const collectionName = isHackathon ? "hackathon_registrations" : "registrations";
-        let q;
-        if (isHackathon) {
-          q = query(collection(db, collectionName), where("status", "==", "confirmed"));
-        } else {
-          q = query(collection(db, collectionName), where("status", "==", "confirmed"));
-        }
-        const snap = await getDocs(q);
-        const allData = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        
+        // Fetch all and filter by finalized status
+        const snap = await getDocs(collection(db, collectionName));
+        const allData = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(isFinalized);
+        
         const validEvents = SCAN_MODE_EVENT_NAMES[scanMode] || [];
         const data = isHackathon ? allData : allData.filter((r: OfflineEntry) => validEvents.includes(r.eventName ?? ''));
+        
         localStorage.setItem(`scanner_data_${scanMode}`, JSON.stringify(data));
         setLocalDataCount(data.length);
       }
@@ -491,10 +498,20 @@ const VolunteerScanner: React.FC = () => {
 
       // Deprecated eventId pre-validation removed; the backend registration query effectively handles validation securely.
       await processAvrId(result.avrId);
+
+      // Reset for next scan after a delay
+      setTimeout(() => {
+        setScanStatus('idle');
+        setStatusMessage('Ready to Scan');
+        setIsProcessing(false);
+      }, 3000);
     } catch (err: any) {
       setScanStatus('error');
       setStatusMessage(err.message || 'INVALID QR CODE');
-      setIsProcessing(false);
+      setTimeout(() => {
+        setScanStatus('idle');
+        setIsProcessing(false);
+      }, 3000);
     }
   };
 
@@ -522,25 +539,35 @@ const VolunteerScanner: React.FC = () => {
         ) ?? null;
       }
 
+      const isFinalized = (data: any) => {
+        const status = String(data.status || '').toLowerCase();
+        const paymentStatus = String(data.paymentStatus || '').toLowerCase();
+        return status === 'confirmed' || ['paid', 'success', 'free'].includes(paymentStatus);
+      };
+
       if (!targetDoc && isOnline) {
         if (currentMode === 'gate') {
           const q = query(collection(db, "user"), where("avrId", "==", avrId));
           const snap = await getDocs(q);
           if (!snap.empty) targetDoc = { id: snap.docs[0].id, ...snap.docs[0].data() };
         } else if (currentMode === 'param-x') {
-          const q = query(collection(db, "hackathon_registrations"), where("allAvrIds", "array-contains", avrId), where("status", "==", "confirmed"));
+          const q = query(collection(db, "hackathon_registrations"), where("allAvrIds", "array-contains", avrId));
           const snap = await getDocs(q);
-          if (!snap.empty) targetDoc = { id: snap.docs[0].id, ...snap.docs[0].data() };
+          const matched = snap.docs.find(d => isFinalized(d.data()));
+          if (matched) targetDoc = { id: matched.id, ...matched.data() };
         } else {
-          // Check all confirmed registrations for the user
-          const q1 = query(collection(db, "registrations"), and(where("userAVR", "==", avrId), where("status", "==", "confirmed")));
-          const q2 = query(collection(db, "registrations"), and(where("allAvrIds", "array-contains", avrId), where("status", "==", "confirmed")));
-
-          const [snap1, snap2] = await Promise.all([getDocs(q1), getDocs(q2)]);
+          // Check all registrations for the user and filter by finalized/event
+          const [snap1, snap2] = await Promise.all([
+            getDocs(query(collection(db, "registrations"), where("userAVR", "==", avrId))),
+            getDocs(query(collection(db, "registrations"), where("allAvrIds", "array-contains", avrId)))
+          ]);
           const allDocs = [...snap1.docs, ...snap2.docs];
 
           const validEvents = SCAN_MODE_EVENT_NAMES[currentMode] || [];
-          const matchedDoc = allDocs.find(d => validEvents.includes(d.data().eventName));
+          const matchedDoc = allDocs.find(d => {
+            const data = d.data();
+            return isFinalized(data) && validEvents.includes(data.eventName);
+          });
 
           if (matchedDoc) targetDoc = { id: matchedDoc.id, ...matchedDoc.data() };
         }
@@ -593,6 +620,7 @@ const VolunteerScanner: React.FC = () => {
         setScannedUser((targetUser || targetDoc) as ScannedUser);
         setScanStatus('success');
         setStatusMessage('ACCESS GRANTED');
+        addToHistory(avrId, name, 'success');
       }
     } catch (err) {
       console.error(err);

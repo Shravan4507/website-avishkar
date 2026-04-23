@@ -713,23 +713,42 @@ const AdminDashboard: React.FC = () => {
     e.preventDefault();
     if (!volunteerAvrId.trim()) return;
     
+    const formattedId = volunteerAvrId.trim().toUpperCase();
     setAssigningLoading(true);
     try {
-      const q = query(collection(db, "user"), where("avrId", "==", volunteerAvrId.trim().toUpperCase()));
-      const snap = await getDocs(q);
+      let targetUid = null;
+      let targetName = "";
+
+      // 1. Try fetching from user collection first
+      const qUser = query(collection(db, "user"), where("avrId", "==", formattedId));
+      const snapUser = await getDocs(qUser);
       
-      if (snap.empty) {
-        toast.error(`User with ID ${volunteerAvrId.toUpperCase()} not found.`);
+      if (!snapUser.empty) {
+        targetUid = snapUser.docs[0].id;
+        targetName = snapUser.docs[0].data().firstName;
+      } else {
+        // 2. If not found in user collection, try fetching from admins collection
+        const qAdmin = query(collection(db, "admins"), where("avrAdmId", "==", formattedId));
+        const snapAdmin = await getDocs(qAdmin);
+        if (!snapAdmin.empty) {
+          targetUid = snapAdmin.docs[0].id;
+          targetName = snapAdmin.docs[0].data().firstName;
+        }
+      }
+
+      if (!targetUid) {
+        toast.error(`User/Admin with ID ${formattedId} not found.`);
         setAssigningLoading(false);
         return;
       }
       
-      const userDoc = snap.docs[0];
-      await updateDoc(doc(db, "user", userDoc.id), { 
+      // Update in the user collection (VolunteerScanner checks the user collection for volunteer role)
+      // Even if it's an admin, their base profile exists in the user collection
+      await updateDoc(doc(db, "user", targetUid), { 
         role: 'volunteer',
         scannerRole: scannerRole // e.g. 'gate', 'param-x'
       });
-      toast.success(`${userDoc.data().firstName} is now a ${scannerRole.toUpperCase()} Volunteer!`);
+      toast.success(`${targetName || 'User'} is now a ${scannerRole.toUpperCase()} Volunteer!`);
       setVolunteerAvrId('');
     } catch (err) {
       console.error(err);
@@ -1238,34 +1257,34 @@ const AdminDashboard: React.FC = () => {
               </div>
             )}
             
-            {isSuper && (
-                <div style={{ marginTop: '3rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '2rem' }}>
-                  <div className="admin-stat-premium" style={{ height: 'fit-content' }}>
-                    <div className="stat-label-row">
-                       <Wrench size={20} color="#a78bfa" />
-                       <span>System Actions</span>
-                    </div>
-                    <div style={{ display: 'flex', gap: '12px', marginTop: '1.5rem' }}>
-                      <button 
-                        onClick={handleSyncRegistrations} 
-                        disabled={syncingLoading}
-                        className="user-edit-profile-btn"
-                        style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: 'rgba(167, 139, 250, 0.1)', borderColor: 'rgba(167, 139, 250, 0.3)', color: '#a78bfa' }}
-                      >
-                        <RefreshCw size={18} className={syncingLoading ? 'animate-spin' : ''} />
-                        {syncingLoading ? 'Syncing...' : 'Sync Data'}
-                      </button>
-                      <button 
-                        onClick={() => navigate('/user/scanner')} 
-                        className="user-edit-profile-btn"
-                        style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: 'rgba(52, 211, 153, 0.1)', borderColor: 'rgba(52, 211, 153, 0.3)', color: '#34d399' }}
-                      >
-                         📸 Launch Scanner
-                      </button>
-                    </div>
-                  </div>
+            <div style={{ marginTop: '3rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '2rem' }}>
+              <div className="admin-stat-premium" style={{ height: 'fit-content' }}>
+                <div className="stat-label-row">
+                   <Wrench size={20} color="#a78bfa" />
+                   <span>System Actions</span>
                 </div>
-            )}
+                <div style={{ display: 'flex', gap: '12px', marginTop: '1.5rem' }}>
+                  {isSuper && (
+                    <button 
+                      onClick={handleSyncRegistrations} 
+                      disabled={syncingLoading}
+                      className="user-edit-profile-btn"
+                      style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: 'rgba(167, 139, 250, 0.1)', borderColor: 'rgba(167, 139, 250, 0.3)', color: '#a78bfa' }}
+                    >
+                      <RefreshCw size={18} className={syncingLoading ? 'animate-spin' : ''} />
+                      {syncingLoading ? 'Syncing...' : 'Sync Data'}
+                    </button>
+                  )}
+                  <button 
+                    onClick={() => navigate('/user/scanner')} 
+                    className="user-edit-profile-btn"
+                    style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: 'rgba(52, 211, 153, 0.1)', borderColor: 'rgba(52, 211, 153, 0.3)', color: '#34d399' }}
+                  >
+                     📸 Launch Scanner
+                  </button>
+                </div>
+              </div>
+            </div>
 
             {isSuper && (
               <React.Fragment>

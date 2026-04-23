@@ -48,7 +48,7 @@ const GAMES = [
 type GameId = typeof GAMES[number]['id'];
 
 const EsportsRegistration: React.FC = () => {
-    const registrationsClosed = true;
+    const registrationsClosed = false;
     const [user] = useAuthState(auth);
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
@@ -830,7 +830,7 @@ const EsportsRegistration: React.FC = () => {
                         <>
                             <button 
                                 className={`es-deploy-btn ${(registrationsClosed || activeGame?.id === 'sf4' || activeGame?.id === 'codm' || selectedGame?.toLowerCase() === 'shadowfight4') ? 'disabled' : ''}`}
-                                disabled={submitting || (activeGame?.type === 'TEAM' && !formData.teamName) || registrationsClosed || activeGame?.id === 'sf4' || activeGame?.id === 'codm' || selectedGame?.toLowerCase() === 'shadowfight4'}
+                                disabled={submitting || registrationsClosed || activeGame?.id === 'sf4' || activeGame?.id === 'codm' || selectedGame?.toLowerCase() === 'shadowfight4'}
                                 onClick={handleReview}
                             >
                                 {(registrationsClosed || activeGame?.id === 'sf4' || activeGame?.id === 'codm' || selectedGame?.toLowerCase() === 'shadowfight4') 
