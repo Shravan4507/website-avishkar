@@ -173,6 +173,7 @@ const VolunteerScanner: React.FC = () => {
   const [syncLoading, setSyncLoading] = useState(false);
   const [localDataCount, setLocalDataCount] = useState(0);
   const [scanHistory, setScanHistory] = useState<HistoryItem[]>([]);
+  const [gateHistory, setGateHistory] = useState<HistoryItem[]>([]);
   const [highlightedId, setHighlightedId] = useState<string | null>(null);
 
   // Camera State
@@ -196,15 +197,44 @@ const VolunteerScanner: React.FC = () => {
     const histKey = `scan_history_${scanMode}_${user?.uid}`;
     const savedHist = localStorage.getItem(histKey);
     setScanHistory(savedHist ? JSON.parse(savedHist) : []);
+
+    // Also load gate history persistently
+    if (user) {
+      const gateKey = `scan_history_gate_${user.uid}`;
+      const savedGate = localStorage.getItem(gateKey);
+      setGateHistory(savedGate ? JSON.parse(savedGate) : []);
+    }
   }, [scanMode, user]);
 
   // Persist History
-  useEffect(() => {
-    if (user) {
-      const histKey = `scan_history_${scanMode}_${user.uid}`;
-      localStorage.setItem(histKey, JSON.stringify(scanHistory));
+  const addToHistory = (avrId: string, name: string, status: 'success' | 'duplicate') => {
+    const newEntry: HistoryItem = {
+      avrId,
+      name,
+      timestamp: new Date().toLocaleTimeString(),
+      status,
+      mode: scanModeRef.current
+    };
+
+    setScanHistory(prev => {
+      const updated = [newEntry, ...prev].slice(0, 50);
+      const histKey = `scan_history_${scanModeRef.current}_${user?.uid}`;
+      localStorage.setItem(histKey, JSON.stringify(updated));
+      return updated;
+    });
+
+    if (newEntry.mode === 'gate' && status === 'success') {
+      setGateHistory(prev => {
+        const updated = [newEntry, ...prev.filter(i => i.avrId !== avrId)].slice(0, 20);
+        const gateKey = `scan_history_gate_${user?.uid}`;
+        localStorage.setItem(gateKey, JSON.stringify(updated));
+        return updated;
+      });
     }
-  }, [scanHistory, scanMode, user]);
+
+    setHighlightedId(avrId);
+    setTimeout(() => setHighlightedId(null), 2500);
+  };
 
   // Network Monitoring
   useEffect(() => {
@@ -460,21 +490,6 @@ const VolunteerScanner: React.FC = () => {
     }
   };
 
-  const addToHistory = (avrId: string, name: string, status: 'success' | 'duplicate') => {
-    const newItem: HistoryItem = {
-      avrId,
-      name,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
-      status,
-      mode: scanMode
-    };
-
-    setScanHistory(prev => {
-      // Remove any existing entry for this ID to move it to the top
-      const filtered = prev.filter(h => h.avrId !== avrId);
-      return [newItem, ...filtered].slice(0, 50); // Keep last 50
-    });
-  };
 
   const handleDuplicateInteraction = (avrId: string) => {
     setHighlightedId(avrId);
@@ -492,31 +507,27 @@ const VolunteerScanner: React.FC = () => {
   // 5. Handle Scans
   const handleScan = async (decodedText: string) => {
     if (isProcessing) return;
+    
     try {
       setIsProcessing(true);
       const result = decryptAndVerifyQR(decodedText.trim());
-
-      // Deprecated eventId pre-validation removed; the backend registration query effectively handles validation securely.
       await processAvrId(result.avrId);
-
-      // Reset for next scan after a delay
-      setTimeout(() => {
-        setScanStatus('idle');
-        setStatusMessage('Ready to Scan');
-        setIsProcessing(false);
-      }, 3000);
     } catch (err: any) {
+      console.error("Scan Error:", err);
       setScanStatus('error');
       setStatusMessage(err.message || 'INVALID QR CODE');
-      setTimeout(() => {
-        setScanStatus('idle');
-        setIsProcessing(false);
-      }, 3000);
     }
+
+    // Lock scanner for 3 seconds to prevent duplicate rapid scans
+    setTimeout(() => {
+      setScanStatus('idle');
+      setStatusMessage('Ready to Scan');
+      setIsProcessing(false);
+    }, 3000);
   };
 
   const processAvrId = async (avrId: string) => {
-    setIsProcessing(true);
+    // Note: Caller must manage isProcessing state
     setScanStatus('idle');
     const currentMode = scanModeRef.current;
 
@@ -547,9 +558,26 @@ const VolunteerScanner: React.FC = () => {
 
       if (!targetDoc && isOnline) {
         if (currentMode === 'gate') {
-          const q = query(collection(db, "user"), where("avrId", "==", avrId));
-          const snap = await getDocs(q);
-          if (!snap.empty) targetDoc = { id: snap.docs[0].id, ...snap.docs[0].data() };
+          // Verify user exists and check if they are a participant (not just a visitor)
+          const qUser = query(collection(db, "user"), where("avrId", "==", avrId));
+          const userSnap = await getDocs(qUser);
+          
+          if (!userSnap.empty) {
+            const userData = { id: userSnap.docs[0].id, ...userSnap.docs[0].data() } as any;
+            
+            // Check if user has ANY registration in either collection
+            const [regSnap, hackSnap] = await Promise.all([
+              getDocs(query(collection(db, "registrations"), where("userAVR", "==", avrId))),
+              getDocs(query(collection(db, "hackathon_registrations"), where("allAvrIds", "array-contains", avrId)))
+            ]);
+
+            if (regSnap.empty && hackSnap.empty) {
+              setScanStatus('error');
+              setStatusMessage('VISITOR - NOT A PARTICIPANT');
+              return;
+            }
+            targetDoc = userData;
+          }
         } else if (currentMode === 'param-x') {
           const q = query(collection(db, "hackathon_registrations"), where("allAvrIds", "array-contains", avrId));
           const snap = await getDocs(q);
@@ -626,14 +654,16 @@ const VolunteerScanner: React.FC = () => {
       console.error(err);
       setScanStatus('error');
       setStatusMessage('SYSTEM ERROR');
-    } finally {
-      setIsProcessing(false);
     }
   };
 
-  const handleManualEntry = (e: React.FormEvent) => {
+  const handleManualEntry = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (manualId.trim()) processAvrId(manualId.trim().toUpperCase());
+    if (manualId.trim() && !isProcessing) {
+      setIsProcessing(true);
+      await processAvrId(manualId.trim().toUpperCase());
+      setIsProcessing(false);
+    }
   };
 
   const clearHistory = () => {
@@ -758,37 +788,65 @@ const VolunteerScanner: React.FC = () => {
             </div>
           </div>
 
-          <div className="scanner-history-section" ref={historyRef}>
-            <div className="history-header">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <History size={18} color="#a78bfa" />
-                <h3>Recent Activity</h3>
-              </div>
-              {scanHistory.length > 0 && <button className="clear-history-btn" onClick={clearHistory}><Trash2 size={14} /> Clear</button>}
-            </div>
-            <div className="history-list-wrapper">
-              {scanHistory.length === 0 ? (
-                <div className="empty-history">No scans in this session yet.</div>
-              ) : (
-                <div className="history-table">
-                  {scanHistory.map((item) => (
-                    <div
-                      key={`${item.avrId}-${item.timestamp}`}
-                      id={`history-${item.avrId}`}
-                      className={`history-row ${item.status} ${highlightedId === item.avrId ? 'blink' : ''}`}
-                    >
-                      <div className="hist-col-info">
-                        <span className="hist-name">{item.name}</span>
-                        <span className="hist-avr">{item.avrId}</span>
-                      </div>
-                      <div className="hist-col-meta">
-                        <span className={`hist-badge ${item.status}`}>{item.status.toUpperCase()}</span>
-                        <span className="hist-time">{item.timestamp}</span>
-                      </div>
-                    </div>
-                  ))}
+          <div className="scanner-history-grid">
+            <div className="scanner-history-section" ref={historyRef}>
+              <div className="history-header">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <History size={18} color="#a78bfa" />
+                  <h3>Recent Activity</h3>
                 </div>
-              )}
+                {scanHistory.length > 0 && <button className="clear-history-btn" onClick={clearHistory}><Trash2 size={14} /> Clear</button>}
+              </div>
+              <div className="history-list-wrapper">
+                {scanHistory.length === 0 ? (
+                  <div className="empty-history">No scans in this session yet.</div>
+                ) : (
+                  <div className="history-table">
+                    {scanHistory.map((item) => (
+                      <div
+                        key={`${item.avrId}-${item.timestamp}`}
+                        id={`history-${item.avrId}`}
+                        className={`history-row ${item.status} ${highlightedId === item.avrId ? 'blink' : ''}`}
+                      >
+                        <div className="hist-col-info">
+                          <span className="hist-name">{item.name}</span>
+                          <span className="hist-avr">{item.avrId}</span>
+                        </div>
+                        <div className="hist-col-meta">
+                          <span className={`hist-badge ${item.status}`}>{item.status.toUpperCase()}</span>
+                          <span className="hist-time">{item.timestamp}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="scanner-history-section gate-entry-box">
+              <div className="history-header">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <CheckCircle size={18} color="#10b981" />
+                  <h3>Gate Entry Box</h3>
+                </div>
+              </div>
+              <div className="history-list-wrapper">
+                {gateHistory.length === 0 ? (
+                  <div className="empty-history">No gate entries yet.</div>
+                ) : (
+                  <div className="history-table">
+                    {gateHistory.map((item) => (
+                      <div key={`gate-${item.avrId}-${item.timestamp}`} className="history-row success">
+                        <div className="hist-col-info">
+                          <span className="hist-name">{item.name}</span>
+                          <span className="hist-avr">{item.avrId}</span>
+                        </div>
+                        <div className="hist-time">{item.timestamp}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>

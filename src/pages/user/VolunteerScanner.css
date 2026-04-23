@@ -330,14 +330,31 @@
 }
 
 /* ── History Section ── */
+.scanner-history-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+@media (min-width: 1000px) {
+  .scanner-history-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
 .scanner-history-section {
   background: rgba(10, 10, 15, 0.4);
   backdrop-filter: blur(24px);
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 2rem;
   padding: 1.5rem;
-  margin-top: 1rem;
 }
+
+.gate-entry-box {
+  border-color: rgba(16, 185, 129, 0.1);
+}
+
 
 .history-header {
   display: flex;
