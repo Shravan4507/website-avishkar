@@ -53,10 +53,18 @@ const CollegeAnalytics: React.FC = () => {
     const map = new Map<string, CollegeStats>();
 
     registrations.forEach(reg => {
-      const pStatus = String(reg.paymentStatus || reg.status || 'free').toLowerCase();
-      const isConfirmed = pStatus === 'paid' || pStatus === 'success' || pStatus === 'free' || pStatus === 'confirmed';
+      const pStatus = String(reg.paymentStatus || '').toLowerCase();
+      const status = String(reg.status || '').toLowerCase();
 
-      if (!isConfirmed) return;
+      // Only count verified registrations (exclude pending)
+      const isVerified = (
+        pStatus === 'paid' || 
+        pStatus === 'success' || 
+        pStatus === 'free' || 
+        status === 'confirmed'
+      ) && status !== 'payment_pending' && pStatus !== 'pending';
+
+      if (!isVerified) return;
 
       let colleges: string[] = [];
       if (reg.userCollege) {
