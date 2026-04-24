@@ -92,6 +92,11 @@ const CollegeAnalytics: React.FC = () => {
           return "PVG'S COLLEGE OF ENGINEERING AND TECHNOLOGY, PUNE";
         }
 
+        // --- Normalization: Merge JSPM Variations ---
+        if (name.includes('JSPM')) {
+          return "JSPM'S COLLEGES, PUNE";
+        }
+
         return name;
       }).filter(Boolean)));
 
