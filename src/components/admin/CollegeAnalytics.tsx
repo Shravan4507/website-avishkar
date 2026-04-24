@@ -73,7 +73,22 @@ const CollegeAnalytics: React.FC = () => {
         });
       }
 
-      const uniqueCollegesInReg = Array.from(new Set(colleges.map(c => c.trim().toUpperCase()).filter(Boolean)));
+      const uniqueCollegesInReg = Array.from(new Set(colleges.map(c => {
+        let name = c.trim().toUpperCase();
+        
+        // --- Normalization: Merge Zeal Variations ---
+        if (name.includes('ZEAL') && (
+          name.includes('ENGINEERING') || 
+          name.includes('COLLAGE') || 
+          name.includes('INSTITUTE') || 
+          name.includes('SOCIETY') ||
+          name === 'ZEAL COLLEGE'
+        )) {
+          return 'ZEAL COLLEGE OF ENGINEERING AND RESEARCH, PUNE';
+        }
+        
+        return name;
+      }).filter(Boolean)));
 
       uniqueCollegesInReg.forEach(collegeName => {
         const existing = map.get(collegeName) || {
