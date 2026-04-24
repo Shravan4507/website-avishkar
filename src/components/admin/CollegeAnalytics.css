@@ -211,7 +211,7 @@
   width: 100%;
   border-collapse: collapse;
   text-align: left;
-  min-width: 600px;
+  min-width: 850px; /* Increased to ensure all columns have space */
 }
 
 .analytics-table th {
@@ -246,6 +246,7 @@
   padding: 1rem 1.25rem;
   font-size: 0.875rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  white-space: nowrap; /* Ensure details stay on one line for horizontal sliding */
 }
 
 .analytics-table tr:last-child td {
@@ -259,16 +260,31 @@
 .col-name { 
   font-weight: 500; 
   color: #fff;
-  max-width: 300px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .col-total { font-weight: 700; color: rgba(255, 255, 255, 0.7); text-align: right; }
 .col-paid { color: #4ade80; text-align: right; }
 .col-free { color: #60a5fa; text-align: right; }
 .col-attended { color: #a78bfa; text-align: right; }
+
+/* Custom Scrollbar for better visibility */
+.table-responsive::-webkit-scrollbar {
+  height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+  background: rgba(167, 139, 250, 0.3);
+  border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+  background: rgba(167, 139, 250, 0.5);
+}
 
 .empty-row {
   text-align: center;
