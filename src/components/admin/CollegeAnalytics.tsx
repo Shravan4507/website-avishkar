@@ -53,17 +53,49 @@ const CollegeAnalytics: React.FC = () => {
     const map = new Map<string, CollegeStats>();
     let verifiedCount = 0;
 
+    // Umbrella handles that are excluded from the final count in AdminDashboard
+    const umbrellaHandles = ['Battle-Grid', 'Robo-Kshetra', 'unknown'];
+
     registrations.forEach(reg => {
       const pStatus = String(reg.paymentStatus || '').toLowerCase();
       const status = String(reg.status || '').toLowerCase();
 
-      // Only count verified registrations (exclude pending and unverified confirmed)
+      // Align with Command Center: Finalized = confirmed OR paid OR success OR free
       const isVerified = 
+        status === 'confirmed' || 
         pStatus === 'paid' || 
         pStatus === 'success' || 
         pStatus === 'free';
 
       if (!isVerified) return;
+
+      // --- Handle Mapping Logic from AdminDashboard ---
+      let trueHandle = reg.competitionHandle || 'unknown';
+      const evtNorm = (reg.eventName || '').toUpperCase();
+
+      const HANDLE_SIGNALS: Record<string, { titles: string[] }> = {
+        'BGMI':           { titles: ['bgmi'] },
+        'FreeFire':       { titles: ['freefire'] },
+        'CODM':           { titles: ['codm', 'callofduty', 'codmobile'] },
+        'ShadowFight4':   { titles: ['shadowfight4', 'shadowfight', 'sf4'] },
+        'AmongUs':        { titles: ['amongus'] },
+        'AlignX':         { titles: ['alignx'] },
+        'RoboRush':       { titles: ['roborush'] },
+        'RoboMaze':       { titles: ['robomaze'] },
+        'OrbitX-Solar':   { titles: ['solarspot', 'orbitxsolar', 'solar'] }
+      };
+
+      if (umbrellaHandles.includes(trueHandle)) {
+        for (const [keyHandle, rules] of Object.entries(HANDLE_SIGNALS)) {
+          if (rules.titles.some(t => evtNorm.includes(t))) {
+            trueHandle = keyHandle;
+            break;
+          }
+        }
+      }
+
+      // If it's still an umbrella handle or unknown, it's not counted in AdminDashboard total
+      if (umbrellaHandles.includes(trueHandle)) return;
       
       verifiedCount++;
 
