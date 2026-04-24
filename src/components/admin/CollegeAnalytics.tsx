@@ -57,9 +57,8 @@ const CollegeAnalytics: React.FC = () => {
       const pStatus = String(reg.paymentStatus || '').toLowerCase();
       const status = String(reg.status || '').toLowerCase();
 
-      // Align with Command Center: Finalized = confirmed OR paid OR success OR free
+      // Only count verified registrations (exclude pending and unverified confirmed)
       const isVerified = 
-        status === 'confirmed' || 
         pStatus === 'paid' || 
         pStatus === 'success' || 
         pStatus === 'free';

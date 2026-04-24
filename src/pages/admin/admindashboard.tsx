@@ -379,7 +379,6 @@ const AdminDashboard: React.FC = () => {
               const status = String(data.status || '').toLowerCase();
               const paymentStatus = String(data.paymentStatus || '').toLowerCase();
               return (
-                status === 'confirmed' ||
                 paymentStatus === 'paid' ||
                 paymentStatus === 'success' ||
                 paymentStatus === 'free'
@@ -390,7 +389,6 @@ const AdminDashboard: React.FC = () => {
               const status = String(data.status || '').toLowerCase();
               const paymentStatus = String(data.paymentStatus || '').toLowerCase();
               return (
-                status === 'confirmed' ||
                 paymentStatus === 'paid' ||
                 paymentStatus === 'success' ||
                 paymentStatus === 'free'
