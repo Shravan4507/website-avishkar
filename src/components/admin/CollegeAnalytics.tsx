@@ -97,6 +97,11 @@ const CollegeAnalytics: React.FC = () => {
           return "JSPM'S COLLEGES, PUNE";
         }
 
+        // --- Normalization: Merge KJEI Variations ---
+        if (name.includes('K.J.') || name.includes('KJ ') || name.includes('TRINITY')) {
+          return "KJEI'S TRINITY AND KJ COLLEGE, PUNE";
+        }
+
         return name;
       }).filter(Boolean)));
 
