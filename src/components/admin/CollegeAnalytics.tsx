@@ -49,22 +49,24 @@ const CollegeAnalytics: React.FC = () => {
     fetchData();
   }, [toast]);
 
-  const stats = useMemo(() => {
+  const { stats, totalVerified } = useMemo(() => {
     const map = new Map<string, CollegeStats>();
+    let verifiedCount = 0;
 
     registrations.forEach(reg => {
       const pStatus = String(reg.paymentStatus || '').toLowerCase();
       const status = String(reg.status || '').toLowerCase();
 
-      // Only count verified registrations (exclude pending)
-      const isVerified = (
+      // Align with Command Center: Finalized = confirmed OR paid OR success OR free
+      const isVerified = 
+        status === 'confirmed' || 
         pStatus === 'paid' || 
         pStatus === 'success' || 
-        pStatus === 'free' || 
-        status === 'confirmed'
-      ) && status !== 'payment_pending' && pStatus !== 'pending';
+        pStatus === 'free';
 
       if (!isVerified) return;
+      
+      verifiedCount++;
 
       let colleges: string[] = [];
       if (reg.userCollege) {
@@ -187,7 +189,7 @@ const CollegeAnalytics: React.FC = () => {
       });
     });
 
-    return Array.from(map.values());
+    return { stats: Array.from(map.values()), totalVerified: verifiedCount };
   }, [registrations]);
 
   const filteredStats = useMemo(() => {
@@ -296,7 +298,7 @@ const CollegeAnalytics: React.FC = () => {
             <span className="stat-label">Total Registrations</span>
           </div>
           <div className="stat-value">
-            {stats.reduce((acc, s) => acc + s.count, 0)}
+            {totalVerified}
           </div>
         </div>
       </div>
