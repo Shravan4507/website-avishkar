@@ -180,9 +180,14 @@ const CollegeAnalytics: React.FC = () => {
         };
 
         existing.count++;
-        if (pStatus === 'paid' || pStatus === 'success' || pStatus === 'confirmed') existing.paidCount++;
-        else if (pStatus === 'free') existing.freeCount++;
-
+        
+        // Categorize: If it's verified and not explicitly free, it's counted as paid
+        if (pStatus === 'free' || status === 'free') {
+          existing.freeCount++;
+        } else {
+          existing.paidCount++;
+        }
+        
         if (reg.isAttended) existing.attendedCount++;
 
         map.set(collegeName, existing);

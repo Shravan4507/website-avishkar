@@ -400,11 +400,12 @@ const AdminDashboard: React.FC = () => {
             regsDocs.forEach(d => {
               const data = d.data();
               if (!isFinalizedMainRegistration(data)) return;
-              if (data.paymentStatus === 'success' || data.paymentStatus === 'paid') {
-                revenue += (data.amountPaid || 0);
-                paid++;
-              } else if (data.paymentStatus === 'free') {
+              if (data.paymentStatus === 'free' || data.status === 'free') {
                 free++;
+              } else {
+                // If it's finalized and not free, it's considered a paid registration
+                paid++;
+                revenue += (data.amountPaid || 0);
               }
               if (data.isAttended) attended++;
 
