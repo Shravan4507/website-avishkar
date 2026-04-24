@@ -3,8 +3,8 @@ import { collection, query, getDocs } from 'firebase/firestore';
 import { db } from '../../firebase/firebase';
 import { useToast } from '../../components/toast/Toast';
 import {
-  Building2, Search, Download, TrendingUp, Users,
-  ChevronUp, ChevronDown, RefreshCw
+  Building2, Search, Download, TrendingUp, Users, 
+  ChevronUp, ChevronDown, RefreshCw, Ticket
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import './CollegeAnalytics.css';
@@ -283,12 +283,12 @@ const CollegeAnalytics: React.FC = () => {
         <div className="stat-card">
           <div className="stat-card-header">
             <div className="stat-icon-box icon-purple">
-              <TrendingUp size={20} />
+              <Ticket size={20} />
             </div>
-            <span className="stat-label">Avg. Per College</span>
+            <span className="stat-label">Total Registrations</span>
           </div>
           <div className="stat-value">
-            {stats.length ? (stats.reduce((acc, s) => acc + s.count, 0) / stats.length).toFixed(1) : 0}
+            {stats.reduce((acc, s) => acc + s.count, 0)}
           </div>
         </div>
       </div>
