@@ -486,7 +486,7 @@ const AdminDashboard: React.FC = () => {
 
           setStats({
             totalUsers: totalUsersCount,
-            totalRegistrations: eventBreakdown.reduce((sum, ev) => sum + ev.count, 0),
+            totalRegistrations: paid + free,
             totalRevenue: isSuperUser ? revenue : null,
             paidCount: isSuperUser ? paid : null,
             freeCount: isSuperUser ? free : null,
