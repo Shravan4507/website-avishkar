@@ -2,8 +2,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { collection, query, getDocs } from 'firebase/firestore';
 import { db } from '../../firebase/firebase';
 import { useToast } from '../../components/toast/Toast';
-import { 
-  Building2, Search, Download, TrendingUp, Users, 
+import {
+  Building2, Search, Download, TrendingUp, Users,
   ChevronUp, ChevronDown, RefreshCw
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
@@ -55,7 +55,7 @@ const CollegeAnalytics: React.FC = () => {
     registrations.forEach(reg => {
       const pStatus = String(reg.paymentStatus || reg.status || 'free').toLowerCase();
       const isConfirmed = pStatus === 'paid' || pStatus === 'success' || pStatus === 'free' || pStatus === 'confirmed';
-      
+
       if (!isConfirmed) return;
 
       let colleges: string[] = [];
@@ -75,18 +75,18 @@ const CollegeAnalytics: React.FC = () => {
 
       const uniqueCollegesInReg = Array.from(new Set(colleges.map(c => {
         let name = c.trim().toUpperCase();
-        
+
         // --- Normalization: Merge Zeal Variations ---
         if (name.includes('ZEAL') && (
-          name.includes('ENGINEERING') || 
-          name.includes('COLLAGE') || 
-          name.includes('INSTITUTE') || 
+          name.includes('ENGINEERING') ||
+          name.includes('COLLAGE') ||
+          name.includes('INSTITUTE') ||
           name.includes('SOCIETY') ||
           name === 'ZEAL COLLEGE'
         )) {
           return 'ZEAL COLLEGE OF ENGINEERING AND RESEARCH, PUNE';
         }
-        
+
         return name;
       }).filter(Boolean)));
 
@@ -102,7 +102,7 @@ const CollegeAnalytics: React.FC = () => {
         existing.count++;
         if (pStatus === 'paid' || pStatus === 'success' || pStatus === 'confirmed') existing.paidCount++;
         else if (pStatus === 'free') existing.freeCount++;
-        
+
         if (reg.isAttended) existing.attendedCount++;
 
         map.set(collegeName, existing);
@@ -113,7 +113,7 @@ const CollegeAnalytics: React.FC = () => {
   }, [registrations]);
 
   const filteredStats = useMemo(() => {
-    let result = stats.filter(s => 
+    let result = stats.filter(s =>
       s.college.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
@@ -168,11 +168,11 @@ const CollegeAnalytics: React.FC = () => {
           </h1>
           <p>Detailed breakdown of registrations by institution</p>
         </div>
-        
+
         <div className="header-actions">
           <div className="search-wrapper">
             <Search className="search-icon" size={18} />
-            <input 
+            <input
               type="text"
               placeholder="Search colleges..."
               className="analytics-search"
@@ -197,7 +197,7 @@ const CollegeAnalytics: React.FC = () => {
           </div>
           <div className="stat-value">{stats.length}</div>
         </div>
-        
+
         <div className="stat-card">
           <div className="stat-card-header">
             <div className="stat-icon-box icon-green">
