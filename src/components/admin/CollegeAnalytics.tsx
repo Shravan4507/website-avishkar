@@ -104,7 +104,47 @@ const CollegeAnalytics: React.FC = () => {
 
         // --- Normalization: Merge Sinhgad Variations ---
         if (name.includes('SINHGAD') || name.includes('SINHAGAD') || name.includes('SKN')) {
-          return "SINHGAD COLLEGES, VADGAON, PUNE";
+          return "SINHGAD TECHNICAL EDUCATION SOCIETY'S SMT. KASHIBAI NAVALE COLLEGE OF ENGINEERING, VADGAON, PUNE";
+        }
+
+        // --- Normalization: Merge COEP Variations ---
+        if (name.includes('COEP') || name.includes('COLLEGE OF ENGINEERING PUNE')) {
+          return 'COLLEGE OF ENGINEERING PUNE (COEP)';
+        }
+
+        // --- Normalization: Merge PICT Variations ---
+        if (name.includes('PICT') || name.includes('PUNE INSTITUTE OF COMPUTER TECHNOLOGY')) {
+          return 'PUNE INSTITUTE OF COMPUTER TECHNOLOGY (PICT)';
+        }
+
+        // --- Normalization: Merge VIT/VIIT Variations ---
+        if (name.includes('VISHWAKARMA INSTITUTE') || name.includes('VIT ') || name.includes('VIIT')) {
+          if (name.includes('INFORMATION') || name.includes('VIIT')) {
+            return 'VISHWAKARMA INSTITUTE OF INFORMATION TECHNOLOGY (VIIT), PUNE';
+          }
+          return 'VISHWAKARMA INSTITUTE OF TECHNOLOGY (VIT), PUNE';
+        }
+
+        // --- Normalization: Merge DY Patil Variations ---
+        if (name.includes('D.Y. PATIL') || name.includes('D Y PATIL') || name.includes('DYP')) {
+          if (name.includes('AKURDI')) return 'D.Y. PATIL COLLEGE OF ENGINEERING, AKURDI, PUNE';
+          if (name.includes('PIMPRI')) return 'DR. D.Y. PATIL INSTITUTE OF TECHNOLOGY, PIMPRI, PUNE';
+          if (name.includes('LOHEGAON')) return 'D.Y. PATIL SCHOOL OF ENGINEERING, LOHEGAON, PUNE';
+          return 'D.Y. PATIL GROUP OF INSTITUTIONS, PUNE';
+        }
+
+        // --- Normalization: Merge PCCOE Variations ---
+        if (name.includes('PCCOE') || name.includes('PIMPRI CHINCHWAD')) {
+          if (name.includes('RESEARCH') || name.includes('PCCOER')) return 'PIMPRI CHINCHWAD COLLEGE OF ENGINEERING AND RESEARCH (PCCOER), PUNE';
+          return 'PIMPRI CHINCHWAD COLLEGE OF ENGINEERING (PCCOE), PUNE';
+        }
+
+        // --- Normalization: Merge MIT Variations ---
+        if (name.includes('MIT') && (name.includes('ENGINEERING') || name.includes('TECHNOLOGY') || name.includes('WPU'))) {
+          if (name.includes('ALANDI')) return 'MIT ACADEMY OF ENGINEERING, ALANDI, PUNE';
+          if (name.includes('KOTHRUD') || name.includes('WPU')) return 'MIT WORLD PEACE UNIVERSITY (MIT-WPU), KOTHRUD, PUNE';
+          if (name.includes('LONI')) return 'MIT COLLEGE OF ENGINEERING, LONI KALBHOR, PUNE';
+          return 'MIT GROUP OF INSTITUTIONS, PUNE';
         }
 
         return name;
