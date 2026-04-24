@@ -87,6 +87,11 @@ const CollegeAnalytics: React.FC = () => {
           return 'ZEAL COLLEGE OF ENGINEERING AND RESEARCH, PUNE';
         }
 
+        // --- Normalization: Merge PVG Variations ---
+        if (name.includes('PVG') || name.includes('PUNE VIDYARTHI GRIHA')) {
+          return "PVG'S COLLEGE OF ENGINEERING AND TECHNOLOGY, PUNE";
+        }
+
         return name;
       }).filter(Boolean)));
 
