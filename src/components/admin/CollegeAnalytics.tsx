@@ -77,13 +77,13 @@ const CollegeAnalytics: React.FC = () => {
         let name = c.trim().toUpperCase();
 
         // --- Normalization: Merge Zeal Variations ---
-        if (name.includes('ZEAL') && (
+        if ((name.includes('ZEAL') && (
           name.includes('ENGINEERING') ||
           name.includes('COLLAGE') ||
           name.includes('INSTITUTE') ||
           name.includes('SOCIETY') ||
           name === 'ZEAL COLLEGE'
-        )) {
+        )) || name.includes('ZCOER')) {
           return 'ZEAL COLLEGE OF ENGINEERING AND RESEARCH, PUNE';
         }
 
@@ -103,7 +103,7 @@ const CollegeAnalytics: React.FC = () => {
         }
 
         // --- Normalization: Merge Sinhgad Variations ---
-        if (name.includes('SINHGAD') || name.includes('SINHAGAD') || name.includes('SCOE') || name.includes('SKN')) {
+        if (name.includes('SINHGAD') || name.includes('SINHAGAD') || name.includes('SKN') || name.includes('SCOE')) {
           return "SINHGAD TECHNICAL EDUCATION SOCIETY'S SMT. KASHIBAI NAVALE COLLEGE OF ENGINEERING, VADGAON, PUNE";
         }
 
