@@ -9,7 +9,7 @@
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: 2rem;
-  gap: 1rem;
+  gap: 1.25rem;
 }
 
 @media (min-width: 768px) {
@@ -28,6 +28,12 @@
   margin: 0;
 }
 
+@media (max-width: 480px) {
+  .header-title h1 {
+    font-size: 1.25rem;
+  }
+}
+
 .header-title p {
   color: rgba(255, 255, 255, 0.4);
   font-size: 0.875rem;
@@ -38,10 +44,24 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .header-actions {
+    width: auto;
+  }
 }
 
 .search-wrapper {
   position: relative;
+  flex: 1;
+}
+
+@media (min-width: 768px) {
+  .search-wrapper {
+    flex: none;
+  }
 }
 
 .search-icon {
@@ -60,8 +80,14 @@
   padding: 0.5rem 1rem 0.5rem 2.5rem;
   color: #fff;
   font-size: 0.875rem;
-  width: 250px;
+  width: 100%;
   transition: border-color 0.2s;
+}
+
+@media (min-width: 768px) {
+  .analytics-search {
+    width: 250px;
+  }
 }
 
 .analytics-search:focus {
@@ -82,6 +108,7 @@
   font-weight: 500;
   cursor: pointer;
   transition: background 0.2s;
+  white-space: nowrap;
 }
 
 .btn-export:hover {
@@ -91,11 +118,17 @@
 .stats-overview {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1.5rem;
+  gap: 1rem;
   margin-bottom: 2rem;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 640px) {
+  .stats-overview {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
   .stats-overview {
     grid-template-columns: repeat(3, 1fr);
   }
@@ -106,6 +139,12 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 0.75rem;
   padding: 1.25rem;
+  transition: transform 0.2s, background 0.2s;
+}
+
+.stat-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-2px);
 }
 
 .stat-card-header {
@@ -138,10 +177,22 @@
   font-weight: 700;
 }
 
+@media (max-width: 480px) {
+  .stat-value {
+    font-size: 1.5rem;
+  }
+}
+
 .stat-subtext {
   font-size: 0.875rem;
   font-weight: 400;
   color: rgba(255, 255, 255, 0.3);
+}
+
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .analytics-table-container {
@@ -153,17 +204,19 @@
 
 .table-responsive {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .analytics-table {
   width: 100%;
   border-collapse: collapse;
   text-align: left;
+  min-width: 600px;
 }
 
 .analytics-table th {
   background: rgba(255, 255, 255, 0.05);
-  padding: 1rem 1.5rem;
+  padding: 1rem 1.25rem;
   font-size: 0.75rem;
   font-weight: 600;
   color: rgba(255, 255, 255, 0.4);
@@ -172,6 +225,7 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   cursor: pointer;
   transition: color 0.2s;
+  white-space: nowrap;
 }
 
 .analytics-table th:hover {
@@ -189,7 +243,7 @@
 }
 
 .analytics-table td {
-  padding: 1rem 1.5rem;
+  padding: 1rem 1.25rem;
   font-size: 0.875rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
@@ -202,7 +256,15 @@
   background: rgba(255, 255, 255, 0.02);
 }
 
-.col-name { font-weight: 500; color: #fff; }
+.col-name { 
+  font-weight: 500; 
+  color: #fff;
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .col-total { font-weight: 700; color: rgba(255, 255, 255, 0.7); text-align: right; }
 .col-paid { color: #4ade80; text-align: right; }
 .col-free { color: #60a5fa; text-align: right; }
