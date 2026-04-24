@@ -94,12 +94,17 @@ const CollegeAnalytics: React.FC = () => {
 
         // --- Normalization: Merge JSPM Variations ---
         if (name.includes('JSPM')) {
-          return "JSPM'S COLLEGES, PUNE";
+          return "JSPM'S COLLEGE, NARHE, PUNE";
         }
 
         // --- Normalization: Merge KJEI Variations ---
         if (name.includes('K.J.') || name.includes('KJ ') || name.includes('TRINITY')) {
-          return "KJEI'S TRINITY AND KJ COLLEGE, PUNE";
+          return "KJEI'S TRINITY AND KJ COLLEGE,PISOLI, PUNE";
+        }
+
+        // --- Normalization: Merge Sinhgad Variations ---
+        if (name.includes('SINHGAD') || name.includes('SINHAGAD') || name.includes('SKN')) {
+          return "SINHGAD COLLEGES, VADGAON, PUNE";
         }
 
         return name;
