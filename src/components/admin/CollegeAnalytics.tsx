@@ -103,7 +103,7 @@ const CollegeAnalytics: React.FC = () => {
         }
 
         // --- Normalization: Merge Sinhgad Variations ---
-        if (name.includes('SINHGAD') || name.includes('SINHAGAD') || name.includes('SKN')) {
+        if (name.includes('SINHGAD') || name.includes('SINHAGAD') || name.includes('SCOE') || name.includes('SKN')) {
           return "SINHGAD TECHNICAL EDUCATION SOCIETY'S SMT. KASHIBAI NAVALE COLLEGE OF ENGINEERING, VADGAON, PUNE";
         }
 
@@ -145,6 +145,11 @@ const CollegeAnalytics: React.FC = () => {
           if (name.includes('KOTHRUD') || name.includes('WPU')) return 'MIT WORLD PEACE UNIVERSITY (MIT-WPU), KOTHRUD, PUNE';
           if (name.includes('LONI')) return 'MIT COLLEGE OF ENGINEERING, LONI KALBHOR, PUNE';
           return 'MIT GROUP OF INSTITUTIONS, PUNE';
+        }
+
+        // --- Normalization: Merge Rajgad Variations ---
+        if (name.includes('RAJGAD')) {
+          return "RAJGAD DNYANPEETH'S TECHNICAL CAMPUS, DHANGWADI";
         }
 
         return name;
