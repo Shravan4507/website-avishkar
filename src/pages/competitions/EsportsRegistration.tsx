@@ -108,7 +108,7 @@ const EsportsRegistration: React.FC = () => {
         }
 
         const gameId = selectedGame.toLowerCase();
-        if (gameId === 'sf4' || gameId === 'codm' || gameId === 'shadowfight4') {
+        if (gameId === 'sf4' || gameId === 'codm' || gameId === 'shadowfight4' || gameId === 'freefire') {
             toast.error("Registrations for this arena are closed.");
             navigate('/battle-grid', { replace: true });
             return;

@@ -1,5 +1,5 @@
 import React from 'react';
-import { BarChart2, Users, LogOut, Ticket, Shield, Search, Sparkles, Mail, Gamepad2, Cpu, Code, FileText, UserPlus, Edit, Bell } from 'lucide-react';
+import { BarChart2, Users, LogOut, Ticket, Shield, Search, Sparkles, Mail, Gamepad2, Cpu, Code, FileText, UserPlus, Edit, Bell, Building2 } from 'lucide-react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from '../../../firebase/firebase';
 import type { AdminProfile } from '../../../pages/admin/admindashboard';
@@ -51,6 +51,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, setActiveTab, is
   const navItems = [
     // Core
     { id: 'overview',       label: 'Command Center',    Icon: BarChart2, visible: true },
+    { id: 'college_stats',  label: 'College Analytics',   Icon: Building2, visible: isSuper },
     { id: 'registrations',  label: 'Registrations',     Icon: Ticket, visible: isSuper || isDeptAdmin || adminProfile?.assignment === 'core_team-technical-team' },
     { id: 'manual_entry',   label: 'Manual Registration', Icon: UserPlus, visible: isSuper || isDeptAdmin || isCompAdmin || adminProfile?.roleLevel?.some((r: string) => r.startsWith('workshop-')) },
     { id: 'search',         label: 'Global Search',     Icon: Search, visible: isSuper || isCoreTeam },

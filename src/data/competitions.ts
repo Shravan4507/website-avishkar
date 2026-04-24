@@ -324,7 +324,7 @@ export const COMPETITIONS_DATA: Competition[] = [
         venue: 'E-Sports Arena',
         registrationStart: '2026-03-01',
         registrationEnd: '2026-04-15',
-        isRegistrationOpen: true,
+        isRegistrationOpen: false,
         entryFee: 250,
         prizePool: '6000',
         paymentRequired: true,

@@ -15,6 +15,7 @@ import SponsorsManager from '../../components/admin/SponsorsManager';
 import EventManager from '../../components/admin/EventManager';
 import NotificationManager from '../../components/admin/NotificationManager';
 import VolunteerManager from '../../components/admin/VolunteerManager';
+import CollegeAnalytics from '../../components/admin/CollegeAnalytics';
 import NotificationBell from '../../components/notifications/NotificationBell';
 
 import { 
@@ -1678,6 +1679,8 @@ const AdminDashboard: React.FC = () => {
         return isSuper ? <GlobalSearchView /> : <div>Access Denied</div>;
       case 'admins':
         return isSuper ? <AdminDirectoryView currentUserId={user?.uid} /> : <div>Access Denied</div>;
+      case 'college_stats':
+        return isSuper ? <CollegeAnalytics /> : <div>Access Denied</div>;
       case 'hackathon_regs':
         return (isSuper || adminProfile?.roleLevel?.includes('admin-param-x') || adminProfile?.roleLevel?.includes('flagship_admin-paramx--26'))
           ? <RegistrationManager 

@@ -1,0 +1,233 @@
+.college-analytics {
+  padding: 1.5rem;
+  color: #fff;
+}
+
+.analytics-header {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .analytics-header {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+.header-title h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+}
+
+.header-title p {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.search-wrapper {
+  position: relative;
+}
+
+.search-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(255, 255, 255, 0.4);
+  pointer-events: none;
+}
+
+.analytics-search {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem 0.5rem 2.5rem;
+  color: #fff;
+  font-size: 0.875rem;
+  width: 250px;
+  transition: border-color 0.2s;
+}
+
+.analytics-search:focus {
+  outline: none;
+  border-color: #a78bfa;
+}
+
+.btn-export {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #7c3aed;
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-export:hover {
+  background: #6d28d9;
+}
+
+.stats-overview {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+@media (min-width: 768px) {
+  .stats-overview {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.stat-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+}
+
+.stat-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.stat-icon-box {
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-blue { background: rgba(59, 130, 246, 0.1); color: #60a5fa; }
+.icon-green { background: rgba(34, 197, 94, 0.1); color: #4ade80; }
+.icon-purple { background: rgba(167, 139, 250, 0.1); color: #a78bfa; }
+
+.stat-label {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.stat-value {
+  font-size: 1.875rem;
+  font-weight: 700;
+}
+
+.stat-subtext {
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.analytics-table-container {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+.table-responsive {
+  overflow-x: auto;
+}
+
+.analytics-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.analytics-table th {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 1rem 1.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.analytics-table th:hover {
+  color: #fff;
+}
+
+.th-content {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.th-content.justify-end {
+  justify-content: flex-end;
+}
+
+.analytics-table td {
+  padding: 1rem 1.5rem;
+  font-size: 0.875rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.analytics-table tr:last-child td {
+  border-bottom: none;
+}
+
+.analytics-table tr:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.col-name { font-weight: 500; color: #fff; }
+.col-total { font-weight: 700; color: rgba(255, 255, 255, 0.7); text-align: right; }
+.col-paid { color: #4ade80; text-align: right; }
+.col-free { color: #60a5fa; text-align: right; }
+.col-attended { color: #a78bfa; text-align: right; }
+
+.empty-row {
+  text-align: center;
+  padding: 3rem 0;
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 0.875rem;
+}
+
+.loading-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 250px;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+  color: #a78bfa;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

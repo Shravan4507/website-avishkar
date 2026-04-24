@@ -198,7 +198,7 @@ const BattleGrid: React.FC = () => {
                             image: g.image,
                             entryFee: gameFeeOverrides[g.id] !== undefined ? gameFeeOverrides[g.id] : g.fee,
                             comingSoon: (g as any).comingSoon,
-                            isRegistrationOpen: (g.id === 'sf4') ? false : true,
+                            isRegistrationOpen: (g.id === 'sf4' || g.id === 'freefire') ? false : true,
                             isFlagship: true,
                             borderColor: g.color,
                             location: g.platform,
