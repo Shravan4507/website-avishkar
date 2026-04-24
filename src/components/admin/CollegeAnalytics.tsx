@@ -152,6 +152,11 @@ const CollegeAnalytics: React.FC = () => {
           return "RAJGAD DNYANPEETH'S TECHNICAL CAMPUS, DHANGWADI";
         }
 
+        // --- Normalization: Merge Keystone Variations ---
+        if (name.includes('KEYSTONE')) {
+          return "KEYSTONE SCHOOL OF ENGINEERING, PUNE";
+        }
+
         return name;
       }).filter(Boolean)));
 
